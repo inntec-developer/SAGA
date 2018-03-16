@@ -138,7 +138,11 @@
     <Compile Include="App_Start\MappingProfile.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AptitudesController.cs" />
-    <Compile Include="Controllers\DesignerVacanteController.cs" />
+    <Compile Include="Controllers\Reclutamiento\Vacantes\DesignerVacanteController.cs" />
+    <Compile Include="Controllers\Reclutamiento\Candidatos\CandidatosController.cs" />
+    <Compile Include="Controllers\Reclutamiento\DAMFO\DAMFOController.cs" />
+    <Compile Include="Controllers\Ventas\Requisiciones\RequisicionesController.cs" />
+    <Compile Include="Dtos\CandidatosDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
