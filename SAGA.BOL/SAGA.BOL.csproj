@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3BC6EC23-0424-41FB-BE3F-D42AB3400D9C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SAGA.BOL</RootNamespace>
+    <AssemblyName>SAGA.BOL</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AboutMe.cs" />
+    <Compile Include="ActividadEmpresa.cs" />
+    <Compile Include="ActividadesPerfil.cs" />
+    <Compile Include="ActividadesRequi.cs" />
+    <Compile Include="Agencia.cs" />
+    <Compile Include="Aptitud.cs" />
+    <Compile Include="AptitudesPerfil.cs" />
+    <Compile Include="AptitudesRequi.cs" />
+    <Compile Include="Area.cs" />
+    <Compile Include="AreaExperiencia.cs" />
+    <Compile Include="AreaInteres.cs" />
+    <Compile Include="AsignacionRequi.cs" />
+    <Compile Include="BeneficiosPerfil.cs" />
+    <Compile Include="BeneficiosRequi.cs" />
+    <Compile Include="Candidato.cs" />
+    <Compile Include="CandidatoConocimientoInformatico.cs" />
+    <Compile Include="Cargo.cs" />
+    <Compile Include="Carrera.cs" />
+    <Compile Include="Certificacion.cs" />
+    <Compile Include="ClaseReclutamiento.cs" />
+    <Compile Include="Cliente.cs" />
+    <Compile Include="Colonia.cs" />
+    <Compile Include="CompetenciaArea.cs" />
+    <Compile Include="CompetenciaAreaPerfil.cs" />
+    <Compile Include="CompetenciaAreaRequi.cs" />
+    <Compile Include="CompetenciaCardinal.cs" />
+    <Compile Include="CompetenciaCardinalPerfil.cs" />
+    <Compile Include="CompetenciaCardinalRequi.cs" />
+    <Compile Include="CompetenciaGarencial.cs" />
+    <Compile Include="CompetenciaGerencialPerfil.cs" />
+    <Compile Include="CompetenciaGerencialRequi.cs" />
+    <Compile Include="ConocimientoInformatico.cs" />
+    <Compile Include="ConocimientoOHabilidad.cs" />
+    <Compile Include="Contacto.cs" />
+    <Compile Include="Curso.cs" />
+    <Compile Include="DAMFO-290.cs" />
+    <Compile Include="DiaObligatorio.cs" />
+    <Compile Include="DiaSemana.cs" />
+    <Compile Include="Direccion.cs" />
+    <Compile Include="DisenioVacante.cs" />
+    <Compile Include="DocumentosCliente.cs" />
+    <Compile Include="DocumentosClienteRequi.cs" />
+    <Compile Include="DocumentosDamsa.cs" />
+    <Compile Include="DocumentoValidador.cs" />
+    <Compile Include="Email.cs" />
+    <Compile Include="EscolaridadesPerfil.cs" />
+    <Compile Include="EscolaridadesRequi.cs" />
+    <Compile Include="Estado.cs" />
+    <Compile Include="EstadoCivil.cs" />
+    <Compile Include="EstadoEstudio.cs" />
+    <Compile Include="Estatus.cs" />
+    <Compile Include="ExperienciaProfesional.cs" />
+    <Compile Include="Formacion.cs" />
+    <Compile Include="FormaContacto.cs" />
+    <Compile Include="FormulariosIniciales.cs" />
+    <Compile Include="Genero.cs" />
+    <Compile Include="GiroEmpresa.cs" />
+    <Compile Include="GradoEstudio.cs" />
+    <Compile Include="Grupos.cs" />
+    <Compile Include="HorarioPerfil.cs" />
+    <Compile Include="HorarioRequi.cs" />
+    <Compile Include="Idioma.cs" />
+    <Compile Include="InstitucionEducativa.cs" />
+    <Compile Include="JornadaLaboral.cs" />
+    <Compile Include="keyAttribute.cs" />
+    <Compile Include="Month.cs" />
+    <Compile Include="Municipio.cs" />
+    <Compile Include="Nivel.cs" />
+    <Compile Include="ObservacionesPerfil.cs" />
+    <Compile Include="ObservacionesRequi.cs" />
+    <Compile Include="Pais.cs" />
+    <Compile Include="PerfilCandidato.cs" />
+    <Compile Include="PerfilExperiencia.cs" />
+    <Compile Include="PerfilIdioma.cs" />
+    <Compile Include="PerfilProfesional.cs" />
+    <Compile Include="PeriodoPago.cs" />
+    <Compile Include="Persona.cs" />
+    <Compile Include="Porcentage.cs" />
+    <Compile Include="Postulacion.cs" />
+    <Compile Include="PrestacionesClientePerfil.cs" />
+    <Compile Include="PrestacionesClienteRequi.cs" />
+    <Compile Include="PrestacionLey.cs" />
+    <Compile Include="Prioridad.cs" />
+    <Compile Include="ProcesoPerfil.cs" />
+    <Compile Include="ProcesoRequi.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PsicometriasCliente.cs" />
+    <Compile Include="PsicometriasClienteRequi.cs" />
+    <Compile Include="PsicometriasDamsa.cs" />
+    <Compile Include="PsicometriasDamsaRequi.cs" />
+    <Compile Include="RedSocial.cs" />
+    <Compile Include="Referenciado.cs" />
+    <Compile Include="Requisicion.cs" />
+    <Compile Include="Roles.cs" />
+    <Compile Include="RutasPerfil.cs" />
+    <Compile Include="StatusPostulacion.cs" />
+    <Compile Include="TamanoEmpresa.cs" />
+    <Compile Include="Telefono.cs" />
+    <Compile Include="TiempoContrato.cs" />
+    <Compile Include="TipoBase.cs" />
+    <Compile Include="TipoBeneficio.cs" />
+    <Compile Include="TipoContrato.cs" />
+    <Compile Include="TipodeNomina.cs" />
+    <Compile Include="TipoDireccion.cs" />
+    <Compile Include="TipoDiscapacidad.cs" />
+    <Compile Include="TipoEmpresa.cs" />
+    <Compile Include="TipoLicencia.cs" />
+    <Compile Include="TipoModalidad.cs" />
+    <Compile Include="TipoPsicometria.cs" />
+    <Compile Include="TipoReclutamiento.cs" />
+    <Compile Include="TipoRedSocial.cs" />
+    <Compile Include="TipoTelefono.cs" />
+    <Compile Include="TipoUsuario.cs" />
+    <Compile Include="Usuarios.cs" />
+    <Compile Include="Vacantes.cs" />
+    <Compile Include="Year.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
