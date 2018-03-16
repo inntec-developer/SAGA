@@ -19,6 +19,7 @@ obj
 *.dylib
 *.xml
 *.suo
+*.cache
 
 # Fortran module files
 *.mod
