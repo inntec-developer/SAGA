@@ -23,7 +23,7 @@ namespace SAGA.API.Controllers
         [Route("getDamfos")]
         public IHttpActionResult Get()
         {
-            return Ok(db.Requisiciones.ToList());
+            return Ok(db.DAMFO290.ToList());
         }
     }
 }
