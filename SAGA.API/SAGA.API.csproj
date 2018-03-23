@@ -143,6 +143,7 @@
     <Compile Include="Controllers\Reclutamiento\DAMFO\DAMFOController.cs" />
     <Compile Include="Controllers\Ventas\Requisiciones\RequisicionesController.cs" />
     <Compile Include="Dtos\CandidatosDto.cs" />
+    <Compile Include="Dtos\CandidatosGralDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

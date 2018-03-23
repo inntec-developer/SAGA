@@ -9,6 +9,10 @@ namespace SAGA.API.Dtos
 {
     public class CandidatosDto
     {
+        public ICollection<CandidatosGralDto> Candidatos { get; set; }
         public ICollection<Pais> Paises { get; set; }
+        public ICollection<Estado> Estados { get; set; }
+        public ICollection<Municipio> Municipios { get; set; }
+        public ICollection<Colonia> Colonias { get; set; }
     }
 }
