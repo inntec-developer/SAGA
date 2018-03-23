@@ -21,6 +21,10 @@ namespace SAGA.BOL
         public string Clasificacion { get; set; }
         public int NumeroEmpleados { get; set; }
         public bool Activo { get; set; } = true;
+        public string UsuarioAlta { get; set; }
+        public string UsarioMod { get; set; }
+        public DateTime fch_Creacion { get; set; }
+        public DateTime fch_Modificacion { get; set; }
 
         public virtual GiroEmpresa GiroEmpresas { get; set; }
         public virtual ActividadEmpresa ActividadEmpresas { get; set; }

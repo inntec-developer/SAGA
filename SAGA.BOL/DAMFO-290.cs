@@ -36,8 +36,8 @@ namespace SAGA.BOL
         public bool FlexibilidadHorario { get; set; }
         public int JornadaLaboralId { get; set; }
         public int TipoModalidadId { get; set; }
-        public Guid UsuarioAlta { get; set; }
-        public Guid? UsuarioMod { get; set; } 
+        public string UsuarioAlta { get; set; }
+        public string UsuarioMod { get; set; }
 
         public virtual Cliente Cliente { get; set; }
         public virtual TipoReclutamiento TipoReclutamiento { get; set; }

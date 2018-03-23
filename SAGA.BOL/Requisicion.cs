@@ -34,9 +34,9 @@ namespace SAGA.BOL
         public DateTime? fch_Aprobacion { get; set; }
         public DateTime? fch_Cumplimiento { get; set; }
         public DateTime? fch_Modificacion { get; set; }
-        public Guid PropietarioId { get; set; }
-        public Guid AprobadorId { get; set; }
-        public Guid UsuarioMod { get; set; }
+        public string Propietario { get; set; }
+        public string Aprobador { get; set; }
+        public string UsuarioMod { get; set; }
         public int PrioridadId { get; set; }
         public Boolean Aprobada { get; set; }
         public Boolean Confidencial { get; set; }
@@ -66,8 +66,6 @@ namespace SAGA.BOL
         public virtual JornadaLaboral JornadaLaboral { get; set; }
         public virtual TipoModalidad TipoModalidad { get; set; }
         // Extras para tabla de requisicion.
-        public virtual Usuarios Propietario { get; set; }
-        public virtual Usuarios Aprobador { get; set; }
         public virtual Prioridad Prioridad { get; set; }
         public virtual Estatus Estatus { get; set; }
         public virtual DAMFO_290 DAMFO290 { get; set; }

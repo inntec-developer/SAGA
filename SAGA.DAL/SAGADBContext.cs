@@ -315,6 +315,7 @@ namespace SAGA.DAL
 				Property(x => x.RFC).HasMaxLength(15);
 				Property(x => x.Clasificacion).HasMaxLength(10).IsRequired();
 				Property(x => x.NumeroEmpleados).IsRequired();
+                Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
 			}
 		}
 		public class ColoniasMap : EntityTypeConfiguration<Colonia>
@@ -921,9 +922,9 @@ namespace SAGA.DAL
 				Property(x => x.fch_Aprobacion).HasColumnType("DateTime").IsRequired();
 				Property(x => x.fch_Cumplimiento).HasColumnType("DateTime").IsRequired();
 				Property(x => x.fch_Modificacion).HasColumnType("DateTime").IsRequired();
-				Property(x => x.PropietarioId).IsRequired();
-				Property(x => x.AprobadorId).IsRequired();
-				Property(x => x.UsuarioMod).IsRequired();
+				Property(x => x.Propietario).HasMaxLength(15).IsOptional();
+				Property(x => x.Aprobador).HasMaxLength(15).IsOptional();
+				Property(x => x.UsuarioMod).HasMaxLength(15).IsOptional();
 				Property(x => x.PrioridadId).IsRequired();
 				Property(x => x.Aprobada).IsOptional();
 				Property(x => x.Confidencial).IsOptional();
@@ -1174,8 +1175,8 @@ namespace SAGA.DAL
 				Property(x => x.FlexibilidadHorario).IsRequired();
 				Property(x => x.JornadaLaboralId).IsOptional();
 				Property(x => x.TipoModalidadId).IsOptional();
-				Property(x => x.UsuarioAlta).IsRequired();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).HasMaxLength(15).IsOptional();
+				Property(x => x.UsuarioMod).HasMaxLength(15).IsOptional();
 			}
 		}
 		public class DocumentosDamsaMap : EntityTypeConfiguration<DocumentosDamsa>
