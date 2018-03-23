@@ -84,12 +84,14 @@ namespace SAGA.API.Controllers
 
             CandidatosDto Candidatos = new CandidatosDto();
 
-            Candidatos.Candidatos = (from candidatos in db.Candidatos
-
+            Candidatos.Candidatos = (from candidatos in db.Candidatos join
+                                     persona in db.Personas on candidatos.Id equals persona.Id
                                      select new CandidatosGralDto
                                      {
                                          Id = candidatos.Id,
-                                         Candidato = candidatos.CodigoPostal,
+                                         Nombre = persona.Nombre,
+                                         ApellidoPaterno = persona.ApellidoPaterno,
+                                         ApellidoMaterno = persona.ApellidoMaterno,
                                          CP = candidatos.CodigoPostal,
                                          Curp = candidatos.CURP,
                                          Rfc = candidatos.RFC,
