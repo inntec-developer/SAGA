@@ -2,5 +2,6 @@
 {
     public class DamfoDocDto
     {
+        public string Documento { get; set; }
     }
 }

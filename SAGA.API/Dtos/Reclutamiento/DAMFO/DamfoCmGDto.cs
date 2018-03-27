@@ -2,5 +2,7 @@
 {
     public class DamfoCmGDto
     {
+        public int CompetenciaId { get; set; }
+        public string Nivel { get; set; }
     }
 }

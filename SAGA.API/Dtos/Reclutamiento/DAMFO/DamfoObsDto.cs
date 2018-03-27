@@ -2,5 +2,6 @@
 {
     public class DamfoObsDto
     {
+        public string Observaciones { get; set; }
     }
 }

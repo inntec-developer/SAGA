@@ -2,5 +2,6 @@
 {
     public class DamfoPreDto
     {
+        public string Prestamo { get; set; }
     }
 }

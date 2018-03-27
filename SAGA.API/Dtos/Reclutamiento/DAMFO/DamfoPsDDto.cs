@@ -2,5 +2,6 @@
 {
     public class DamfoPsDDto
     {
+        public int PsicometriaId { get; set; }
     }
 }

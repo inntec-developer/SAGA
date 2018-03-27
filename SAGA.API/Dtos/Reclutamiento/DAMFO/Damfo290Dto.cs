@@ -21,7 +21,7 @@ namespace SAGA.API.Dtos
         public ICollection<DamfoProDto> DamfoPro { get; set; }
         public ICollection<DamfoPreDto> DamfoPre { get; set; }
         public ICollection<DamfoCmADto> DamfoCmA { get; set; }
-        public ICollection<DamfoCmCDto> DamfoCmD { get; set; }
+        public ICollection<DamfoCmCDto> DamfoCmC { get; set; }
         public ICollection<DamfoCmGDto> DamfoCmG { get; set; }
     }
 }   
