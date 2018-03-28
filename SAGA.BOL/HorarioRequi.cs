@@ -20,7 +20,9 @@ namespace SAGA.BOL
         public byte numeroVacantes { get; set; }
         public string Especificaciones { get; set; }
         public bool Activo { get; set; }
+        public Guid RequisicionId { get; set; }
 
+        public virtual Requisicion Requisicion { get; set; }
         public virtual DiaSemana deDia { get; set; }
         public virtual DiaSemana aDia { get; set; }
     }

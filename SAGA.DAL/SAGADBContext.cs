@@ -2,6 +2,11 @@
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.Core.Objects;
+using System;
+using System.Data.Entity.Infrastructure;
+using System.Linq;
+using System.Data.SqlClient;
 
 namespace SAGA.DAL
 {
@@ -285,8 +290,8 @@ namespace SAGA.DAL
 
 		}
 
-		#region "Mapeo Sist"
-		public class AreaMap : EntityTypeConfiguration<Area>
+        #region "Mapeo Sist"
+        public class AreaMap : EntityTypeConfiguration<Area>
 		{
 			public AreaMap()
 			{
@@ -918,7 +923,7 @@ namespace SAGA.DAL
 				Property(x => x.Especifique).IsOptional();
 				Property(x => x.ContratoInicialId).IsRequired();
 				Property(x => x.TiempoContratoId).IsOptional();
-				Property(x => x.fch_Creacion).HasColumnType("DateTime").IsRequired();
+				Property(x => x.fch_Creacion).HasColumnType("DateTime").IsOptional();
 				Property(x => x.fch_Aprobacion).HasColumnType("DateTime").IsOptional();
 				Property(x => x.fch_Cumplimiento).HasColumnType("DateTime").IsOptional();
 				Property(x => x.fch_Modificacion).HasColumnType("DateTime").IsOptional();

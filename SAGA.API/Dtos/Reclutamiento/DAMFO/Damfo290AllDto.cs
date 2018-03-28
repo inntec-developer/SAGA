@@ -4,7 +4,6 @@ namespace SAGA.API.Dtos
 {
     public class Damfo290AllDto
     {
-        public Guid Id { get; set; }
         public Guid ClienteId { get; set; }
         public int TipoReclutamientoId { get; set; }
         public int ClaseReclutamientoId { get; set; }
@@ -25,12 +24,8 @@ namespace SAGA.API.Dtos
         public int ContratoInicialId { get; set; }
         public int TiempoContratoId { get; set; }
         public bool Activo { get; set; }
-        public DateTime fch_Creacion { get; set; }
-        public DateTime? fch_Modificacion { get; set; }
         public bool FlexibilidadHorario { get; set; }
         public int JornadaLaboralId { get; set; }
         public int TipoModalidadId { get; set; }
-        public string UsuarioAlta { get; set; }
-        public string UsuarioMod { get; set; }
     }
 }
