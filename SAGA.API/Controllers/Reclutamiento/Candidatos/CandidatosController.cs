@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using SAGA.API.Dtos;
+using AutoMapper;
 
 namespace SAGA.API.Controllers
 
@@ -78,14 +79,86 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("getareasexp")]
+        public IHttpActionResult GetAreasExp()
+        {
+
+            var areasexp = db.AreasExperiencia.ToList();
+
+            return Ok(areasexp);
+        }
+
+        [HttpGet]
+        [Route("getperfiles")]
+        public IHttpActionResult GetPerfiles()
+        {
+
+            var perfil = db.PerfilExperiencia.ToList();
+
+            return Ok(perfil);
+        }
+
+        [HttpGet]
+        [Route("getgeneros")]
+        public IHttpActionResult GetGeneros()
+        {
+
+            var genero = db.Generos.ToList();
+
+            return Ok(genero);
+        }
+
+        [HttpGet]
+        [Route("getdescapacidad")]
+        public IHttpActionResult GetDiscapacidad()
+        {
+
+            var discapacidad = db.TiposDiscapacidades.ToList();
+
+            return Ok(discapacidad);
+        }
+
+        [HttpGet]
+        [Route("gettplicencia")]
+        public IHttpActionResult GetTpLicencia()
+        {
+
+            var tplicencia = db.TiposLicencias.ToList();
+
+            return Ok(tplicencia);
+        }
+
+        [HttpGet]
+        [Route("getnivelestudio")]
+        public IHttpActionResult GetNivelestudio()
+        {
+
+            var nvestudio = db.GradosEstudios.ToList();
+
+            return Ok(nvestudio);
+        }
+
+        [HttpGet]
+        [Route("getidiomas")]
+        public IHttpActionResult GetIdiomas()
+        {
+
+            var idiomas = db.Idiomas.ToList();
+
+            return Ok(idiomas);
+        }
+
+        [HttpGet]
         [Route("getcandidatos")]
         public IHttpActionResult GetCandidatos()
         {
 
             CandidatosDto Candidatos = new CandidatosDto();
 
-            Candidatos.Candidatos = (from candidatos in db.Candidatos join
-                                     persona in db.Personas on candidatos.Id equals persona.Id
+            Candidatos.Candidatos = (from candidatos in db.Candidatos
+                                     join perfilcandidato in db.PerfilCandidato on candidatos.Id equals perfilcandidato.CandidatoId
+                                     join persona in db.Personas on candidatos.Id equals persona.Id
+                                     where perfilcandidato.Id != null
                                      select new CandidatosGralDto
                                      {
                                          Id = candidatos.Id,
@@ -99,6 +172,39 @@ namespace SAGA.API.Controllers
                                       }).ToList();
 
             return Ok(Candidatos.Candidatos);
+        }
+
+        [HttpGet]
+        [Route("getcandidatoid")]
+        public IHttpActionResult GetCandidatoid(Guid Id)
+        {
+
+            var Candidato = db.PerfilCandidato
+                .Where(x => x.CandidatoId.Equals(Id))
+                .ToList();
+
+            return Ok(Candidato);
+        }
+
+        [HttpGet]
+        [Route("getpostulaciones")]
+        public IHttpActionResult GetPostulaciones(Guid IdCandidato)
+        {
+            //var Postulaciones = db.Postulaciones
+            //    .Where(p => p.CandidatoId == IdCandidato)
+            //    .ToList();
+
+            var postulacion = (from ps in db.Postulaciones
+                               join st in db.StatusPostulaciones on ps.StatusId equals st.Id
+                               join rq in db.Requisiciones on ps.RequisicionId equals rq.Id
+                               where (ps.CandidatoId == IdCandidato)
+                               select new
+                               {
+                                   st.Status,
+                                   rq.VBtra
+                               }).ToList();
+
+            return Ok(postulacion);
         }
 
     }
