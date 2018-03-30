@@ -8,7 +8,7 @@ namespace SAGA.BOL
 {
     public class Formacion
     {
-
+       
         public Formacion()
         {
             this.Id = Guid.NewGuid();
@@ -30,10 +30,10 @@ namespace SAGA.BOL
         public EstadoEstudio EstadoEstudio { get; set; }
         public DocumentoValidador DocumentoValidador { get; set; }
         public virtual Carrera Carrera { get; set; }
-        public virtual Year YearInicio { get; set; }
-        public virtual Month MonthInicio { get; set; }
-        public virtual Year YearTermino { get; set; }
-        public virtual Month MonthTermino { get; set; }
+        public Year YearInicio { get; set; }
+        public Month MonthInicio { get; set; }
+        public Year YearTermino { get; set; }
+        public Month MonthTermino { get; set; }
         public Guid PerfilCandidatoId { get; set; }
         public PerfilCandidato PerfilCandidato { get; set; }
 

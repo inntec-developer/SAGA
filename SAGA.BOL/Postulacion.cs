@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-
 
 namespace SAGA.BOL
 {
@@ -12,7 +10,7 @@ namespace SAGA.BOL
         public int StatusId { get; set; }
 
         public Candidato Candidato { get; set; }
-        public Requisicion Requisicion { get; set; }
-        public virtual StatusPostulacion Status { get; set; }
+        public  Requisicion Requisicion { get; set; }
+        public StatusPostulacion Status { get; set; }
     }
 }

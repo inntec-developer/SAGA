@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using SAGA.API.Dtos;
 
 namespace SAGA.API
 {
@@ -13,8 +12,6 @@ namespace SAGA.API
     {
         public MappingProfile()
         {
-            Mapper.CreateMap<Postulacion, PostulacionesDto>();
-            Mapper.CreateMap<PostulacionesDto, Postulacion>();
         }
     }
 }
