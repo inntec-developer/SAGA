@@ -49,6 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Migrations\201804092142352_AddVirtualDireccionIdREqui.cs" />
+    <Compile Include="Migrations\201804092142352_AddVirtualDireccionIdREqui.Designer.cs">
+      <DependentUpon>201804092142352_AddVirtualDireccionIdREqui.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SAGADBContext.cs" />
@@ -64,6 +68,11 @@
       <Project>{3bc6ec23-0424-41fb-be3f-d42ab3400d9c}</Project>
       <Name>SAGA.BOL</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201804092142352_AddVirtualDireccionIdREqui.resx">
+      <DependentUpon>201804092142352_AddVirtualDireccionIdREqui.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

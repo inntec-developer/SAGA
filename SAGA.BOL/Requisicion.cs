@@ -30,7 +30,7 @@ namespace SAGA.BOL
         public string Especifique { get; set; }
         public int ContratoInicialId { get; set; }
         public int TiempoContratoId { get; set; }
-        public DateTime? fch_Creacion { get; set; }
+        public DateTime fch_Creacion { get; set; }
         public DateTime? fch_Aprobacion { get; set; }
         public DateTime? fch_Cumplimiento { get; set; }
         public DateTime? fch_Modificacion { get; set; }
@@ -61,11 +61,11 @@ namespace SAGA.BOL
         public virtual DiaSemana DiaPago { get; set; }
         public virtual PeriodoPago PeriodoPago { get; set; }
         public virtual TipoContrato ContratoInicial { get; set; }
-        public virtual TipoContrato ContratoFinal { get; set; }
         public virtual TiempoContrato TiempoContrato { get; set; }
         public virtual JornadaLaboral JornadaLaboral { get; set; }
         public virtual TipoModalidad TipoModalidad { get; set; }
         // Extras para tabla de requisicion.
+        public virtual Estatus Estatus { get; set; }
         public virtual DAMFO_290 DAMFO290 { get; set; }
         public virtual Direccion Direccion { get; set; }
         

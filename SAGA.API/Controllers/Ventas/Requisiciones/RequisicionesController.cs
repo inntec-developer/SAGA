@@ -24,49 +24,78 @@ namespace SAGA.API.Controllers
         {
             db = new SAGADBContext();
             DamfoDto = new Damfo290Dto();
-            requisicion = new Requisicion();
         }
 
         [HttpGet]
-        [Route("getDamfos")]
-        public IHttpActionResult Get()
-        {
-
-
-            DamfoDto.Damfo290Gral = (from damfo in db.DAMFO290
-                                 join cliente in db.Clientes on damfo.ClienteId equals cliente.Id
-                                 join giroEmpresa in db.GirosEmpresas on cliente.GiroEmpresaId equals giroEmpresa.Id
-                                 join actividadEmpresa in db.ActividadesEmpresas on giroEmpresa.Id equals actividadEmpresa.Id
-                                 join tipoReclutamiento in db.TiposReclutamientos on damfo.TipoReclutamientoId equals tipoReclutamiento.Id
-                                 join claseReclutamiento in db.ClasesReclutamientos on damfo.ClaseReclutamientoId equals claseReclutamiento.Id
-                                 select new Damfo290GralDto
-                                 {
-                                     Id = damfo.Id,
-                                     Cliente = cliente.RazonSocial,
-                                     NombrePerfil = damfo.NombrePerfil,
-                                     GiroEmpresa = giroEmpresa.giroEmpresa,
-                                     ActividadEmpresa = actividadEmpresa.actividadEmpresa,
-                                     TipoReclutamiento = tipoReclutamiento.tipoReclutamiento,
-                                     ClaseReclutamiento = claseReclutamiento.clasesReclutamiento,
-                                     SueldoMinimo = damfo.SueldoMinimo,
-                                     SueldoMaximo = damfo.SueldoMaximo,
-                                     fch_Creacion = damfo.fch_Creacion
-                                 }).ToList();
-
-
-            return Ok(DamfoDto.Damfo290Gral);
-        }
-
-
-        //api/Requisiciones/clonDamfo
-        [HttpGet]
-        [Route("clonDamfo")]
-        public IHttpActionResult Clon(Guid Id)
+        [Route("getAddress")]
+        public IHttpActionResult GetAddress(Guid Id)
         {
             try
             {
-                var damfoId = new SqlParameter("@Id", Id);
-                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id", damfoId).SingleOrDefault();
+                DamfoDto.Damfo290Address = (from damfo in db.DAMFO290
+                                            join cliente in db.Clientes on damfo.ClienteId equals cliente.Id
+                                            join persona in db.Personas on cliente.Id equals persona.Id
+                                            join direccion in db.Direcciones on persona.Id equals direccion.PersonaId
+                                            join tipoDireccion in db.TiposDirecciones on direccion.TipoDireccionId equals tipoDireccion.Id
+                                            join pais in db.Paises on direccion.PaisId equals pais.Id
+                                            join estado in db.Estados on direccion.EstadoId equals estado.Id
+                                            join municipio in db.Municipios on direccion.MunicipioId equals municipio.Id
+                                            join colonia in db.Colonias on direccion.ColoniaId equals colonia.Id
+                                            where damfo.Id == Id
+                                            select new Damfo290AddressDto
+                                            {
+                                                Id = direccion.Id,
+                                                TipoDireccion = tipoDireccion.tipoDireccion,
+                                                Pais = pais.pais,
+                                                Estado = estado.estado,
+                                                Municipio = municipio.municipio,
+                                                Colonia = colonia.colonia,
+                                                Calle = direccion.Calle + " " + direccion.NumeroExterior + " C.P: " + direccion.CodigoPostal + " Col: " + colonia.colonia,
+                                                CodigoPostal = direccion.CodigoPostal,
+                                                NumeroExterior = direccion.NumeroExterior,
+                                                NumeroInterior = direccion.NumeroInterior
+
+                                            }).ToList();
+                return Ok(DamfoDto.Damfo290Address);
+
+            }
+            catch(Exception ex)
+            {
+                string messg = ex.Message;
+                return Ok(messg);  
+            }
+        }
+
+        //api/Requisiciones/getRequisicion
+        [HttpGet]
+        [Route("getById")]
+        public IHttpActionResult GetRequisicion (Guid Id)
+        {
+            if(Id != null)
+            {
+                var requisicion = db.Requisiciones.FirstOrDefault(x => x.Id.Equals(Id));
+                return Ok(requisicion);
+            }
+            else
+            {
+                return NotFound();
+            }
+            
+        }
+
+        //api/Requisiciones/createRequi
+        [HttpPost]
+        [Route("createRequi")]
+        public IHttpActionResult Clon(CreateRequiDto cr)
+        {
+            try
+            {
+                object[] _params = {
+                    new SqlParameter("@Id", cr.IdDamfo),
+                    new SqlParameter("@IdAddress", cr.IdAddress)
+                };
+
+                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress", _params).SingleOrDefault();
                 Guid RequisicionId = requi.Id;
                 return Ok(RequisicionId);
             }

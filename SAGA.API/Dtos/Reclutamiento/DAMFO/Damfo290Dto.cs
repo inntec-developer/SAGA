@@ -9,5 +9,6 @@ namespace SAGA.API.Dtos
     {
         public ICollection<Damfo290GralDto> Damfo290Gral { get; set; }
         public ICollection<Damfo290AllDto> Damfo290All { get; set; }
+        public ICollection<Damfo290AddressDto> Damfo290Address { get; set; }
     }
 }   
