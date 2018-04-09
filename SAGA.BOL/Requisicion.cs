@@ -64,7 +64,6 @@ namespace SAGA.BOL
         public virtual TiempoContrato TiempoContrato { get; set; }
         public virtual JornadaLaboral JornadaLaboral { get; set; }
         public virtual TipoModalidad TipoModalidad { get; set; }
-        // Extras para tabla de requisicion.
         public virtual Estatus Estatus { get; set; }
         public virtual DAMFO_290 DAMFO290 { get; set; }
         public virtual Direccion Direccion { get; set; }
