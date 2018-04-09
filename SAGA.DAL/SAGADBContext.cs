@@ -921,24 +921,24 @@ namespace SAGA.DAL
 				Property(x => x.Especifique).IsOptional();
 				Property(x => x.ContratoInicialId).IsRequired();
 				Property(x => x.TiempoContratoId).IsOptional();
-				Property(x => x.fch_Creacion).HasColumnType("DateTime").IsRequired();
-				Property(x => x.fch_Aprobacion).HasColumnType("DateTime").IsRequired();
-				Property(x => x.fch_Cumplimiento).HasColumnType("DateTime").IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("DateTime").IsRequired();
+				Property(x => x.fch_Creacion).HasColumnType("DateTime").IsOptional();
+				Property(x => x.fch_Aprobacion).HasColumnType("DateTime").IsOptional();
+				Property(x => x.fch_Cumplimiento).HasColumnType("DateTime").IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("DateTime").IsOptional();
 				Property(x => x.Propietario).HasMaxLength(15).IsOptional();
 				Property(x => x.Aprobador).HasMaxLength(15).IsOptional();
 				Property(x => x.UsuarioMod).HasMaxLength(15).IsOptional();
-				Property(x => x.PrioridadId).IsRequired();
+				Property(x => x.PrioridadId).IsOptional();
 				Property(x => x.Aprobada).IsOptional();
 				Property(x => x.Confidencial).IsOptional();
 				Property(x => x.Asignada).IsOptional();
 				Property(x => x.EstatusId).IsOptional();
 				Property(x => x.DAMFO290Id).IsRequired();
-				Property(x => x.DireccionId).IsRequired();
+				Property(x => x.DireccionId).IsOptional();
 				Property(x => x.FlexibilidadHorario).IsRequired();
 				Property(x => x.JornadaLaboralId).IsOptional();
 				Property(x => x.TipoModalidadId).IsOptional();
-				Property(x => x.Activo).IsRequired();
+                Property(x => x.Activo).IsRequired();
 			}
 		}
 		public class EscolaridadesRequiMap : EntityTypeConfiguration<EscolaridadesRequi>
