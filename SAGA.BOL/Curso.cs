@@ -14,14 +14,14 @@ namespace SAGA.BOL
         public virtual InstitucionEducativa InstitucionEducativa { get; set; }
 
         public int? YearInicioId { get; set; }
-        public Year YearInicio { get; set; }
+        public virtual Year YearInicio { get; set; }
         public int? MonthInicioId { get; set; }
-        public Month MonthInicio { get; set; }
+        public virtual Month MonthInicio { get; set; }
 
         public int? YearTerminoId { get; set; }
-        public Year YearTermino { get; set; }
+        public virtual Year YearTermino { get; set; }
         public int? MonthTerminoId { get; set; }
-        public Month MonthTermino { get; set; }
+        public virtual Month MonthTermino { get; set; }
 
         public int? Horas { get; set; }
 

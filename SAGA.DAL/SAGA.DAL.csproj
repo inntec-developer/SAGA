@@ -31,11 +31,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.2.0-beta1\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.2.0-beta1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -49,9 +49,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Migrations\201804092142352_AddVirtualDireccionIdREqui.cs" />
-    <Compile Include="Migrations\201804092142352_AddVirtualDireccionIdREqui.Designer.cs">
-      <DependentUpon>201804092142352_AddVirtualDireccionIdREqui.cs</DependentUpon>
+    <Compile Include="Migrations\201803151858579_checkDatabase.cs" />
+    <Compile Include="Migrations\201803151858579_checkDatabase.Designer.cs">
+      <DependentUpon>201803151858579_checkDatabase.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,8 +70,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201804092142352_AddVirtualDireccionIdREqui.resx">
-      <DependentUpon>201804092142352_AddVirtualDireccionIdREqui.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201803151858579_checkDatabase.resx">
+      <DependentUpon>201803151858579_checkDatabase.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

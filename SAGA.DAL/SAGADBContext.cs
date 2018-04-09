@@ -2,11 +2,7 @@
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Core.Objects;
-using System;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
-using System.Data.SqlClient;
+using System.Data.Entity.Infrastructure.Annotations;
 
 namespace SAGA.DAL
 {
@@ -67,6 +63,7 @@ namespace SAGA.DAL
 
 		#region DAMFO 290 (Recl)
 		public DbSet<ActividadesPerfil> ActividadesPerfil { get; set; }
+		public DbSet<ProcesoCandidato> Apartados { get; set; }
 		public DbSet<AptitudesPerfil> AptitudesPerfil { get; set; }
 		public DbSet<Aptitud> Aptitudes { get; set; }
 		public DbSet<BeneficiosPerfil> BeneficiosPerfil { get; set; }
@@ -243,6 +240,7 @@ namespace SAGA.DAL
 			modelBuilder.Configurations.Add(new PeriodoPagoMap().ToTable("PeriodosPagos", "Recl"));
 			modelBuilder.Configurations.Add(new PrestacionesLeyMap().ToTable("PrestacionesLey", "Recl"));
 			modelBuilder.Configurations.Add(new PrestacionesClientePerfilMap().ToTable("PrestacionesClientePerfil", "Recl"));
+			//modelBuilder.Configurations.Add(new ProcesoCandidatoMap().ToTable("ProcesoCandidatos", "Recl"));
 			modelBuilder.Configurations.Add(new PsicometriasDamsaMap().ToTable("PsicometriasDamsa", "Recl"));
 			modelBuilder.Configurations.Add(new PsicometriasClienteMap().ToTable("PsicometriasCliente", "Recl"));
 			modelBuilder.Configurations.Add(new ProcesoPerfilMap().ToTable("ProcesoPerfil", "Recl"));
@@ -290,8 +288,8 @@ namespace SAGA.DAL
 
 		}
 
-        #region "Mapeo Sist"
-        public class AreaMap : EntityTypeConfiguration<Area>
+		#region "Mapeo Sist"
+		public class AreaMap : EntityTypeConfiguration<Area>
 		{
 			public AreaMap()
 			{
@@ -320,7 +318,7 @@ namespace SAGA.DAL
 				Property(x => x.RFC).HasMaxLength(15);
 				Property(x => x.Clasificacion).HasMaxLength(10).IsRequired();
 				Property(x => x.NumeroEmpleados).IsRequired();
-                Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
+				Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
 			}
 		}
 		public class ColoniasMap : EntityTypeConfiguration<Colonia>
@@ -923,24 +921,24 @@ namespace SAGA.DAL
 				Property(x => x.Especifique).IsOptional();
 				Property(x => x.ContratoInicialId).IsRequired();
 				Property(x => x.TiempoContratoId).IsOptional();
-				Property(x => x.fch_Creacion).HasColumnType("DateTime").IsOptional();
-				Property(x => x.fch_Aprobacion).HasColumnType("DateTime").IsOptional();
-				Property(x => x.fch_Cumplimiento).HasColumnType("DateTime").IsOptional();
-				Property(x => x.fch_Modificacion).HasColumnType("DateTime").IsOptional();
+				Property(x => x.fch_Creacion).HasColumnType("DateTime").IsRequired();
+				Property(x => x.fch_Aprobacion).HasColumnType("DateTime").IsRequired();
+				Property(x => x.fch_Cumplimiento).HasColumnType("DateTime").IsRequired();
+				Property(x => x.fch_Modificacion).HasColumnType("DateTime").IsRequired();
 				Property(x => x.Propietario).HasMaxLength(15).IsOptional();
 				Property(x => x.Aprobador).HasMaxLength(15).IsOptional();
 				Property(x => x.UsuarioMod).HasMaxLength(15).IsOptional();
-				Property(x => x.PrioridadId).IsOptional();
+				Property(x => x.PrioridadId).IsRequired();
 				Property(x => x.Aprobada).IsOptional();
 				Property(x => x.Confidencial).IsOptional();
 				Property(x => x.Asignada).IsOptional();
 				Property(x => x.EstatusId).IsOptional();
 				Property(x => x.DAMFO290Id).IsRequired();
-				Property(x => x.DireccionId).IsOptional();
+				Property(x => x.DireccionId).IsRequired();
 				Property(x => x.FlexibilidadHorario).IsRequired();
 				Property(x => x.JornadaLaboralId).IsOptional();
 				Property(x => x.TipoModalidadId).IsOptional();
-                Property(x => x.Activo).IsRequired();
+				Property(x => x.Activo).IsRequired();
 			}
 		}
 		public class EscolaridadesRequiMap : EntityTypeConfiguration<EscolaridadesRequi>
@@ -1354,6 +1352,19 @@ namespace SAGA.DAL
 				Property(x => x.tipoContrato).HasMaxLength(50).IsRequired();
 			}
 		}
+
+		//public class ProcesoCandidatoMap : EntityTypeConfiguration<ProcesoCandidato>
+		//{
+		//	public ProcesoCandidatoMap()
+		//	{
+		//		HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+		//		Property(x => x.CandidatoId).IsRequired().HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute("Index") { IsUnique = true} }));
+		//		Property(x => x.RequisicionId).IsRequired();
+		//		Property(x => x.Reclutador).IsRequired();
+		//		Property(x => x.Estatus).IsRequired();
+		//		Property(x => x.TpContrato).HasColumnType("tinyint");
+		//	}
+		//}
 
 		#endregion
 	}

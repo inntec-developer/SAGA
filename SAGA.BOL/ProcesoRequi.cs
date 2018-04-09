@@ -9,8 +9,6 @@ namespace SAGA.BOL
         public Guid Id { get; set; }
         public string Proceso { get; set; }
         public Guid RequisicionId { get; set; }
-        public int Orden { get; set; }
-
 
         public virtual Requisicion Requisicion { get; set; }
 

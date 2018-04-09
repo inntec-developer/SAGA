@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using SAGA.API.Dtos;
+using AutoMapper;
 
 namespace SAGA.API.Controllers
 
@@ -29,7 +30,7 @@ namespace SAGA.API.Controllers
             CandidatosDto Paises = new CandidatosDto();
 
             Paises.Paises = (from pais in db.Paises
-                             //where pais.Id == 42
+                             where pais.Id == 42
                              select pais).ToList();
 
             return Ok(Paises);
@@ -44,7 +45,7 @@ namespace SAGA.API.Controllers
 
             Estados.Estados = (from estado in db.Estados
                                where estado.PaisId == Pais
-                             select estado).ToList();
+                               select estado).ToList();
 
             return Ok(Estados);
         }
@@ -78,28 +79,178 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
-        [Route("getcandidatos")]
-        public IHttpActionResult GetCandidatos()
+        [Route("getareasexp")]
+        public IHttpActionResult GetAreasExp()
         {
 
-            CandidatosDto Candidatos = new CandidatosDto();
+            var areasexp = db.AreasExperiencia.ToList();
 
-            Candidatos.Candidatos = (from candidatos in db.Candidatos join
-                                     persona in db.Personas on candidatos.Id equals persona.Id
-                                     select new CandidatosGralDto
-                                     {
-                                         Id = candidatos.Id,
-                                         Nombre = persona.Nombre,
-                                         ApellidoPaterno = persona.ApellidoPaterno,
-                                         ApellidoMaterno = persona.ApellidoMaterno,
-                                         CP = candidatos.CodigoPostal,
-                                         Curp = candidatos.CURP,
-                                         Rfc = candidatos.RFC,
-                                         Nss = candidatos.NSS
-                                      }).ToList();
+            return Ok(areasexp);
+        }
 
-            return Ok(Candidatos.Candidatos);
+        [HttpGet]
+        [Route("getperfiles")]
+        public IHttpActionResult GetPerfiles()
+        {
+
+            var perfil = db.PerfilExperiencia.ToList();
+
+            return Ok(perfil);
+        }
+
+        [HttpGet]
+        [Route("getgeneros")]
+        public IHttpActionResult GetGeneros()
+        {
+
+            var genero = db.Generos.ToList();
+
+            return Ok(genero);
+        }
+
+        [HttpGet]
+        [Route("getdescapacidad")]
+        public IHttpActionResult GetDiscapacidad()
+        {
+
+            var discapacidad = db.TiposDiscapacidades.ToList();
+
+            return Ok(discapacidad);
+        }
+
+        [HttpGet]
+        [Route("gettplicencia")]
+        public IHttpActionResult GetTpLicencia()
+        {
+
+            var tplicencia = db.TiposLicencias.ToList();
+
+            return Ok(tplicencia);
+        }
+
+        [HttpGet]
+        [Route("getnivelestudio")]
+        public IHttpActionResult GetNivelestudio()
+        {
+
+            var nvestudio = db.GradosEstudios.ToList();
+
+            return Ok(nvestudio);
+        }
+
+        [HttpGet]
+        [Route("getidiomas")]
+        public IHttpActionResult GetIdiomas()
+        {
+
+            var idiomas = db.Idiomas.ToList();
+
+            return Ok(idiomas);
+        }
+
+        [HttpPost]
+        [Route("getcandidatos")]
+        public IHttpActionResult GetCandidatos(FiltrosDto Filtros)
+        {
+            // Generamos el objeto que contendra los datos para el filtrado.
+            List<FiltrosDto> Filtrado = new List<FiltrosDto>();
+            Filtrado = db.PerfilCandidato
+                .Where(c => c.Id != null)
+                 .Select(c => new FiltrosDto {
+                     IdCandidato = c.CandidatoId,
+                     IdPais = c.Candidato.PaisNacimientoId,
+                     IdEstado = c.Candidato.EstadoNacimientoId,
+                     IdMunicipio = c.Candidato.MunicipioNacimientoId,
+                     nombre = c.Candidato.Nombre,
+                     apellidoPaterno = c.Candidato.ApellidoPaterno,
+                     apellidoMaterno = c.Candidato.ApellidoMaterno,
+                     cp = c.Candidato.CodigoPostal,
+                     curp = c.Candidato.CURP,
+                     rfc = c.Candidato.RFC,
+                     nss = c.Candidato.NSS
+                 }).ToList();
+
+
+            // Revisamos cada filtro que se envio para armar de nuevo la consulta.
+            if (Filtros.IdPais > 0)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.IdPais.Equals(Filtros.IdPais))
+                    .ToList();
+            }
+            if (Filtros.IdEstado > 0)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.IdEstado.Equals(Filtros.IdEstado))
+                    .ToList();
+            }
+            if (Filtros.IdMunicipio > 0)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.IdMunicipio.Equals(Filtros.IdMunicipio))
+                    .ToList();
+            }
+            if (Filtros.cp != null)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.cp.Equals(Filtros.cp))
+                    .ToList();
+            }
+
+            //CandidatosDto Candidatos = new CandidatosDto();
+
+            //Candidatos.Candidatos = (from candidatos in db.Candidatos
+            //                         join perfilcandidato in db.PerfilCandidato on candidatos.Id equals perfilcandidato.CandidatoId
+            //                         join persona in db.Personas on candidatos.Id equals persona.Id
+            //                         where perfilcandidato.Id != null
+            //                         select new CandidatosGralDto
+            //                         {
+            //                             Id = candidatos.Id,
+            //                             Nombre = persona.Nombre,
+            //                             ApellidoPaterno = persona.ApellidoPaterno,
+            //                             ApellidoMaterno = persona.ApellidoMaterno,
+            //                             CP = candidatos.CodigoPostal,
+            //                             Curp = candidatos.CURP,
+            //                             Rfc = candidatos.RFC,
+            //                             Nss = candidatos.NSS
+            //                         }).ToList();
+
+            return Ok(Filtrado);
+        }
+
+        [HttpGet]
+        [Route("getcandidatoid")]
+        public IHttpActionResult GetCandidatoid(Guid Id)
+        {
+
+            var Candidato = db.PerfilCandidato
+                .Where(x => x.CandidatoId.Equals(Id))
+                .ToList();
+
+            return Ok(Candidato);
+        }
+
+        [HttpGet]
+        [Route("getpostulaciones")]
+        public IHttpActionResult GetPostulaciones(Guid IdCandidato)
+        {
+            //var Postulaciones = db.Postulaciones
+            //    .Where(p => p.CandidatoId == IdCandidato)
+            //    .ToList();
+
+            var postulacion = (from ps in db.Postulaciones
+                               join st in db.StatusPostulaciones on ps.StatusId equals st.Id
+                               join rq in db.Requisiciones on ps.RequisicionId equals rq.Id
+                               where (ps.CandidatoId == IdCandidato)
+                               select new
+                               {
+                                   st.Status,
+                                   rq.VBtra
+                               }).ToList();
+
+            return Ok(postulacion);
         }
 
     }
-}
+
+ }

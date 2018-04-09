@@ -142,14 +142,8 @@
     <Compile Include="Controllers\Reclutamiento\Candidatos\CandidatosController.cs" />
     <Compile Include="Controllers\Reclutamiento\DAMFO\DAMFOController.cs" />
     <Compile Include="Controllers\Ventas\Requisiciones\RequisicionesController.cs" />
-    <Compile Include="Dtos\Reclutamiento\Candidatos\CandidatosDto.cs" />
-    <Compile Include="Dtos\Reclutamiento\Candidatos\CandidatosGralDto.cs" />
-    <Compile Include="Dtos\Reclutamiento\DAMFO\Damfo290AddressDto.cs" />
-    <Compile Include="Dtos\Reclutamiento\DAMFO\Damfo290AllDto.cs" />
-    <Compile Include="Dtos\Reclutamiento\DAMFO\Damfo290Dto.cs" />
-    <Compile Include="Dtos\Reclutamiento\DAMFO\Damfo290GralDto.cs" />
-    <Compile Include="Dtos\Ventas\Requisicion\CreateRequiDto.cs" />
-    <Compile Include="Dtos\Ventas\Requisicion\RequisicionDto.cs" />
+    <Compile Include="Dtos\CandidatosDto.cs" />
+    <Compile Include="Dtos\CandidatosGralDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -169,7 +163,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Dtos\Vacantes\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SAGA.BOL\SAGA.BOL.csproj">

@@ -11,6 +11,6 @@ namespace SAGA.BOL
 
         public Candidato Candidato { get; set; }
         public  Requisicion Requisicion { get; set; }
-        public StatusPostulacion Status { get; set; }
+        public virtual StatusPostulacion Status { get; set; }
     }
 }
