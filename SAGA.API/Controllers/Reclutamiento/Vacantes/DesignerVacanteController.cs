@@ -39,7 +39,7 @@ namespace SAGA.API.Controllers
                 var datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
                 if (datos.Count == 0)
                 {
-                    var estructura = db.Estructuras.Where(e => e.IdTipoEstructura == 7).ToList();
+                    var estructura = db.Estructuras.Where(e => e.TipoEstructuraId == 7).ToList();
                     foreach (var item in estructura)
                     {
                         ConfiguracionRequi caja = new ConfiguracionRequi();
@@ -80,7 +80,7 @@ namespace SAGA.API.Controllers
                 var datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
                 if (datos.Count == 0)
                 {
-                    var estructura = db.Estructuras.Where(e => e.IdTipoEstructura == 7).ToList();
+                    var estructura = db.Estructuras.Where(e => e.TipoEstructuraId == 7).ToList();
                     foreach (var item in estructura)
                     {
                         ConfiguracionRequi caja = new ConfiguracionRequi();
