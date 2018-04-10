@@ -52,6 +52,7 @@ namespace SAGA.API.Controllers
                         db.ConfiguracionRequis.Add(caja);
                         db.SaveChanges();
                     }
+                    datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
                 }
                 var lista = datos.Where(e => e.IdEstructura == Idcampo).FirstOrDefault();
                 lista.Resumen = resumen;
@@ -93,6 +94,7 @@ namespace SAGA.API.Controllers
                         db.ConfiguracionRequis.Add(caja);
                         db.SaveChanges();
                     }
+                    datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
                 }
                 var lista = datos.Where(e => e.IdEstructura == Idcampo).FirstOrDefault();
                 lista.Detalle = detalle;
