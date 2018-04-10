@@ -8,9 +8,11 @@ namespace SAGA.BOL
 {
     public class ConfiguracionRequi
     {
-        public int ConfiguracionRequiID { get; set; }
-        public int ConfiguracionID { get; set; }
-        public int IdentificadorID { get; set; }
+        public int id { get; set; }
+        public Guid IdRequi { get; set; }
+        public int IdEstructura { get; set; }
+        public string Campo { get; set; }
+        public int R_D { get; set; }
         public bool Resumen { get; set; }
         public bool Detalle { get; set; }
     }
