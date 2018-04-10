@@ -61,7 +61,6 @@ namespace SAGA.BOL
         public virtual DiaSemana DiaPago { get; set; }
         public virtual PeriodoPago PeriodoPago { get; set; }
         public virtual TipoContrato ContratoInicial { get; set; }
-        public virtual TipoContrato ContratoFinal { get; set; }
         public virtual TiempoContrato TiempoContrato { get; set; }
         public virtual JornadaLaboral JornadaLaboral { get; set; }
         public virtual TipoModalidad TipoModalidad { get; set; }
@@ -72,6 +71,7 @@ namespace SAGA.BOL
 
         public virtual ICollection<EscolaridadesRequi> escolaridadesRequi { get; set; }
         public virtual ICollection<AptitudesRequi> aptitudesRequi { get; set; }
+		public virtual ICollection<HorarioRequi> horariosPerfil { get; set; }		
         public virtual ICollection<ActividadesRequi> actividadesRequi { get; set; }
         public virtual ICollection<ObservacionesRequi> observacionesRequi { get; set; }
         public virtual ICollection<PsicometriasDamsaRequi> psicometriasDamsaRequi { get; set; }

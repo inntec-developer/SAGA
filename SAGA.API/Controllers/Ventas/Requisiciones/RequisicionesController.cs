@@ -18,7 +18,6 @@ namespace SAGA.API.Controllers
     {
         private SAGADBContext db;
         Damfo290Dto DamfoDto;
-        Requisicion requisicion;
 
         public RequisicionesController()
         {

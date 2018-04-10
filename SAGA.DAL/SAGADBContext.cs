@@ -240,7 +240,7 @@ namespace SAGA.DAL
 			modelBuilder.Configurations.Add(new PeriodoPagoMap().ToTable("PeriodosPagos", "Recl"));
 			modelBuilder.Configurations.Add(new PrestacionesLeyMap().ToTable("PrestacionesLey", "Recl"));
 			modelBuilder.Configurations.Add(new PrestacionesClientePerfilMap().ToTable("PrestacionesClientePerfil", "Recl"));
-			//modelBuilder.Configurations.Add(new ProcesoCandidatoMap().ToTable("ProcesoCandidatos", "Recl"));
+			modelBuilder.Configurations.Add(new ProcesoCandidatoMap().ToTable("ProcesoCandidatos", "Recl"));
 			modelBuilder.Configurations.Add(new PsicometriasDamsaMap().ToTable("PsicometriasDamsa", "Recl"));
 			modelBuilder.Configurations.Add(new PsicometriasClienteMap().ToTable("PsicometriasCliente", "Recl"));
 			modelBuilder.Configurations.Add(new ProcesoPerfilMap().ToTable("ProcesoPerfil", "Recl"));
@@ -1353,19 +1353,19 @@ namespace SAGA.DAL
 			}
 		}
 
-		//public class ProcesoCandidatoMap : EntityTypeConfiguration<ProcesoCandidato>
-		//{
-		//	public ProcesoCandidatoMap()
-		//	{
-		//		HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-		//		Property(x => x.CandidatoId).IsRequired().HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute("Index") { IsUnique = true} }));
-		//		Property(x => x.RequisicionId).IsRequired();
-		//		Property(x => x.Reclutador).IsRequired();
-		//		Property(x => x.Estatus).IsRequired();
-		//		Property(x => x.TpContrato).HasColumnType("tinyint");
-		//	}
-		//}
+        public class ProcesoCandidatoMap : EntityTypeConfiguration<ProcesoCandidato>
+        {
+            public ProcesoCandidatoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatoId).IsRequired().HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute("Index") { IsUnique = true } }));
+                Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.Reclutador).IsRequired();
+                Property(x => x.Estatus).IsRequired();
+                Property(x => x.TpContrato).IsOptional();
+            }
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }
