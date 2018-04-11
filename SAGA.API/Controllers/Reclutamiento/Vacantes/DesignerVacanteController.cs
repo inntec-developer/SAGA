@@ -23,7 +23,14 @@ namespace SAGA.API.Controllers
         [Route("get")]
         public IHttpActionResult Action()
         {
-            var datos = db.Requisiciones.Select(e=> new { e.Id , e.VBtra, e.Experiencia }).ToList();
+            var datos = db.Requisiciones.Select(e=> new
+            {
+                e.Id 
+                , e.VBtra
+                , e.Experiencia
+                ,e.Area
+                ,e.TipoReclutamiento
+            }).ToList();
             
             return Ok(datos);
         }
