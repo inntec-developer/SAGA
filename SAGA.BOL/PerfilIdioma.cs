@@ -8,12 +8,13 @@ namespace SAGA.BOL
 {
     public class PerfilIdioma
     {
+        [Key]
         public Guid Id { get; set; }
         public int IdiomaId { get; set; }
         public virtual Idioma Idioma { get; set; }
-        public byte NivelEscritoId { get; set; }
+        public byte? NivelEscritoId { get; set; }
         public virtual Nivel nivelEscrito { get; set; }
-        public byte NivelHabladoId { get; set; }
+        public byte? NivelHabladoId { get; set; }
         public virtual Nivel nivelHablado { get; set; }
 
         public Guid PerfilCandidatoId { get; set; }

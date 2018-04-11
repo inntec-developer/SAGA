@@ -226,6 +226,7 @@ namespace SAGA.DAL
 			modelBuilder.Configurations.Add(new TipoDiscapacidadMap().ToTable("TiposDiscapacidades", "BTra"));
 			modelBuilder.Configurations.Add(new TipoLicenciaMap().ToTable("TiposLicencias", "BTra"));
 			modelBuilder.Configurations.Add(new TipoRedSocialMap().ToTable("TiposRedesSociales", "BTra"));
+            modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
 			#endregion
 
 			#region Reclutamiento_Recl
@@ -832,7 +833,7 @@ namespace SAGA.DAL
 				Property(x => x.MonthTerminoId).IsRequired();
 				Property(x => x.Salario).HasPrecision(18, 2).IsRequired();
 				Property(x => x.TrabajoActual).IsOptional();
-				Property(x => x.Descripcion).HasMaxLength(200).IsOptional();
+				Property(x => x.Descripcion).HasMaxLength(500).IsOptional();
 				Property(x => x.PerfilCandidatoId).IsRequired();
 			}
 		}
@@ -904,6 +905,19 @@ namespace SAGA.DAL
 				Property(x => x.tipoRedSocial).HasMaxLength(50);
 			}
 		}
+        public class PerfilIdimoasMap : EntityTypeConfiguration<PerfilIdioma>
+        {
+            public PerfilIdimoasMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.PerfilCandidatoId).IsRequired();
+                Property(x => x.IdiomaId).IsRequired();
+                Property(x => x.NivelEscritoId).IsOptional();
+                Property(x => x.NivelHabladoId).IsOptional();
+
+            }
+        }
 		#endregion
 
 		#region "Mapeo Vtas"
