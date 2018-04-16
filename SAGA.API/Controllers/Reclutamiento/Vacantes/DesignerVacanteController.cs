@@ -23,13 +23,14 @@ namespace SAGA.API.Controllers
         [Route("get")]
         public IHttpActionResult Action()
         {
-            var datos = db.Requisiciones.Select(e=> new
+            var datos = db.Requisiciones.Select(e => new
             {
-                e.Id 
+                e.Id
                 , e.VBtra
                 , e.Experiencia
-                ,e.Area
-                ,e.TipoReclutamiento
+                , e.Area
+                , e.TipoReclutamiento
+                , Actividad = db.ActividadesRequis.Where(a => a.RequisicionId == e.Id).Select(a => a.Actividades).FirstOrDefault()
             }).ToList();
             
             return Ok(datos);
@@ -46,7 +47,7 @@ namespace SAGA.API.Controllers
                 var datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
                 if (datos.Count == 0)
                 {
-                    var estructura = db.Estructuras.Where(e => e.TipoEstructuraId == 7).ToList();
+                    var estructura = db.Estructuras.Where(e => e.TipoEstructuraId == 7 ).ToList();
                     foreach (var item in estructura)
                     {
                         ConfiguracionRequi caja = new ConfiguracionRequi();
@@ -194,7 +195,7 @@ namespace SAGA.API.Controllers
         {
 
             List<listadoEstru> lista = new List<listadoEstru>();
-            var datos = db.Estructuras.Where(a => a.Orden == Orden).ToList();
+            var datos = db.Estructuras.Where(a => a.Orden == Orden && a.Activo == true).OrderBy(e=>e.Nombre).ToList();
             var configuracion = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
             foreach (var item in datos)
             {
