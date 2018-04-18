@@ -54,17 +54,17 @@ namespace SAGA.DAL
 		#region PROSPECTOS/CLIENTES (Vtas)
 		public DbSet<Agencia> Agencias { get; set; }
 		public DbSet<Cliente> Clientes { get; set; }
-        public DbSet<ConfiguracionRequi> ConfiguracionRequis { get; set; }
-        public DbSet<Contacto> Contactos { get; set; }
+		public DbSet<ConfiguracionRequi> ConfiguracionRequis { get; set; }
+		public DbSet<Contacto> Contactos { get; set; }
 		public DbSet<RedSocial> RedesSociales { get; set; }
 		public DbSet<Referenciado> Referenciados { get; set; }
 		public DbSet<TamanoEmpresa> TamanoEmpresas { get; set; }
 		public DbSet<TipoBase> TiposBases { get; set; }
-        #endregion
+		#endregion
 
-        #region DAMFO 290 (Recl)
-        public DbSet<ActividadesPerfil> ActividadesPerfil { get; set; }
-		public DbSet<ProcesoCandidato> Apartados { get; set; }
+		#region DAMFO 290 (Recl)
+		public DbSet<ActividadesPerfil> ActividadesPerfil { get; set; }
+		public DbSet<ProcesoCandidato> ProcesoCandidatos { get; set; }
 		public DbSet<AptitudesPerfil> AptitudesPerfil { get; set; }
 		public DbSet<Aptitud> Aptitudes { get; set; }
 		public DbSet<BeneficiosPerfil> BeneficiosPerfil { get; set; }
@@ -99,12 +99,12 @@ namespace SAGA.DAL
 		public DbSet<TipodeNomina> TiposNominas { get; set; }
 		public DbSet<TipoPsicometria> TiposPsicometrias { get; set; }
 		public DbSet<TipoReclutamiento> TiposReclutamientos { get; set; }
-        #endregion
+		#endregion
 
-        #region Sist
-       
-        public DbSet<Ambito> Ambitos { get; set; }
-        public DbSet<Area> Areas { get; set; }
+		#region Sist
+
+		public DbSet<Ambito> Ambitos { get; set; }
+		public DbSet<Area> Areas { get; set; }
 		public DbSet<Cargo> Cargos { get; set; }
 		public DbSet<Colonia> Colonias { get; set; }
 		public DbSet<Direccion> Direcciones { get; set; }
@@ -112,8 +112,8 @@ namespace SAGA.DAL
 		public DbSet<Estado> Estados { get; set; }
 		public DbSet<EstadoCivil> EstadosCiviles { get; set; }
 		public DbSet<EstadoEstudio> EstadosEstudios { get; set; }
-        public DbSet<Estructura> Estructuras { get; set; }
-        public DbSet<Genero> Generos { get; set; }
+		public DbSet<Estructura> Estructuras { get; set; }
+		public DbSet<Genero> Generos { get; set; }
 		public DbSet<GradoEstudio> GradosEstudios { get; set; }
 		public DbSet<GiroEmpresa> GirosEmpresas { get; set; }
 		public DbSet<Municipio> Municipios { get; set; }
@@ -122,8 +122,8 @@ namespace SAGA.DAL
 		public DbSet<Telefono> Telefonos { get; set; }
 		public DbSet<TipoTelefono> TiposTelefonos { get; set; }
 		public DbSet<TipoDireccion> TiposDirecciones { get; set; }
-        public DbSet<TipoEstructura> TipoEstructuras { get; set; }
-        public DbSet<TipoRedSocial> TiposRedesSociales { get; set; }
+		public DbSet<TipoEstructura> TipoEstructuras { get; set; }
+		public DbSet<TipoRedSocial> TiposRedesSociales { get; set; }
 		#endregion
 
 		#region REQUISICIONES (Vtas)
@@ -158,15 +158,15 @@ namespace SAGA.DAL
 
 			modelBuilder.HasDefaultSchema("sist");
 
-            //modelBuilder.Entity<IdentityUserLogin>().HasKey<string>(l => l.UserId);
-            //modelBuilder.Entity<IdentityRole>().HasKey<string>(r => r.Id);
-            //modelBuilder.Entity<IdentityUserRole>().HasKey(r => new { r.RoleId, r.UserId });
+			//modelBuilder.Entity<IdentityUserLogin>().HasKey<string>(l => l.UserId);
+			//modelBuilder.Entity<IdentityRole>().HasKey<string>(r => r.Id);
+			//modelBuilder.Entity<IdentityUserRole>().HasKey(r => new { r.RoleId, r.UserId });
 
-            #region Administracion_Sistema_Sist
-            modelBuilder.Configurations.Add(new EstructuraMap().ToTable("Estructuras"));
-            modelBuilder.Configurations.Add(new TipoEstructuraMap().ToTable("TiposEstructuras"));
-            modelBuilder.Configurations.Add(new AmbitoMap().ToTable("Ambitos"));
-            modelBuilder.Configurations.Add(new AreaMap().ToTable("Areas"));
+			#region Administracion_Sistema_Sist
+			modelBuilder.Configurations.Add(new EstructuraMap().ToTable("Estructuras"));
+			modelBuilder.Configurations.Add(new TipoEstructuraMap().ToTable("TiposEstructuras"));
+			modelBuilder.Configurations.Add(new AmbitoMap().ToTable("Ambitos"));
+			modelBuilder.Configurations.Add(new AreaMap().ToTable("Areas"));
 			modelBuilder.Configurations.Add(new ColoniasMap().ToTable("Colonias"));
 			modelBuilder.Configurations.Add(new CompetenciasAreasMap().ToTable("CompetenciasAreas"));
 			modelBuilder.Configurations.Add(new CompetenciasCardinalesMap().ToTable("CompetenciasCardinales"));
@@ -226,7 +226,7 @@ namespace SAGA.DAL
 			modelBuilder.Configurations.Add(new TipoDiscapacidadMap().ToTable("TiposDiscapacidades", "BTra"));
 			modelBuilder.Configurations.Add(new TipoLicenciaMap().ToTable("TiposLicencias", "BTra"));
 			modelBuilder.Configurations.Add(new TipoRedSocialMap().ToTable("TiposRedesSociales", "BTra"));
-            modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
+			modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
 			#endregion
 
 			#region Reclutamiento_Recl
@@ -256,14 +256,14 @@ namespace SAGA.DAL
 			modelBuilder.Configurations.Add(new RedSocialMap().ToTable("RedesSociales", "Recl"));
 			modelBuilder.Configurations.Add(new RutasPerfilMap().ToTable("RutasPerfil", "Recl"));
 
-            //modelBuilder.Configurations.Add(new VacantesMap().ToTable("Vacantes", "Recl"));
+			//modelBuilder.Configurations.Add(new VacantesMap().ToTable("Vacantes", "Recl"));
 
 
-            #endregion
+			#endregion
 
-            #region Ventas_Vtas
-            modelBuilder.Configurations.Add(new ConfiguracionRequiMap().ToTable("ConfiguracionRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new ActividadEmpMap().ToTable("ActividadEmpresas", "Vtas"));
+			#region Ventas_Vtas
+			modelBuilder.Configurations.Add(new ConfiguracionRequiMap().ToTable("ConfiguracionRequi", "Vtas"));
+			modelBuilder.Configurations.Add(new ActividadEmpMap().ToTable("ActividadEmpresas", "Vtas"));
 			modelBuilder.Configurations.Add(new ActividadesRequilMap().ToTable("ActividadesRequi", "Vtas"));
 			modelBuilder.Configurations.Add(new AgenciaMap().ToTable("Agencias", "Vtas"));
 			modelBuilder.Configurations.Add(new AptitudesRequiMap().ToTable("AptitudesRequi", "Vtas"));
@@ -625,57 +625,57 @@ namespace SAGA.DAL
 			}
 		}
 
-        public class TipoEstructuraMap : EntityTypeConfiguration<TipoEstructura>
-        {
-            public TipoEstructuraMap()
-            {
-                HasKey(e => e.Id);
-                Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(e => e.Nombre).HasMaxLength(25).IsRequired();
-            }
-        }
+		public class TipoEstructuraMap : EntityTypeConfiguration<TipoEstructura>
+		{
+			public TipoEstructuraMap()
+			{
+				HasKey(e => e.Id);
+				Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+				Property(e => e.Nombre).HasMaxLength(25).IsRequired();
+			}
+		}
 
-        public class AmbitoMap : EntityTypeConfiguration<Ambito>
-        {
-            public AmbitoMap()
-            {
-                HasKey(e => e.Id);
-                Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(e => e.Nombre).HasMaxLength(5).IsRequired();
-            }
-        }
+		public class AmbitoMap : EntityTypeConfiguration<Ambito>
+		{
+			public AmbitoMap()
+			{
+				HasKey(e => e.Id);
+				Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+				Property(e => e.Nombre).HasMaxLength(5).IsRequired();
+			}
+		}
 
-        public class EstructuraMap : EntityTypeConfiguration<Estructura>
-        {
-            public EstructuraMap()
-            {
-                HasKey(e => e.Id);
-                Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(e => e.IdPadre);
-                Property(e => e.TipoEstructuraId).IsRequired();
-                Property(e => e.Nombre).HasMaxLength(100);
-                Property(e => e.Descripcion).HasMaxLength(150);
-                Property(e => e.Orden).IsRequired();
-                Property(e => e.AmbitoId).IsRequired();
-                Property(e => e.Clave).HasMaxLength(5).IsRequired();
-                Property(e => e.Menu).IsRequired();
-                Property(e => e.Confidencial).IsRequired();
-                Property(e => e.Inclusivo).IsRequired();
-                Property(e => e.DescripcionInclusivo).HasMaxLength(150);
-                Property(e => e.Activo).IsRequired();
-                Property(e => e.Icono).HasMaxLength(100);
-                Property(e => e.Accion).HasMaxLength(500);
-                Property(e => e.PermisoC).HasMaxLength(1000);
-                Property(e => e.PermisoR).HasMaxLength(1000);
-                Property(e => e.PermisoU).HasMaxLength(1000);
-                Property(e => e.PermisoD).HasMaxLength(1000);
+		public class EstructuraMap : EntityTypeConfiguration<Estructura>
+		{
+			public EstructuraMap()
+			{
+				HasKey(e => e.Id);
+				Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+				Property(e => e.IdPadre);
+				Property(e => e.TipoEstructuraId).IsRequired();
+				Property(e => e.Nombre).HasMaxLength(100);
+				Property(e => e.Descripcion).HasMaxLength(150);
+				Property(e => e.Orden).IsRequired();
+				Property(e => e.AmbitoId).IsRequired();
+				Property(e => e.Clave).HasMaxLength(5).IsRequired();
+				Property(e => e.Menu).IsRequired();
+				Property(e => e.Confidencial).IsRequired();
+				Property(e => e.Inclusivo).IsRequired();
+				Property(e => e.DescripcionInclusivo).HasMaxLength(150);
+				Property(e => e.Activo).IsRequired();
+				Property(e => e.Icono).HasMaxLength(100);
+				Property(e => e.Accion).HasMaxLength(500);
+				Property(e => e.PermisoC).HasMaxLength(1000);
+				Property(e => e.PermisoR).HasMaxLength(1000);
+				Property(e => e.PermisoU).HasMaxLength(1000);
+				Property(e => e.PermisoD).HasMaxLength(1000);
 
-            }
-        }
-        #endregion
+			}
+		}
+		#endregion
 
-        #region "Mapeo BTra"
-        public class CandidatoMap : EntityTypeConfiguration<Candidato>
+		#region "Mapeo BTra"
+		public class CandidatoMap : EntityTypeConfiguration<Candidato>
 		{
 			public CandidatoMap()
 			{
@@ -905,19 +905,19 @@ namespace SAGA.DAL
 				Property(x => x.tipoRedSocial).HasMaxLength(50);
 			}
 		}
-        public class PerfilIdimoasMap : EntityTypeConfiguration<PerfilIdioma>
-        {
-            public PerfilIdimoasMap()
-            {
-                HasKey(x => x.Id);
-                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.PerfilCandidatoId).IsRequired();
-                Property(x => x.IdiomaId).IsRequired();
-                Property(x => x.NivelEscritoId).IsOptional();
-                Property(x => x.NivelHabladoId).IsOptional();
+		public class PerfilIdimoasMap : EntityTypeConfiguration<PerfilIdioma>
+		{
+			public PerfilIdimoasMap()
+			{
+				HasKey(x => x.Id);
+				Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+				Property(x => x.PerfilCandidatoId).IsRequired();
+				Property(x => x.IdiomaId).IsRequired();
+				Property(x => x.NivelEscritoId).IsOptional();
+				Property(x => x.NivelHabladoId).IsOptional();
 
-            }
-        }
+			}
+		}
 		#endregion
 
 		#region "Mapeo Vtas"
@@ -1009,7 +1009,7 @@ namespace SAGA.DAL
 				Property(x => x.FlexibilidadHorario).IsRequired();
 				Property(x => x.JornadaLaboralId).IsOptional();
 				Property(x => x.TipoModalidadId).IsOptional();
-                Property(x => x.Activo).IsRequired();
+				Property(x => x.Activo).IsRequired();
 			}
 		}
 		public class EscolaridadesRequiMap : EntityTypeConfiguration<EscolaridadesRequi>
@@ -1156,25 +1156,25 @@ namespace SAGA.DAL
 			}
 		}
 
-        public class ConfiguracionRequiMap : EntityTypeConfiguration<ConfiguracionRequi>
-        {
-            public ConfiguracionRequiMap()
-            {
-                HasKey(x => x.id);
-                Property(e => e.id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(e => e.IdRequi).IsRequired();
-                Property(e => e.IdEstructura).IsRequired();
-                Property(e => e.Campo).HasMaxLength(500).IsRequired();
-                Property(e => e.R_D).IsRequired();
-                Property(e => e.Resumen).IsRequired();
-                Property(e => e.Detalle).IsRequired();
-            }
-        }
-        #endregion
-        #endregion
+		public class ConfiguracionRequiMap : EntityTypeConfiguration<ConfiguracionRequi>
+		{
+			public ConfiguracionRequiMap()
+			{
+				HasKey(x => x.id);
+				Property(e => e.id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+				Property(e => e.IdRequi).IsRequired();
+				Property(e => e.IdEstructura).IsRequired();
+				Property(e => e.Campo).HasMaxLength(500).IsRequired();
+				Property(e => e.R_D).IsRequired();
+				Property(e => e.Resumen).IsRequired();
+				Property(e => e.Detalle).IsRequired();
+			}
+		}
+		#endregion
+		#endregion
 
-        #region "Mapeo Recl(DAMFO)"
-        public class ActividadesPerfilMap : EntityTypeConfiguration<ActividadesPerfil>
+		#region "Mapeo Recl(DAMFO)"
+		public class ActividadesPerfilMap : EntityTypeConfiguration<ActividadesPerfil>
 		{
 			public ActividadesPerfilMap()
 			{
@@ -1439,19 +1439,19 @@ namespace SAGA.DAL
 			}
 		}
 
-        public class ProcesoCandidatoMap : EntityTypeConfiguration<ProcesoCandidato>
-        {
-            public ProcesoCandidatoMap()
-            {
-                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.CandidatoId).IsRequired().HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute("Index") { IsUnique = true } }));
-                Property(x => x.RequisicionId).IsRequired();
-                Property(x => x.Reclutador).IsRequired();
-                Property(x => x.Estatus).IsRequired();
-                Property(x => x.TpContrato).IsOptional();
-            }
-        }
+		public class ProcesoCandidatoMap : EntityTypeConfiguration<ProcesoCandidato>
+		{
+			public ProcesoCandidatoMap()
+			{
+				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+				Property(x => x.CandidatoId).IsRequired().HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute("Index") { IsUnique = true } }));
+				Property(x => x.RequisicionId).IsRequired();
+				Property(x => x.Reclutador).IsRequired();
+				Property(x => x.Estatus).IsRequired();
+				Property(x => x.TpContrato).IsOptional();
+			}
+		}
 
-        #endregion
-    }
+		#endregion
+	}
 }

@@ -8,6 +8,8 @@ using System.Net.Http;
 using System.Web.Http;
 using SAGA.API.Dtos;
 using AutoMapper;
+using System.Data.Entity.Infrastructure;
+using System.Data.SqlClient;
 
 namespace SAGA.API.Controllers
 
@@ -167,7 +169,10 @@ namespace SAGA.API.Controllers
                      cp = c.Candidato.CodigoPostal,
                      curp = c.Candidato.CURP,
                      rfc = c.Candidato.RFC,
-                     nss = c.Candidato.NSS
+                     nss = c.Candidato.NSS,
+                     Formaciones = c.Formaciones,
+                     Experiencias = c.Experiencias,
+                     Acercademi = c.AboutMe
                  }).ToList();
 
 
@@ -231,6 +236,18 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("getestatuscandidato")]
+        public IHttpActionResult GetEstatusCandidato(Guid Id)
+        {
+
+            var Estatus = db.ProcesoCandidatos
+                .Where(x => x.CandidatoId.Equals(Id))
+                .ToList();
+
+            return Ok(Estatus);
+        }
+
+        [HttpGet]
         [Route("getpostulaciones")]
         public IHttpActionResult GetPostulaciones(Guid IdCandidato)
         {
@@ -249,6 +266,36 @@ namespace SAGA.API.Controllers
                                }).ToList();
 
             return Ok(postulacion);
+        }
+
+        [HttpGet]
+        [Route("getvacantes")]
+        public IHttpActionResult GetVacantes()
+        {
+            var vacantes = db.Requisiciones.ToList();
+
+            return Ok(vacantes);
+        }
+
+        [HttpPost]
+        [Route("postapartado")]
+        public IHttpActionResult ApartarCandidato(ProcesoCandidato cdto)
+        {
+            using (var dbContextTransaction = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    db.ProcesoCandidatos.Add(cdto);
+                    db.SaveChanges();
+                    dbContextTransaction.Commit();
+
+                }
+                catch (Exception)
+                {
+                    dbContextTransaction.Rollback();
+                }
+            }
+            return Ok(cdto);
         }
 
     }

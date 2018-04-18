@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using SAGA.API.Dtos;
 
 namespace SAGA.API.Controllers
 {
@@ -46,6 +47,19 @@ namespace SAGA.API.Controllers
             {
                 return Ok(ex.Message);
             }
+        }
+
+        [HttpGet]
+        [Route("getPaises")]
+        public IHttpActionResult GetPaises()
+        {
+            CandidatosDto Paises = new CandidatosDto();
+
+            Paises.Paises = (from pais in db.Paises
+                             where pais.Id == 42
+                             select pais).ToList();
+
+            return Ok(Paises);
         }
     }
 }
