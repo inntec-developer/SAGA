@@ -62,6 +62,22 @@ namespace SAGA.API.Controllers
                     }
                     datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
                 }
+
+                var listaConfi = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi && e.IdEstructura == Idcampo).ToList();
+                if (listaConfi.Count == 0)
+                {
+                    var estructura = db.Estructuras.Where(e => e.TipoEstructuraId == 7 && e.Id == Idcampo).FirstOrDefault();
+                    ConfiguracionRequi caja = new ConfiguracionRequi();
+                    caja.Campo = estructura.Nombre;
+                    caja.IdRequi = Requi;
+                    caja.Detalle = false;
+                    caja.Resumen = false;
+                    caja.R_D = 0;
+                    caja.IdEstructura = Idcampo;
+                    db.ConfiguracionRequis.Add(caja);
+                    db.SaveChanges();
+                    datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
+                }
                 var lista = datos.Where(e => e.IdEstructura == Idcampo).FirstOrDefault();
                 lista.Resumen = resumen;
                 lista.R_D = Bandera(Requi, Idcampo);
@@ -104,6 +120,22 @@ namespace SAGA.API.Controllers
                     }
                     datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
                 }
+                var listaConfi = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi && e.IdEstructura == Idcampo).ToList();
+                if (listaConfi.Count == 0)
+                {
+                    var estructura = db.Estructuras.Where(e => e.TipoEstructuraId == 7 && e.Id == Idcampo).FirstOrDefault();
+                    ConfiguracionRequi caja = new ConfiguracionRequi();
+                    caja.Campo = estructura.Nombre;
+                    caja.IdRequi = Requi;
+                    caja.Detalle = false;
+                    caja.Resumen = false;
+                    caja.R_D = 0;
+                    caja.IdEstructura = Idcampo;
+                    db.ConfiguracionRequis.Add(caja);
+                    db.SaveChanges();
+                    datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
+                }
+
                 var lista = datos.Where(e => e.IdEstructura == Idcampo).FirstOrDefault();
                 lista.Detalle = detalle;
                 lista.R_D = Bandera(Requi, Idcampo);
@@ -167,6 +199,78 @@ namespace SAGA.API.Controllers
         public IHttpActionResult Otros(Guid Requi)
         {
             var datos = Listado(6, Requi);
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getActividad")]
+        public IHttpActionResult getActividad(Guid Requi)
+        {
+            var datos = Listado(7, Requi);
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getBeneficio")]
+        public IHttpActionResult getBeneficio(Guid Requi)
+        {
+            var datos = Listado(8, Requi);
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getDireccion")]
+        public IHttpActionResult getDireccion(Guid Requi)
+        {
+            var datos = Listado(9, Requi);
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getTelefono")]
+        public IHttpActionResult getTelefono(Guid Requi)
+        {
+            var datos = Listado(10, Requi);
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getContacto")]
+        public IHttpActionResult getContacto(Guid Requi)
+        {
+            var datos = Listado(11, Requi);
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getPsicometria")]
+        public IHttpActionResult getPsicometria(Guid Requi)
+        {
+            var datos = Listado(12, Requi);
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getDocumento")]
+        public IHttpActionResult getDocumentos(Guid Requi)
+        {
+            var datos = Listado(13, Requi);
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getProceso")]
+        public IHttpActionResult getProceso(Guid Requi)
+        {
+            var datos = Listado(14, Requi);
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getCopetencia")]
+        public IHttpActionResult getCopetencia(Guid Requi)
+        {
+            var datos = Listado(15, Requi);
             return Ok(datos);
         }
 
