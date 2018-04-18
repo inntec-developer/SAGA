@@ -106,6 +106,24 @@ namespace SAGA.API.Controllers
 
         }
 
+        //api/Requisiciones/getRequisiciones
+        [HttpGet]
+        [Route("getRequisiciones")]
+        public IHttpActionResult GetRequisiciones()
+        {
+
+            var requisicion = db.Requisiciones.Select(e => new
+            {
+                e.Id,e.VBtra, e.TipoReclutamiento, e.ClaseReclutamiento, 
+                e.SueldoMinimo, e.SueldoMaximo, e.fch_Creacion, e.fch_Cumplimiento,
+                Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new
+                    {
+                        c.Nombrecomercial, c.GiroEmpresas,
+                        c.ActividadEmpresas, c.RFC}).FirstOrDefault()
+            }).ToList();
+            return Ok(requisicion);
+        }
+
         private void Save()
         {
             bool saveFailed;
