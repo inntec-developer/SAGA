@@ -298,6 +298,28 @@ namespace SAGA.API.Controllers
             return Ok(cdto);
         }
 
+        [HttpGet]
+        [Route("postliberado")]
+        public IHttpActionResult LiberarCandidato(int Id)
+        {
+            using (var dbContextTransaction = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    ProcesoCandidato ProcesoCandidato = db.ProcesoCandidatos.Find(Id);
+                    db.ProcesoCandidatos.Remove(ProcesoCandidato);
+                    db.SaveChanges();
+                    dbContextTransaction.Commit();
+                    return Ok(true);
+                }
+                catch (Exception ex)
+                {
+                    dbContextTransaction.Rollback();
+                    return Ok(ex.Message);
+                }
+            }
+        }
+
     }
 
  }
