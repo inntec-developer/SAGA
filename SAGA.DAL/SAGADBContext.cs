@@ -144,6 +144,7 @@ namespace SAGA.DAL
 		public DbSet<CompetenciaGerencialRequi> CompetetenciasGerencialRequis { get; set; }
 		public DbSet<AsignacionRequi> AsignacionRequis { get; set; }
 		public DbSet<TipoUsuario> TiposUsuarios { get; set; }
+        public DbSet<HorariosDireccionesRequi> HorariosDoreccionesRequi { get; set; }
 		#endregion
 
 		/*
@@ -275,6 +276,7 @@ namespace SAGA.DAL
 			modelBuilder.Configurations.Add(new DocumentosClienteRequiMap().ToTable("DocumentosClienteRequi", "Vtas"));
 			modelBuilder.Configurations.Add(new EscolaridadesRequiMap().ToTable("EscolaridadesRequi", "Vtas"));
 			modelBuilder.Configurations.Add(new HorarioRequiMap().ToTable("HorariosRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new HorariosDireccionesRequiMap().ToTable("HorariosDireccionesRequi", "Vtas"));
 			modelBuilder.Configurations.Add(new ObservacionesRequiMap().ToTable("ObservacionesRequi", "Vtas"));
 			modelBuilder.Configurations.Add(new ProcesoRequiMap().ToTable("ProcesosRequi", "Vtas"));
 			modelBuilder.Configurations.Add(new PrestacionesClienteRequiMap().ToTable("PrestacionesClienteRequi", "Vtas"));
@@ -1243,7 +1245,6 @@ namespace SAGA.DAL
 				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
 			}
 		}
-
 		public class ConfiguracionRequiMap : EntityTypeConfiguration<ConfiguracionRequi>
 		{
 			public ConfiguracionRequiMap()
@@ -1258,11 +1259,23 @@ namespace SAGA.DAL
 				Property(e => e.Detalle).IsRequired();
 			}
 		}
-		#endregion
-		#endregion
+        public class HorariosDireccionesRequiMap : EntityTypeConfiguration<HorariosDireccionesRequi>
+        {
+            public HorariosDireccionesRequiMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.HorariosId).IsRequired();
+                Property(x => x.DireccionesId).IsRequired();
+                Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.Vacantes).HasColumnType("tinyint").IsRequired();
+            }
+        }
+        #endregion
+        #endregion
 
-		#region "Mapeo Recl(DAMFO)"
-		public class ActividadesPerfilMap : EntityTypeConfiguration<ActividadesPerfil>
+        #region "Mapeo Recl(DAMFO)"
+        public class ActividadesPerfilMap : EntityTypeConfiguration<ActividadesPerfil>
 		{
 			public ActividadesPerfilMap()
 			{
@@ -1590,7 +1603,6 @@ namespace SAGA.DAL
 				Property(x => x.tipoContrato).HasMaxLength(50).IsRequired();
 			}
 		}
-
 		public class ProcesoCandidatoMap : EntityTypeConfiguration<ProcesoCandidato>
 		{
 			public ProcesoCandidatoMap()

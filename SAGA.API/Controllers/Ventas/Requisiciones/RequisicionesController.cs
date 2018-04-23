@@ -116,6 +116,11 @@ namespace SAGA.API.Controllers
             {
                 e.Id,e.VBtra, e.TipoReclutamiento, e.ClaseReclutamiento, 
                 e.SueldoMinimo, e.SueldoMaximo, e.fch_Creacion, e.fch_Cumplimiento,
+                e.Estatus,
+                Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select( p => new {
+                        p.Descripcion,
+                        p.Id
+                    }).FirstOrDefault(),
                 Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new
                     {
                         c.Nombrecomercial, c.GiroEmpresas,
