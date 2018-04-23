@@ -16,6 +16,10 @@ namespace SAGA.BOL
         public bool Activo { get; set; }
         public bool esPrincipal { get; set; }
         public Guid PersonaId { get; set; }
+        public string UsuarioAlta { get; set; }
+        public DateTime fch_Creacion { get; set; }
+        public string UsuarioMod { get; set; }
+        public DateTime? fch_Modificacion { get; set; }
         public virtual Persona Persona { get; set; }
 
         public Telefono(string clavePais, string telefono, byte tipoTelefono, Guid idPersona)
