@@ -16,5 +16,7 @@ namespace SAGA.BOL
         public string Reclutador { get; set; }
         public int Estatus { get; set; }
         public int TpContrato { get; set; }
+        public DateTime Fch_Creacion { get; set; }
+        public DateTime? Fch_Modificacion { get; set; }
     }
 }

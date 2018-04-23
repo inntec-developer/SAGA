@@ -20,8 +20,14 @@ namespace SAGA.API.Dtos
         public int? IdMunicipio { get; set; }
         public int? IdColonia { get; set; }
         public string cp { get; set; }
-        public ICollection<Formacion> Formaciones { get; set; }
-        public ICollection<ExperienciaProfesional> Experiencias { get; set; }
-        public ICollection<AboutMe> Acercademi { get; set; }
+        public int? IdAreaExp { get; set; }
+        public int? IdPerfil { get; set; }
+        public int? IdGenero { get; set; }
+        public int? IdPDiscapacidad { get; set; }
+        public int? IdNvEstudios { get; set; }
+        public int? IdIdiomas { get; set; }
+        public virtual ICollection<Formacion> Formaciones { get; set; }
+        public virtual ICollection<ExperienciaProfesional> Experiencias { get; set; }
+        public virtual ICollection<AboutMe> Acercademi { get; set; }
     }
 }

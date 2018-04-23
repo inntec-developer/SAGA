@@ -172,9 +172,15 @@ namespace SAGA.API.Controllers
                      nss = c.Candidato.NSS,
                      Formaciones = c.Formaciones,
                      Experiencias = c.Experiencias,
+                     IdAreaExp = c.Experiencias.Select(a => a.AreaId).FirstOrDefault(),
+                     IdPerfil = c.AboutMe.Select(p => p.PerfilExperienciaId).FirstOrDefault(),
+                     IdGenero = c.Candidato.GeneroId,
+                     IdPDiscapacidad = c.Candidato.TipoDiscapacidadId,
+                     IdNvEstudios = c.Conocimientos.Select(n => n.NivelId).FirstOrDefault(),
                      Acercademi = c.AboutMe
                  }).ToList();
 
+            var FiltradoExp = Filtrado.Select(c => c.Experiencias).ToList();
 
             // Revisamos cada filtro que se envio para armar de nuevo la consulta.
             if (Filtros.IdPais > 0)
@@ -199,6 +205,48 @@ namespace SAGA.API.Controllers
             {
                 Filtrado = Filtrado
                     .Where(c => c.cp.Equals(Filtros.cp))
+                    .ToList();
+            }
+
+            if (Filtros.IdAreaExp != null)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.IdAreaExp.Equals(Filtros.IdAreaExp))
+                    .ToList();
+            }
+
+            if (Filtros.IdPerfil != null)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.IdPerfil.Equals(Filtros.IdPerfil))
+                    .ToList();
+            }
+
+            if (Filtros.IdGenero != null)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.IdGenero.Equals(Filtros.IdGenero))
+                    .ToList();
+            }
+
+            if (Filtros.IdPDiscapacidad != null)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.IdPDiscapacidad.Equals(Filtros.IdPDiscapacidad))
+                    .ToList();
+            }
+
+            if (Filtros.IdNvEstudios != null)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.IdNvEstudios.Equals(Filtros.IdNvEstudios))
+                    .ToList();
+            }
+
+            if (Filtros.IdIdiomas != null)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.IdIdiomas.Equals(Filtros.IdIdiomas))
                     .ToList();
             }
 
