@@ -228,10 +228,11 @@ namespace SAGA.DAL
 			modelBuilder.Configurations.Add(new TipoLicenciaMap().ToTable("TiposLicencias", "BTra"));
 			modelBuilder.Configurations.Add(new TipoRedSocialMap().ToTable("TiposRedesSociales", "BTra"));
 			modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
-			#endregion
+            #endregion
 
-			#region Reclutamiento_Recl
-			modelBuilder.Configurations.Add(new ActividadesPerfilMap().ToTable("ActividadesPerfil", "Recl"));
+            #region Reclutamiento_Recl
+            modelBuilder.Configurations.Add(new ConfiguracionRequiMap().ToTable("ConfiguracionRequi", "Recl"));
+            modelBuilder.Configurations.Add(new ActividadesPerfilMap().ToTable("ActividadesPerfil", "Recl"));
 			modelBuilder.Configurations.Add(new AptitudMap().ToTable("Aptitudes", "Recl"));
 			modelBuilder.Configurations.Add(new AptitudesPerfilMap().ToTable("AptitudesPerfil", "Recl"));
 			modelBuilder.Configurations.Add(new BeneficiosPerfilMap().ToTable("BeneficiosPerfil", "Recl"));
@@ -262,8 +263,7 @@ namespace SAGA.DAL
 
 			#endregion
 
-			#region Ventas_Vtas
-			modelBuilder.Configurations.Add(new ConfiguracionRequiMap().ToTable("ConfiguracionRequi", "Vtas"));
+			#region Ventas_Vtas			
 			modelBuilder.Configurations.Add(new ActividadEmpMap().ToTable("ActividadEmpresas", "Vtas"));
 			modelBuilder.Configurations.Add(new ActividadesRequilMap().ToTable("ActividadesRequi", "Vtas"));
 			modelBuilder.Configurations.Add(new AgenciaMap().ToTable("Agencias", "Vtas"));
