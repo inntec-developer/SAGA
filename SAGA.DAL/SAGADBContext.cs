@@ -124,10 +124,14 @@ namespace SAGA.DAL
 		public DbSet<TipoDireccion> TiposDirecciones { get; set; }
 		public DbSet<TipoEstructura> TipoEstructuras { get; set; }
 		public DbSet<TipoRedSocial> TiposRedesSociales { get; set; }
-		#endregion
+        public DbSet<TipoAccion> TiposAcciones { get; set; }
+        public DbSet<TipoMovimiento> TiposMovimientos { get; set; }
+        public DbSet<TrazabilidadMes> TrazabilidadesMes { get; set; }
+        public DbSet<RastreabilidadMes> RastreabilidadMes { get; set; }
+        #endregion
 
-		#region REQUISICIONES (Vtas)
-		public DbSet<Requisicion> Requisiciones { get; set; }
+        #region REQUISICIONES (Vtas)
+        public DbSet<Requisicion> Requisiciones { get; set; }
 		public DbSet<EscolaridadesRequi> EscolaridadesRequis { get; set; }
 		public DbSet<AptitudesRequi> AptitudesRequis { get; set; }
 		public DbSet<HorarioRequi> HorariosRequis { get; set; }
@@ -203,6 +207,10 @@ namespace SAGA.DAL
 			modelBuilder.Configurations.Add(new TipoPsicometriaMap().ToTable("TiposPsicometrias"));
 			modelBuilder.Configurations.Add(new TipoReclutamientoMap().ToTable("TiposReclutamientos"));
 			modelBuilder.Configurations.Add(new UsuariosMap().ToTable("Usuarios"));
+            modelBuilder.Configurations.Add(new TipoAccionMap().ToTable("TiposAcciones"));
+            modelBuilder.Configurations.Add(new TipoMovimientoMap().ToTable("TiposMovimientos"));
+            modelBuilder.Configurations.Add(new TrazabilidadMesMap().ToTable("TrazabilidadMesMap"));
+            modelBuilder.Configurations.Add(new RastreabilidadMesMap().ToTable("RastreabilidadMes"));
 			//modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
 			#endregion
 
@@ -647,7 +655,6 @@ namespace SAGA.DAL
 				//    });
 			}
 		}
-
 		public class TipoEstructuraMap : EntityTypeConfiguration<TipoEstructura>
 		{
 			public TipoEstructuraMap()
@@ -657,7 +664,6 @@ namespace SAGA.DAL
 				Property(e => e.Nombre).HasMaxLength(25).IsRequired();
 			}
 		}
-
 		public class AmbitoMap : EntityTypeConfiguration<Ambito>
 		{
 			public AmbitoMap()
@@ -667,7 +673,6 @@ namespace SAGA.DAL
 				Property(e => e.Nombre).HasMaxLength(5).IsRequired();
 			}
 		}
-
 		public class EstructuraMap : EntityTypeConfiguration<Estructura>
 		{
 			public EstructuraMap()
@@ -695,6 +700,54 @@ namespace SAGA.DAL
 
 			}
 		}
+        public class TipoMovimientoMap : EntityTypeConfiguration<TipoMovimiento>
+        {
+            public TipoMovimientoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Clave).HasMaxLength(6).IsRequired().IsUnicode(true);
+                Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
+                Property(x => x.Orden).IsRequired();
+            }
+        }
+        public class TipoAccionMap : EntityTypeConfiguration<TipoAccion>
+        {
+            public TipoAccionMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Clave).HasMaxLength(2).IsRequired().IsUnicode(true);
+                Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
+                Property(x => x.Orden).IsRequired();
+            }
+        }
+        public class TrazabilidadMesMap : EntityTypeConfiguration<TrazabilidadMes>
+        {
+            public TrazabilidadMesMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.TipoMovimientoId).IsRequired();
+                Property(x => x.Folio).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("DateTime").IsRequired();
+                Property(x => x.UsuarioAlta).HasMaxLength(50).IsRequired();
+                Property(x => x.UsuarioId).IsRequired();
+            }
+        }
+        public class RastreabilidadMesMap : EntityTypeConfiguration<RastreabilidadMes>
+        {
+            public RastreabilidadMesMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.TrazabilidadMesId).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("DateTime").IsRequired();
+                Property(x => x.UsuarioMod).HasMaxLength(50).IsRequired();
+                Property(x => x.TipoAccionId).IsRequired();
+                Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
+            }
+        }
 		#endregion
 
 		#region "Mapeo BTra"

@@ -91,7 +91,8 @@ namespace SAGA.API.Controllers
             {
                 object[] _params = {
                     new SqlParameter("@Id", cr.IdDamfo),
-                    new SqlParameter("@IdAddress", cr.IdAddress)
+                    new SqlParameter("@IdAddress", cr.IdAddress),
+                    new SqlParameter("@UserAlta", "INNTEC")
                 };
 
                 var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress", _params).SingleOrDefault();
