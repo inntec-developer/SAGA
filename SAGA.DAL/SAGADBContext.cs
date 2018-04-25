@@ -702,7 +702,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Clave).HasMaxLength(6).IsRequired().IsUnicode(true);
+                Property(x => x.Clave).HasMaxLength(8).IsRequired().IsUnicode(true);
                 Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
                 Property(x => x.Orden).IsRequired();
             }
@@ -713,7 +713,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Clave).HasMaxLength(2).IsRequired().IsUnicode(true);
+                Property(x => x.Clave).HasMaxLength(8).IsRequired().IsUnicode(true);
                 Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
                 Property(x => x.Orden).IsRequired();
             }
