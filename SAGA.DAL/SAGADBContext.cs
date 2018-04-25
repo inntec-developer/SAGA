@@ -319,18 +319,14 @@ namespace SAGA.DAL
 		}
 		public class PersonaMap : EntityTypeConfiguration<Persona>
 		{
-			public PersonaMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Nombre).HasMaxLength(50);
-				Property(x => x.ApellidoMaterno).HasMaxLength(50);
-				Property(x => x.ApellidoPaterno).HasMaxLength(50);
-				Property(x => x.FechaNacimiento).HasColumnType("date").IsOptional();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
-				Property(x => x.fch_Creacion).IsOptional().HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
-			}
+            public PersonaMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).HasMaxLength(50);
+                Property(x => x.ApellidoMaterno).HasMaxLength(50);
+                Property(x => x.ApellidoPaterno).HasMaxLength(50);
+                Property(x => x.FechaNacimiento).HasColumnType("date").IsOptional();
+            }
 		}
 		public class ClienteMap : EntityTypeConfiguration<Cliente>
 		{
