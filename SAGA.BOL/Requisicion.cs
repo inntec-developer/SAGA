@@ -48,6 +48,7 @@ namespace SAGA.BOL
         public int JornadaLaboralId { get; set; }
         public int TipoModalidadId { get; set; }
         public bool Activo { get; set; }
+        public int Folio { get; set; }
 
 
         public virtual Cliente Cliente { get; set; }
