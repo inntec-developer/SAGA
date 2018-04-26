@@ -128,6 +128,7 @@ namespace SAGA.DAL
         public DbSet<TipoMovimiento> TiposMovimientos { get; set; }
         public DbSet<TrazabilidadMes> TrazabilidadesMes { get; set; }
         public DbSet<RastreabilidadMes> RastreabilidadMes { get; set; }
+        public DbSet<Folio> Folios { get; set; }
         #endregion
 
         #region REQUISICIONES (Vtas)
@@ -211,6 +212,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TipoMovimientoMap().ToTable("TiposMovimientos"));
             modelBuilder.Configurations.Add(new TrazabilidadMesMap().ToTable("TrazabilidadMesMap"));
             modelBuilder.Configurations.Add(new RastreabilidadMesMap().ToTable("RastreabilidadMes"));
+            modelBuilder.Configurations.Add(new FoliosMap().ToTable("Folios"));
 			//modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
 			#endregion
 
@@ -744,10 +746,22 @@ namespace SAGA.DAL
                 Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
             }
         }
-		#endregion
+        public class FoliosMap : EntityTypeConfiguration<Folio>
+        {
+            public FoliosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Anio).IsRequired();
+                Property(x => x.Mes).IsRequired();
+                Property(x => x.Consecutivo).IsRequired();
+                Property(x => x.fch_Creacion).IsRequired();
+            }
+        }
+        #endregion
 
-		#region "Mapeo BTra"
-		public class CandidatoMap : EntityTypeConfiguration<Candidato>
+        #region "Mapeo BTra"
+        public class CandidatoMap : EntityTypeConfiguration<Candidato>
 		{
 			public CandidatoMap()
 			{
