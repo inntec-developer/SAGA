@@ -744,7 +744,7 @@ namespace SAGA.DAL
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.TrazabilidadMesId).IsRequired();
-                Property(x => x.fch_Modificacion).HasColumnType("DateTime").IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.UsuarioMod).HasMaxLength(50).IsRequired();
                 Property(x => x.TipoAccionId).IsRequired();
                 Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
