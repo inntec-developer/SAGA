@@ -732,7 +732,7 @@ namespace SAGA.DAL
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.TipoMovimientoId).IsRequired();
                 Property(x => x.Folio).IsRequired();
-                Property(x => x.fch_Creacion).HasColumnType("DateTime").IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.UsuarioAlta).HasMaxLength(50).IsRequired();
                 Property(x => x.UsuarioId).IsRequired();
             }
@@ -759,7 +759,7 @@ namespace SAGA.DAL
                 Property(x => x.Anio).IsRequired();
                 Property(x => x.Mes).IsRequired();
                 Property(x => x.Consecutivo).IsRequired();
-                Property(x => x.fch_Creacion).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
             }
         }
         #endregion
@@ -1089,8 +1089,8 @@ namespace SAGA.DAL
 				Property(x => x.Especifique).IsOptional();
 				Property(x => x.ContratoInicialId).IsRequired();
 				Property(x => x.TiempoContratoId).IsOptional();
-				Property(x => x.fch_Creacion).HasColumnType("DateTime");
-				Property(x => x.fch_Aprobacion).HasColumnType("DateTime").IsOptional();
+				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Aprobacion).HasColumnType("DateTime").IsOptional();
 				Property(x => x.fch_Cumplimiento).HasColumnType("DateTime").IsOptional();
 				Property(x => x.fch_Modificacion).HasColumnType("DateTime").IsOptional();
 				Property(x => x.Propietario).HasMaxLength(15).IsOptional();
@@ -1682,8 +1682,8 @@ namespace SAGA.DAL
 				Property(x => x.Reclutador).IsRequired();
 				Property(x => x.Estatus).IsRequired();
 				Property(x => x.TpContrato).IsOptional();
-				Property(x => x.Fch_Creacion).IsRequired().HasColumnType("Datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-				Property(x => x.Fch_Modificacion).IsOptional().HasColumnType("Datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+				Property(x => x.Fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.Fch_Modificacion).IsOptional().HasColumnType("Datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 			}
 		}
 
