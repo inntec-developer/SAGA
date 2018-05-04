@@ -21,7 +21,7 @@ namespace SAGA.API.Controllers.Admin
 
         [HttpGet]
         [Route("get")]
-        public IHttpActionResult GetDtosPersonal()
+        public IHttpActionResult getDtosPersonal()
         {
             List<PersonasDtos> dts = new List<PersonasDtos>();
 
@@ -31,7 +31,7 @@ namespace SAGA.API.Controllers.Admin
                 nombre = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.Nombre).FirstOrDefault(),
                 apellidoPaterno = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.ApellidoPaterno).FirstOrDefault(),
                 apellidoMaterno = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.ApellidoMaterno).FirstOrDefault(),
-                TipoUriario = c.TipoUsuario.Tipo,
+                tipoUsuario = c.TipoUsuario.Tipo,
                 Usuario = c.Usuario,
                 Email = db.Emails.Where(e => e.PersonaId.Equals(c.Id)).Select(x => x.email).FirstOrDefault()
 
@@ -49,6 +49,15 @@ namespace SAGA.API.Controllers.Admin
             //}).ToList();
 
             return Ok(dts);
+
+        }
+
+        [HttpGet]
+        [Route("getTipos")]
+        public IHttpActionResult getTiposUsuarios()
+        {
+            var tu = db.TiposUsuarios.Select(t => new { t.Id, t.Tipo }).ToList();
+            return Ok(tu);
 
         }
 
