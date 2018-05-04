@@ -177,7 +177,9 @@ namespace SAGA.API.Controllers
                      IdGenero = c.Candidato.GeneroId,
                      IdPDiscapacidad = c.Candidato.TipoDiscapacidadId,
                      IdNvEstudios = c.Conocimientos.Select(n => n.NivelId).FirstOrDefault(),
-                     Acercademi = c.AboutMe
+                     Acercademi = c.AboutMe,
+                     Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault()
+
                  }).ToList();
 
             var FiltradoExp = Filtrado.Select(c => c.Experiencias).ToList();
@@ -333,6 +335,8 @@ namespace SAGA.API.Controllers
             {
                 try
                 {
+                    cdto.Fch_Creacion = DateTime.Now;
+                    cdto.Fch_Creacion.ToUniversalTime();
                     db.ProcesoCandidatos.Add(cdto);
                     db.SaveChanges();
                     dbContextTransaction.Commit();
@@ -356,7 +360,7 @@ namespace SAGA.API.Controllers
                 {
                     ProcesoCandidato ProcesoCandidato = db.ProcesoCandidatos.Find(Id);
                     db.ProcesoCandidatos.Remove(ProcesoCandidato);
-                    db.SaveChanges();
+                    Save();
                     dbContextTransaction.Commit();
                     return Ok(true);
                 }
@@ -368,6 +372,28 @@ namespace SAGA.API.Controllers
             }
         }
 
+        private void Save()
+        {
+            bool saveFailed;
+            do
+            {
+                saveFailed = false;
+
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    saveFailed = true;
+                    // Update the values of the entity that failed to save from the store
+                    ex.Entries.Single().Reload();
+                }
+
+            } while (saveFailed);
+        }
+
+
     }
 
- }
+}
