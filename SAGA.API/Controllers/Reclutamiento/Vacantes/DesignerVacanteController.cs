@@ -7,7 +7,8 @@ using System.Web.Http;
 using SAGA.DAL;
 using SAGA.BOL;
 using System.Web.Script.Serialization;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SAGA.API.Controllers
 {
@@ -34,6 +35,64 @@ namespace SAGA.API.Controllers
             }).ToList();
             
             return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getCampos")]
+        public IHttpActionResult Campos()
+        {
+            var datos = db.Estructuras.Where(a =>
+                                                a.Activo == true &&
+                                                a.TipoEstructuraId == 7 &&
+                                                a.Clave == "Requi"
+                                            ).OrderBy(e => e.Id).ToList();
+            return Ok(datos);
+        }
+
+
+        [HttpPost]
+        [Route("updatePublicar")]
+        public IHttpActionResult PublicarVacante(List<listaPublicar> ListadoJson)
+        {
+            string mensaje = "";
+            bool bandera = true;
+            try
+            {
+                var requi = db.ConfiguracionRequis.ToList();
+                Guid idRequi = ListadoJson.Select(a => a.id).FirstOrDefault();
+                var datos = db.ConfiguracionRequis.Where(e => e.IdRequi == idRequi).ToList();
+                foreach (var item in ListadoJson)
+                {
+                    var lista = datos.Where(e => e.IdEstructura == item.idCampo).FirstOrDefault();
+                    lista.Detalle = item.detalle;
+                    lista.Resumen = item.resumen;
+                    lista.R_D = ResumenDetalle(item.resumen, item.detalle);
+                //    db.SaveChanges();
+                }
+                
+                if (datos.Count == 0)
+                {
+                    foreach (var item in ListadoJson)
+                    {
+                        ConfiguracionRequi caja = new ConfiguracionRequi();
+                        caja.Campo = item.nombre;
+                        caja.IdRequi = item.id;
+                        caja.Detalle = item.detalle;
+                        caja.Resumen = item.resumen;
+                        caja.R_D = ResumenDetalle(item.resumen, item.detalle);
+                        caja.IdEstructura = item.idCampo;
+                        db.ConfiguracionRequis.Add(caja);
+                        //   db.SaveChanges();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message;
+                bandera = false;
+            }
+            var obj = new { Mensaje = mensaje, Bandera = bandera };
+            return Ok(obj);
         }
 
         [HttpGet]
@@ -274,6 +333,34 @@ namespace SAGA.API.Controllers
             return Ok(datos);
         }
 
+        [HttpGet]
+        [Route("getUbicacion")]
+        public IHttpActionResult getUbicacion(Guid Requi)
+        {
+            var datos = Listado(16, Requi);
+            return Ok(datos);
+        }
+        private int ResumenDetalle(bool resumen, bool detalle)
+        {
+            
+            if (resumen == true && detalle == true)
+            {
+                return 3;
+            }
+
+            if (resumen == false && detalle == true)
+            {
+                return 2;
+            }
+
+            if (resumen == true && detalle == false)
+            {
+                return 1;
+            }
+
+            return 0;
+        }
+
         private int Bandera(Guid Requi, int Idcampo)
         {
             var datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi && e.IdEstructura == Idcampo).FirstOrDefault();
@@ -299,7 +386,7 @@ namespace SAGA.API.Controllers
         {
 
             List<listadoEstru> lista = new List<listadoEstru>();
-            var datos = db.Estructuras.Where(a => a.Orden == Orden && a.Activo == true).OrderBy(e=>e.Nombre).ToList();
+            var datos = db.Estructuras.Where(a => a.Orden == Orden && a.Activo == true && a.Clave == "Requi").OrderBy(e=>e.Nombre).ToList();
             var configuracion = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
             foreach (var item in datos)
             {
@@ -336,6 +423,15 @@ namespace SAGA.API.Controllers
             public string Icono { get; set; }
             public bool? Resumen { get; set; }
             public bool? Detalle { get; set; }
+        }
+
+        public class listaPublicar
+        {
+            public string nombre { get; set; }
+            public bool detalle { get; set; }
+            public bool resumen { get; set; }
+            public int idCampo { get; set; }
+            public Guid id { get; set; }
         }
     }
 } 
