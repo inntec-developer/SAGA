@@ -69,6 +69,7 @@ namespace SAGA.BOL
         public virtual Estatus Estatus { get; set; }
         public virtual DAMFO_290 DAMFO290 { get; set; }
         public virtual Direccion Direccion { get; set; }
+        
 
 
 
@@ -87,6 +88,7 @@ namespace SAGA.BOL
         public virtual ICollection<CompetenciaCardinalRequi> competenciasCardinalRequi { get; set; }
         public virtual ICollection<CompetenciaGerencialRequi> competetenciasGerencialRequi { get; set; }
         public virtual ICollection<AsignacionRequi> AsignacionRequi { get; set; }
+        public virtual ICollection<HorariosDireccionesRequi> HorariosDirecionesRequi { get;  set;}
 
 
         public Requisicion()

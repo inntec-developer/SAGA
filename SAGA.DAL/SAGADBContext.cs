@@ -1669,7 +1669,7 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.tipoContrato).HasMaxLength(50).IsRequired();
-                //Property(x => x.periodoPrueba).IsRequired();
+                Property(x => x.periodoPrueba).IsRequired();
 			}
 		}
 		public class ProcesoCandidatoMap : EntityTypeConfiguration<ProcesoCandidato>

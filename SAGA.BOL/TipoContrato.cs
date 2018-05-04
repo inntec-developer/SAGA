@@ -12,5 +12,6 @@ namespace SAGA.BOL
         [Key]
         public int Id { get; set; }
         public string tipoContrato { get; set; }
+        public bool periodoPrueba { get; set; }
     }
 }

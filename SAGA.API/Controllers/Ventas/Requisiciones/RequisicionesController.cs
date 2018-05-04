@@ -113,19 +113,30 @@ namespace SAGA.API.Controllers
         public IHttpActionResult GetRequisiciones()
         {
 
+
+
             var requisicion = db.Requisiciones.Select(e => new
             {
-                e.Id,e.VBtra, e.TipoReclutamiento, e.ClaseReclutamiento, 
+                e.Id, e.VBtra, e.TipoReclutamiento, e.ClaseReclutamiento,
                 e.SueldoMinimo, e.SueldoMaximo, e.fch_Creacion, e.fch_Cumplimiento,
                 e.Estatus,
-                Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select( p => new {
-                        p.Descripcion,
-                        p.Id
-                    }).FirstOrDefault(),
+                Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select(p => new {
+                    p.Descripcion,
+                    p.Id
+                }).FirstOrDefault(),
                 Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new
-                    {
-                        c.Nombrecomercial, c.GiroEmpresas,
-                        c.ActividadEmpresas, c.RFC}).FirstOrDefault()
+                {
+                    c.Nombrecomercial, c.GiroEmpresas,
+                    c.ActividadEmpresas, c.RFC }).FirstOrDefault(),
+                HorarioRequi = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select( x => new {
+                    x.Nombre, 
+                    x.deDia,
+                    x.aDia,
+                    x.deHora,
+                    x.aHora,
+                    x.numeroVacantes,
+                    x.Especificaciones
+                }).ToList()
             }).ToList();
             return Ok(requisicion);
         }
