@@ -146,7 +146,7 @@ namespace SAGA.API.Controllers
                 var lista = datos.Where(e => e.IdEstructura == Idcampo).FirstOrDefault();
                 lista.Resumen = resumen;
                 lista.R_D = Bandera(Requi, Idcampo);
-                db.SaveChanges();
+            //    db.SaveChanges();
                 mensaje = "Exito al guardar tu configuracion";
                 bandera = true;
             }
@@ -204,7 +204,7 @@ namespace SAGA.API.Controllers
                 var lista = datos.Where(e => e.IdEstructura == Idcampo).FirstOrDefault();
                 lista.Detalle = detalle;
                 lista.R_D = Bandera(Requi, Idcampo);
-                db.SaveChanges();
+             //   db.SaveChanges();
                 mensaje = "Exito al guardar tu configuracion";
                 bandera = true;
             }
