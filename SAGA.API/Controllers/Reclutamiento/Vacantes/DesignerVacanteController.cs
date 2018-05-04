@@ -10,6 +10,7 @@ using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+
 namespace SAGA.API.Controllers
 {
     [RoutePrefix("api/dvacante")]
@@ -54,25 +55,19 @@ namespace SAGA.API.Controllers
         [Route("updatePublicar")]
         public IHttpActionResult PublicarVacante(List<listaPublicar> ListadoJson)
         {
-            string mensaje = "";
+            string mensaje = "Publicacion Exitosa, configuracion guardada";
             bool bandera = true;
             try
             {
                 var requi = db.ConfiguracionRequis.ToList();
                 Guid idRequi = ListadoJson.Select(a => a.id).FirstOrDefault();
                 var datos = db.ConfiguracionRequis.Where(e => e.IdRequi == idRequi).ToList();
-                foreach (var item in ListadoJson)
+
+                if (datos.Count < ListadoJson.Count)
                 {
-                    var lista = datos.Where(e => e.IdEstructura == item.idCampo).FirstOrDefault();
-                    lista.Detalle = item.detalle;
-                    lista.Resumen = item.resumen;
-                    lista.R_D = ResumenDetalle(item.resumen, item.detalle);
-                //    db.SaveChanges();
-                }
-                
-                if (datos.Count == 0)
-                {
-                    foreach (var item in ListadoJson)
+                    var listaID = datos.Select(e => e.IdEstructura).ToList();
+                    var diferente = ListadoJson.Where(e => !listaID.Contains(e.idCampo)).ToList();
+                    foreach (var item in diferente)
                     {
                         ConfiguracionRequi caja = new ConfiguracionRequi();
                         caja.Campo = item.nombre;
@@ -82,9 +77,20 @@ namespace SAGA.API.Controllers
                         caja.R_D = ResumenDetalle(item.resumen, item.detalle);
                         caja.IdEstructura = item.idCampo;
                         db.ConfiguracionRequis.Add(caja);
-                        //   db.SaveChanges();
+                        db.SaveChanges();
                     }
+                    datos = db.ConfiguracionRequis.Where(e => e.IdRequi == idRequi).ToList();
                 }
+
+                foreach (var item in ListadoJson)
+                {
+                    var lista = datos.Where(e => e.IdEstructura == item.idCampo).FirstOrDefault();
+                    lista.Detalle = item.detalle;
+                    lista.Resumen = item.resumen;
+                    lista.R_D = ResumenDetalle(item.resumen, item.detalle);
+                    db.SaveChanges();
+                }
+                
             }
             catch (Exception ex)
             {
