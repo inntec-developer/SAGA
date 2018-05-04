@@ -13,7 +13,7 @@ namespace SAGA.API.Dtos.Admin
         public string nombre { get; set; }
         public string apellidoPaterno { get; set; }
         public string apellidoMaterno { get; set; }
-        public string TipoUriario { get; set; }
+        public string tipoUsuario { get; set; }
         public string Usuario { get; set; } //alias
         public string Email { get; set; }
         public string fechaInicio { get; set; }
