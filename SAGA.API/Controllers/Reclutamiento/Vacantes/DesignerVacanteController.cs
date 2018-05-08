@@ -44,8 +44,8 @@ namespace SAGA.API.Controllers
         {
             var datos = db.Estructuras.Where(a =>
                                                 a.Activo == true &&
-                                                a.TipoEstructuraId == 7 &&
-                                                a.Clave == "Requi"
+                                                a.TipoEstructuraId == 7 
+                                              //  && a.Clave == "Requi"
                                             ).OrderBy(e => e.Id).ToList();
             return Ok(datos);
         }
@@ -392,7 +392,10 @@ namespace SAGA.API.Controllers
         {
 
             List<listadoEstru> lista = new List<listadoEstru>();
-            var datos = db.Estructuras.Where(a => a.Orden == Orden && a.Activo == true && a.Clave == "Requi").OrderBy(e=>e.Nombre).ToList();
+            var datos = db.Estructuras.Where(a => a.Orden == Orden 
+                                                && a.Activo == true 
+                                               // && a.Clave == "Requi"
+                                             ).OrderBy(e=>e.Nombre).ToList();
             var configuracion = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
             foreach (var item in datos)
             {
@@ -401,8 +404,8 @@ namespace SAGA.API.Controllers
                 pieza.Nombre = item.Nombre;
                 pieza.Descripcion = item.Descripcion;
                 pieza.Activo = item.Activo;
-                pieza.Confidencial = item.Confidencial;
-                pieza.DescripcionInclusivo = item.DescripcionInclusivo;
+           //     pieza.Confidencial = item.Confidencial;
+           //     pieza.DescripcionInclusivo = item.DescripcionInclusivo;
                 pieza.Inclusivo = item.Inclusivo;
                 pieza.Icono = item.Icono;
                 pieza.Resumen = false;
