@@ -25,5 +25,6 @@ namespace SAGA.BOL
 
         public virtual TipoEstructura TipoEstructura { get; set; }
         public virtual Ambito Ambito { get; set; }
+        public virtual TipoMovimiento TipoMovimiento { get; set; }
     }
 }

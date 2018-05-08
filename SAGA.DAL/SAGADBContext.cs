@@ -698,7 +698,7 @@ namespace SAGA.DAL
                 Property(e => e.Activo).IsRequired();
                 Property(e => e.Icono).HasMaxLength(100);
                 Property(e => e.Accion).HasMaxLength(500);
-                Property(e => e.TipoEstructuraId).IsOptional();
+                Property(e => e.TipoEstructuraId).IsRequired();
             }
         }
         public class TipoMovimientoMap : EntityTypeConfiguration<TipoMovimiento>
