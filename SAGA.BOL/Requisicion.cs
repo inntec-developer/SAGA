@@ -75,7 +75,7 @@ namespace SAGA.BOL
 
         public virtual ICollection<EscolaridadesRequi> escolaridadesRequi { get; set; }
         public virtual ICollection<AptitudesRequi> aptitudesRequi { get; set; }
-		public virtual ICollection<HorarioRequi> horariosPerfil { get; set; }		
+		public virtual ICollection<HorarioRequi> horariosRequi { get; set; }		
         public virtual ICollection<ActividadesRequi> actividadesRequi { get; set; }
         public virtual ICollection<ObservacionesRequi> observacionesRequi { get; set; }
         public virtual ICollection<PsicometriasDamsaRequi> psicometriasDamsaRequi { get; set; }
