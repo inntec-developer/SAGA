@@ -687,19 +687,13 @@ namespace SAGA.DAL
 				Property(e => e.Descripcion).HasMaxLength(150);
 				Property(e => e.Orden).IsRequired();
 				Property(e => e.AmbitoId).IsRequired();
-				Property(e => e.Clave).HasMaxLength(5).IsRequired();
 				Property(e => e.Menu).IsRequired();
 				Property(e => e.Confidencial).IsRequired();
 				Property(e => e.Inclusivo).IsRequired();
-				Property(e => e.DescripcionInclusivo).HasMaxLength(150);
 				Property(e => e.Activo).IsRequired();
 				Property(e => e.Icono).HasMaxLength(100);
 				Property(e => e.Accion).HasMaxLength(500);
-				Property(e => e.PermisoC).HasMaxLength(1000);
-				Property(e => e.PermisoR).HasMaxLength(1000);
-				Property(e => e.PermisoU).HasMaxLength(1000);
-				Property(e => e.PermisoD).HasMaxLength(1000);
-
+                Property(e => e.TipoEstructuraId).IsOptional();
 			}
 		}
         public class TipoMovimientoMap : EntityTypeConfiguration<TipoMovimiento>
