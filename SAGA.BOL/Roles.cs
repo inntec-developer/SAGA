@@ -13,6 +13,7 @@ namespace SAGA.BOL
         public bool Update { get; set; }
         public bool Delete { get; set; }
         public bool Activo { get; set; }
+        public bool Espacial { get; set; }
 
         public virtual ICollection<Usuarios> Usuarios { get; set; }
     }

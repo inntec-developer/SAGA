@@ -6,124 +6,126 @@ using System.Data.Entity.Infrastructure.Annotations;
 
 namespace SAGA.DAL
 {
-	public class SAGADBContext : DbContext
-	{
-		public SAGADBContext() : base("SAGADB")
-		{
-		    Database.SetInitializer(new MigrateDatabaseToLatestVersion<SAGADBContext, Migrations.Configuration>());
-			this.Configuration.LazyLoadingEnabled = true;
-			this.Configuration.ProxyCreationEnabled = true;
-		}
+    public class SAGADBContext : DbContext
+    {
+        public SAGADBContext() : base("SAGADB")
+        {
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<SAGADBContext, Migrations.Configuration>());
+            this.Configuration.LazyLoadingEnabled = true;
+            this.Configuration.ProxyCreationEnabled = true;
+        }
 
-		public DbSet<Usuarios> Usuarios { get; set; }
-		public DbSet<Roles> Roles { get; set; }
-		public DbSet<Grupos> Grupos { get; set; }
-		public DbSet<Estatus> Estatus { get; set; }
-		public DbSet<Prioridad> Prioridades { get; set; }
+        public DbSet<Usuarios> Usuarios { get; set; }
+        public DbSet<Roles> Roles { get; set; }
+        public DbSet<Grupos> Grupos { get; set; }
+        public DbSet<Estatus> Estatus { get; set; }
+        public DbSet<Prioridad> Prioridades { get; set; }
 
-		#region Btra
-		public DbSet<AboutMe> AcercaDeMi { get; set; }
-		public DbSet<ActividadEmpresa> ActividadesEmpresas { get; set; }
-		public DbSet<AreaExperiencia> AreasExperiencia { get; set; }
-		public DbSet<AreaInteres> AreasInteres { get; set; }
-		public DbSet<Candidato> Candidatos { get; set; }
-		public DbSet<Carrera> Carreras { get; set; }
-		public DbSet<ConocimientoOHabilidad> Conocimientos { get; set; }
-		public DbSet<Certificacion> Certificaciones { get; set; }
-		public DbSet<Curso> Cursos { get; set; }
-		public DbSet<DocumentoValidador> DocumentosValidadores { get; set; }
-		public DbSet<ExperienciaProfesional> ExperienciasProfesionales { get; set; }
-		public DbSet<FormaContacto> FormasContacto { get; set; }
-		public DbSet<FormulariosIniciales> FormulariosIniciales { get; set; }
-		public DbSet<InstitucionEducativa> InstitucionesEducativas { get; set; }
-		public DbSet<Nivel> Niveles { get; set; }
-		public DbSet<PerfilCandidato> PerfilCandidato { get; set; }
-		public DbSet<PerfilExperiencia> PerfilExperiencia { get; set; }
-		public DbSet<Formacion> Formaciones { get; set; }
-		public DbSet<Idioma> Idiomas { get; set; }
-		public DbSet<Month> Months { get; set; }
-		public DbSet<PerfilIdioma> PerfilesIdiomas { get; set; }
-		public DbSet<Porcentage> Porcentages { get; set; }
-		public DbSet<Postulacion> Postulaciones { get; set; }
-		public DbSet<StatusPostulacion> StatusPostulaciones { get; set; }
-		public DbSet<TipoDiscapacidad> TiposDiscapacidades { get; set; }
-		public DbSet<TipoLicencia> TiposLicencias { get; set; }
-		public DbSet<Year> Years { get; set; }
-		#endregion
+        #region Btra
+        public DbSet<AboutMe> AcercaDeMi { get; set; }
+        public DbSet<ActividadEmpresa> ActividadesEmpresas { get; set; }
+        public DbSet<AreaExperiencia> AreasExperiencia { get; set; }
+        public DbSet<AreaInteres> AreasInteres { get; set; }
+        public DbSet<Candidato> Candidatos { get; set; }
+        public DbSet<Carrera> Carreras { get; set; }
+        public DbSet<ConocimientoOHabilidad> Conocimientos { get; set; }
+        public DbSet<Certificacion> Certificaciones { get; set; }
+        public DbSet<Curso> Cursos { get; set; }
+        public DbSet<DocumentoValidador> DocumentosValidadores { get; set; }
+        public DbSet<ExperienciaProfesional> ExperienciasProfesionales { get; set; }
+        public DbSet<FormaContacto> FormasContacto { get; set; }
+        public DbSet<FormulariosIniciales> FormulariosIniciales { get; set; }
+        public DbSet<InstitucionEducativa> InstitucionesEducativas { get; set; }
+        public DbSet<Nivel> Niveles { get; set; }
+        public DbSet<PerfilCandidato> PerfilCandidato { get; set; }
+        public DbSet<PerfilExperiencia> PerfilExperiencia { get; set; }
+        public DbSet<Formacion> Formaciones { get; set; }
+        public DbSet<Idioma> Idiomas { get; set; }
+        public DbSet<Month> Months { get; set; }
+        public DbSet<PerfilIdioma> PerfilesIdiomas { get; set; }
+        public DbSet<Porcentage> Porcentages { get; set; }
+        public DbSet<Postulacion> Postulaciones { get; set; }
+        public DbSet<StatusPostulacion> StatusPostulaciones { get; set; }
+        public DbSet<TipoDiscapacidad> TiposDiscapacidades { get; set; }
+        public DbSet<TipoLicencia> TiposLicencias { get; set; }
+        public DbSet<Year> Years { get; set; }
+        #endregion
 
-		#region PROSPECTOS/CLIENTES (Vtas)
-		public DbSet<Agencia> Agencias { get; set; }
-		public DbSet<Cliente> Clientes { get; set; }
-		public DbSet<ConfiguracionRequi> ConfiguracionRequis { get; set; }
-		public DbSet<Contacto> Contactos { get; set; }
-		public DbSet<RedSocial> RedesSociales { get; set; }
-		public DbSet<Referenciado> Referenciados { get; set; }
-		public DbSet<TamanoEmpresa> TamanoEmpresas { get; set; }
-		public DbSet<TipoBase> TiposBases { get; set; }
-		#endregion
+        #region PROSPECTOS/CLIENTES (Vtas)
+        public DbSet<Agencia> Agencias { get; set; }
+        public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<ConfiguracionRequi> ConfiguracionRequis { get; set; }
+        public DbSet<Contacto> Contactos { get; set; }
+        public DbSet<RedSocial> RedesSociales { get; set; }
+        public DbSet<Referenciado> Referenciados { get; set; }
+        public DbSet<TamanoEmpresa> TamanoEmpresas { get; set; }
+        public DbSet<TipoBase> TiposBases { get; set; }
+        #endregion
 
-		#region DAMFO 290 (Recl)
-		public DbSet<ActividadesPerfil> ActividadesPerfil { get; set; }
-		public DbSet<AptitudesPerfil> AptitudesPerfil { get; set; }
-		public DbSet<Aptitud> Aptitudes { get; set; }
-		public DbSet<BeneficiosPerfil> BeneficiosPerfil { get; set; }
-		public DbSet<ClaseReclutamiento> ClasesReclutamientos { get; set; }
-		public DbSet<CompetenciaArea> CompetenciasAreas { get; set; }
-		public DbSet<CompetenciaCardinal> CompetenciasCardinales { get; set; }
-		public DbSet<CompetenciaGarencial> CompetenciasGerenciales { get; set; }
-		public DbSet<CompetenciaAreaPerfil> CompetenciaAreaPerfil { get; set; }
-		public DbSet<CompetenciaCardinalPerfil> CompetenciaCardinalPerfil { get; set; }
-		public DbSet<CompetenciaGerencialPerfil> CompetenciaGerencialPerfil { get; set; }
-		public DbSet<DiaObligatorio> DiasOblicatorios { get; set; }
-		public DbSet<DiaSemana> DiasSemanas { get; set; }
-		public DbSet<DocumentosCliente> DocumentosClientes { get; set; }
-		public DbSet<DocumentosDamsa> DocumentosDamsa { get; set; }
-		public DbSet<DAMFO_290> DAMFO290 { get; set; }
-		public DbSet<EscolaridadesPerfil> EscolaridadesPerfil { get; set; }
-		public DbSet<HorarioPerfil> HorariosPerfiles { get; set; }
-		public DbSet<JornadaLaboral> JornadasLaborales { get; set; }
-		public DbSet<ObservacionesPerfil> ObservacionesPerfil { get; set; }
-		public DbSet<PrestacionesClientePerfil> PrestacionesClientePerfil { get; set; }
-		public DbSet<PeriodoPago> PeriodosPagos { get; set; }
-		public DbSet<PrestacionLey> PrestacionesLey { get; set; }
-		public DbSet<ProcesoCandidato> ProcesoCandidatos { get; set; }
-		public DbSet<ProcesoPerfil> ProcesosPerfil { get; set; }
-		public DbSet<PsicometriasCliente> PsicometriasCliente { get; set; }
-		public DbSet<PsicometriasDamsa> PsicometriasDamsa { get; set; }
-		public DbSet<RutasPerfil> RutasPerfil { get; set; }
-		public DbSet<TiempoContrato> TiemposContratos { get; set; }
-		public DbSet<TipoBeneficio> TiposBeneficios { get; set; }
-		public DbSet<TipoContrato> TiposContrato { get; set; }
-		public DbSet<TipoEmpresa> TiposEmpresas { get; set; }
-		public DbSet<TipoModalidad> TiposModalidades { get; set; }
-		public DbSet<TipodeNomina> TiposNominas { get; set; }
-		public DbSet<TipoPsicometria> TiposPsicometrias { get; set; }
-		public DbSet<TipoReclutamiento> TiposReclutamientos { get; set; }
-		#endregion
+        #region DAMFO 290 (Recl)
+        public DbSet<ActividadesPerfil> ActividadesPerfil { get; set; }
+        public DbSet<AptitudesPerfil> AptitudesPerfil { get; set; }
+        public DbSet<Aptitud> Aptitudes { get; set; }
+        public DbSet<BeneficiosPerfil> BeneficiosPerfil { get; set; }
+        public DbSet<ClaseReclutamiento> ClasesReclutamientos { get; set; }
+        public DbSet<CompetenciaArea> CompetenciasAreas { get; set; }
+        public DbSet<CompetenciaCardinal> CompetenciasCardinales { get; set; }
+        public DbSet<CompetenciaGarencial> CompetenciasGerenciales { get; set; }
+        public DbSet<CompetenciaAreaPerfil> CompetenciaAreaPerfil { get; set; }
+        public DbSet<CompetenciaCardinalPerfil> CompetenciaCardinalPerfil { get; set; }
+        public DbSet<CompetenciaGerencialPerfil> CompetenciaGerencialPerfil { get; set; }
+        public DbSet<DiaObligatorio> DiasOblicatorios { get; set; }
+        public DbSet<DiaSemana> DiasSemanas { get; set; }
+        public DbSet<DocumentosCliente> DocumentosClientes { get; set; }
+        public DbSet<DocumentosDamsa> DocumentosDamsa { get; set; }
+        public DbSet<DAMFO_290> DAMFO290 { get; set; }
+        public DbSet<EscolaridadesPerfil> EscolaridadesPerfil { get; set; }
+        public DbSet<HorarioPerfil> HorariosPerfiles { get; set; }
+        public DbSet<JornadaLaboral> JornadasLaborales { get; set; }
+        public DbSet<ObservacionesPerfil> ObservacionesPerfil { get; set; }
+        public DbSet<PrestacionesClientePerfil> PrestacionesClientePerfil { get; set; }
+        public DbSet<PeriodoPago> PeriodosPagos { get; set; }
+        public DbSet<PrestacionLey> PrestacionesLey { get; set; }
+        public DbSet<ProcesoCandidato> ProcesoCandidatos { get; set; }
+        public DbSet<ProcesoPerfil> ProcesosPerfil { get; set; }
+        public DbSet<PsicometriasCliente> PsicometriasCliente { get; set; }
+        public DbSet<PsicometriasDamsa> PsicometriasDamsa { get; set; }
+        public DbSet<RutasPerfil> RutasPerfil { get; set; }
+        public DbSet<TiempoContrato> TiemposContratos { get; set; }
+        public DbSet<TipoBeneficio> TiposBeneficios { get; set; }
+        public DbSet<TipoContrato> TiposContrato { get; set; }
+        public DbSet<TipoEmpresa> TiposEmpresas { get; set; }
+        public DbSet<TipoModalidad> TiposModalidades { get; set; }
+        public DbSet<TipodeNomina> TiposNominas { get; set; }
+        public DbSet<TipoPsicometria> TiposPsicometrias { get; set; }
+        public DbSet<TipoReclutamiento> TiposReclutamientos { get; set; }
+        #endregion
 
-		#region Sist
+        #region Sist
 
-		public DbSet<Ambito> Ambitos { get; set; }
-		public DbSet<Area> Areas { get; set; }
-		public DbSet<Cargo> Cargos { get; set; }
-		public DbSet<Colonia> Colonias { get; set; }
-		public DbSet<Direccion> Direcciones { get; set; }
-		public DbSet<Email> Emails { get; set; }
-		public DbSet<Estado> Estados { get; set; }
-		public DbSet<EstadoCivil> EstadosCiviles { get; set; }
-		public DbSet<EstadoEstudio> EstadosEstudios { get; set; }
-		public DbSet<Estructura> Estructuras { get; set; }
-		public DbSet<Genero> Generos { get; set; }
-		public DbSet<GradoEstudio> GradosEstudios { get; set; }
-		public DbSet<GiroEmpresa> GirosEmpresas { get; set; }
-		public DbSet<Municipio> Municipios { get; set; }
-		public DbSet<Pais> Paises { get; set; }
-		public DbSet<Persona> Personas { get; set; }
-		public DbSet<Telefono> Telefonos { get; set; }
-		public DbSet<TipoTelefono> TiposTelefonos { get; set; }
-		public DbSet<TipoDireccion> TiposDirecciones { get; set; }
-		public DbSet<TipoEstructura> TipoEstructuras { get; set; }
-		public DbSet<TipoRedSocial> TiposRedesSociales { get; set; }
+        public DbSet<Ambito> Ambitos { get; set; }
+        public DbSet<Area> Areas { get; set; }
+        public DbSet<Cargo> Cargos { get; set; }
+        public DbSet<Colonia> Colonias { get; set; }
+        public DbSet<Direccion> Direcciones { get; set; }
+        public DbSet<Email> Emails { get; set; }
+        public DbSet<Estado> Estados { get; set; }
+        public DbSet<EstadoCivil> EstadosCiviles { get; set; }
+        public DbSet<EstadoEstudio> EstadosEstudios { get; set; }
+        public DbSet<Estructura> Estructuras { get; set; }
+        public DbSet<Genero> Generos { get; set; }
+        public DbSet<GradoEstudio> GradosEstudios { get; set; }
+        public DbSet<GiroEmpresa> GirosEmpresas { get; set; }
+        public DbSet<GrupoUsuarios> GruposUsuarios { get; set; }
+        public DbSet<Municipio> Municipios { get; set; }
+        public DbSet<Pais> Paises { get; set; }
+        public DbSet<Persona> Personas { get; set; }
+        public DbSet<Privilegio> Privilegios { get; set; }
+        public DbSet<Telefono> Telefonos { get; set; }
+        public DbSet<TipoTelefono> TiposTelefonos { get; set; }
+        public DbSet<TipoDireccion> TiposDirecciones { get; set; }
+        public DbSet<TipoEstructura> TipoEstructuras { get; set; }
+        public DbSet<TipoRedSocial> TiposRedesSociales { get; set; }
         public DbSet<TipoAccion> TiposAcciones { get; set; }
         public DbSet<TipoMovimiento> TiposMovimientos { get; set; }
         public DbSet<TrazabilidadMes> TrazabilidadesMes { get; set; }
@@ -133,22 +135,22 @@ namespace SAGA.DAL
 
         #region REQUISICIONES (Vtas)
         public DbSet<Requisicion> Requisiciones { get; set; }
-		public DbSet<EscolaridadesRequi> EscolaridadesRequis { get; set; }
-		public DbSet<AptitudesRequi> AptitudesRequis { get; set; }
-		public DbSet<HorarioRequi> HorariosRequis { get; set; }
-		public DbSet<ActividadesRequi> ActividadesRequis { get; set; }
-		public DbSet<ObservacionesRequi> ObservacionesRequis { get; set; }
-		public DbSet<PsicometriasDamsaRequi> PsicometriasDamsaRequis { get; set; }
-		public DbSet<PsicometriasClienteRequi> PsicometriasClienteRequis { get; set; }
-		public DbSet<BeneficiosRequi> BeneficiosRequis { get; set; }
-		public DbSet<DocumentosClienteRequi> DocumentosClienteRequis { get; set; }
-		public DbSet<ProcesoRequi> ProcesoRequis { get; set; }
-		public DbSet<PrestacionesClienteRequi> PrestacionesClienteRequis { get; set; }
-		public DbSet<CompetenciaAreaRequi> CompetenciasAreaRequis { get; set; }
-		public DbSet<CompetenciaCardinalRequi> CompetenciasCardinalRequis { get; set; }
-		public DbSet<CompetenciaGerencialRequi> CompetetenciasGerencialRequis { get; set; }
-		public DbSet<AsignacionRequi> AsignacionRequis { get; set; }
-		public DbSet<TipoUsuario> TiposUsuarios { get; set; }
+        public DbSet<EscolaridadesRequi> EscolaridadesRequis { get; set; }
+        public DbSet<AptitudesRequi> AptitudesRequis { get; set; }
+        public DbSet<HorarioRequi> HorariosRequis { get; set; }
+        public DbSet<ActividadesRequi> ActividadesRequis { get; set; }
+        public DbSet<ObservacionesRequi> ObservacionesRequis { get; set; }
+        public DbSet<PsicometriasDamsaRequi> PsicometriasDamsaRequis { get; set; }
+        public DbSet<PsicometriasClienteRequi> PsicometriasClienteRequis { get; set; }
+        public DbSet<BeneficiosRequi> BeneficiosRequis { get; set; }
+        public DbSet<DocumentosClienteRequi> DocumentosClienteRequis { get; set; }
+        public DbSet<ProcesoRequi> ProcesoRequis { get; set; }
+        public DbSet<PrestacionesClienteRequi> PrestacionesClienteRequis { get; set; }
+        public DbSet<CompetenciaAreaRequi> CompetenciasAreaRequis { get; set; }
+        public DbSet<CompetenciaCardinalRequi> CompetenciasCardinalRequis { get; set; }
+        public DbSet<CompetenciaGerencialRequi> CompetetenciasGerencialRequis { get; set; }
+        public DbSet<AsignacionRequi> AsignacionRequis { get; set; }
+        public DbSet<TipoUsuario> TiposUsuarios { get; set; }
         public DbSet<HorariosDireccionesRequi> HorariosDireccionesRequi { get; set; }
         #endregion
 
@@ -159,168 +161,170 @@ namespace SAGA.DAL
 
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
-		{
-			//modelBuilder.Entity<PersonasMap>().Property(p => p.Email).HasColumnAnnotation(IndexAnnotation.AnnotationName, new IndexAnnotation(new IndexAttribute() { IsUnique = true }));
+        {
+            //modelBuilder.Entity<PersonasMap>().Property(p => p.Email).HasColumnAnnotation(IndexAnnotation.AnnotationName, new IndexAnnotation(new IndexAttribute() { IsUnique = true }));
 
-			modelBuilder.HasDefaultSchema("sist");
+            modelBuilder.HasDefaultSchema("sist");
 
-			//modelBuilder.Entity<IdentityUserLogin>().HasKey<string>(l => l.UserId);
-			//modelBuilder.Entity<IdentityRole>().HasKey<string>(r => r.Id);
-			//modelBuilder.Entity<IdentityUserRole>().HasKey(r => new { r.RoleId, r.UserId });
+            //modelBuilder.Entity<IdentityUserLogin>().HasKey<string>(l => l.UserId);
+            //modelBuilder.Entity<IdentityRole>().HasKey<string>(r => r.Id);
+            //modelBuilder.Entity<IdentityUserRole>().HasKey(r => new { r.RoleId, r.UserId });
 
-			#region Administracion_Sistema_Sist
-			modelBuilder.Configurations.Add(new EstructuraMap().ToTable("Estructuras"));
-			modelBuilder.Configurations.Add(new TipoEstructuraMap().ToTable("TiposEstructuras"));
-			modelBuilder.Configurations.Add(new AmbitoMap().ToTable("Ambitos"));
-			modelBuilder.Configurations.Add(new AreaMap().ToTable("Areas"));
-			modelBuilder.Configurations.Add(new ColoniasMap().ToTable("Colonias"));
-			modelBuilder.Configurations.Add(new CompetenciasAreasMap().ToTable("CompetenciasAreas"));
-			modelBuilder.Configurations.Add(new CompetenciasCardinalesMap().ToTable("CompetenciasCardinales"));
-			modelBuilder.Configurations.Add(new CompeteciasGerencialesMap().ToTable("CompetenciasGerenciales"));
-			modelBuilder.Configurations.Add(new DireccionMap().ToTable("Direcciones"));
-			modelBuilder.Configurations.Add(new EstadoMap().ToTable("Estados"));
-			modelBuilder.Configurations.Add(new EstatusMap().ToTable("Estatus"));
-			modelBuilder.Configurations.Add(new EmailMap().ToTable("Emails"));
-			modelBuilder.Configurations.Add(new EstadoCivilMap().ToTable("EstadosCiviles"));
-			modelBuilder.Configurations.Add(new EstadoEstudioMap().ToTable("EstadosEstudios"));
-			modelBuilder.Configurations.Add(new GeneroMap().ToTable("Generos"));
-			modelBuilder.Configurations.Add(new GradoEstudioMap().ToTable("GradosEstudios"));
-			modelBuilder.Configurations.Add(new GruposMap().ToTable("Grupos"));
-			modelBuilder.Configurations.Add(new GiroEmpresaMap().ToTable("GiroEmpresas"));
-			modelBuilder.Configurations.Add(new JornadaLaboralMap().ToTable("JornadasLaborales"));
-			modelBuilder.Configurations.Add(new MunicipioMap().ToTable("Municipios"));
-			modelBuilder.Configurations.Add(new NivelMap().ToTable("Niveles"));
-			modelBuilder.Configurations.Add(new PaisMap().ToTable("Paises"));
-			modelBuilder.Configurations.Add(new PrioridadMap().ToTable("Prioridades"));
-			modelBuilder.Configurations.Add(new RolesMap().ToTable("Roles"));
-			modelBuilder.Configurations.Add(new TamanoEmpresaMap().ToTable("TamanosEmpresas"));
-			modelBuilder.Configurations.Add(new TelefonoMap().ToTable("Telefonos"));
-			modelBuilder.Configurations.Add(new TiempoContratoMap().ToTable("TiemposContratos"));
-			modelBuilder.Configurations.Add(new TipoBaseMap().ToTable("TiposBases"));
-			modelBuilder.Configurations.Add(new TipoDireccionMap().ToTable("TiposDirecciones"));
-			modelBuilder.Configurations.Add(new TipoEmpresaMap().ToTable("TiposEmpresas"));
-			modelBuilder.Configurations.Add(new TipoTelefonoMap().ToTable("TiposTelefonos"));
-			modelBuilder.Configurations.Add(new TipoUsuarioMap().ToTable("TiposUsuarios"));
-			modelBuilder.Configurations.Add(new TipoBeneficioMap().ToTable("TiposBeneficios"));
-			modelBuilder.Configurations.Add(new TipoContratoMap().ToTable("TiposContratos"));
-			modelBuilder.Configurations.Add(new TipoModalidadMap().ToTable("TiposModalidades"));
-			modelBuilder.Configurations.Add(new TipodeNominaMap().ToTable("TiposNominas"));
-			modelBuilder.Configurations.Add(new TipoPsicometriaMap().ToTable("TiposPsicometrias"));
-			modelBuilder.Configurations.Add(new TipoReclutamientoMap().ToTable("TiposReclutamientos"));
-			modelBuilder.Configurations.Add(new UsuariosMap().ToTable("Usuarios"));
+            #region Administracion_Sistema_Sist
+            modelBuilder.Configurations.Add(new EstructuraMap().ToTable("Estructuras"));
+            modelBuilder.Configurations.Add(new TipoEstructuraMap().ToTable("TiposEstructuras"));
+            modelBuilder.Configurations.Add(new AmbitoMap().ToTable("Ambitos"));
+            modelBuilder.Configurations.Add(new AreaMap().ToTable("Areas"));
+            modelBuilder.Configurations.Add(new ColoniasMap().ToTable("Colonias"));
+            modelBuilder.Configurations.Add(new CompetenciasAreasMap().ToTable("CompetenciasAreas"));
+            modelBuilder.Configurations.Add(new CompetenciasCardinalesMap().ToTable("CompetenciasCardinales"));
+            modelBuilder.Configurations.Add(new CompeteciasGerencialesMap().ToTable("CompetenciasGerenciales"));
+            modelBuilder.Configurations.Add(new DireccionMap().ToTable("Direcciones"));
+            modelBuilder.Configurations.Add(new EstadoMap().ToTable("Estados"));
+            modelBuilder.Configurations.Add(new EstatusMap().ToTable("Estatus"));
+            modelBuilder.Configurations.Add(new EmailMap().ToTable("Emails"));
+            modelBuilder.Configurations.Add(new EstadoCivilMap().ToTable("EstadosCiviles"));
+            modelBuilder.Configurations.Add(new EstadoEstudioMap().ToTable("EstadosEstudios"));
+            modelBuilder.Configurations.Add(new GeneroMap().ToTable("Generos"));
+            modelBuilder.Configurations.Add(new GradoEstudioMap().ToTable("GradosEstudios"));
+            modelBuilder.Configurations.Add(new GruposMap().ToTable("Grupos"));
+            modelBuilder.Configurations.Add(new GiroEmpresaMap().ToTable("GiroEmpresas"));
+            modelBuilder.Configurations.Add(new JornadaLaboralMap().ToTable("JornadasLaborales"));
+            modelBuilder.Configurations.Add(new MunicipioMap().ToTable("Municipios"));
+            modelBuilder.Configurations.Add(new NivelMap().ToTable("Niveles"));
+            modelBuilder.Configurations.Add(new PaisMap().ToTable("Paises"));
+            modelBuilder.Configurations.Add(new PrioridadMap().ToTable("Prioridades"));
+            modelBuilder.Configurations.Add(new RolesMap().ToTable("Roles"));
+            modelBuilder.Configurations.Add(new TamanoEmpresaMap().ToTable("TamanosEmpresas"));
+            modelBuilder.Configurations.Add(new TelefonoMap().ToTable("Telefonos"));
+            modelBuilder.Configurations.Add(new TiempoContratoMap().ToTable("TiemposContratos"));
+            modelBuilder.Configurations.Add(new TipoBaseMap().ToTable("TiposBases"));
+            modelBuilder.Configurations.Add(new TipoDireccionMap().ToTable("TiposDirecciones"));
+            modelBuilder.Configurations.Add(new TipoEmpresaMap().ToTable("TiposEmpresas"));
+            modelBuilder.Configurations.Add(new TipoTelefonoMap().ToTable("TiposTelefonos"));
+            modelBuilder.Configurations.Add(new TipoUsuarioMap().ToTable("TiposUsuarios"));
+            modelBuilder.Configurations.Add(new TipoBeneficioMap().ToTable("TiposBeneficios"));
+            modelBuilder.Configurations.Add(new TipoContratoMap().ToTable("TiposContratos"));
+            modelBuilder.Configurations.Add(new TipoModalidadMap().ToTable("TiposModalidades"));
+            modelBuilder.Configurations.Add(new TipodeNominaMap().ToTable("TiposNominas"));
+            modelBuilder.Configurations.Add(new TipoPsicometriaMap().ToTable("TiposPsicometrias"));
+            modelBuilder.Configurations.Add(new TipoReclutamientoMap().ToTable("TiposReclutamientos"));
+            modelBuilder.Configurations.Add(new UsuariosMap().ToTable("Usuarios"));
             modelBuilder.Configurations.Add(new TipoAccionMap().ToTable("TiposAcciones"));
             modelBuilder.Configurations.Add(new TipoMovimientoMap().ToTable("TiposMovimientos"));
             modelBuilder.Configurations.Add(new TrazabilidadMesMap().ToTable("TrazabilidadMesMap"));
             modelBuilder.Configurations.Add(new RastreabilidadMesMap().ToTable("RastreabilidadMes"));
             modelBuilder.Configurations.Add(new FoliosMap().ToTable("Folios"));
-			//modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
-			#endregion
+            modelBuilder.Configurations.Add(new PrivilegiosMap().ToTable("Privilegios"));
+            modelBuilder.Configurations.Add(new GrupoUsuarioMap().ToTable("GruposUsuarios"));
+            //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
+            #endregion
 
-			#region BolsaTrabajo_BTra
-			modelBuilder.Configurations.Add(new AboutMeMap().ToTable("AcercaDeMi", "BTra"));
-			modelBuilder.Configurations.Add(new AreaExperienciaMap().ToTable("AreasExperiencia", "BTra"));
-			modelBuilder.Configurations.Add(new AreaInteresMap().ToTable("AreasInteres", "BTra"));
-			modelBuilder.Configurations.Add(new CarreraMap().ToTable("Carreras", "BTra"));
-			modelBuilder.Configurations.Add(new CertificacionMap().ToTable("Certificaciones", "BTra"));
-			modelBuilder.Configurations.Add(new ConocimientoOHabilidadMap().ToTable("ConocimientosHabilidades", "BTra"));
-			modelBuilder.Configurations.Add(new CursoMap().ToTable("Cursos", "BTra"));
-			modelBuilder.Configurations.Add(new DocumentoValidadorMap().ToTable("DocumentosValidadores", "BTra"));
-			modelBuilder.Configurations.Add(new FormulariosInicialesMap().ToTable("FormulariosIniciales", "BTra"));
-			modelBuilder.Configurations.Add(new FormacionMap().ToTable("Formaciones", "BTra"));
-			modelBuilder.Configurations.Add(new FormaContactoMap().ToTable("FormasContacto", "BTra"));
-			modelBuilder.Configurations.Add(new ExperienciaProfesionalMap().ToTable("ExperienciasProfesionales", "BTra"));
-			modelBuilder.Configurations.Add(new InstitucionEducativaMap().ToTable("InstitucionesEducativas", "BTra"));
-			modelBuilder.Configurations.Add(new PerfilCandidatoMap().ToTable("PerfilCandidato", "BTra"));
-			modelBuilder.Configurations.Add(new PerfilExperienciaMap().ToTable("PerfilExperiencia", "BTra"));
-			modelBuilder.Configurations.Add(new PostulacionMap().ToTable("Postulaciones", "BTra"));
-			modelBuilder.Configurations.Add(new StatusPostulacionMap().ToTable("StatusPostulaciones", "BTra"));
-			modelBuilder.Configurations.Add(new TipoDiscapacidadMap().ToTable("TiposDiscapacidades", "BTra"));
-			modelBuilder.Configurations.Add(new TipoLicenciaMap().ToTable("TiposLicencias", "BTra"));
-			modelBuilder.Configurations.Add(new TipoRedSocialMap().ToTable("TiposRedesSociales", "BTra"));
-			modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
+            #region BolsaTrabajo_BTra
+            modelBuilder.Configurations.Add(new AboutMeMap().ToTable("AcercaDeMi", "BTra"));
+            modelBuilder.Configurations.Add(new AreaExperienciaMap().ToTable("AreasExperiencia", "BTra"));
+            modelBuilder.Configurations.Add(new AreaInteresMap().ToTable("AreasInteres", "BTra"));
+            modelBuilder.Configurations.Add(new CarreraMap().ToTable("Carreras", "BTra"));
+            modelBuilder.Configurations.Add(new CertificacionMap().ToTable("Certificaciones", "BTra"));
+            modelBuilder.Configurations.Add(new ConocimientoOHabilidadMap().ToTable("ConocimientosHabilidades", "BTra"));
+            modelBuilder.Configurations.Add(new CursoMap().ToTable("Cursos", "BTra"));
+            modelBuilder.Configurations.Add(new DocumentoValidadorMap().ToTable("DocumentosValidadores", "BTra"));
+            modelBuilder.Configurations.Add(new FormulariosInicialesMap().ToTable("FormulariosIniciales", "BTra"));
+            modelBuilder.Configurations.Add(new FormacionMap().ToTable("Formaciones", "BTra"));
+            modelBuilder.Configurations.Add(new FormaContactoMap().ToTable("FormasContacto", "BTra"));
+            modelBuilder.Configurations.Add(new ExperienciaProfesionalMap().ToTable("ExperienciasProfesionales", "BTra"));
+            modelBuilder.Configurations.Add(new InstitucionEducativaMap().ToTable("InstitucionesEducativas", "BTra"));
+            modelBuilder.Configurations.Add(new PerfilCandidatoMap().ToTable("PerfilCandidato", "BTra"));
+            modelBuilder.Configurations.Add(new PerfilExperienciaMap().ToTable("PerfilExperiencia", "BTra"));
+            modelBuilder.Configurations.Add(new PostulacionMap().ToTable("Postulaciones", "BTra"));
+            modelBuilder.Configurations.Add(new StatusPostulacionMap().ToTable("StatusPostulaciones", "BTra"));
+            modelBuilder.Configurations.Add(new TipoDiscapacidadMap().ToTable("TiposDiscapacidades", "BTra"));
+            modelBuilder.Configurations.Add(new TipoLicenciaMap().ToTable("TiposLicencias", "BTra"));
+            modelBuilder.Configurations.Add(new TipoRedSocialMap().ToTable("TiposRedesSociales", "BTra"));
+            modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
             #endregion
 
             #region Reclutamiento_Recl
             modelBuilder.Configurations.Add(new ConfiguracionRequiMap().ToTable("ConfiguracionRequi", "Recl"));
             modelBuilder.Configurations.Add(new ActividadesPerfilMap().ToTable("ActividadesPerfil", "Recl"));
-			modelBuilder.Configurations.Add(new AptitudMap().ToTable("Aptitudes", "Recl"));
-			modelBuilder.Configurations.Add(new AptitudesPerfilMap().ToTable("AptitudesPerfil", "Recl"));
-			modelBuilder.Configurations.Add(new BeneficiosPerfilMap().ToTable("BeneficiosPerfil", "Recl"));
-			modelBuilder.Configurations.Add(new CompetenciaAreaPerfilMap().ToTable("CompetenciaAreaPerfil", "Recl"));
-			modelBuilder.Configurations.Add(new CompetenciaCardinalPerfilMap().ToTable("CompetenciaCardinalPerfil", "Recl"));
-			modelBuilder.Configurations.Add(new CompetenciaGerencialPerfilMap().ToTable("CompetenciaGerencialPerfil", "Recl"));
-			modelBuilder.Configurations.Add(new ClaseReclutamientoMap().ToTable("ClasesReclutamientos", "Recl"));
-			modelBuilder.Configurations.Add(new DAMFO_290Map().ToTable("DAMFO_290", "Recl"));
-			modelBuilder.Configurations.Add(new DiaObligatorioMap().ToTable("DiasObligatorios", "Recl"));
-			modelBuilder.Configurations.Add(new DiaSemanaMap().ToTable("DiasSemana", "Recl"));
-			modelBuilder.Configurations.Add(new DocumentosDamsaMap().ToTable("DocumentosDamsa", "Recl"));
-			modelBuilder.Configurations.Add(new DocumentosClienteMap().ToTable("DocumentosClientes", "Recl"));
-			modelBuilder.Configurations.Add(new EscolaridadesPerfilMap().ToTable("EscolaridadesPerfil", "Recl"));
-			modelBuilder.Configurations.Add(new HorarioPerfilMap().ToTable("HorariosPerfiles", "Recl"));
-			modelBuilder.Configurations.Add(new ObservacionesPerfilMap().ToTable("ObservacionesPerfil", "Recl"));
-			modelBuilder.Configurations.Add(new PeriodoPagoMap().ToTable("PeriodosPagos", "Recl"));
-			modelBuilder.Configurations.Add(new PrestacionesLeyMap().ToTable("PrestacionesLey", "Recl"));
-			modelBuilder.Configurations.Add(new PrestacionesClientePerfilMap().ToTable("PrestacionesClientePerfil", "Recl"));
-			modelBuilder.Configurations.Add(new ProcesoCandidatoMap().ToTable("ProcesoCandidatos", "Recl"));
-			modelBuilder.Configurations.Add(new PsicometriasDamsaMap().ToTable("PsicometriasDamsa", "Recl"));
-			modelBuilder.Configurations.Add(new PsicometriasClienteMap().ToTable("PsicometriasCliente", "Recl"));
-			modelBuilder.Configurations.Add(new ProcesoPerfilMap().ToTable("ProcesoPerfil", "Recl"));
-			modelBuilder.Configurations.Add(new RedSocialMap().ToTable("RedesSociales", "Recl"));
-			modelBuilder.Configurations.Add(new RutasPerfilMap().ToTable("RutasPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new AptitudMap().ToTable("Aptitudes", "Recl"));
+            modelBuilder.Configurations.Add(new AptitudesPerfilMap().ToTable("AptitudesPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new BeneficiosPerfilMap().ToTable("BeneficiosPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new CompetenciaAreaPerfilMap().ToTable("CompetenciaAreaPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new CompetenciaCardinalPerfilMap().ToTable("CompetenciaCardinalPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new CompetenciaGerencialPerfilMap().ToTable("CompetenciaGerencialPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new ClaseReclutamientoMap().ToTable("ClasesReclutamientos", "Recl"));
+            modelBuilder.Configurations.Add(new DAMFO_290Map().ToTable("DAMFO_290", "Recl"));
+            modelBuilder.Configurations.Add(new DiaObligatorioMap().ToTable("DiasObligatorios", "Recl"));
+            modelBuilder.Configurations.Add(new DiaSemanaMap().ToTable("DiasSemana", "Recl"));
+            modelBuilder.Configurations.Add(new DocumentosDamsaMap().ToTable("DocumentosDamsa", "Recl"));
+            modelBuilder.Configurations.Add(new DocumentosClienteMap().ToTable("DocumentosClientes", "Recl"));
+            modelBuilder.Configurations.Add(new EscolaridadesPerfilMap().ToTable("EscolaridadesPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new HorarioPerfilMap().ToTable("HorariosPerfiles", "Recl"));
+            modelBuilder.Configurations.Add(new ObservacionesPerfilMap().ToTable("ObservacionesPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new PeriodoPagoMap().ToTable("PeriodosPagos", "Recl"));
+            modelBuilder.Configurations.Add(new PrestacionesLeyMap().ToTable("PrestacionesLey", "Recl"));
+            modelBuilder.Configurations.Add(new PrestacionesClientePerfilMap().ToTable("PrestacionesClientePerfil", "Recl"));
+            modelBuilder.Configurations.Add(new ProcesoCandidatoMap().ToTable("ProcesoCandidatos", "Recl"));
+            modelBuilder.Configurations.Add(new PsicometriasDamsaMap().ToTable("PsicometriasDamsa", "Recl"));
+            modelBuilder.Configurations.Add(new PsicometriasClienteMap().ToTable("PsicometriasCliente", "Recl"));
+            modelBuilder.Configurations.Add(new ProcesoPerfilMap().ToTable("ProcesoPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new RedSocialMap().ToTable("RedesSociales", "Recl"));
+            modelBuilder.Configurations.Add(new RutasPerfilMap().ToTable("RutasPerfil", "Recl"));
 
-			//modelBuilder.Configurations.Add(new VacantesMap().ToTable("Vacantes", "Recl"));
+            //modelBuilder.Configurations.Add(new VacantesMap().ToTable("Vacantes", "Recl"));
 
 
-			#endregion
+            #endregion
 
-			#region Ventas_Vtas			
-			modelBuilder.Configurations.Add(new ActividadEmpMap().ToTable("ActividadEmpresas", "Vtas"));
-			modelBuilder.Configurations.Add(new ActividadesRequilMap().ToTable("ActividadesRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new AgenciaMap().ToTable("Agencias", "Vtas"));
-			modelBuilder.Configurations.Add(new AptitudesRequiMap().ToTable("AptitudesRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new AsignacionRequiMap().ToTable("AsignacionesRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new BeneficiosRequiMap().ToTable("BeneficiosRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new CompetenciasAreasRequiMap().ToTable("CompetenciasAreasRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new CompetenciaCardinalRequilMap().ToTable("CompetenciasCardinalesRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new CompetenciaGerencialRequiMap().ToTable("CompetenciasGerencialesRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new DocumentosClienteRequiMap().ToTable("DocumentosClienteRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new EscolaridadesRequiMap().ToTable("EscolaridadesRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new HorarioRequiMap().ToTable("HorariosRequi", "Vtas"));
+            #region Ventas_Vtas			
+            modelBuilder.Configurations.Add(new ActividadEmpMap().ToTable("ActividadEmpresas", "Vtas"));
+            modelBuilder.Configurations.Add(new ActividadesRequilMap().ToTable("ActividadesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new AgenciaMap().ToTable("Agencias", "Vtas"));
+            modelBuilder.Configurations.Add(new AptitudesRequiMap().ToTable("AptitudesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new AsignacionRequiMap().ToTable("AsignacionesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new BeneficiosRequiMap().ToTable("BeneficiosRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new CompetenciasAreasRequiMap().ToTable("CompetenciasAreasRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new CompetenciaCardinalRequilMap().ToTable("CompetenciasCardinalesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new CompetenciaGerencialRequiMap().ToTable("CompetenciasGerencialesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new DocumentosClienteRequiMap().ToTable("DocumentosClienteRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new EscolaridadesRequiMap().ToTable("EscolaridadesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new HorarioRequiMap().ToTable("HorariosRequi", "Vtas"));
             modelBuilder.Configurations.Add(new HorariosDireccionesRequiMap().ToTable("HorariosDireccionesRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new ObservacionesRequiMap().ToTable("ObservacionesRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new ProcesoRequiMap().ToTable("ProcesosRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new PrestacionesClienteRequiMap().ToTable("PrestacionesClienteRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new PsicometriasDamsaRequiMap().ToTable("PsicometriasDamsaRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new PsicometriasClienteRequiMap().ToTable("PsicometriasClienteRequi", "Vtas"));
-			modelBuilder.Configurations.Add(new RequisicionMap().ToTable("Requisiciones", "Vtas"));
-			#endregion
+            modelBuilder.Configurations.Add(new ObservacionesRequiMap().ToTable("ObservacionesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new ProcesoRequiMap().ToTable("ProcesosRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new PrestacionesClienteRequiMap().ToTable("PrestacionesClienteRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new PsicometriasDamsaRequiMap().ToTable("PsicometriasDamsaRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new PsicometriasClienteRequiMap().ToTable("PsicometriasClienteRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new RequisicionMap().ToTable("Requisiciones", "Vtas"));
+            #endregion
 
-			#region ServicioCliente_SCte
+            #region ServicioCliente_SCte
 
 
-			#endregion
+            #endregion
 
-			#region Herencia_de_persona
-			modelBuilder.Configurations.Add(new PersonaMap());
-			modelBuilder.Configurations.Add(new CandidatoMap());
-			modelBuilder.Configurations.Add(new ContactoMap());
-			modelBuilder.Configurations.Add(new ReferenciadoMap());
-			modelBuilder.Configurations.Add(new ClienteMap());
-			#endregion
+            #region Herencia_de_persona
+            modelBuilder.Configurations.Add(new PersonaMap());
+            modelBuilder.Configurations.Add(new CandidatoMap());
+            modelBuilder.Configurations.Add(new ContactoMap());
+            modelBuilder.Configurations.Add(new ReferenciadoMap());
+            modelBuilder.Configurations.Add(new ClienteMap());
+            #endregion
 
-		}
+        }
 
-		#region "Mapeo Sist"
-		public class AreaMap : EntityTypeConfiguration<Area>
-		{
-			public AreaMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Nombre).HasMaxLength(50).IsRequired();
-			}
-		}
-		public class PersonaMap : EntityTypeConfiguration<Persona>
-		{
+        #region "Mapeo Sist"
+        public class AreaMap : EntityTypeConfiguration<Area>
+        {
+            public AreaMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).HasMaxLength(50).IsRequired();
+            }
+        }
+        public class PersonaMap : EntityTypeConfiguration<Persona>
+        {
             public PersonaMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
@@ -329,373 +333,374 @@ namespace SAGA.DAL
                 Property(x => x.ApellidoPaterno).HasMaxLength(50);
                 Property(x => x.FechaNacimiento).HasColumnType("date").IsOptional();
             }
-		}
-		public class ClienteMap : EntityTypeConfiguration<Cliente>
-		{
-			public ClienteMap()
-			{
-				ToTable("Clientes", "Vtas");
-				Property(x => x.RazonSocial).HasMaxLength(100);
-				Property(x => x.Nombrecomercial).HasMaxLength(500);
-				Property(x => x.RFC).HasMaxLength(15);
-				Property(x => x.Clasificacion).HasMaxLength(10).IsRequired();
-				Property(x => x.NumeroEmpleados).IsRequired();
-				Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
-				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+        }
+        public class ClienteMap : EntityTypeConfiguration<Cliente>
+        {
+            public ClienteMap()
+            {
+                ToTable("Clientes", "Vtas");
+                Property(x => x.RazonSocial).HasMaxLength(100);
+                Property(x => x.Nombrecomercial).HasMaxLength(500);
+                Property(x => x.RFC).HasMaxLength(15);
+                Property(x => x.Clasificacion).HasMaxLength(10).IsRequired();
+                Property(x => x.NumeroEmpleados).IsRequired();
+                Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
+                Property(x => x.UsuarioAlta).IsOptional();
+                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
 
-			}
-		}
-		public class ColoniasMap : EntityTypeConfiguration<Colonia>
-		{
-			public ColoniasMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.colonia).HasMaxLength(100).IsRequired();
-				Property(x => x.CP).HasMaxLength(13).IsRequired();
-				Property(x => x.TipoColonia).HasMaxLength(50);
-				Property(x => x.MunicipioId).IsRequired();
-			}
-		}
-		public class CompetenciasCardinalesMap : EntityTypeConfiguration<CompetenciaCardinal>
-		{
-			public CompetenciasCardinalesMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.competenciaCardinal).HasMaxLength(100).IsRequired();
-			}
-		}
-		public class CompetenciasAreasMap : EntityTypeConfiguration<CompetenciaArea>
-		{
-			public CompetenciasAreasMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.competenciaArea).HasMaxLength(100).IsRequired();
-			}
-		}
-		public class CompeteciasGerencialesMap : EntityTypeConfiguration<CompetenciaGarencial>
-		{
-			public CompeteciasGerencialesMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.competenciaGerencial).HasMaxLength(100).IsRequired();
-			}
-		}
-		public class DiaSemanaMap : EntityTypeConfiguration<DiaSemana>
-		{
-			public DiaSemanaMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.diaSemana).HasMaxLength(15).IsRequired();
-			}
-		}
-		public class DireccionMap : EntityTypeConfiguration<Direccion>
-		{
-			public DireccionMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.TipoDireccionId).IsRequired();
-				Property(x => x.Calle).HasMaxLength(100);
-				Property(x => x.Referencia).HasMaxLength(500);
-				Property(x => x.NumeroExterior).HasMaxLength(10);
-				Property(x => x.NumeroInterior).HasMaxLength(30);
-				Property(x => x.PaisId).IsRequired();
-				Property(x => x.EstadoId);
-				Property(x => x.MunicipioId);
-				Property(x => x.ColoniaId);
-				Property(x => x.CodigoPostal).HasMaxLength(15).IsRequired();
+            }
+        }
+        public class ColoniasMap : EntityTypeConfiguration<Colonia>
+        {
+            public ColoniasMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.colonia).HasMaxLength(100).IsRequired();
+                Property(x => x.CP).HasMaxLength(13).IsRequired();
+                Property(x => x.TipoColonia).HasMaxLength(50);
+                Property(x => x.MunicipioId).IsRequired();
+            }
+        }
+        public class CompetenciasCardinalesMap : EntityTypeConfiguration<CompetenciaCardinal>
+        {
+            public CompetenciasCardinalesMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.competenciaCardinal).HasMaxLength(100).IsRequired();
+            }
+        }
+        public class CompetenciasAreasMap : EntityTypeConfiguration<CompetenciaArea>
+        {
+            public CompetenciasAreasMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.competenciaArea).HasMaxLength(100).IsRequired();
+            }
+        }
+        public class CompeteciasGerencialesMap : EntityTypeConfiguration<CompetenciaGarencial>
+        {
+            public CompeteciasGerencialesMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.competenciaGerencial).HasMaxLength(100).IsRequired();
+            }
+        }
+        public class DiaSemanaMap : EntityTypeConfiguration<DiaSemana>
+        {
+            public DiaSemanaMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.diaSemana).HasMaxLength(15).IsRequired();
+            }
+        }
+        public class DireccionMap : EntityTypeConfiguration<Direccion>
+        {
+            public DireccionMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.TipoDireccionId).IsRequired();
+                Property(x => x.Calle).HasMaxLength(100);
+                Property(x => x.Referencia).HasMaxLength(500);
+                Property(x => x.NumeroExterior).HasMaxLength(10);
+                Property(x => x.NumeroInterior).HasMaxLength(30);
+                Property(x => x.PaisId).IsRequired();
+                Property(x => x.EstadoId);
+                Property(x => x.MunicipioId);
+                Property(x => x.ColoniaId);
+                Property(x => x.CodigoPostal).HasMaxLength(15).IsRequired();
                 Property(x => x.UsuarioAlta).IsOptional();
                 Property(x => x.UsuarioMod).IsOptional();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
             }
-		}
-		public class EmailMap : EntityTypeConfiguration<Email>
-		{
-			public EmailMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.email).HasMaxLength(100).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
-				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
-			}
-		}
-		public class EstadoCivilMap : EntityTypeConfiguration<EstadoCivil>
-		{
-			public EstadoCivilMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.estadoCivil).HasMaxLength(20).IsRequired();
-			}
-		}
-		public class EstadoEstudioMap : EntityTypeConfiguration<EstadoEstudio>
-		{
-			public EstadoEstudioMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.estadoEstudio).HasMaxLength(15).IsRequired();
-			}
-		}
-		public class EstadoMap : EntityTypeConfiguration<Estado>
-		{
-			public EstadoMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.estado).HasMaxLength(100).IsRequired();
-				Property(x => x.PaisId).IsRequired();
-			}
-		}
-		public class EstatusMap : EntityTypeConfiguration<Estatus>
-		{
-			public EstatusMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
-				Property(x => x.Activo).IsOptional();
-			}
-		}
-		public class GeneroMap : EntityTypeConfiguration<Genero>
-		{
-			public GeneroMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.genero).HasMaxLength(15).IsRequired();
-			}
-		}
-		public class GiroEmpresaMap : EntityTypeConfiguration<GiroEmpresa>
-		{
-			public GiroEmpresaMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.giroEmpresa).HasMaxLength(15).IsRequired();
-			}
-		}
-		public class GradoEstudioMap : EntityTypeConfiguration<GradoEstudio>
-		{
-			public GradoEstudioMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.gradoEstudio).HasMaxLength(15).IsRequired();
-			}
-		}
-		public class GruposMap : EntityTypeConfiguration<Grupos>
-		{
-			public GruposMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Grupo).HasMaxLength(100).IsRequired().IsUnicode();
-				Property(x => x.Activo).IsOptional();
-			}
-		}
-		public class JornadaLaboralMap : EntityTypeConfiguration<JornadaLaboral>
-		{
-			public JornadaLaboralMap()
-			{
-				HasKey(x => x.Id);
-				Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Jornada).HasMaxLength(50).IsRequired();
-				Property(x => x.Orden).IsRequired();
-				Property(x => x.VariosHorarios).IsRequired();
-			}
-		}
-		public class MunicipioMap : EntityTypeConfiguration<Municipio>
-		{
-			public MunicipioMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.municipio).HasMaxLength(100).IsRequired();
-				Property(x => x.EstadoId).IsRequired();
-			}
-		}
-		public class NivelMap : EntityTypeConfiguration<Nivel>
-		{
-			public NivelMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.nivel).HasMaxLength(50).IsRequired();
-			}
-		}
-		public class PaisMap : EntityTypeConfiguration<Pais>
-		{
-			public PaisMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.pais).HasMaxLength(50).IsRequired();
+        }
+        public class EmailMap : EntityTypeConfiguration<Email>
+        {
+            public EmailMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.email).HasMaxLength(100).IsRequired();
+                Property(x => x.UsuarioAlta).IsOptional();
+                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+            }
+        }
+        public class EstadoCivilMap : EntityTypeConfiguration<EstadoCivil>
+        {
+            public EstadoCivilMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.estadoCivil).HasMaxLength(20).IsRequired();
+            }
+        }
+        public class EstadoEstudioMap : EntityTypeConfiguration<EstadoEstudio>
+        {
+            public EstadoEstudioMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.estadoEstudio).HasMaxLength(15).IsRequired();
+            }
+        }
+        public class EstadoMap : EntityTypeConfiguration<Estado>
+        {
+            public EstadoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.estado).HasMaxLength(100).IsRequired();
+                Property(x => x.PaisId).IsRequired();
+            }
+        }
+        public class EstatusMap : EntityTypeConfiguration<Estatus>
+        {
+            public EstatusMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
+                Property(x => x.Activo).IsOptional();
+            }
+        }
+        public class GeneroMap : EntityTypeConfiguration<Genero>
+        {
+            public GeneroMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.genero).HasMaxLength(15).IsRequired();
+            }
+        }
+        public class GiroEmpresaMap : EntityTypeConfiguration<GiroEmpresa>
+        {
+            public GiroEmpresaMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.giroEmpresa).HasMaxLength(15).IsRequired();
+            }
+        }
+        public class GradoEstudioMap : EntityTypeConfiguration<GradoEstudio>
+        {
+            public GradoEstudioMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.gradoEstudio).HasMaxLength(15).IsRequired();
+            }
+        }
+        public class GruposMap : EntityTypeConfiguration<Grupos>
+        {
+            public GruposMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Grupo).HasMaxLength(100).IsRequired().IsUnicode();
+                Property(x => x.Activo).IsOptional();
+            }
+        }
+        public class JornadaLaboralMap : EntityTypeConfiguration<JornadaLaboral>
+        {
+            public JornadaLaboralMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Jornada).HasMaxLength(50).IsRequired();
+                Property(x => x.Orden).IsRequired();
+                Property(x => x.VariosHorarios).IsRequired();
+            }
+        }
+        public class MunicipioMap : EntityTypeConfiguration<Municipio>
+        {
+            public MunicipioMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.municipio).HasMaxLength(100).IsRequired();
+                Property(x => x.EstadoId).IsRequired();
+            }
+        }
+        public class NivelMap : EntityTypeConfiguration<Nivel>
+        {
+            public NivelMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.nivel).HasMaxLength(50).IsRequired();
+            }
+        }
+        public class PaisMap : EntityTypeConfiguration<Pais>
+        {
+            public PaisMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.pais).HasMaxLength(50).IsRequired();
 
-			}
-		}
-		public class PrioridadMap : EntityTypeConfiguration<Prioridad>
-		{
-			public PrioridadMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
-				Property(x => x.Activo).IsOptional();
-			}
-		}
-		public class RolesMap : EntityTypeConfiguration<Roles>
-		{
-			public RolesMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Rol).HasMaxLength(20).IsRequired().IsUnicode();
-				Property(x => x.Create).IsOptional();
-				Property(x => x.Read).IsOptional();
-				Property(x => x.Update).IsOptional();
-				Property(x => x.Delete).IsOptional();
-				Property(x => x.Activo).IsOptional();
-			}
-		}
-		public class TamanoEmpresaMap : EntityTypeConfiguration<TamanoEmpresa>
-		{
-			public TamanoEmpresaMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.tamanoEmpresa).HasMaxLength(30).IsRequired();
-			}
-		}
-		public class TelefonoMap : EntityTypeConfiguration<Telefono>
-		{
-			public TelefonoMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.ClavePais).HasMaxLength(5).IsRequired();
-				Property(x => x.ClaveLada).HasMaxLength(5);
-				Property(x => x.telefono).HasMaxLength(15).IsRequired();
-				Property(x => x.Extension).HasMaxLength(10);
-				Property(x => x.esPrincipal).IsRequired();
-				Property(x => x.TipoTelefonoId).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
-				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
-			}
-		}
-		public class TiempoContratoMap : EntityTypeConfiguration<TiempoContrato>
-		{
-			public TiempoContratoMap()
-			{
-				HasKey(x => x.Id);
-				Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Tiempo).HasMaxLength(50).IsRequired();
-				Property(x => x.Orden).IsRequired();
-			}
-		}
-		public class TipoBaseMap : EntityTypeConfiguration<TipoBase>
-		{
-			public TipoBaseMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.tipoBase).HasMaxLength(50).IsRequired();
-			}
-		}
-		public class TipoDireccionMap : EntityTypeConfiguration<TipoDireccion>
-		{
-			public TipoDireccionMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.tipoDireccion).HasMaxLength(50).IsRequired().IsUnicode();
-			}
-		}
-		public class TipoEmpresaMap : EntityTypeConfiguration<TipoEmpresa>
-		{
-			public TipoEmpresaMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.tipoEmpresa).HasMaxLength(20).IsRequired();
-			}
-		}
-		public class TipoTelefonoMap : EntityTypeConfiguration<TipoTelefono>
-		{
-			public TipoTelefonoMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Tipo).HasMaxLength(15).IsRequired();
-			}
-		}
-		public class TipoModalidadMap : EntityTypeConfiguration<TipoModalidad>
-		{
-			public TipoModalidadMap()
-			{
-				HasKey(x => x.Id);
-				Property(x => x.Modalidad).HasMaxLength(50).IsRequired();
-				Property(x => x.Orden).IsRequired();
-			}
-		}
-		public class TipoUsuarioMap : EntityTypeConfiguration<TipoUsuario>
-		{
-			public TipoUsuarioMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Tipo).HasMaxLength(30).IsRequired();
-			}
-		}
-		public class UsuariosMap : EntityTypeConfiguration<Usuarios>
-		{
-			public UsuariosMap()
-			{
-				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.Usuario).HasMaxLength(20).IsRequired().IsUnicode();
-				Property(x => x.Password).HasMaxLength(40).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
-				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+            }
+        }
+        public class PrioridadMap : EntityTypeConfiguration<Prioridad>
+        {
+            public PrioridadMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
+                Property(x => x.Activo).IsOptional();
+            }
+        }
+        public class RolesMap : EntityTypeConfiguration<Roles>
+        {
+            public RolesMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Rol).HasMaxLength(20).IsRequired().IsUnicode();
+                Property(x => x.Create).IsOptional();
+                Property(x => x.Read).IsOptional();
+                Property(x => x.Update).IsOptional();
+                Property(x => x.Delete).IsOptional();
+                Property(x => x.Activo).IsOptional();
+                Property(x => x.Espacial).IsOptional();
+            }
+        }
+        public class TamanoEmpresaMap : EntityTypeConfiguration<TamanoEmpresa>
+        {
+            public TamanoEmpresaMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.tamanoEmpresa).HasMaxLength(30).IsRequired();
+            }
+        }
+        public class TelefonoMap : EntityTypeConfiguration<Telefono>
+        {
+            public TelefonoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.ClavePais).HasMaxLength(5).IsRequired();
+                Property(x => x.ClaveLada).HasMaxLength(5);
+                Property(x => x.telefono).HasMaxLength(15).IsRequired();
+                Property(x => x.Extension).HasMaxLength(10);
+                Property(x => x.esPrincipal).IsRequired();
+                Property(x => x.TipoTelefonoId).IsRequired();
+                Property(x => x.UsuarioAlta).IsOptional();
+                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+            }
+        }
+        public class TiempoContratoMap : EntityTypeConfiguration<TiempoContrato>
+        {
+            public TiempoContratoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Tiempo).HasMaxLength(50).IsRequired();
+                Property(x => x.Orden).IsRequired();
+            }
+        }
+        public class TipoBaseMap : EntityTypeConfiguration<TipoBase>
+        {
+            public TipoBaseMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.tipoBase).HasMaxLength(50).IsRequired();
+            }
+        }
+        public class TipoDireccionMap : EntityTypeConfiguration<TipoDireccion>
+        {
+            public TipoDireccionMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.tipoDireccion).HasMaxLength(50).IsRequired().IsUnicode();
+            }
+        }
+        public class TipoEmpresaMap : EntityTypeConfiguration<TipoEmpresa>
+        {
+            public TipoEmpresaMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.tipoEmpresa).HasMaxLength(20).IsRequired();
+            }
+        }
+        public class TipoTelefonoMap : EntityTypeConfiguration<TipoTelefono>
+        {
+            public TipoTelefonoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Tipo).HasMaxLength(15).IsRequired();
+            }
+        }
+        public class TipoModalidadMap : EntityTypeConfiguration<TipoModalidad>
+        {
+            public TipoModalidadMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Modalidad).HasMaxLength(50).IsRequired();
+                Property(x => x.Orden).IsRequired();
+            }
+        }
+        public class TipoUsuarioMap : EntityTypeConfiguration<TipoUsuario>
+        {
+            public TipoUsuarioMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Tipo).HasMaxLength(30).IsRequired();
+            }
+        }
+        public class UsuariosMap : EntityTypeConfiguration<Usuarios>
+        {
+            public UsuariosMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Usuario).HasMaxLength(20).IsRequired().IsUnicode();
+                Property(x => x.Password).HasMaxLength(40).IsRequired();
+                Property(x => x.UsuarioAlta).IsOptional();
+                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
 
-				//HasMany(x => x.Grupos)
-				//    .WithMany(x => x.Usuarios)
-				//    .Map(mu =>
-				//    {
-				//        // UsrGrupos
-				//        mu.MapLeftKey("IdUsuario");
-				//        mu.MapRightKey("IdGrupo");
-				//        mu.ToTable("UsrGrupos");
-				//    });
-			}
-		}
-		public class TipoEstructuraMap : EntityTypeConfiguration<TipoEstructura>
-		{
-			public TipoEstructuraMap()
-			{
-				HasKey(e => e.Id);
-				Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(e => e.Nombre).HasMaxLength(25).IsRequired();
-			}
-		}
-		public class AmbitoMap : EntityTypeConfiguration<Ambito>
-		{
-			public AmbitoMap()
-			{
-				HasKey(e => e.Id);
-				Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(e => e.Nombre).HasMaxLength(5).IsRequired();
-			}
-		}
-		public class EstructuraMap : EntityTypeConfiguration<Estructura>
-		{
-			public EstructuraMap()
-			{
-				HasKey(e => e.Id);
-				Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(e => e.IdPadre);
-				Property(e => e.TipoEstructuraId).IsRequired();
-				Property(e => e.Nombre).HasMaxLength(100);
-				Property(e => e.Descripcion).HasMaxLength(150);
-				Property(e => e.Orden).IsRequired();
-				Property(e => e.AmbitoId).IsRequired();
-				Property(e => e.Menu).IsRequired();
-				Property(e => e.Confidencial).IsRequired();
-				Property(e => e.Inclusivo).IsRequired();
-				Property(e => e.Activo).IsRequired();
-				Property(e => e.Icono).HasMaxLength(100);
-				Property(e => e.Accion).HasMaxLength(500);
+                //HasMany(x => x.Grupos)
+                //    .WithMany(x => x.Usuarios)
+                //    .Map(mu =>
+                //    {
+                //        // UsrGrupos
+                //        mu.MapLeftKey("IdUsuario");
+                //        mu.MapRightKey("IdGrupo");
+                //        mu.ToTable("UsrGrupos");
+                //    });
+            }
+        }
+        public class TipoEstructuraMap : EntityTypeConfiguration<TipoEstructura>
+        {
+            public TipoEstructuraMap()
+            {
+                HasKey(e => e.Id);
+                Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(e => e.Nombre).HasMaxLength(25).IsRequired();
+            }
+        }
+        public class AmbitoMap : EntityTypeConfiguration<Ambito>
+        {
+            public AmbitoMap()
+            {
+                HasKey(e => e.Id);
+                Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(e => e.Nombre).HasMaxLength(5).IsRequired();
+            }
+        }
+        public class EstructuraMap : EntityTypeConfiguration<Estructura>
+        {
+            public EstructuraMap()
+            {
+                HasKey(e => e.Id);
+                Property(e => e.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(e => e.IdPadre);
+                Property(e => e.TipoEstructuraId).IsRequired();
+                Property(e => e.Nombre).HasMaxLength(100);
+                Property(e => e.Descripcion).HasMaxLength(150);
+                Property(e => e.Orden).IsRequired();
+                Property(e => e.AmbitoId).IsRequired();
+                Property(e => e.Menu).IsRequired();
+                Property(e => e.Confidencial).IsRequired();
+                Property(e => e.Inclusivo).IsRequired();
+                Property(e => e.Activo).IsRequired();
+                Property(e => e.Icono).HasMaxLength(100);
+                Property(e => e.Accion).HasMaxLength(500);
                 Property(e => e.TipoEstructuraId).IsOptional();
-			}
-		}
+            }
+        }
         public class TipoMovimientoMap : EntityTypeConfiguration<TipoMovimiento>
         {
             public TipoMovimientoMap()
@@ -756,6 +761,30 @@ namespace SAGA.DAL
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
             }
         }
+
+        public class PrivilegiosMap : EntityTypeConfiguration<Privilegio>
+        {
+            public PrivilegiosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.IdGrupo_IdUsuario).IsRequired();
+                Property(x => x.Tipo).IsRequired();
+            }
+        }
+
+        public class GrupoUsuarioMap : EntityTypeConfiguration<GrupoUsuarios>
+        {
+            public GrupoUsuarioMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.GrupoId).IsRequired();
+                Property(x => x.UsuarioId).IsRequired();
+            }
+        }
+
+
         #endregion
 
         #region "Mapeo BTra"
