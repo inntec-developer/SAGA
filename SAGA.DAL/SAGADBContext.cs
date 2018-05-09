@@ -493,6 +493,12 @@ namespace SAGA.DAL
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Grupo).HasMaxLength(100).IsRequired().IsUnicode();
                 Property(x => x.Activo).IsOptional();
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+                Property(x => x.Foto).HasMaxLength(200);
+                Property(x => x.Descripcion).HasMaxLength(100);
             }
         }
         public class JornadaLaboralMap : EntityTypeConfiguration<JornadaLaboral>
@@ -552,7 +558,7 @@ namespace SAGA.DAL
                 Property(x => x.Update).IsOptional();
                 Property(x => x.Delete).IsOptional();
                 Property(x => x.Activo).IsOptional();
-                Property(x => x.Espacial).IsOptional();
+                Property(x => x.Especial).IsOptional();
             }
         }
         public class TamanoEmpresaMap : EntityTypeConfiguration<TamanoEmpresa>
@@ -650,6 +656,8 @@ namespace SAGA.DAL
                 Property(x => x.UsuarioMod).IsOptional();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+                Property(x => x.Foto).HasMaxLength(200);
+                Property(x => x.Clave).HasMaxLength(20);
 
                 //HasMany(x => x.Grupos)
                 //    .WithMany(x => x.Usuarios)
@@ -769,6 +777,7 @@ namespace SAGA.DAL
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.IdGrupo_IdUsuario).IsRequired();
+                Property(x => x.RolId).IsRequired();
                 Property(x => x.Tipo).IsRequired();
             }
         }

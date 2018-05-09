@@ -7,12 +7,18 @@ using System.Threading.Tasks;
 
 namespace SAGA.BOL
 {
-    public class Grupos : Persona
+    public class Grupos
     {
         [Key]
+        public Guid Id { get; set; }
         public string Grupo { get; set; }
         public bool Activo { get; set; }
+        public string Foto { get; set; }
+        public string Descripcion { get; set; }
+        public string UsuarioAlta { get; set; }
+        public DateTime fch_Creacion { get; set; }
+        public string UsuarioMod { get; set; }
+        public DateTime? fch_Modificacion { get; set; }
 
-        public virtual ICollection<Usuarios> Usuarios { get; set; }
     }
 }

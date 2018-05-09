@@ -17,11 +17,11 @@ namespace SAGA.BOL
         public DateTime fch_Creacion { get; set; }
         public string UsuarioMod { get; set; }
         public DateTime? fch_Modificacion { get; set; }
+        public string Foto { get; set; }
+        public string Clave { get; set; }
 
         public virtual TipoUsuario TipoUsuario { get; set; }
-
-        public virtual ICollection<Roles> Roles { get; set; }
-        public virtual ICollection<Grupos> Grupos { get; set; }
+   
 
     }
 }
