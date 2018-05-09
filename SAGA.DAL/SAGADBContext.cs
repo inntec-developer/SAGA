@@ -702,7 +702,7 @@ namespace SAGA.DAL
                 Property(e => e.AmbitoId).IsRequired();
                 Property(e => e.Menu).IsRequired();
                 Property(e => e.Confidencial).IsRequired();
-                Property(e => e.Inclusivo).IsRequired();
+             //   Property(e => e.Inclusivo).IsRequired();
                 Property(e => e.Activo).IsRequired();
                 Property(e => e.Icono).HasMaxLength(100);
                 Property(e => e.Accion).HasMaxLength(500);

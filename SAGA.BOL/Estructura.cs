@@ -15,16 +15,18 @@ namespace SAGA.BOL
         public int Orden { get; set; }
         public bool Menu { get; set; }
         public bool Confidencial { get; set; }
-        public bool Inclusivo { get; set; }
+    //  public bool Inclusivo { get; set; }
         public bool Activo { get; set; }
         public string Icono { get; set; }
         public string Accion { get; set; }
         public int TipoEstructuraId { get; set; }
         public int AmbitoId { get; set; }
         public int TipoMovimientoId { get; set; }
+        
 
         public virtual TipoEstructura TipoEstructura { get; set; }
         public virtual Ambito Ambito { get; set; }
         public virtual TipoMovimiento TipoMovimiento { get; set; }
+        
     }
 }
