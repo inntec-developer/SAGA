@@ -56,7 +56,7 @@ namespace SAGA.BOL
         public virtual ClaseReclutamiento ClaseReclutamiento { get; set; }
         public virtual Genero Genero { get; set; }
         public virtual EstadoCivil EstadoCivil { get; set; }
-        public virtual Area Area { get; set; }
+        public virtual AreaExperiencia Area { get; set; }
         public virtual DiaSemana DiaCorte { get; set; }
         public virtual TipodeNomina TipoNomina { get; set; }
         public virtual DiaSemana DiaPago { get; set; }

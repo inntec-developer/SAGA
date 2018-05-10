@@ -10,7 +10,7 @@ namespace SAGA.BOL
         public GiroEmpresa GiroEmpresa { get; set; }
         public string CargoAsignado { get; set; }
         public int AreaId { get; set; }
-        public virtual Area Area { get; set; }
+        public virtual AreaExperiencia Area { get; set; }
         public int YearInicioId { get; set; }
         public virtual Year YearInicio { get; set; }
         public int MonthInicioId { get; set; }

@@ -30,7 +30,7 @@ namespace SAGA.API.Controllers
                 e.Id
                 , e.VBtra
                 , e.Experiencia
-                , e.Area
+                //, e.Area
                 , e.TipoReclutamiento
                 , Actividad = db.ActividadesRequis.Where(a => a.RequisicionId == e.Id).
                 Select(a => a.Actividades).FirstOrDefault()

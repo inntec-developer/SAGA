@@ -131,6 +131,7 @@ namespace SAGA.DAL
         public DbSet<TrazabilidadMes> TrazabilidadesMes { get; set; }
         public DbSet<RastreabilidadMes> RastreabilidadMes { get; set; }
         public DbSet<Folio> Folios { get; set; }
+        public DbSet<Departamento> Departamentos { get; set; }
         #endregion
 
         #region REQUISICIONES (Vtas)
@@ -217,6 +218,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new FoliosMap().ToTable("Folios"));
             modelBuilder.Configurations.Add(new PrivilegiosMap().ToTable("Privilegios"));
             modelBuilder.Configurations.Add(new GrupoUsuarioMap().ToTable("GruposUsuarios"));
+            modelBuilder.Configurations.Add(new DepartamentoMap().ToTable("Departamentos"));
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
@@ -1044,6 +1046,18 @@ namespace SAGA.DAL
 
 			}
 		}
+
+        public  class DepartamentoMap : EntityTypeConfiguration<Departamento>
+        {
+            public DepartamentoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.AreaId).IsRequired();
+                Property(x => x.Clave).HasMaxLength(4).IsRequired();
+                Property(x => x.Nombre).HasMaxLength(50).IsRequired();
+            }
+        }
 		#endregion
 
 		#region "Mapeo Vtas"
