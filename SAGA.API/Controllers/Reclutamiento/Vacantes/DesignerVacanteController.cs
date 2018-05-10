@@ -32,9 +32,9 @@ namespace SAGA.API.Controllers
                 , e.Experiencia
                 , e.Area
                 , e.TipoReclutamiento
-                , Actividad = db.ActividadesRequis.Where(a => a.RequisicionId == e.Id).Select(a => a.Actividades).FirstOrDefault()
+                , Actividad = db.ActividadesRequis.Where(a => a.RequisicionId == e.Id).
+                Select(a => a.Actividades).FirstOrDefault()
             }).ToList();
-            
             return Ok(datos);
         }
 
@@ -43,9 +43,23 @@ namespace SAGA.API.Controllers
         public IHttpActionResult Campos()
         {
             var datos = db.Estructuras.Where(a =>
-                                                a.Activo == true &&
-                                                a.TipoEstructuraId == 7 
-                                              //  && a.Clave == "Requi"
+                                                a.Activo == true
+                                                && a.TipoEstructuraId == 8
+                                                && a.TipoMovimientoId == 3
+                                                && a.Activo == true
+                                            ).OrderBy(e => e.Id).ToList();
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("getClasificaciones")]
+        public IHttpActionResult Clasificaciones()
+        {
+            var datos = db.Estructuras.Where(a =>
+                                                a.Activo == true
+                                                && a.TipoEstructuraId == 7
+                                                && a.TipoMovimientoId == 3
+                                                && a.Activo == true
                                             ).OrderBy(e => e.Id).ToList();
             return Ok(datos);
         }
@@ -221,8 +235,33 @@ namespace SAGA.API.Controllers
         [Route("getGenerales")]
         public IHttpActionResult General(Guid Requi)
         {
-            var datos = Listado(1, Requi);
-            return Ok(datos);
+            List<listadoEstru> lista = new List<listadoEstru>();
+            var datos = db.Estructuras.Where(a => a.Activo == true
+                                               && a.TipoEstructuraId == 8
+                                               && a.TipoMovimientoId == 3
+                                            ).OrderBy(e => e.Orden).ToList();
+            var configura = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();          
+                foreach (var item in datos)
+                {
+                    listadoEstru pieza = new listadoEstru();
+                    pieza.Id = item.Id;
+                    pieza.idPadre = item.IdPadre;
+                    pieza.Nombre = item.Nombre;
+                    pieza.Descripcion = item.Descripcion;
+                    pieza.Activo = item.Activo;
+                    pieza.Confidencial = item.Confidencial;
+                    pieza.Icono = item.Icono;
+                    pieza.Resumen = false;
+                    pieza.Detalle = false;
+                    if (configura.Count > 0)
+                    {
+                        pieza.Resumen = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Resumen).FirstOrDefault();
+                        pieza.Detalle = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Detalle).FirstOrDefault();
+                    }
+                    lista.Add(pieza);
+                }
+ 
+            return Ok(lista);
         }
 
 
@@ -392,21 +431,22 @@ namespace SAGA.API.Controllers
         {
 
             List<listadoEstru> lista = new List<listadoEstru>();
-            var datos = db.Estructuras.Where(a => a.Orden == Orden 
-                                                && a.Activo == true 
-                                               // && a.Clave == "Requi"
-                                             ).OrderBy(e=>e.Nombre).ToList();
+            var datos = db.Estructuras.Where(a => a.Activo == true 
+                                                && a.TipoEstructuraId == 8
+                                                && a.TipoMovimientoId == 3
+                                             ).OrderBy(e=>e.Orden).ToList();
             var configuracion = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
             foreach (var item in datos)
             {
                 listadoEstru pieza = new listadoEstru();
                 pieza.Id = item.Id;
+                pieza.idPadre = item.IdPadre;
                 pieza.Nombre = item.Nombre;
                 pieza.Descripcion = item.Descripcion;
                 pieza.Activo = item.Activo;
-           //     pieza.Confidencial = item.Confidencial;
+                pieza.Confidencial = item.Confidencial;
            //     pieza.DescripcionInclusivo = item.DescripcionInclusivo;
-                pieza.Inclusivo = item.Inclusivo;
+           //     pieza.Inclusivo = item.Inclusivo;
                 pieza.Icono = item.Icono;
                 pieza.Resumen = false;
                 pieza.Detalle = false;
@@ -423,6 +463,7 @@ namespace SAGA.API.Controllers
         public class listadoEstru
         {
             public int Id { get; set; }
+            public int idPadre { get; set; }
             public string Nombre { get; set; }
             public string Descripcion { get; set; }
             public bool Activo { get; set; }
