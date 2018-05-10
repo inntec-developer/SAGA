@@ -321,6 +321,8 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Nombre).HasMaxLength(50).IsRequired();
+                Property(x => x.Clave).HasMaxLength(4).IsRequired();
+                Property(x => x.Orden).IsOptional();
             }
         }
         public class PersonaMap : EntityTypeConfiguration<Persona>
