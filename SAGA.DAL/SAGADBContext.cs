@@ -460,6 +460,8 @@ namespace SAGA.DAL
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
                 Property(x => x.Activo).IsOptional();
+                Property(x => x.TipoMovimiento).IsRequired();
+                Property(x => x.Orden).IsOptional();
             }
         }
         public class GeneroMap : EntityTypeConfiguration<Genero>
