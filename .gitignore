@@ -36,21 +36,6 @@ obj
 *.out
 *.app
 
-SAGA.DAL/bin/Debug/SAGA.DAL.pdb
-SAGA.DAL/bin/Debug/SAGA.DAL.dll
-SAGA.API/bin/SAGA.DAL.pdb
-SAGA.API/bin/SAGA.DAL.dll
-SAGA.API/bin/SAGA.API.pdb
-SAGA.API/bin/SAGA.API.dll
-SAGA.API/bin/EntityFramework.dll
-
-SAGA.DAL/SAGA.DAL.csproj
-
-SAGA.DAL/bin/Debug/SAGA.DAL.dll.config
-*.dll
-
-SAGA.DAL/App.config
-SAGA.API/Web.config
-
+SAGA.DAL/bin/
+SAGA.DAL/bin/
 SAGA.DAL/Migrations/
-SAGA.DAL/SAGA.DAL.csproj
