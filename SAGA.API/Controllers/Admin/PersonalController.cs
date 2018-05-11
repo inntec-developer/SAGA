@@ -53,6 +53,15 @@ namespace SAGA.API.Controllers.Admin
         }
 
         [HttpGet]
+        [Route("getDepa")]
+        public IHttpActionResult getDepartamento()
+        {
+            var tu = db.Departamentos.Select(t => new { t.Id, t.Nombre }).OrderBy(x => x.Nombre).ToList();
+            return Ok(tu);
+
+        }
+
+        [HttpGet]
         [Route("getTipos")]
         public IHttpActionResult getTiposUsuarios()
         {

@@ -17,6 +17,7 @@ namespace SAGA.API.Dtos.Admin
         public string Usuario { get; set; } //alias
         public string Email { get; set; }
         public string fechaInicio { get; set; }
+        public string Departamento { get; set; }
        
     }
 }
