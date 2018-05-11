@@ -36,6 +36,12 @@ obj
 *.out
 *.app
 
-SAGA.DAL/bin/
+SAGA.API/bin/Debuger/
+SAGA.API/bin/Release/
+SAGA.API/bin/
+SAGA.BOL/bin/Debuger/
+SAGA.BOL/bin/Release/
+SAGA.BOL/bin/
+SAGA.DAL/bin/Debuger/
 SAGA.DAL/bin/
 SAGA.DAL/Migrations/
