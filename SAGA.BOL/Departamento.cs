@@ -9,7 +9,7 @@ namespace SAGA.BOL
     public class Departamento
     {
         [key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int AreaId { get; set; }
         public string Clave { get; set; }
         public string Nombre { get; set; }

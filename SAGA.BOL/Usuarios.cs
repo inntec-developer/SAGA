@@ -19,9 +19,11 @@ namespace SAGA.BOL
         public DateTime? fch_Modificacion { get; set; }
         public string Foto { get; set; }
         public string Clave { get; set; }
+        public Guid DepartamentoId { get; set; }
 
         public virtual TipoUsuario TipoUsuario { get; set; }
-   
+        public virtual Departamento Departamento { get; set; }
+
 
     }
 }

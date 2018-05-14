@@ -213,7 +213,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new UsuariosMap().ToTable("Usuarios"));
             modelBuilder.Configurations.Add(new TipoAccionMap().ToTable("TiposAcciones"));
             modelBuilder.Configurations.Add(new TipoMovimientoMap().ToTable("TiposMovimientos"));
-            modelBuilder.Configurations.Add(new TrazabilidadMesMap().ToTable("TrazabilidadMesMap"));
+            modelBuilder.Configurations.Add(new TrazabilidadMesMap().ToTable("TrazabilidadMes"));
             modelBuilder.Configurations.Add(new RastreabilidadMesMap().ToTable("RastreabilidadMes"));
             modelBuilder.Configurations.Add(new FoliosMap().ToTable("Folios"));
             modelBuilder.Configurations.Add(new PrivilegiosMap().ToTable("Privilegios"));
@@ -664,6 +664,7 @@ namespace SAGA.DAL
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
                 Property(x => x.Foto).HasMaxLength(200);
                 Property(x => x.Clave).HasMaxLength(20);
+                Property(x => x.DepartamentoId).IsOptional();
 
                 //HasMany(x => x.Grupos)
                 //    .WithMany(x => x.Usuarios)
