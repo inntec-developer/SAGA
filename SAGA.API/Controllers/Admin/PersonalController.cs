@@ -6,7 +6,8 @@ using System.Net.Http;
 using System.Web.Http;
 using SAGA.DAL;
 using SAGA.BOL;
-using SAGA.API.Dtos.Admin;
+using SAGA.API.Dtos;
+using AutoMapper;
 
 namespace SAGA.API.Controllers.Admin
 {
@@ -27,13 +28,13 @@ namespace SAGA.API.Controllers.Admin
 
             dts = db.Usuarios.Where(x => x.Activo.Equals(true)).Select(c => new PersonasDtos
             {
-                Id= c.Id,
+                Id = c.Id,
                 nombre = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.Nombre).FirstOrDefault(),
                 apellidoPaterno = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.ApellidoPaterno).FirstOrDefault(),
                 apellidoMaterno = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.ApellidoMaterno).FirstOrDefault(),
                 tipoUsuario = c.TipoUsuario.Tipo,
                 Usuario = c.Usuario,
-                Email = db.Emails.Where(e => e.PersonaId.Equals(c.Id)).Select(x => x.email).FirstOrDefault()
+               
 
             }).ToList();
 
@@ -52,24 +53,37 @@ namespace SAGA.API.Controllers.Admin
 
         }
 
-        [HttpGet]
-        [Route("getDepa")]
-        public IHttpActionResult getDepartamento()
+       
+        [HttpPost]
+        [Route("addUsuario")]
+        public IHttpActionResult AddUsuario(PersonasDtos listJson)
         {
-            var tu = db.Departamentos.Select(t => new { t.Id, t.Nombre }).OrderBy(x => x.Nombre).ToList();
-            return Ok(tu);
+            string msj = "Se agregó usuario";
 
+            try
+            {
+                var usuario = Mapper.Map<PersonasDtos, Usuarios>(listJson);
+                usuario.Clave = listJson.Clave;
+                usuario.Usuario = listJson.Usuario;
+                usuario.Nombre = listJson.nombre;
+                usuario.ApellidoPaterno = listJson.apellidoPaterno;
+                usuario.ApellidoMaterno = listJson.apellidoMaterno;
+                usuario.emails = listJson.Email;
+                usuario.DepartamentoId = listJson.DepartamentoId;
+                usuario.UsuarioAlta = "INNTEC";
+                usuario.TipoUsuarioId = 5;
+                usuario.Password = "12345";
+                db.Usuarios.Add(usuario);
+                db.SaveChanges();
+
+
+            }
+            catch (Exception ex)
+            {
+                msj = ex.Message;
+            }
+
+            return Ok(msj);
         }
-
-        [HttpGet]
-        [Route("getTipos")]
-        public IHttpActionResult getTiposUsuarios()
-        {
-            var tu = db.TiposUsuarios.Select(t => new { t.Id, t.Tipo }).ToList();
-            return Ok(tu);
-
-        }
-
-
     }
 }

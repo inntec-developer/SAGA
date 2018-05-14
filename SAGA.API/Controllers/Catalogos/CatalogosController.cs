@@ -61,5 +61,23 @@ namespace SAGA.API.Controllers
 
             return Ok(Paises);
         }
+
+        [HttpGet]
+        [Route("getDepa")]
+        public IHttpActionResult getDepartamento()
+        {
+            var tu = db.Departamentos.Select(t => new { t.Id, t.Nombre }).OrderBy(x => x.Nombre).ToList();
+            return Ok(tu);
+
+        }
+
+        [HttpGet]
+        [Route("getTipos")]
+        public IHttpActionResult getTiposUsuarios()
+        {
+            var tu = db.TiposUsuarios.Select(t => new { t.Id, t.Tipo }).ToList();
+            return Ok(tu);
+
+        }
     }
 }

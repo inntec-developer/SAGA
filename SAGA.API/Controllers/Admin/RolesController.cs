@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Web.Http;
 using SAGA.DAL;
 using SAGA.BOL;
-using SAGA.API.Dtos.Admin;
+using SAGA.API.Dtos;
 
 namespace SAGA.API.Controllers.Admin
 {
