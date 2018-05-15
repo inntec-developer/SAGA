@@ -19,7 +19,9 @@ namespace SAGA.API.Dtos
         public Guid DepartamentoId { get; set; }
         public string Clave { get; set; }
         public string UsuarioAlta { get; set; }
+        public string Password { get; set; }
+        public string Departamento { get; set;  }
 
-       
+
     }
 }

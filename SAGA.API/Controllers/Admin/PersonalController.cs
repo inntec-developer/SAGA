@@ -26,15 +26,35 @@ namespace SAGA.API.Controllers.Admin
         {
             List<PersonasDtos> dts = new List<PersonasDtos>();
 
-            dts = db.Usuarios.Where(x => x.Activo.Equals(true)).Select(c => new PersonasDtos
+            //dts = db.Usuarios.Select(c => new PersonasDtos
+            //{
+            //    Id = c.Id,
+            //    Clave = c.Clave,
+            //    nombre = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.Nombre).FirstOrDefault(),
+            //    apellidoPaterno = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.ApellidoPaterno).FirstOrDefault(),
+            //    apellidoMaterno = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.ApellidoMaterno).FirstOrDefault(),
+            //    tipoUsuario = c.TipoUsuario.Tipo,
+            //    Usuario = c.Usuario,
+            //    Departamento = c.Departamento.Nombre,
+            //    Email = db.Emails.Where(x => x.PersonaId.Equals(c.Id)).Select(e => new{
+            //        Email = e.email,
+            //        Ie.Id }).ToList()
+
+            //}).ToList();
+
+            var persona = db.Usuarios.Select(u => new
             {
-                Id = c.Id,
-                nombre = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.Nombre).FirstOrDefault(),
-                apellidoPaterno = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.ApellidoPaterno).FirstOrDefault(),
-                apellidoMaterno = db.Personas.Where(p => p.Id.Equals(c.Id)).Select(x => x.ApellidoMaterno).FirstOrDefault(),
-                tipoUsuario = c.TipoUsuario.Tipo,
-                Usuario = c.Usuario,
-               
+                Id = u.Id,
+                Clave = u.Clave,
+                nombre = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p=>p.Nombre),
+                apellidoPaterno = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.ApellidoPaterno),
+                apellidoMaterno = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.ApellidoMaterno),
+                tipoUsuario = u.TipoUsuario.Tipo,
+                Usuarios = u.Usuario,
+                Departamento = u.Departamento.Nombre,
+                Email = db.Emails.Where(x => x.PersonaId.Equals(u.Id)).Select(e => new {
+                    email = e.email
+                })
 
             }).ToList();
 
@@ -72,7 +92,7 @@ namespace SAGA.API.Controllers.Admin
                 usuario.DepartamentoId = listJson.DepartamentoId;
                 usuario.UsuarioAlta = "INNTEC";
                 usuario.TipoUsuarioId = 5;
-                usuario.Password = "12345";
+                usuario.Password = listJson.Password;
                 db.Usuarios.Add(usuario);
                 db.SaveChanges();
 
