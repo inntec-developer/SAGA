@@ -17,6 +17,6 @@ namespace SAGA.BOL
         public Guid UsuarioId { get; set; }
 
         public TipoMovimiento TipoMovimiento { get; set; }
-        public Persona Usuario { get; set; }
+        public Usuarios Usuario { get; set; }
     }
 }

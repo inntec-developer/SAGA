@@ -31,11 +31,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0-beta1\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0-beta1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -49,9 +49,45 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Migrations\201803151858579_checkDatabase.cs" />
-    <Compile Include="Migrations\201803151858579_checkDatabase.Designer.cs">
-      <DependentUpon>201803151858579_checkDatabase.cs</DependentUpon>
+    <Compile Include="Migrations\201805102153501_AlterDepto.cs" />
+    <Compile Include="Migrations\201805102153501_AlterDepto.Designer.cs">
+      <DependentUpon>201805102153501_AlterDepto.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805102154315_AlterDepto2.cs" />
+    <Compile Include="Migrations\201805102154315_AlterDepto2.Designer.cs">
+      <DependentUpon>201805102154315_AlterDepto2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111354187_alterDeptoFkArea.cs" />
+    <Compile Include="Migrations\201805111354187_alterDeptoFkArea.Designer.cs">
+      <DependentUpon>201805111354187_alterDeptoFkArea.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805111358304_AddDeptoFkArea.cs" />
+    <Compile Include="Migrations\201805111358304_AddDeptoFkArea.Designer.cs">
+      <DependentUpon>201805111358304_AddDeptoFkArea.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112044332_AlterDeptoFKDrop.cs" />
+    <Compile Include="Migrations\201805112044332_AlterDeptoFKDrop.Designer.cs">
+      <DependentUpon>201805112044332_AlterDeptoFKDrop.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805112046496_AlterDeptoFKaDD.cs" />
+    <Compile Include="Migrations\201805112046496_AlterDeptoFKaDD.Designer.cs">
+      <DependentUpon>201805112046496_AlterDeptoFKaDD.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805141435166_DropDepto.cs" />
+    <Compile Include="Migrations\201805141435166_DropDepto.Designer.cs">
+      <DependentUpon>201805141435166_DropDepto.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805141442079_AddDeptoAlterUsuario.cs" />
+    <Compile Include="Migrations\201805141442079_AddDeptoAlterUsuario.Designer.cs">
+      <DependentUpon>201805141442079_AddDeptoAlterUsuario.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805151752582_alterTrazabilidad.cs" />
+    <Compile Include="Migrations\201805151752582_alterTrazabilidad.Designer.cs">
+      <DependentUpon>201805151752582_alterTrazabilidad.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805151756221_AlterAsignacionesRequi.cs" />
+    <Compile Include="Migrations\201805151756221_AlterAsignacionesRequi.Designer.cs">
+      <DependentUpon>201805151756221_AlterAsignacionesRequi.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,8 +106,35 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201803151858579_checkDatabase.resx">
-      <DependentUpon>201803151858579_checkDatabase.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201805102153501_AlterDepto.resx">
+      <DependentUpon>201805102153501_AlterDepto.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805102154315_AlterDepto2.resx">
+      <DependentUpon>201805102154315_AlterDepto2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111354187_alterDeptoFkArea.resx">
+      <DependentUpon>201805111354187_alterDeptoFkArea.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805111358304_AddDeptoFkArea.resx">
+      <DependentUpon>201805111358304_AddDeptoFkArea.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112044332_AlterDeptoFKDrop.resx">
+      <DependentUpon>201805112044332_AlterDeptoFKDrop.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805112046496_AlterDeptoFKaDD.resx">
+      <DependentUpon>201805112046496_AlterDeptoFKaDD.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805141435166_DropDepto.resx">
+      <DependentUpon>201805141435166_DropDepto.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805141442079_AddDeptoAlterUsuario.resx">
+      <DependentUpon>201805141442079_AddDeptoAlterUsuario.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805151752582_alterTrazabilidad.resx">
+      <DependentUpon>201805151752582_alterTrazabilidad.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805151756221_AlterAsignacionesRequi.resx">
+      <DependentUpon>201805151756221_AlterAsignacionesRequi.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
