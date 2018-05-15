@@ -17,7 +17,7 @@ namespace SAGA.BOL
 
 
         public virtual Requisicion Requisicion { get; set; }
-        public virtual Persona GrpUsr { get; set; }
+        public virtual Usuarios GrpUsr { get; set; }
 
         public AsignacionRequi()
         {
