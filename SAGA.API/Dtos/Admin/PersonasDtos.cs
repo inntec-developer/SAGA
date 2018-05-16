@@ -21,6 +21,7 @@ namespace SAGA.API.Dtos
         public string UsuarioAlta { get; set; }
         public string Password { get; set; }
         public string Departamento { get; set;  }
+        public bool Activo { get; set; }
 
 
     }

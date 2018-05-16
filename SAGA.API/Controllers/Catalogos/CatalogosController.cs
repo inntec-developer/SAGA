@@ -79,5 +79,14 @@ namespace SAGA.API.Controllers
             return Ok(tu);
 
         }
+
+        [HttpGet]
+        [Route("getGrupos")]
+        public IHttpActionResult getGrupos()
+        {
+            var grupos = db.Grupos.ToList();
+            return Ok(grupos);
+
+        }
     }
 }
