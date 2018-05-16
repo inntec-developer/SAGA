@@ -88,5 +88,26 @@ namespace SAGA.API.Controllers
             return Ok(grupos);
 
         }
+
+        [HttpGet]
+        [Route("getPrioridades")]
+        public IHttpActionResult GetRPioridad()
+        {
+            var prioridad = db.Prioridades
+                .Where(x => x.Activo.Equals(true))
+                .ToList();
+            return Ok(prioridad);
+        }
+
+        [HttpGet]
+        [Route("getEstatus")]
+        public IHttpActionResult getEstatus(int tipoMov)
+        {
+            var estatus = db.Estatus
+                    .Where(x => x.TipoMovimiento.Equals(tipoMov))
+                    .Where(x => x.Activo.Equals(true))
+                    .ToList();
+            return Ok(estatus);
+        }
     }
 }

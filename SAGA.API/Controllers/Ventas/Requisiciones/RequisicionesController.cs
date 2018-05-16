@@ -10,6 +10,7 @@ using System.Web.Http;
 using AutoMapper;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
+using System.Data.Entity;
 
 namespace SAGA.API.Controllers
 {
@@ -81,6 +82,30 @@ namespace SAGA.API.Controllers
             }
 
         }
+        //api/Requisiciones/getRequisicion
+        [HttpGet]
+        [Route("getByFolio")]
+        public IHttpActionResult GetRequisicionFolio(int folio)
+        {
+            if (folio != 0)
+            {
+                var requisicion = db.Requisiciones.Where(x => x.Folio.Equals(folio)).Select(r => new {
+                    r.Folio,
+                    r.fch_Cumplimiento,
+                    r.fch_Creacion,
+                    r.Prioridad,
+                    r.Confidencial,
+                    r.Estatus
+                }).FirstOrDefault();
+                return Ok(requisicion);
+            }
+            else
+            {
+                return NotFound();
+            }
+
+        }
+
 
         //api/Requisiciones/createRequi
         [HttpPost]
@@ -95,7 +120,7 @@ namespace SAGA.API.Controllers
                     new SqlParameter("@UserAlta", "INNTEC")
                 };
 
-                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress", _params).SingleOrDefault();
+                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @UserAlta", _params).SingleOrDefault();
                 Guid RequisicionId = requi.Id;
                 return Ok(RequisicionId);
             }
@@ -109,12 +134,9 @@ namespace SAGA.API.Controllers
 
         //api/Requisiciones/getRequisiciones
         [HttpGet]
-        [Route("getRequisiciones")]
+        [Route("getRequisicion")]
         public IHttpActionResult GetRequisiciones()
         {
-
-
-
             var requisicion = db.Requisiciones.Select(e => new
             {
                 e.Id, e.VBtra, e.TipoReclutamiento, e.ClaseReclutamiento,
@@ -136,9 +158,32 @@ namespace SAGA.API.Controllers
                     x.aHora,
                     x.numeroVacantes,
                     x.Especificaciones
-                }).ToList()
+                }).ToList(),
+                e.Folio
             }).ToList();
             return Ok(requisicion);
+        }
+
+        [HttpPut]
+        [Route("updateRequisiciones")]
+        public IHttpActionResult UpdateRequi(RequisicionDto requi)
+        {
+            try
+            {
+                var requisicion = db.Requisiciones.Find(requi.Folio);
+                db.Entry(requisicion).State = EntityState.Modified;
+                requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
+                requisicion.EstatusId = requi.EstatusId;
+                requisicion.PrioridadId = requi.PrioridadId;
+                requisicion.Confidencial = requi.Confidencial;
+                db.SaveChanges();
+                return Ok(requisicion);
+            }
+            catch(Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+
         }
 
         private void Save()
