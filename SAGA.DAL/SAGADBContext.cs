@@ -496,8 +496,6 @@ namespace SAGA.DAL
         {
             public GruposMap()
             {
-                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Grupo).HasMaxLength(100).IsRequired().IsUnicode();
                 Property(x => x.Activo).IsOptional();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsOptional();
@@ -783,7 +781,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.IdGrupo_IdUsuario).IsRequired();
+                Property(x => x.EntidadId).IsRequired();
                 Property(x => x.RolId).IsRequired();
                 Property(x => x.Tipo).IsRequired();
             }

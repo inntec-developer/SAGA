@@ -10,10 +10,11 @@ namespace SAGA.BOL
     {
         [key]
         public int Id { get; set; }
-        public Guid IdGrupo_IdUsuario { get; set; }
+        public Guid EntidadId { get; set; }
         public int RolId { get; set; }
         public int Tipo { get; set; }
 
         public virtual Roles Rol { get; set; }
+        public virtual Persona Entidad { get; set; }
     }
 }
