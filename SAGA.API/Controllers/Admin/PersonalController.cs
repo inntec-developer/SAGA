@@ -43,11 +43,11 @@ namespace SAGA.API.Controllers.Admin
 
             //}).ToList();
 
-            var persona = db.Usuarios.Where( a => a.Activo.Equals(true)).Select(u => new
+            var persona = db.Usuarios.Where(a => a.Activo.Equals(true)).Select(u => new
             {
                 Id = u.Id,
                 Clave = u.Clave,
-                nombre = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p=>p.Nombre),
+                nombre = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.Nombre),
                 apellidoPaterno = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.ApellidoPaterno),
                 apellidoMaterno = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.ApellidoMaterno),
                 tipoUsuario = u.TipoUsuario.Tipo,
@@ -56,13 +56,23 @@ namespace SAGA.API.Controllers.Admin
                 Email = db.Emails.Where(x => x.PersonaId.Equals(u.Id)).Select(e => new {
                     email = e.email
                 }),
-                activo = u.Activo
+                grupos = db.GruposUsuarios.Where(gu => gu.UsuarioId.Equals(u.Id)).Select(g => new
+                {
+                    Id = g.GrupoId,
+                    Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre)
+                }),
+
+
+            activo = u.Activo
 
             }).ToList();
 
 
             //dts = db.Personas.Select(c => new PersonasDtos
+            //{       Grupos = db.Personas.Where(p => p.Id.Equals(db.GruposUsuarios.Select(g => g.UsuarioId))).Select( gs => new
             //{
+                //Grupo = db.Grupos.Where(x => x.Id.Equals(db.GruposUsuarios.Select(xx => xx.GrupoId))).Select(ng => ng.Nombre)
+                //}),
             //    nombre = c.Nombre,
             //    apellidoPaterno = c.ApellidoPaterno,
             //    apellidoMaterno = c.ApellidoMaterno,

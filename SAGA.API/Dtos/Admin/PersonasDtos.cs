@@ -20,9 +20,9 @@ namespace SAGA.API.Dtos
         public string Clave { get; set; }
         public string UsuarioAlta { get; set; }
         public string Password { get; set; }
-        public string Departamento { get; set;  }
+        public string Departamento { get; set; }
         public bool Activo { get; set; }
-
+        
 
     }
 }

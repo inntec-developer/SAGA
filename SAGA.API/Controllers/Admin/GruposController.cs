@@ -6,6 +6,9 @@ using System.Net.Http;
 using System.Web.Http;
 using SAGA.DAL;
 using SAGA.BOL;
+using SAGA.API.Dtos;
+using AutoMapper;
+using System.Data.Entity;
 
 namespace SAGA.API.Controllers.Admin
 {
@@ -18,27 +21,60 @@ namespace SAGA.API.Controllers.Admin
             db = new SAGADBContext();
         }
 
+      
+
         [HttpPost]
-        [Route("agregarGrupo")]
-        public IHttpActionResult AgregarRol(Grupos listJson)
+        [Route("addGrupo")]
+        public IHttpActionResult AddGrupo(GruposDtos listJson)
         {
-            string mensaje = "Se agregó Grupo";
-            listJson.UsuarioAlta = "INNTEC";
+            string msj = "Agregó";
+          
+
             try
             {
-                db.Grupos.Add(listJson);
+                var grupo = Mapper.Map<GruposDtos, Grupos>(listJson);
+                grupo.Nombre = listJson.Nombre;
+                grupo.Activo = listJson.Activo;
+                grupo.Descripcion = listJson.Descripcion;
+                grupo.UsuarioAlta = "INNTEC";
 
+                db.Grupos.Add(grupo);
                 db.SaveChanges();
+            }
+            catch(Exception ex)
+            {
+                msj = ex.Message;
 
+            }
+            return Ok(msj);
+        }
 
+        [HttpPost]
+        [Route("addUserGroup")]
+        public IHttpActionResult AddUserGroup(List<GrupoUsuarios> listJson)
+        {
+            string msj = "Agrego";
+
+            try
+            {
+                List<GrupoUsuarios> obj = new List<GrupoUsuarios>();
+
+                foreach (GrupoUsuarios gu in listJson)
+                {
+                    db.GruposUsuarios.Add(gu);
+                }
+
+               
+                db.SaveChanges();
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message;
+                msj = ex.Message;
             }
-
-            return Ok(mensaje);
+            return Ok(msj);
         }
+
+       
 
     }
 }
