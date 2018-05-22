@@ -43,7 +43,7 @@ namespace SAGA.API.Controllers.Admin
 
             //}).ToList();
 
-            var persona = db.Usuarios.Where(a => a.Activo.Equals(true)).Select(u => new
+            var persona = db.Usuarios.Select(u => new
             {
                 Id = u.Id,
                 Clave = u.Clave,

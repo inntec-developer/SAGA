@@ -8,30 +8,36 @@ using SAGA.DAL;
 using SAGA.BOL;
 using SAGA.API.Dtos;
 
-namespace SAGA.API.Controllers
+namespace SAGA.API.Controllers.Admin
 {
     [RoutePrefix("api/admin")]
-    public class RolesController : ApiController
+    public class PrivilegiosController : ApiController
     {
         private SAGADBContext db;
-        public RolesController()
+        public PrivilegiosController()
         {
             db = new SAGADBContext();
         }
 
         [HttpPost]
-        [Route("agregarRol")]
-        public IHttpActionResult AgregarRol(Roles listJson)
+        [Route("agregarPrivilegio")]
+        public IHttpActionResult AgregarPrivilegio(List<Privilegio> listJson)
         {
-            string mensaje = "Se agregó Rol";
-
+            string mensaje = "Se agregó Privilegio";
+       
+         
+           
             try
             {
-                db.Roles.Add(listJson);
-            
+                foreach (Privilegio ru in listJson)
+                {
+                    db.Privilegios.Add(ru);
+                }
+
+
                 db.SaveChanges();
 
-                
+
             }
             catch (Exception ex)
             {
@@ -40,8 +46,5 @@ namespace SAGA.API.Controllers
 
             return Ok(mensaje);
         }
-
-       
-
     }
 }

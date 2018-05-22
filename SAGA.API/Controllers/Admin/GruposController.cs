@@ -74,7 +74,31 @@ namespace SAGA.API.Controllers.Admin
             return Ok(msj);
         }
 
-       
+        [HttpGet]
+        [Route("getGruposRoles")]
+        public IHttpActionResult GetGruposRoles()
+        {
+
+
+            var grupos = db.Grupos.Select(g => new
+            {
+                Id = g.Id,
+                Activo = g.Activo,
+                Descripcion = g.Descripcion,
+                Nombre = db.Personas.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre),
+                UsuarioAlta = g.UsuarioAlta,
+                roles = db.Privilegios.Where(p => p.EntidadId.Equals(g.Id)).Select(gr => new
+                {
+                    rol = db.Roles.Where(x => x.Id.Equals(gr.RolId)).Select(x => x.Rol)
+                })
+            }).ToList();
+
+
+            return Ok(grupos);
+
+        }
+
+
 
     }
 }
