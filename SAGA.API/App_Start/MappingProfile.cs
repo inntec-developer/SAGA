@@ -15,6 +15,8 @@ namespace SAGA.API
         {
             Mapper.CreateMap<Usuarios, PersonasDtos>();
             Mapper.CreateMap<PersonasDtos, Usuarios>();
+            Mapper.CreateMap<Grupos, GruposDtos>();
+            Mapper.CreateMap<GruposDtos, Grupos>();
         }
     }
 }
