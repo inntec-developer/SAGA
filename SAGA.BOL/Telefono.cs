@@ -15,19 +15,19 @@ namespace SAGA.BOL
         public virtual TipoTelefono TipoTelefono { get; set; }
         public bool Activo { get; set; }
         public bool esPrincipal { get; set; }
-        public Guid PersonaId { get; set; }
+        public Guid EntidadId { get; set; }
         public string UsuarioAlta { get; set; }
         public DateTime fch_Creacion { get; set; }
         public string UsuarioMod { get; set; }
         public DateTime? fch_Modificacion { get; set; }
-        public virtual Persona Persona { get; set; }
+        public virtual Entidad Entidad { get; set; }
 
         public Telefono(string clavePais, string telefono, byte tipoTelefono, Guid idPersona)
         {
             ClavePais = clavePais;
             this.telefono = telefono;
             TipoTelefonoId = tipoTelefono;
-            PersonaId = idPersona;
+            EntidadId = idPersona;
             this.Id = Guid.NewGuid();
         }
 

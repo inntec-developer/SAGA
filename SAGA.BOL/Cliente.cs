@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAGA.BOL
 {
-    public partial class Cliente : Persona
+    public partial class Cliente : Entidad
     {
         public string RazonSocial { get; set; }
         public string Nombrecomercial { get; set; }

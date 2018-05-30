@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace SAGA.BOL
 {
-    public class Grupos : Persona
+    public class Grupos : Entidad
     {
         public bool Activo { get; set; }
-        public string Foto { get; set; }
         public string Descripcion { get; set; }
         public string UsuarioAlta { get; set; }
         public DateTime fch_Creacion { get; set; }

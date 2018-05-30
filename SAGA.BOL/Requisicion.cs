@@ -49,6 +49,7 @@ namespace SAGA.BOL
         public int TipoModalidadId { get; set; }
         public bool Activo { get; set; }
         public int Folio { get; set; }
+        public DateTime? fch_Limite { get; set; }
 
 
         public virtual Cliente Cliente { get; set; }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SAGA.BOL
 {
-    public class Usuarios : Persona
+    public class Usuarios : Entidad
     {
         public string Usuario { get; set; }
         public string Password { get; set; }
@@ -17,7 +17,6 @@ namespace SAGA.BOL
         public DateTime fch_Creacion { get; set; }
         public string UsuarioMod { get; set; }
         public DateTime? fch_Modificacion { get; set; }
-        public string Foto { get; set; }
         public string Clave { get; set; }
         public Guid DepartamentoId { get; set; }
 

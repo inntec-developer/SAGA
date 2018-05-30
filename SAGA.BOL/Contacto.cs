@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SAGA.BOL
 {
-    public class Contacto : Persona
+    public class Contacto : Entidad
     {
         public string Puesto { get; set; }
         public Guid ClienteId { get; set; }
