@@ -47,12 +47,14 @@ namespace SAGA.API.Controllers.Admin
             {
                 Id = u.Id,
                 Clave = u.Clave,
-                nombre = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.Nombre),
-                apellidoPaterno = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.ApellidoPaterno),
-                apellidoMaterno = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.ApellidoMaterno),
+                nombre = u.Nombre,
+                apellidoPaterno = u.ApellidoPaterno,
+                apellidoMaterno = u.ApellidoMaterno,
                 tipoUsuario = u.TipoUsuario.Tipo,
+                tipoUsuarioId = u.TipoUsuario.Id,
                 Usuario = u.Usuario,
                 Departamento = u.Departamento.Nombre,
+                DepartamentoId = u.Departamento.Id,
                 Email = db.Emails.Where(x => x.PersonaId.Equals(u.Id)).Select(e => new {
                     email = e.email
                 }),
@@ -63,7 +65,7 @@ namespace SAGA.API.Controllers.Admin
                 }),
 
 
-            activo = u.Activo
+                activo = u.Activo
 
             }).ToList();
 
@@ -71,8 +73,8 @@ namespace SAGA.API.Controllers.Admin
             //dts = db.Personas.Select(c => new PersonasDtos
             //{       Grupos = db.Personas.Where(p => p.Id.Equals(db.GruposUsuarios.Select(g => g.UsuarioId))).Select( gs => new
             //{
-                //Grupo = db.Grupos.Where(x => x.Id.Equals(db.GruposUsuarios.Select(xx => xx.GrupoId))).Select(ng => ng.Nombre)
-                //}),
+            //Grupo = db.Grupos.Where(x => x.Id.Equals(db.GruposUsuarios.Select(xx => xx.GrupoId))).Select(ng => ng.Nombre)
+            //}),
             //    nombre = c.Nombre,
             //    apellidoPaterno = c.ApellidoPaterno,
             //    apellidoMaterno = c.ApellidoMaterno,
@@ -163,13 +165,44 @@ namespace SAGA.API.Controllers.Admin
             string msj = "Actualizó";
             try
             {
-  
+
                 var usuario = db.Usuarios.Find(id);
-                
+
                 db.Usuarios.Attach(usuario);
                 usuario.Activo = v;
-                
+
                 db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                msj = ex.Message;
+            }
+
+            return Ok(msj);
+        }
+        [HttpPost]
+        [Route("updateUsuario")]
+        public IHttpActionResult UpdateUsuario(PersonasDtos listJson)
+        {
+            string msj = "Se agregó usuario";
+
+            try
+            {
+                
+                var usuario = db.Usuarios.Find(listJson.Id);
+                db.Entry(usuario).State = EntityState.Modified;
+
+                usuario.Usuario = listJson.Usuario;
+                usuario.Nombre = listJson.nombre;
+                usuario.ApellidoPaterno = listJson.apellidoPaterno;
+                usuario.ApellidoMaterno = listJson.apellidoMaterno;
+                usuario.DepartamentoId = listJson.DepartamentoId;
+                usuario.UsuarioAlta = "INNTEC";
+                usuario.TipoUsuarioId = listJson.TipoUsuarioId;
+               
+                db.SaveChanges();
+
+
             }
             catch (Exception ex)
             {
