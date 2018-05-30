@@ -50,6 +50,53 @@ namespace SAGA.API.Controllers.Admin
         }
 
         [HttpPost]
+        [Route("updateGrupo")]
+        public IHttpActionResult updateGrupo(Grupos listJson)
+        {
+            string msj = "Actualizó";
+            try
+            {
+                var g = db.Grupos.Find(listJson.Id);
+
+                db.Entry(g).State = EntityState.Modified;
+                g.Nombre = listJson.Nombre;
+                g.Descripcion = listJson.Descripcion;
+                g.UsuarioAlta = "INNTEC";
+                g.Activo = listJson.Activo;
+                              
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                msj = ex.Message;
+            }
+
+            return Ok(msj);
+        }
+
+        [HttpPost]
+        [Route("deleteGrupo")]
+        public IHttpActionResult deleteRoles(Grupos listJson)
+        {
+            string msj = "Borró";
+            try
+            {
+                var r = db.Grupos.Find(listJson.Id);
+
+                db.Entry(r).State = EntityState.Deleted;
+
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                msj = ex.Message;
+            }
+
+            return Ok(msj);
+        }
+
+
+        [HttpPost]
         [Route("addUserGroup")]
         public IHttpActionResult AddUserGroup(List<GrupoUsuarios> listJson)
         {
