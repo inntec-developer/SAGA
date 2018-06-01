@@ -91,7 +91,7 @@ namespace SAGA.API.Controllers
                     Id = g.Id,
                     Activo = g.Activo,
                     Descripcion = g.Descripcion,
-                    Nombre = db.Personas.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre),
+                    Nombre = db.Entidad.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre),
                     UsuarioAlta = g.UsuarioAlta
                 }).ToList();
          

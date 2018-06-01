@@ -133,7 +133,7 @@ namespace SAGA.API.Controllers.Admin
                 Id = g.Id,
                 Activo = g.Activo,
                 Descripcion = g.Descripcion,
-                Nombre = db.Personas.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre),
+                Nombre = db.Entidad.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre),
                 UsuarioAlta = g.UsuarioAlta,
                 roles = db.Privilegios.Where(p => p.EntidadId.Equals(g.Id)).Select(gr => new
                 {

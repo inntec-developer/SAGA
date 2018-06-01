@@ -56,7 +56,7 @@ namespace SAGA.API.Controllers.Admin
                 Usuario = u.Usuario,
                 Departamento = u.Departamento.Nombre,
                 DepartamentoId = u.Departamento.Id,
-                Email = db.Emails.Where(x => x.PersonaId.Equals(u.Id)).Select(e => new {
+                Email = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
                     email = e.email
                 }),
                 grupos = db.GruposUsuarios.Where(gu => gu.UsuarioId.Equals(u.Id)).Select(g => new
@@ -98,13 +98,13 @@ namespace SAGA.API.Controllers.Admin
             {
                 Id = u.Id,
                 Clave = u.Clave,
-                nombre = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.Nombre),
-                apellidoPaterno = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.ApellidoPaterno),
-                apellidoMaterno = db.Personas.Where(p => p.Id.Equals(u.Id)).Select(p => p.ApellidoMaterno),
+                nombre = db.Entidad.Where(p => p.Id.Equals(u.Id)).Select(p => p.Nombre),
+                apellidoPaterno = db.Entidad.Where(p => p.Id.Equals(u.Id)).Select(p => p.ApellidoPaterno),
+                apellidoMaterno = db.Entidad.Where(p => p.Id.Equals(u.Id)).Select(p => p.ApellidoMaterno),
                 tipoUsuario = u.TipoUsuario.Tipo,
                 Usuario = u.Usuario,
                 Departamento = u.Departamento.Nombre,
-                Email = db.Emails.Where(x => x.PersonaId.Equals(u.Id)).Select(e => new {
+                Email = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
                     email = e.email
                 }),
                 activo = u.Activo
