@@ -92,6 +92,7 @@ namespace SAGA.API.Controllers
         {
             if (folio != 0)
             {
+
                 var requisicion = db.Requisiciones.Where(x => x.Folio.Equals(folio)).Select(r => new {
                     r.Id,
                     r.Folio,
