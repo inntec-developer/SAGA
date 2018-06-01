@@ -14,6 +14,11 @@ namespace SAGA.BOL
         public string Latitud { get; set; }
         public string Longitud { get; set; }
         public bool Activo { get; set; }
+        public string UsuarioAlta { get; set; }
+        public DateTime fch_Creacion { get; set; }
+        public string UsuarioMod { get; set; }
+        public DateTime? fch_Modificacion { get; set; }
+
 
         public TipoOficina TipoOficina { get; set; }
     }
