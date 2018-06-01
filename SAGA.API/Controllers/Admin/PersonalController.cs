@@ -46,6 +46,7 @@ namespace SAGA.API.Controllers.Admin
             var persona = db.Usuarios.Select(u => new
             {
                 Id = u.Id,
+                Foto = u.Foto,
                 Clave = u.Clave,
                 nombre = u.Nombre,
                 apellidoPaterno = u.ApellidoPaterno,

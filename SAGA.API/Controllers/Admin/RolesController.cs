@@ -78,7 +78,8 @@ namespace SAGA.API.Controllers
             {
                 var r = db.Roles.Find(listJson.Id);
 
-                db.Entry(r).State = EntityState.Deleted;
+                db.Entry(r).State = EntityState.Modified;
+                r.Activo = false;
            
                 db.SaveChanges();
             }

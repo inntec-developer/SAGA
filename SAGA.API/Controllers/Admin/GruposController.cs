@@ -76,14 +76,15 @@ namespace SAGA.API.Controllers.Admin
 
         [HttpPost]
         [Route("deleteGrupo")]
-        public IHttpActionResult deleteRoles(Grupos listJson)
+        public IHttpActionResult deleteGrupo(Grupos listJson)
         {
             string msj = "Borró";
             try
             {
                 var r = db.Grupos.Find(listJson.Id);
 
-                db.Entry(r).State = EntityState.Deleted;
+                db.Entry(r).State = EntityState.Modified;
+                r.Activo = false;
 
                 db.SaveChanges();
             }

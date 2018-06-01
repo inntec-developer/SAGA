@@ -46,6 +46,7 @@
     <Compile Include="ActividadesPerfil.cs" />
     <Compile Include="ActividadesRequi.cs" />
     <Compile Include="Agencia.cs" />
+    <Compile Include="Ambito.cs" />
     <Compile Include="Aptitud.cs" />
     <Compile Include="AptitudesPerfil.cs" />
     <Compile Include="AptitudesRequi.cs" />
@@ -72,11 +73,14 @@
     <Compile Include="CompetenciaGarencial.cs" />
     <Compile Include="CompetenciaGerencialPerfil.cs" />
     <Compile Include="CompetenciaGerencialRequi.cs" />
+    <Compile Include="Configuracion.cs" />
+    <Compile Include="ConfiguracionRequi.cs" />
     <Compile Include="ConocimientoInformatico.cs" />
     <Compile Include="ConocimientoOHabilidad.cs" />
     <Compile Include="Contacto.cs" />
     <Compile Include="Curso.cs" />
     <Compile Include="DAMFO-290.cs" />
+    <Compile Include="Departamento.cs" />
     <Compile Include="DiaObligatorio.cs" />
     <Compile Include="DiaSemana.cs" />
     <Compile Include="Direccion.cs" />
@@ -92,7 +96,9 @@
     <Compile Include="EstadoCivil.cs" />
     <Compile Include="EstadoEstudio.cs" />
     <Compile Include="Estatus.cs" />
+    <Compile Include="Estructura.cs" />
     <Compile Include="ExperienciaProfesional.cs" />
+    <Compile Include="Folio.cs" />
     <Compile Include="Formacion.cs" />
     <Compile Include="FormaContacto.cs" />
     <Compile Include="FormulariosIniciales.cs" />
@@ -100,8 +106,10 @@
     <Compile Include="GiroEmpresa.cs" />
     <Compile Include="GradoEstudio.cs" />
     <Compile Include="Grupos.cs" />
+    <Compile Include="GrupoUsuarios.cs" />
     <Compile Include="HorarioPerfil.cs" />
     <Compile Include="HorarioRequi.cs" />
+    <Compile Include="HorariosDireccionesRequi.cs" />
     <Compile Include="Idioma.cs" />
     <Compile Include="InstitucionEducativa.cs" />
     <Compile Include="JornadaLaboral.cs" />
@@ -124,6 +132,8 @@
     <Compile Include="PrestacionesClienteRequi.cs" />
     <Compile Include="PrestacionLey.cs" />
     <Compile Include="Prioridad.cs" />
+    <Compile Include="Privilegio.cs" />
+    <Compile Include="ProcesoCandidato.cs" />
     <Compile Include="ProcesoPerfil.cs" />
     <Compile Include="ProcesoRequi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -131,6 +141,7 @@
     <Compile Include="PsicometriasClienteRequi.cs" />
     <Compile Include="PsicometriasDamsa.cs" />
     <Compile Include="PsicometriasDamsaRequi.cs" />
+    <Compile Include="RastreabilidadMes.cs" />
     <Compile Include="RedSocial.cs" />
     <Compile Include="Referenciado.cs" />
     <Compile Include="Requisicion.cs" />
@@ -140,6 +151,7 @@
     <Compile Include="TamanoEmpresa.cs" />
     <Compile Include="Telefono.cs" />
     <Compile Include="TiempoContrato.cs" />
+    <Compile Include="TipoAccion.cs" />
     <Compile Include="TipoBase.cs" />
     <Compile Include="TipoBeneficio.cs" />
     <Compile Include="TipoContrato.cs" />
@@ -147,13 +159,16 @@
     <Compile Include="TipoDireccion.cs" />
     <Compile Include="TipoDiscapacidad.cs" />
     <Compile Include="TipoEmpresa.cs" />
+    <Compile Include="TipoEstructura.cs" />
     <Compile Include="TipoLicencia.cs" />
     <Compile Include="TipoModalidad.cs" />
+    <Compile Include="TipoMovimiento.cs" />
     <Compile Include="TipoPsicometria.cs" />
     <Compile Include="TipoReclutamiento.cs" />
     <Compile Include="TipoRedSocial.cs" />
     <Compile Include="TipoTelefono.cs" />
     <Compile Include="TipoUsuario.cs" />
+    <Compile Include="TrazabilidadMes.cs" />
     <Compile Include="Usuarios.cs" />
     <Compile Include="Vacantes.cs" />
     <Compile Include="Year.cs" />
