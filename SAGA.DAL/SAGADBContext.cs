@@ -119,7 +119,7 @@ namespace SAGA.DAL
         public DbSet<GrupoUsuarios> GruposUsuarios { get; set; }
         public DbSet<Municipio> Municipios { get; set; }
         public DbSet<Pais> Paises { get; set; }
-        public DbSet<Persona> Personas { get; set; }
+        public DbSet<Entidad> Entidad { get; set; }
         public DbSet<Privilegio> Privilegios { get; set; }
         public DbSet<Telefono> Telefonos { get; set; }
         public DbSet<TipoTelefono> TiposTelefonos { get; set; }
@@ -132,6 +132,9 @@ namespace SAGA.DAL
         public DbSet<RastreabilidadMes> RastreabilidadMes { get; set; }
         public DbSet<Folio> Folios { get; set; }
         public DbSet<Departamento> Departamentos { get; set; }
+        public DbSet<TipoEntidad> TiposEntidades { get; set; }
+        public DbSet<Tratamiento> Tratamientos { get; set; }
+        public DbSet<PostNombre> PostNombres { get; set; }
         #endregion
 
         #region REQUISICIONES (Vtas)
@@ -165,7 +168,7 @@ namespace SAGA.DAL
         {
             //modelBuilder.Entity<PersonasMap>().Property(p => p.Email).HasColumnAnnotation(IndexAnnotation.AnnotationName, new IndexAnnotation(new IndexAttribute() { IsUnique = true }));
 
-            modelBuilder.HasDefaultSchema("sist");
+            modelBuilder.HasDefaultSchema("Sist");
 
             //modelBuilder.Entity<IdentityUserLogin>().HasKey<string>(l => l.UserId);
             //modelBuilder.Entity<IdentityRole>().HasKey<string>(r => r.Id);
@@ -195,6 +198,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new NivelMap().ToTable("Niveles"));
             modelBuilder.Configurations.Add(new PaisMap().ToTable("Paises"));
             modelBuilder.Configurations.Add(new PrioridadMap().ToTable("Prioridades"));
+            modelBuilder.Configurations.Add(new RedSocialMap().ToTable("RedesSociales"));
             modelBuilder.Configurations.Add(new RolesMap().ToTable("Roles"));
             modelBuilder.Configurations.Add(new TamanoEmpresaMap().ToTable("TamanosEmpresas"));
             modelBuilder.Configurations.Add(new TelefonoMap().ToTable("Telefonos"));
@@ -219,6 +223,10 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new PrivilegiosMap().ToTable("Privilegios"));
             modelBuilder.Configurations.Add(new GrupoUsuarioMap().ToTable("GruposUsuarios"));
             modelBuilder.Configurations.Add(new DepartamentoMap().ToTable("Departamentos"));
+            modelBuilder.Configurations.Add(new TipoEntidadMap().ToTable("TiposEntidades"));
+            modelBuilder.Configurations.Add(new TratamientoMap().ToTable("Tratamientos"));
+            modelBuilder.Configurations.Add(new OficinaReclutamientoMap().ToTable("OficinasReclutamiento"));
+            modelBuilder.Configurations.Add(new TipoOficinaMap().ToTable("TiposOficinas"));
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
@@ -271,7 +279,6 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new PsicometriasDamsaMap().ToTable("PsicometriasDamsa", "Recl"));
             modelBuilder.Configurations.Add(new PsicometriasClienteMap().ToTable("PsicometriasCliente", "Recl"));
             modelBuilder.Configurations.Add(new ProcesoPerfilMap().ToTable("ProcesoPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new RedSocialMap().ToTable("RedesSociales", "Recl"));
             modelBuilder.Configurations.Add(new RutasPerfilMap().ToTable("RutasPerfil", "Recl"));
 
             //modelBuilder.Configurations.Add(new VacantesMap().ToTable("Vacantes", "Recl"));
@@ -306,8 +313,8 @@ namespace SAGA.DAL
 
             #endregion
 
-            #region Herencia_de_persona
-            modelBuilder.Configurations.Add(new PersonaMap());
+            #region Herencia_de_Entidad
+            modelBuilder.Configurations.Add(new EntidadMap().ToTable("Entidades"));
             modelBuilder.Configurations.Add(new CandidatoMap());
             modelBuilder.Configurations.Add(new ContactoMap());
             modelBuilder.Configurations.Add(new ReferenciadoMap());
@@ -327,15 +334,18 @@ namespace SAGA.DAL
                 Property(x => x.Orden).IsOptional();
             }
         }
-        public class PersonaMap : EntityTypeConfiguration<Persona>
+        public class EntidadMap : EntityTypeConfiguration<Entidad>
         {
-            public PersonaMap()
+            public EntidadMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Nombre).HasMaxLength(50);
                 Property(x => x.ApellidoMaterno).HasMaxLength(50);
                 Property(x => x.ApellidoPaterno).HasMaxLength(50);
                 Property(x => x.FechaNacimiento).HasColumnType("date").IsOptional();
+                Property(x => x.Foto).IsOptional();
+                Property(x => x.TipoEntidadId).IsOptional();
+
             }
         }
         public class ClienteMap : EntityTypeConfiguration<Cliente>
@@ -349,10 +359,10 @@ namespace SAGA.DAL
                 Property(x => x.Clasificacion).HasMaxLength(10).IsRequired();
                 Property(x => x.NumeroEmpleados).IsRequired();
                 Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
-                Property(x => x.UsuarioAlta).IsOptional();
-                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+                Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 
             }
         }
@@ -414,10 +424,10 @@ namespace SAGA.DAL
                 Property(x => x.MunicipioId);
                 Property(x => x.ColoniaId);
                 Property(x => x.CodigoPostal).HasMaxLength(15).IsRequired();
-                Property(x => x.UsuarioAlta).IsOptional();
-                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+                Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
             }
         }
         public class EmailMap : EntityTypeConfiguration<Email>
@@ -426,10 +436,10 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.email).HasMaxLength(100).IsRequired();
-                Property(x => x.UsuarioAlta).IsOptional();
-                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+                Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
             }
         }
         public class EstadoCivilMap : EntityTypeConfiguration<EstadoCivil>
@@ -498,9 +508,9 @@ namespace SAGA.DAL
             {
                 Property(x => x.Activo).IsOptional();
                 Property(x => x.UsuarioAlta).IsRequired();
-                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
                 Property(x => x.Foto).HasMaxLength(200);
                 Property(x => x.Descripcion).HasMaxLength(100);
             }
@@ -584,10 +594,10 @@ namespace SAGA.DAL
                 Property(x => x.Extension).HasMaxLength(10);
                 Property(x => x.esPrincipal).IsRequired();
                 Property(x => x.TipoTelefonoId).IsRequired();
-                Property(x => x.UsuarioAlta).IsOptional();
-                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+                Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
             }
         }
         public class TiempoContratoMap : EntityTypeConfiguration<TiempoContrato>
@@ -656,10 +666,10 @@ namespace SAGA.DAL
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Usuario).HasMaxLength(20).IsRequired().IsUnicode();
                 Property(x => x.Password).HasMaxLength(40).IsRequired();
-                Property(x => x.UsuarioAlta).IsOptional();
-                Property(x => x.UsuarioMod).IsOptional();
+                Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+                Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
                 Property(x => x.Foto).HasMaxLength(200);
                 Property(x => x.Clave).HasMaxLength(20);
                 Property(x => x.DepartamentoId).IsOptional();
@@ -798,6 +808,66 @@ namespace SAGA.DAL
             }
         }
 
+        public class TipoEntidadMap : EntityTypeConfiguration<TipoEntidad>
+        {
+            public TipoEntidadMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.tipoEntidad).HasMaxLength(50);
+                Property(x => x.Activo).IsRequired();
+            }
+        }
+
+        public class TratamientoMap : EntityTypeConfiguration<Tratamiento>
+        {
+            public TratamientoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.tratamiento).HasMaxLength(50);
+            }
+        }
+
+        public class PostNombreMap : EntityTypeConfiguration<PostNombre>
+        {
+            public PostNombreMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            }
+        }
+
+        public class OficinaReclutamientoMap : EntityTypeConfiguration<OficinaReclutamiento>
+        {
+            public OficinaReclutamientoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.TipoOficinaId).IsRequired();
+                Property(x => x.IndicacionEspecial).HasMaxLength(50).IsOptional();
+                Property(x => x.Orden).IsRequired();
+                Property(x => x.Latitud).HasMaxLength(25).IsRequired();
+                Property(x => x.Longitud).HasMaxLength(25).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+                Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
+            }
+        }
+
+        public class TipoOficinaMap : EntityTypeConfiguration<TipoOficina>
+        {
+            public TipoOficinaMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.tipoOficina).HasMaxLength(25).IsRequired();
+                Property(x => x.Icono).HasMaxLength(255).IsOptional();
+
+            }
+        }
 
         #endregion
 
@@ -1078,10 +1148,10 @@ namespace SAGA.DAL
 				Property(x => x.DesdeCuendo).HasColumnType("date");
 				Property(x => x.Empleado).HasPrecision(5, 2).IsRequired();
 				Property(x => x.Cobro).HasPrecision(5, 2).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class ReferenciadoMap : EntityTypeConfiguration<Referenciado>
@@ -1098,10 +1168,10 @@ namespace SAGA.DAL
 			public ContactoMap()
 			{
 				ToTable("Contactos", "Vtas");
-				Property(x => x.Puesto).HasMaxLength(100).IsRequired(); Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.Puesto).HasMaxLength(100).IsRequired(); Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class ClaseReclutamientoMap : EntityTypeConfiguration<ClaseReclutamiento>
@@ -1142,9 +1212,9 @@ namespace SAGA.DAL
                 Property(x => x.fch_Aprobacion).HasColumnType("DateTime").IsOptional();
 				Property(x => x.fch_Cumplimiento).HasColumnType("DateTime").IsOptional();
 				Property(x => x.fch_Modificacion).HasColumnType("DateTime").IsOptional();
-				Property(x => x.Propietario).HasMaxLength(15).IsOptional();
-				Property(x => x.Aprobador).HasMaxLength(15).IsOptional();
-				Property(x => x.UsuarioMod).HasMaxLength(15).IsOptional();
+				Property(x => x.Propietario).HasMaxLength(25).IsOptional();
+				Property(x => x.Aprobador).HasMaxLength(25).IsOptional();
+				Property(x => x.UsuarioMod).HasMaxLength(25).IsOptional();
 				Property(x => x.PrioridadId).IsOptional();
 				Property(x => x.Aprobada).IsOptional();
 				Property(x => x.Confidencial).IsOptional();
@@ -1167,10 +1237,10 @@ namespace SAGA.DAL
 				Property(x => x.EscolaridadId).IsRequired();
 				Property(x => x.EstadoEstudioId).IsRequired();
 				Property(x => x.RequisicionId).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class AptitudesRequiMap : EntityTypeConfiguration<AptitudesRequi>
@@ -1180,10 +1250,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.AptitudId).IsRequired();
 				Property(x => x.RequisicionId).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class HorarioRequiMap : EntityTypeConfiguration<HorarioRequi>
@@ -1198,10 +1268,10 @@ namespace SAGA.DAL
 				Property(x => x.aHora).HasMaxLength(25).IsRequired();
 				Property(x => x.numeroVacantes).HasColumnType("tinyint").IsRequired();
 				Property(x => x.Especificaciones).HasMaxLength(500).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class ActividadesRequilMap : EntityTypeConfiguration<ActividadesRequi>
@@ -1210,10 +1280,10 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.Actividades).HasMaxLength(200).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class ObservacionesRequiMap : EntityTypeConfiguration<ObservacionesRequi>
@@ -1222,10 +1292,10 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.Observaciones).HasMaxLength(100).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class PsicometriasDamsaRequiMap : EntityTypeConfiguration<PsicometriasDamsaRequi>
@@ -1235,10 +1305,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.PsicometriaId).IsRequired();
 				Property(x => x.RequisicionId).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class PsicometriasClienteRequiMap : EntityTypeConfiguration<PsicometriasClienteRequi>
@@ -1249,10 +1319,10 @@ namespace SAGA.DAL
 				Property(x => x.Psicometria).HasMaxLength(50);
 				Property(x => x.Descripcion).HasMaxLength(200);
 				Property(x => x.RequisicionId).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class BeneficiosRequiMap : EntityTypeConfiguration<BeneficiosRequi>
@@ -1263,10 +1333,10 @@ namespace SAGA.DAL
 				Property(x => x.TipoBeneficioId).IsRequired();
 				Property(x => x.Observaciones).HasMaxLength(500);
 				Property(x => x.Cantidad).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 
 		}
@@ -1276,10 +1346,10 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.Documento).HasMaxLength(100).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class ProcesoRequiMap : EntityTypeConfiguration<ProcesoRequi>
@@ -1289,10 +1359,10 @@ namespace SAGA.DAL
 
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.Proceso).HasMaxLength(100).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class PrestacionesClienteRequiMap : EntityTypeConfiguration<PrestacionesClienteRequi>
@@ -1302,10 +1372,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.Prestamo).HasMaxLength(100).IsRequired();
 				Property(x => x.RequisicionId).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class CompetenciasAreasRequiMap : EntityTypeConfiguration<CompetenciaAreaRequi>
@@ -1315,10 +1385,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.CompetenciaId).IsRequired();
 				Property(x => x.Nivel).HasMaxLength(10).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class CompetenciaCardinalRequilMap : EntityTypeConfiguration<CompetenciaCardinalRequi>
@@ -1328,10 +1398,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.CompetenciaId).IsRequired();
 				Property(x => x.Nivel).HasMaxLength(10).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 
 		}
@@ -1342,10 +1412,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.CompetenciaId).IsRequired();
 				Property(x => x.Nivel).HasMaxLength(10).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class AsignacionRequiMap : EntityTypeConfiguration<AsignacionRequi>
@@ -1356,10 +1426,10 @@ namespace SAGA.DAL
 				Property(x => x.RequisicionId).IsRequired();
 				Property(x => x.GrpUsrId).IsRequired();
 				Property(x => x.CRUD).HasMaxLength(5).IsFixedLength();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class ConfiguracionRequiMap : EntityTypeConfiguration<ConfiguracionRequi>
@@ -1398,10 +1468,10 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.Actividades).HasMaxLength(200).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class AptitudesPerfilMap : EntityTypeConfiguration<AptitudesPerfil>
@@ -1410,10 +1480,10 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.AptitudId).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class AptitudMap : EntityTypeConfiguration<Aptitud>
@@ -1432,10 +1502,10 @@ namespace SAGA.DAL
 				Property(x => x.TipoBeneficioId).IsRequired();
 				Property(x => x.Observaciones).HasMaxLength(500);
 				Property(x => x.Cantidad).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 
 		}
@@ -1446,10 +1516,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.CompetenciaId).IsRequired();
 				Property(x => x.Nivel).HasMaxLength(10).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class CompetenciaCardinalPerfilMap : EntityTypeConfiguration<CompetenciaCardinalPerfil>
@@ -1459,10 +1529,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.CompetenciaId).IsRequired();
 				Property(x => x.Nivel).HasMaxLength(10).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 
 		}
@@ -1473,10 +1543,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.CompetenciaId).IsRequired();
 				Property(x => x.Nivel).HasMaxLength(10).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class DAMFO_290Map : EntityTypeConfiguration<DAMFO_290>
@@ -1506,8 +1576,8 @@ namespace SAGA.DAL
 				Property(x => x.FlexibilidadHorario).IsRequired();
 				Property(x => x.JornadaLaboralId).IsOptional();
 				Property(x => x.TipoModalidadId).IsOptional();
-				Property(x => x.UsuarioAlta).HasMaxLength(15).IsOptional();
-				Property(x => x.UsuarioMod).HasMaxLength(15).IsOptional();
+				Property(x => x.UsuarioAlta).HasMaxLength(25).IsOptional();
+				Property(x => x.UsuarioMod).HasMaxLength(25).IsOptional();
 			}
 		}
 		public class DocumentosDamsaMap : EntityTypeConfiguration<DocumentosDamsa>
@@ -1524,10 +1594,10 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.Documento).HasMaxLength(100).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class DiaObligatorioMap : EntityTypeConfiguration<DiaObligatorio>
@@ -1545,10 +1615,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.EscolaridadId).IsRequired();
 				Property(x => x.DAMFO290Id).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 
 		}
@@ -1558,10 +1628,10 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.redSocial).HasMaxLength(100).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class HorarioPerfilMap : EntityTypeConfiguration<HorarioPerfil>
@@ -1576,10 +1646,10 @@ namespace SAGA.DAL
 				Property(x => x.aHora).HasMaxLength(25).IsRequired();
 				Property(x => x.numeroVacantes).HasColumnType("tinyint").IsRequired();
 				Property(x => x.Especificaciones).HasMaxLength(500);
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class ObservacionesPerfilMap : EntityTypeConfiguration<ObservacionesPerfil>
@@ -1589,10 +1659,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.Observaciones).HasMaxLength(100).IsRequired();
 				Property(x => x.DAMFO290Id).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class PeriodoPagoMap : EntityTypeConfiguration<PeriodoPago>
@@ -1610,10 +1680,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.Prestamo).HasMaxLength(100).IsRequired();
 				Property(x => x.DAMFO290Id).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class PrestacionesLeyMap : EntityTypeConfiguration<PrestacionLey>
@@ -1631,10 +1701,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.Proceso).HasMaxLength(100).IsRequired();
 				Property(x => x.Orden).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 
 			}
 		}
@@ -1646,10 +1716,10 @@ namespace SAGA.DAL
 				Property(x => x.Psicometria).HasMaxLength(50);
 				Property(x => x.Descripcion).HasMaxLength(200);
 				Property(x => x.DAMFO290Id).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class PsicometriasDamsaMap : EntityTypeConfiguration<PsicometriasDamsa>
@@ -1659,10 +1729,10 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.PsicometriaId).IsRequired();
 				Property(x => x.DAMFO290Id).IsRequired();
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class RutasPerfilMap : EntityTypeConfiguration<RutasPerfil>
@@ -1673,10 +1743,10 @@ namespace SAGA.DAL
 				Property(x => x.DireccionId).IsRequired();
 				Property(x => x.Ruta).HasMaxLength(100).IsRequired();
 				Property(x => x.Via).HasMaxLength(100);
-				Property(x => x.UsuarioAlta).IsOptional();
-				Property(x => x.UsuarioMod).IsOptional();
+				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
+				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(25);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-				Property(x => x.fch_Modificacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
 			}
 		}
 		public class TipoReclutamientoMap : EntityTypeConfiguration<TipoReclutamiento>

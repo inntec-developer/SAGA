@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SAGA.BOL
 {
-    public class Candidato : Persona
+    public class Candidato : Entidad
     {
 
         public int PaisNacimientoId { get; set; }

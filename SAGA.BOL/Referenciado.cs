@@ -2,7 +2,7 @@
 
 namespace SAGA.BOL
 {
-    public class Referenciado : Persona
+    public class Referenciado : Entidad
     {
         public string Puesto { get; set; }
         public string Clave { get; set; }

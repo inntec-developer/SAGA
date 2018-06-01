@@ -15,6 +15,6 @@ namespace SAGA.BOL
         public int Tipo { get; set; }
 
         public virtual Roles Rol { get; set; }
-        public virtual Persona Entidad { get; set; }
+        public virtual Entidad Entidad { get; set; }
     }
 }

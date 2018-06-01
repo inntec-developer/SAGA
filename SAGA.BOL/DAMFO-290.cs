@@ -24,12 +24,12 @@ namespace SAGA.BOL
         public decimal SueldoMinimo { get; set; }
         public decimal SueldoMaximo { get; set; }
         public byte DiaCorteId { get; set; }
-        public int TipoNominaId { get; set; }
+        public int? TipoNominaId { get; set; }
         public byte DiaPagoId { get; set; }
         public int PeriodoPagoId { get; set; }
         public string Especifique { get; set; }
         public int ContratoInicialId { get; set; }
-        public int TiempoContratoId { get; set; }
+        public int? TiempoContratoId { get; set; }
         public bool Activo { get; set; }
         public DateTime fch_Creacion { get; set; }
         public DateTime? fch_Modificacion { get; set; }

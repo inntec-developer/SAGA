@@ -1,6 +1,7 @@
 ﻿using SAGA.DAL;
 using SAGA.BOL;
 using SAGA.API.Dtos;
+using SAGA.API.Utilerias;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +20,13 @@ namespace SAGA.API.Controllers
     {
         private SAGADBContext db;
         Damfo290Dto DamfoDto;
+        BusinessDay businessDay;
 
         public RequisicionesController()
         {
             db = new SAGADBContext();
             DamfoDto = new Damfo290Dto();
+            businessDay = new BusinessDay();
         }
 
         [HttpGet]
@@ -34,8 +37,8 @@ namespace SAGA.API.Controllers
             {
                 DamfoDto.Damfo290Address = (from damfo in db.DAMFO290
                                             join cliente in db.Clientes on damfo.ClienteId equals cliente.Id
-                                            join persona in db.Personas on cliente.Id equals persona.Id
-                                            join direccion in db.Direcciones on persona.Id equals direccion.PersonaId
+                                            join persona in db.Entidad on cliente.Id equals persona.Id
+                                            join direccion in db.Direcciones on persona.Id equals direccion.EntidadId
                                             join tipoDireccion in db.TiposDirecciones on direccion.TipoDireccionId equals tipoDireccion.Id
                                             join pais in db.Paises on direccion.PaisId equals pais.Id
                                             join estado in db.Estados on direccion.EstadoId equals estado.Id
@@ -89,10 +92,13 @@ namespace SAGA.API.Controllers
         {
             if (folio != 0)
             {
+
                 var requisicion = db.Requisiciones.Where(x => x.Folio.Equals(folio)).Select(r => new {
+                    r.Id,
                     r.Folio,
                     r.fch_Cumplimiento,
                     r.fch_Creacion,
+                    r.fch_Limite,
                     r.Prioridad,
                     r.Confidencial,
                     r.Estatus
@@ -117,12 +123,16 @@ namespace SAGA.API.Controllers
                 object[] _params = {
                     new SqlParameter("@Id", cr.IdDamfo),
                     new SqlParameter("@IdAddress", cr.IdAddress),
-                    new SqlParameter("@UserAlta", "INNTEC")
+                    new SqlParameter("@UserAlta", cr.Usuario)
                 };
 
                 var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @UserAlta", _params).SingleOrDefault();
+                
                 Guid RequisicionId = requi.Id;
-                return Ok(RequisicionId);
+                int Folio = requi.Folio;
+                
+
+                return Ok(requi);
             }
             catch (Exception ex)
             {
@@ -134,13 +144,18 @@ namespace SAGA.API.Controllers
 
         //api/Requisiciones/getRequisiciones
         [HttpGet]
-        [Route("getRequisicion")]
+        [Route("getRequisiciones")]
         public IHttpActionResult GetRequisiciones()
         {
             var requisicion = db.Requisiciones.Select(e => new
             {
-                e.Id, e.VBtra, e.TipoReclutamiento, e.ClaseReclutamiento,
-                e.SueldoMinimo, e.SueldoMaximo, e.fch_Creacion, e.fch_Cumplimiento,
+                e.Id, e.VBtra,
+                e.TipoReclutamiento,
+                e.ClaseReclutamiento,
+                e.SueldoMinimo,
+                e.SueldoMaximo,
+                e.fch_Creacion,
+                e.fch_Cumplimiento,
                 e.Estatus,
                 Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select(p => new {
                     p.Descripcion,
@@ -160,24 +175,40 @@ namespace SAGA.API.Controllers
                     x.Especificaciones
                 }).ToList(),
                 e.Folio
-            }).ToList();
+            }).ToList().OrderByDescending(x => x.Folio);
             return Ok(requisicion);
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("updateRequisiciones")]
         public IHttpActionResult UpdateRequi(RequisicionDto requi)
         {
             try
             {
-                var requisicion = db.Requisiciones.Find(requi.Folio);
+                var requisicion = db.Requisiciones.Find(requi.Id);
                 db.Entry(requisicion).State = EntityState.Modified;
                 requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
                 requisicion.EstatusId = requi.EstatusId;
+                if (requi.EstatusId == 6)
+                {
+                    requisicion.Aprobada = true;
+                    requisicion.fch_Aprobacion = DateTime.Now;
+                    requisicion.Aprobador = requi.Usuario;
+                }
+                else
+                {
+                    requisicion.Aprobada = false;
+                    requisicion.fch_Aprobacion = null;
+                    requisicion.Aprobador = "";
+                }
                 requisicion.PrioridadId = requi.PrioridadId;
                 requisicion.Confidencial = requi.Confidencial;
+                requisicion.fch_Modificacion = DateTime.Now;
+                requisicion.UsuarioMod = requi.Usuario;
+                
                 db.SaveChanges();
-                return Ok(requisicion);
+                //string msj = string.Format("La requisición Folio: {0} se actualizo correctamente.", requi.Folio);
+                return Ok(requi.Folio);
             }
             catch(Exception ex)
             {

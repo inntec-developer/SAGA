@@ -29,7 +29,7 @@ namespace SAGA.BOL
         public int PeriodoPagoId { get; set; }
         public string Especifique { get; set; }
         public int ContratoInicialId { get; set; }
-        public int TiempoContratoId { get; set; }
+        public int? TiempoContratoId { get; set; }
         public DateTime? fch_Creacion { get; set; }
         public DateTime? fch_Aprobacion { get; set; }
         public DateTime? fch_Cumplimiento { get; set; }
@@ -49,6 +49,7 @@ namespace SAGA.BOL
         public int TipoModalidadId { get; set; }
         public bool Activo { get; set; }
         public int Folio { get; set; }
+        public DateTime? fch_Limite { get; set; }
 
 
         public virtual Cliente Cliente { get; set; }

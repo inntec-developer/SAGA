@@ -9,5 +9,6 @@ namespace SAGA.API.Dtos
     {
         public Guid IdDamfo { get; set; }
         public Guid IdAddress { get; set; }
+        public string Usuario { get; set; }
     }
 }
