@@ -67,7 +67,7 @@ namespace SAGA.API.Controllers.Admin
               
                 activo = u.Activo
 
-            }).ToList();
+            }).OrderBy(o => o.nombre).ToList();
 
 
             //dts = db.Personas.Select(c => new PersonasDtos
