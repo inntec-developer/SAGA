@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace SAGA.BOL
@@ -44,8 +45,7 @@ namespace SAGA.BOL
         public string NSS { get; set; }
 
         public string ImgProfileUrl { get; set; }
-
-
+        public DateTime fch_Creacion { get; set; }
 
         public Candidato()
         {

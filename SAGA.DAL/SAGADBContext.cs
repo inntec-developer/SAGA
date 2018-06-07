@@ -880,6 +880,7 @@ namespace SAGA.DAL
 				Property(x => x.PaisNacimientoId);
 				Property(x => x.EstadoNacimientoId);
 				Property(x => x.MunicipioNacimientoId);
+                Property(x => x.fch_Creacion).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
 
 			}
 		}

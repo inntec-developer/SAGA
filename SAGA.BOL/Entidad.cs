@@ -24,7 +24,5 @@ namespace SAGA.BOL
         {
             this.Id = Guid.NewGuid();
         }
-        
-
     }
 }
