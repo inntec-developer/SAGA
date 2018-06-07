@@ -64,8 +64,7 @@ namespace SAGA.API.Controllers.Admin
                     Id = g.GrupoId,
                     Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre)
                 }),
-
-
+              
                 activo = u.Activo
 
             }).ToList();
@@ -146,6 +145,8 @@ namespace SAGA.API.Controllers.Admin
                 usuario.UsuarioAlta = "INNTEC";
                 usuario.TipoUsuarioId = 5;
                 usuario.Password = listJson.Password;
+                usuario.TipoEntidadId = 1;
+                usuario.Foto = listJson.Foto;
                 db.Usuarios.Add(usuario);
                 db.SaveChanges();
 
@@ -185,11 +186,10 @@ namespace SAGA.API.Controllers.Admin
         [Route("updateUsuario")]
         public IHttpActionResult UpdateUsuario(PersonasDtos listJson)
         {
-            string msj = "Se agregó usuario";
+            string msj = "Actualizó usuario";
 
             try
             {
-                
                 var usuario = db.Usuarios.Find(listJson.Id);
                 db.Entry(usuario).State = EntityState.Modified;
 
@@ -200,10 +200,8 @@ namespace SAGA.API.Controllers.Admin
                 usuario.DepartamentoId = listJson.DepartamentoId;
                 usuario.UsuarioAlta = "INNTEC";
                 usuario.TipoUsuarioId = listJson.TipoUsuarioId;
-               
+                usuario.Foto = listJson.Foto;
                 db.SaveChanges();
-
-
             }
             catch (Exception ex)
             {

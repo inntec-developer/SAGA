@@ -68,7 +68,6 @@ namespace SAGA.API.Controllers
         {
             var tu = db.Departamentos.Select(t => new { t.Id, t.Nombre }).OrderBy(x => x.Nombre).ToList();
             return Ok(tu);
-
         }
 
         [HttpGet]
@@ -77,40 +76,30 @@ namespace SAGA.API.Controllers
         {
             var tu = db.TiposUsuarios.Select(t => new { t.Id, t.Tipo }).ToList();
             return Ok(tu);
-
         }
 
         [HttpGet]
         [Route("getGrupos")]
         public IHttpActionResult getGrupos()
         {
-           
-      
-                var grupos = db.Grupos.Select(g => new
-                {
-                    Id = g.Id,
-                    Activo = g.Activo,
-                    Descripcion = g.Descripcion,
-                    Nombre = db.Entidad.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre),
-                    UsuarioAlta = g.UsuarioAlta
-                }).ToList();
-         
-
+            var grupos = db.Grupos.Select(g => new
+            {
+                Id = g.Id,
+                Foto = g.Foto,
+                Activo = g.Activo,
+                Descripcion = g.Descripcion,
+                Nombre = g.Nombre,
+                UsuarioAlta = g.UsuarioAlta
+            }).ToList();
             return Ok(grupos);
-
         }
 
         [HttpGet]
         [Route("getRoles")]
         public IHttpActionResult getRoles()
         {
-
-
             var roles = db.Roles.ToList();
-
-
             return Ok(roles);
-
         }
 
         [HttpGet]

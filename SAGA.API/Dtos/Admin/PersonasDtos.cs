@@ -23,7 +23,10 @@ namespace SAGA.API.Dtos
         public string Password { get; set; }
         public string Departamento { get; set; }
         public bool Activo { get; set; }
-        
+        public int TipoEntidadID { get; set; }
+        public string TipoEntidad { get; set; }
+        public string Foto { get; set; }
+
 
     }
 }

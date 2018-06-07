@@ -9,6 +9,8 @@ using SAGA.BOL;
 using SAGA.API.Dtos;
 using AutoMapper;
 using System.Data.Entity;
+using System.IO;
+using System.Web;
 
 namespace SAGA.API.Controllers.Admin
 {
@@ -21,8 +23,21 @@ namespace SAGA.API.Controllers.Admin
             db = new SAGADBContext();
         }
 
-      
+        [HttpPost]
+        [Route("UploadImage")]
+        public HttpResponseMessage UploadImage()
+        {
+            string imageName = null;
+            var httpRequest = System.Web.HttpContext.Current.Request;
+            var postedFile = httpRequest.Files["Image"];
+            //imageName = new string(Path.GetFileNameWithoutExtension(postedFile.FileName).Take(10).ToArray()).Replace(" ", "-");
+            //imageName = imageName + Path.GetExtension(postedFile.FileName);
+            imageName = Path.GetFileName(postedFile.FileName);
+            var filePath = HttpContext.Current.Server.MapPath("~/Utilerias/" + imageName);
+            postedFile.SaveAs(filePath);
 
+            return Request.CreateResponse(HttpStatusCode.Created);
+        }
         [HttpPost]
         [Route("addGrupo")]
         public IHttpActionResult AddGrupo(GruposDtos listJson)
@@ -37,7 +52,8 @@ namespace SAGA.API.Controllers.Admin
                 grupo.Activo = listJson.Activo;
                 grupo.Descripcion = listJson.Descripcion;
                 grupo.UsuarioAlta = "INNTEC";
-
+                grupo.TipoEntidadId = 4;
+                grupo.Foto = listJson.Foto;
                 db.Grupos.Add(grupo);
                 db.SaveChanges();
             }
@@ -63,7 +79,7 @@ namespace SAGA.API.Controllers.Admin
                 g.Descripcion = listJson.Descripcion;
                 g.UsuarioAlta = "INNTEC";
                 g.Activo = listJson.Activo;
-                              
+                g.Foto = listJson.Foto;              
                 db.SaveChanges();
             }
             catch (Exception ex)
@@ -126,11 +142,10 @@ namespace SAGA.API.Controllers.Admin
         [Route("getGruposRoles")]
         public IHttpActionResult GetGruposRoles()
         {
-
-
-            var grupos = db.Grupos.Select(g => new
+            var grupos = db.Grupos.Where(g => g.Activo == true).Select( g => new
             {
                 Id = g.Id,
+                Foto = g.Foto,
                 Activo = g.Activo,
                 Descripcion = g.Descripcion,
                 Nombre = db.Entidad.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre),
