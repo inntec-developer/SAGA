@@ -21,12 +21,14 @@ namespace SAGA.API.Controllers
         private SAGADBContext db;
         Damfo290Dto DamfoDto;
         BusinessDay businessDay;
+        Rastreabilidad rastreabilidad;
 
         public RequisicionesController()
         {
             db = new SAGADBContext();
             DamfoDto = new Damfo290Dto();
             businessDay = new BusinessDay();
+            rastreabilidad = new Rastreabilidad();
         }
 
         [HttpGet]
@@ -127,10 +129,10 @@ namespace SAGA.API.Controllers
                 };
 
                 var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @UserAlta", _params).SingleOrDefault();
-                
+
                 Guid RequisicionId = requi.Id;
                 int Folio = requi.Folio;
-                
+
 
                 return Ok(requi);
             }
@@ -147,35 +149,36 @@ namespace SAGA.API.Controllers
         [Route("getRequisiciones")]
         public IHttpActionResult GetRequisiciones()
         {
-            var requisicion = db.Requisiciones.Select(e => new
-            {
-                e.Id, e.VBtra,
-                e.TipoReclutamiento,
-                e.ClaseReclutamiento,
-                e.SueldoMinimo,
-                e.SueldoMaximo,
-                e.fch_Creacion,
-                e.fch_Cumplimiento,
-                e.Estatus,
-                Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select(p => new {
-                    p.Descripcion,
-                    p.Id
-                }).FirstOrDefault(),
-                Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new
+            var requisicion = db.Requisiciones.Where( e => e.Activo.Equals(true))
+                .Select(e => new
                 {
-                    c.Nombrecomercial, c.GiroEmpresas,
-                    c.ActividadEmpresas, c.RFC }).FirstOrDefault(),
-                HorarioRequi = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select( x => new {
-                    x.Nombre, 
-                    x.deDia,
-                    x.aDia,
-                    x.deHora,
-                    x.aHora,
-                    x.numeroVacantes,
-                    x.Especificaciones
-                }).ToList(),
-                e.Folio
-            }).ToList().OrderByDescending(x => x.Folio);
+                    e.Id, e.VBtra,
+                    e.TipoReclutamiento,
+                    e.ClaseReclutamiento,
+                    e.SueldoMinimo,
+                    e.SueldoMaximo,
+                    e.fch_Creacion,
+                    e.fch_Cumplimiento,
+                    e.Estatus,
+                    Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select(p => new {
+                        p.Descripcion,
+                        p.Id
+                    }).FirstOrDefault(),
+                    Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new
+                    {
+                        c.Nombrecomercial, c.GiroEmpresas,
+                        c.ActividadEmpresas, c.RFC }).FirstOrDefault(),
+                    HorarioRequi = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => new {
+                        x.Nombre,
+                        x.deDia,
+                        x.aDia,
+                        x.deHora,
+                        x.aHora,
+                        x.numeroVacantes,
+                        x.Especificaciones
+                    }).ToList(),
+                    e.Folio
+                }).ToList().OrderByDescending(x => x.Folio);
             return Ok(requisicion);
         }
 
@@ -189,32 +192,78 @@ namespace SAGA.API.Controllers
                 db.Entry(requisicion).State = EntityState.Modified;
                 requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
                 requisicion.EstatusId = requi.EstatusId;
-                if (requi.EstatusId == 6)
-                {
-                    requisicion.Aprobada = true;
-                    requisicion.fch_Aprobacion = DateTime.Now;
-                    requisicion.Aprobador = requi.Usuario;
-                }
-                else
-                {
-                    requisicion.Aprobada = false;
-                    requisicion.fch_Aprobacion = null;
-                    requisicion.Aprobador = "";
-                }
                 requisicion.PrioridadId = requi.PrioridadId;
                 requisicion.Confidencial = requi.Confidencial;
                 requisicion.fch_Modificacion = DateTime.Now;
                 requisicion.UsuarioMod = requi.Usuario;
-                
                 db.SaveChanges();
-                //string msj = string.Format("La requisición Folio: {0} se actualizo correctamente.", requi.Folio);
+
+                int Folio = requisicion.Folio;
+                Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
+                //Isertar el registro de la rastreabilidad. 
+                rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.Usuario,  3);
                 return Ok(requi.Folio);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Ok(ex.Message);
             }
 
+        }
+
+        [HttpPost]
+        [Route("deleteRequisiciones")]
+        public IHttpActionResult DeleteRequi(RequisicionDeleteDto requi)
+        {
+            try
+            {
+               
+                var requisicion = db.Requisiciones.Find(requi.Id);
+                db.Entry(requisicion).State = EntityState.Modified;
+                requisicion.Activo = false;
+                requisicion.UsuarioMod = requi.UsuarioMod;
+                requisicion.fch_Modificacion = DateTime.Now;
+                requisicion.EstatusId = 9;
+                db.SaveChanges();
+
+                int Folio = requisicion.Folio;
+                Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
+                //Isertar el registro de la rastreabilidad. 
+                rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 4);
+
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch
+            {
+                return Ok(HttpStatusCode.NotAcceptable);
+            }
+        }
+
+        [HttpPost]
+        [Route("cancelRequisicion")]
+        public IHttpActionResult CancelRequi(RequisicionDeleteDto requi)
+        {
+            try
+            {
+                var requisicion = db.Requisiciones.Find(requi.Id);
+                db.Entry(requisicion).State = EntityState.Modified;
+                requisicion.EstatusId = 8;
+                requisicion.UsuarioMod = requi.UsuarioMod;
+                requisicion.fch_Modificacion = DateTime.Now;
+                db.SaveChanges();
+
+                int Folio = requisicion.Folio;
+                Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
+                //Isertar el registro de la rastreabilidad. 
+                rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 6);
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch
+            {
+                return Ok(HttpStatusCode.NotAcceptable);
+            }
         }
 
         private void Save()
@@ -237,5 +286,7 @@ namespace SAGA.API.Controllers
 
             } while (saveFailed);
         }
+
+       
     }
 }
