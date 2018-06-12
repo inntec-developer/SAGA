@@ -24,9 +24,9 @@ namespace SAGA.API.Controllers.Admin
         public IHttpActionResult AgregarPrivilegio(List<Privilegio> listJson)
         {
             string mensaje = "Se agregó Privilegio";
-       
-         
-           
+
+
+
             try
             {
                 foreach (Privilegio ru in listJson)
@@ -46,5 +46,49 @@ namespace SAGA.API.Controllers.Admin
 
             return Ok(mensaje);
         }
+
+        [HttpGet]
+        [Route("GetEstructura")]
+        public IHttpActionResult GetEstructura()
+        {
+            List<PrivilegiosDtos> Tree = new List<PrivilegiosDtos>();
+
+            Tree = db.Estructuras.Where(e => e.Id > 1 ).Select(ee => new PrivilegiosDtos()
+            {
+                Id = ee.Id,
+                IdPadre = ee.IdPadre,
+                Nombre = ee.Nombre,
+                TipoEstructuraId = ee.TipoEstructuraId
+            }).ToList();
+
+          
+            var nodes = Tree.Where(x => x.TipoEstructuraId.Equals(2)).Select(ee => new PrivilegiosDtos()
+            {
+                Id = ee.Id,
+                IdPadre = ee.IdPadre,
+                Nombre = ee.Nombre,
+                TipoEstructuraId = ee.TipoEstructuraId,
+                Children = GetChild(Tree, ee.Id)
+            }).ToList();
+
+            return Ok(nodes);
+        }
+
+        public ICollection<PrivilegiosDtos> GetChild(List<PrivilegiosDtos> tree, int id)
+        {
+            return  tree
+                    .Where(c => c.IdPadre == id)
+                    .Select(c => new PrivilegiosDtos 
+                    {
+                        Id = c.Id,
+                        Nombre = c.Nombre,
+                        IdPadre = c.IdPadre,
+                        TipoEstructuraId = c.TipoEstructuraId,
+                        Children = GetChild(tree, c.Id)
+                    })
+                    .ToList();
+        }
+
+
     }
 }
