@@ -241,7 +241,7 @@ namespace SAGA.API.Controllers
         }
 
         [HttpPost]
-        [Route("cancelRequisicion")]
+        [Route("cancelRequisiciones")]
         public IHttpActionResult CancelRequi(RequisicionDeleteDto requi)
         {
             try
@@ -260,7 +260,7 @@ namespace SAGA.API.Controllers
 
                 return Ok(HttpStatusCode.OK);
             }
-            catch
+            catch(Exception ex)
             {
                 return Ok(HttpStatusCode.NotAcceptable);
             }

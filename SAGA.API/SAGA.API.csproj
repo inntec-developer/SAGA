@@ -137,17 +137,36 @@
   <ItemGroup>
     <Compile Include="App_Start\MappingProfile.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\Admin\GruposController.cs" />
+    <Compile Include="Controllers\Admin\PersonalController.cs" />
+    <Compile Include="Controllers\Admin\PrivilegiosController.cs" />
+    <Compile Include="Controllers\Admin\RolesController.cs" />
     <Compile Include="Controllers\AptitudesController.cs" />
+    <Compile Include="Controllers\Catalogos\CatalogosController.cs" />
     <Compile Include="Controllers\Reclutamiento\Vacantes\DesignerVacanteController.cs" />
     <Compile Include="Controllers\Reclutamiento\Candidatos\CandidatosController.cs" />
     <Compile Include="Controllers\Reclutamiento\DAMFO\DAMFOController.cs" />
     <Compile Include="Controllers\Ventas\Requisiciones\RequisicionesController.cs" />
-    <Compile Include="Dtos\CandidatosDto.cs" />
-    <Compile Include="Dtos\CandidatosGralDto.cs" />
+    <Compile Include="Dtos\Admin\GruposDtos.cs" />
+    <Compile Include="Dtos\Admin\PersonasDtos.cs" />
+    <Compile Include="Dtos\Admin\PrivilegiosDtos.cs" />
+    <Compile Include="Dtos\Reclutamiento\Candidatos\CandidatosDto.cs" />
+    <Compile Include="Dtos\Reclutamiento\Candidatos\CandidatosGralDto.cs" />
+    <Compile Include="Dtos\Reclutamiento\Candidatos\FiltrosDto.cs" />
+    <Compile Include="Dtos\Reclutamiento\DAMFO\Damfo290AddressDto.cs" />
+    <Compile Include="Dtos\Reclutamiento\DAMFO\Damfo290AllDto.cs" />
+    <Compile Include="Dtos\Reclutamiento\DAMFO\Damfo290Dto.cs" />
+    <Compile Include="Dtos\Reclutamiento\DAMFO\Damfo290GralDto.cs" />
+    <Compile Include="Dtos\Ventas\Requisicion\CreateRequiDto.cs" />
+    <Compile Include="Dtos\Ventas\Requisicion\RequisicionDeleteDto.cs" />
+    <Compile Include="Dtos\Ventas\Requisicion\RequisicionDto.cs" />
+    <Compile Include="Dtos\Ventas\Requisicion\RequisicionGrallDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilerias\BusinessDay.cs" />
+    <Compile Include="Utilerias\Rastreabilidad.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -163,6 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Dtos\Vacantes\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SAGA.BOL\SAGA.BOL.csproj">

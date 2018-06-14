@@ -30,6 +30,8 @@ namespace SAGA.BOL
         public int? TipoDiscapacidadId { get; set; }
         public virtual TipoDiscapacidad TipoDiscapacidad { get; set; }
 
+        public string OtraDiscapacidad { get; set; }
+
         public bool tieneLicenciaConducir { get; set; }
         public byte? TipoLicenciaId { get; set; }
         public virtual TipoLicencia TipoLicencia { get; set; }
