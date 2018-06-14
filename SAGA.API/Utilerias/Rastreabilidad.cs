@@ -25,7 +25,7 @@ namespace SAGA.API.Utilerias
                     new SqlParameter("@USUARIO", Usuario.ToUpper()),
                     new SqlParameter("@TIPOACCIONID", TipoAccion)
                 };
-            db.Database.SqlQuery<RastreabilidadMes>("exec dbo.Rastreabilidad @TRAZABILIDADID, @USUARIO, @TIPOACCIONID", _params).Single();
+            db.Database.SqlQuery<RastreabilidadMes>("exec dbo.Rastreabilidad @TRAZABILIDADID, @USUARIO, @TIPOACCIONID", _params).SingleOrDefaultAsync();
         }
     }
 }

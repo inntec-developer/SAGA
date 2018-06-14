@@ -881,6 +881,7 @@ namespace SAGA.DAL
 				Property(x => x.EstadoNacimientoId);
 				Property(x => x.MunicipioNacimientoId);
                 Property(x => x.fch_Creacion).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsOptional();
+                Property(x => x.OtraDiscapacidad).HasMaxLength(100).IsOptional();
 
 			}
 		}
