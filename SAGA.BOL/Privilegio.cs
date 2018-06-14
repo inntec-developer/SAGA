@@ -16,7 +16,6 @@ namespace SAGA.BOL
         public bool Read { get; set; }
         public bool Update { get; set; }
         public bool Delete { get; set; }
-        public bool Activo { get; set; }
         public bool Especial { get; set; }
 
         public virtual Roles Rol { get; set; }

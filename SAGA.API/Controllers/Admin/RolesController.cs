@@ -52,13 +52,9 @@ namespace SAGA.API.Controllers
                 var r = db.Roles.Find(listJson.Id);
 
                 db.Entry(r).State = EntityState.Modified;
-                r.Activo = listJson.Activo;
-                r.Create = listJson.Create;
-                r.Update = listJson.Update;
-                r.Read = listJson.Read;
+         
                 r.Rol = listJson.Rol;
-                r.Delete = listJson.Delete;
-                r.Especial = listJson.Especial;
+             
                 db.SaveChanges();
             }
             catch (Exception ex)

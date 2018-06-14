@@ -135,6 +135,7 @@ namespace SAGA.DAL
         public DbSet<TipoEntidad> TiposEntidades { get; set; }
         public DbSet<Tratamiento> Tratamientos { get; set; }
         public DbSet<PostNombre> PostNombres { get; set; }
+        public DbSet<RolEntidad> RolEntidades { get; set; }
         #endregion
 
         #region REQUISICIONES (Vtas)
@@ -227,6 +228,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TratamientoMap().ToTable("Tratamientos"));
             modelBuilder.Configurations.Add(new OficinaReclutamientoMap().ToTable("OficinasReclutamiento"));
             modelBuilder.Configurations.Add(new TipoOficinaMap().ToTable("TiposOficinas"));
+            modelBuilder.Configurations.Add(new RolEntidadesMap().ToTable("RolEntidades"));
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
@@ -567,12 +569,6 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Rol).HasMaxLength(20).IsRequired().IsUnicode();
-                Property(x => x.Create).IsOptional();
-                Property(x => x.Read).IsOptional();
-                Property(x => x.Update).IsOptional();
-                Property(x => x.Delete).IsOptional();
-                Property(x => x.Activo).IsOptional();
-                Property(x => x.Especial).IsOptional();
             }
         }
         public class TamanoEmpresaMap : EntityTypeConfiguration<TamanoEmpresa>
@@ -791,9 +787,12 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.EntidadId).IsRequired();
+                Property(x => x.TipoEstructuraId).IsRequired();
                 Property(x => x.RolId).IsRequired();
-                Property(x => x.Tipo).IsRequired();
+                Property(x => x.Create).IsOptional();
+                Property(x => x.Read).IsOptional();
+                Property(x => x.Read).IsOptional();
+                Property(x => x.Delete).IsOptional();
             }
         }
 
@@ -866,6 +865,17 @@ namespace SAGA.DAL
                 Property(x => x.tipoOficina).HasMaxLength(25).IsRequired();
                 Property(x => x.Icono).HasMaxLength(255).IsOptional();
 
+            }
+        }
+
+        public class RolEntidadesMap : EntityTypeConfiguration<RolEntidad>
+        {
+            public RolEntidadesMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.EntidadId).IsRequired();
+                Property(x => x.RolId).IsRequired();
             }
         }
 

@@ -150,10 +150,10 @@ namespace SAGA.API.Controllers.Admin
                 Descripcion = g.Descripcion,
                 Nombre = db.Entidad.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre),
                 UsuarioAlta = g.UsuarioAlta,
-                roles = db.Privilegios.Where(p => p.EntidadId.Equals(g.Id)).Select(gr => new
-                {
-                    rol = db.Roles.Where(x => x.Id.Equals(gr.RolId)).Select(x => x.Rol)
-                })
+                //roles = db.Privilegios.Where(p => p.EntidadId.Equals(g.Id)).Select(gr => new
+                //{
+                //    rol = db.Roles.Where(x => x.Id.Equals(gr.RolId)).Select(x => x.Rol)
+                //})
             }).ToList();
 
 
