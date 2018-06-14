@@ -789,10 +789,10 @@ namespace SAGA.DAL
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.TipoEstructuraId).IsRequired();
                 Property(x => x.RolId).IsRequired();
-                Property(x => x.Create).IsOptional();
-                Property(x => x.Read).IsOptional();
-                Property(x => x.Read).IsOptional();
-                Property(x => x.Delete).IsOptional();
+                Property(x => x.Create).IsRequired();
+                Property(x => x.Read).IsRequired();
+                Property(x => x.Read).IsRequired();
+                Property(x => x.Delete).IsRequired();
             }
         }
 
