@@ -10,11 +10,16 @@ namespace SAGA.BOL
     {
         [key]
         public int Id { get; set; }
-        public Guid EntidadId { get; set; }
+        public int TipoEstructuraId { get; set; }
         public int RolId { get; set; }
-        public int Tipo { get; set; }
+        public bool Create { get; set; }
+        public bool Read { get; set; }
+        public bool Update { get; set; }
+        public bool Delete { get; set; }
+        public bool Activo { get; set; }
+        public bool Especial { get; set; }
 
         public virtual Roles Rol { get; set; }
-        public virtual Entidad Entidad { get; set; }
+
     }
 }

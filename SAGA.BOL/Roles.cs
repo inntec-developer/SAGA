@@ -8,12 +8,5 @@ namespace SAGA.BOL
         [Key]
         public int Id { get; set; }
         public string Rol { get; set; }
-        public bool Create { get; set; }
-        public bool Read { get; set; }
-        public bool Update { get; set; }
-        public bool Delete { get; set; }
-        public bool Activo { get; set; }
-        public bool Especial { get; set; }
-
     }
 }
