@@ -1,8 +1,10 @@
-﻿namespace SAGA.BOL
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SAGA.BOL
 {
     public class TipoOficina
     {  
-        [key]
+        [Key]
         public int Id { get; set; }
         public string tipoOficina { get; set; }
         public string Icono { get; set; }
