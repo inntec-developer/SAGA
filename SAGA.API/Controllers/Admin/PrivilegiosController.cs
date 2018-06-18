@@ -25,17 +25,16 @@ namespace SAGA.API.Controllers.Admin
         {
             string mensaje = "Se agregó Privilegio";
 
-
-
             try
             {
                 foreach (Privilegio ru in listJson)
                 {
+
                     db.Privilegios.Add(ru);
                 }
 
 
-                db.SaveChanges();
+                //db.SaveChanges();
 
 
             }

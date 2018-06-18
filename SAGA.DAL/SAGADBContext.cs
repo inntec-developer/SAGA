@@ -787,7 +787,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.TipoEstructuraId).IsRequired();
+                Property(x => x.EstructuraId).IsRequired();
                 Property(x => x.RolId).IsRequired();
                 Property(x => x.Create).IsRequired();
                 Property(x => x.Read).IsRequired();

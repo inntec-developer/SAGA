@@ -22,24 +22,42 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("agregarRol")]
-        public IHttpActionResult AgregarRol(Roles listJson)
+        public IHttpActionResult AgregarRol(List<PrivilegiosDtos> privilegios)
         {
             string mensaje = "Se agregó Rol";
-
+            //int id = 0;
             try
             {
-                db.Roles.Add(listJson);
-            
-                db.SaveChanges();
+                Roles obj = new Roles();
+                int id = 0;
+                var nom = privilegios.Select(n => n.Nombre).FirstOrDefault();
+                obj.Rol = nom;
 
-                
+                db.Roles.Add(obj);
+                id = db.SaveChanges();
+
+                foreach (PrivilegiosDtos ru in privilegios)
+                {
+                    Privilegio o = new Privilegio();
+                    o.RolId = id;
+                    o.EstructuraId = ru.EstructuraId;
+                    o.Create = ru.Create;
+                    o.Read = ru.Read;
+                    o.Update = ru.Update;
+                    o.Delete = ru.Delete;
+                    o.Especial = ru.Especial;
+
+                    db.Privilegios.Add(o);
+                    db.SaveChanges();
+
+                }
             }
             catch (Exception ex)
             {
                 mensaje = ex.Message;
             }
-
             return Ok(mensaje);
+       
         }
 
         [HttpPost]

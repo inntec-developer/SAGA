@@ -11,9 +11,17 @@ namespace SAGA.API.Dtos
     {
         public int Id { get; set; }
         public int IdPadre { get; set; }
+        public int IdRol { get; set; }
+        public int EstructuraId { get; set; }
         public string Nombre { get; set; }
         public int TipoEstructuraId { get; set; }
         public string TipoEstructura { get; set; }
+        public bool Create { get; set; }
+        public bool Read { get; set; }
+        public bool Update { get; set; }
+        public bool Delete { get; set; }
+        public bool Especial { get; set; }
+
         public ICollection<PrivilegiosDtos> Children { get; set; }
     }
 }
