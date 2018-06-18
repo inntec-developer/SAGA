@@ -10,7 +10,7 @@ namespace SAGA.BOL
     {
         [key]
         public int Id { get; set; }
-        public int TipoEstructuraId { get; set; }
+        public int EstructuraId { get; set; }
         public int RolId { get; set; }
         public bool Create { get; set; }
         public bool Read { get; set; }
@@ -19,6 +19,6 @@ namespace SAGA.BOL
         public bool Especial { get; set; }
 
         public virtual Roles Rol { get; set; }
-
+        public virtual Estructura Estructura { get; set; }
     }
 }
