@@ -143,6 +143,7 @@
     <Compile Include="Controllers\Admin\RolesController.cs" />
     <Compile Include="Controllers\AptitudesController.cs" />
     <Compile Include="Controllers\Catalogos\CatalogosController.cs" />
+    <Compile Include="Controllers\Component\AsignacionRequisicionController.cs" />
     <Compile Include="Controllers\Reclutamiento\Vacantes\DesignerVacanteController.cs" />
     <Compile Include="Controllers\Reclutamiento\Candidatos\CandidatosController.cs" />
     <Compile Include="Controllers\Reclutamiento\DAMFO\DAMFOController.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="Dtos\Admin\GruposDtos.cs" />
     <Compile Include="Dtos\Admin\PersonasDtos.cs" />
     <Compile Include="Dtos\Admin\PrivilegiosDtos.cs" />
+    <Compile Include="Dtos\Components\AsigancionDto.cs" />
     <Compile Include="Dtos\Reclutamiento\Candidatos\CandidatosDto.cs" />
     <Compile Include="Dtos\Reclutamiento\Candidatos\CandidatosGralDto.cs" />
     <Compile Include="Dtos\Reclutamiento\Candidatos\FiltrosDto.cs" />
