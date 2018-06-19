@@ -12,9 +12,9 @@ namespace SAGA.BOL
         [Key]
         public int Id { get; set; }
         public Guid GrupoId { get; set; }
-        public Guid UsuarioId { get; set; }
+        public Guid EntidadId { get; set; }
 
-        public virtual Usuarios Usuario { get; set; }
+        public virtual Entidad Entidad { get; set; }
         public virtual Grupos Grupo { get; set; }
     }
 }

@@ -63,10 +63,9 @@ namespace SAGA.API.Controllers.Admin
           
             var nodes = Tree.Where(x => x.TipoEstructuraId.Equals(2)).Select(ee => new PrivilegiosDtos()
             {
-                Id = ee.Id,
+                EstructuraId = ee.Id,
                 IdPadre = ee.IdPadre,
                 Nombre = ee.Nombre,
-                TipoEstructuraId = ee.TipoEstructuraId,
                 Children = GetChild(Tree, ee.Id)
             }).ToList();
 
@@ -79,10 +78,9 @@ namespace SAGA.API.Controllers.Admin
                     .Where(c => c.IdPadre == id)
                     .Select(c => new PrivilegiosDtos 
                     {
-                        Id = c.Id,
+                        EstructuraId = c.Id,
                         Nombre = c.Nombre,
                         IdPadre = c.IdPadre,
-                        TipoEstructuraId = c.TipoEstructuraId,
                         Children = GetChild(tree, c.Id)
                     })
                     .ToList();

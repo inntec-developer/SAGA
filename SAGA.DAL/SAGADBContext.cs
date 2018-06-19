@@ -803,7 +803,7 @@ namespace SAGA.DAL
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.GrupoId).IsRequired();
-                Property(x => x.UsuarioId).IsRequired();
+                Property(x => x.EntidadId).IsRequired();
             }
         }
 

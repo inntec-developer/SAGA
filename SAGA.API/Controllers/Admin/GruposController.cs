@@ -126,10 +126,11 @@ namespace SAGA.API.Controllers.Admin
                 foreach (GrupoUsuarios gu in listJson)
                 {
                     db.GruposUsuarios.Add(gu);
+                    db.SaveChanges();
                 }
 
                
-                db.SaveChanges();
+                
             }
             catch (Exception ex)
             {

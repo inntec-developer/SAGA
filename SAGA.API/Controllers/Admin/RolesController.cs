@@ -29,17 +29,16 @@ namespace SAGA.API.Controllers
             try
             {
                 Roles obj = new Roles();
-                int id = 0;
-                var nom = privilegios.Select(n => n.Nombre).FirstOrDefault();
-                obj.Rol = nom;
+
+                obj.Rol = privilegios.Select(n => n.Nombre).FirstOrDefault();
 
                 db.Roles.Add(obj);
-                id = db.SaveChanges();
+                db.SaveChanges();
 
                 foreach (PrivilegiosDtos ru in privilegios)
                 {
                     Privilegio o = new Privilegio();
-                    o.RolId = id;
+                    o.RolId = obj.Id;
                     o.EstructuraId = ru.EstructuraId;
                     o.Create = ru.Create;
                     o.Read = ru.Read;

@@ -59,7 +59,7 @@ namespace SAGA.API.Controllers.Admin
                 Email = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
                     email = e.email
                 }),
-                grupos = db.GruposUsuarios.Where(gu => gu.UsuarioId.Equals(u.Id)).Select(g => new
+                grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
                 {
                     Id = g.GrupoId,
                     Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre)
@@ -82,6 +82,35 @@ namespace SAGA.API.Controllers.Admin
             //    Usuario = db.Usuarios.Where(u => u.Id.Equals(c.Id)).Select(x => x.Usuario).FirstOrDefault(),
             //    Email = db.Emails.Where(e => e.PersonaId.Equals(c.Id)).Select(x => x.email).FirstOrDefault()
             //}).ToList();
+
+            return Ok(persona);
+
+        }
+
+        [HttpGet]
+        [Route("getEntidades")]
+        public IHttpActionResult GetEntidades()
+        {
+            var persona = db.Entidad.Where(x => x.TipoEntidadId.Equals(1) || x.TipoEntidadId.Equals(4)).Select(u => new
+            {
+                Id = u.Id,
+                Foto = String.IsNullOrEmpty(u.Foto) ? "http://localhost:4200/assets/img/user/01.jpg" : u.Foto,
+                Clave = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault(),
+                nombre = u.Nombre,
+                apellidoPaterno = string.IsNullOrEmpty(u.ApellidoPaterno) ? "NA" : u.ApellidoPaterno,
+                apellidoMaterno = string.IsNullOrEmpty(u.ApellidoMaterno) ? "NA" : u.ApellidoMaterno,
+                Usuario = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Usuario).FirstOrDefault(),
+                Departamento = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
+                Email = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
+                    email = e.email
+                }),
+                grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
+                {
+                    Id = g.GrupoId,
+                    Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault()
+                })
+
+            }).OrderBy(o => o.nombre).ToList();
 
             return Ok(persona);
 

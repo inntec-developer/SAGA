@@ -16,7 +16,7 @@ namespace SAGA.API.Dtos
         public string tipoUsuario { get; set; }
         public byte TipoUsuarioId { get; set; }
         public string Usuario { get; set; } //alias
-        public ICollection<Email> Email { get; set; }
+        public List<Email> Email { get; set; }
         public Guid DepartamentoId { get; set; }
         public string Clave { get; set; }
         public string UsuarioAlta { get; set; }
