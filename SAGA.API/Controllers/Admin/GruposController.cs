@@ -143,19 +143,21 @@ namespace SAGA.API.Controllers.Admin
         [Route("getGruposRoles")]
         public IHttpActionResult GetGruposRoles()
         {
-            var grupos = db.Grupos.Where(g => g.Activo == true).Select( g => new
+            var grupos = db.Grupos.Where(g => g.Activo == true).Select(g => new
             {
                 Id = g.Id,
                 Foto = g.Foto,
                 Activo = g.Activo,
                 Descripcion = g.Descripcion,
-                Nombre = db.Entidad.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre),
+                Nombre = db.Entidad.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre).FirstOrDefault(),
                 UsuarioAlta = g.UsuarioAlta,
-                //roles = db.Privilegios.Where(p => p.EntidadId.Equals(g.Id)).Select(gr => new
-                //{
-                //    rol = db.Roles.Where(x => x.Id.Equals(gr.RolId)).Select(x => x.Rol)
-                //})
-            }).ToList();
+                roles = db.RolEntidades.Where(x => x.EntidadId.Equals(g.Id)).Select(r => new
+                {
+                    id = r.Id,
+                    rol = r.Rol.Rol
+
+                })
+            }).OrderBy(o => o.Nombre).ToList();
 
 
             return Ok(grupos);

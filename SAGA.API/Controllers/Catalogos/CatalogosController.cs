@@ -90,7 +90,7 @@ namespace SAGA.API.Controllers
                 Descripcion = g.Descripcion,
                 Nombre = g.Nombre,
                 UsuarioAlta = g.UsuarioAlta
-            }).ToList();
+            }).OrderBy(g => g.Nombre).ToList();
             return Ok(grupos);
         }
 
