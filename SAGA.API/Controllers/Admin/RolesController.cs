@@ -56,22 +56,22 @@ namespace SAGA.API.Controllers
                 mensaje = ex.Message;
             }
             return Ok(mensaje);
-       
+
         }
 
         [HttpPost]
         [Route("updateRoles")]
         public IHttpActionResult updateRoles(Roles listJson)
         {
-           string msj = "Actualizó";
+            string msj = "Actualizó";
             try
             {
                 var r = db.Roles.Find(listJson.Id);
 
                 db.Entry(r).State = EntityState.Modified;
-         
+
                 r.Rol = listJson.Rol;
-             
+
                 db.SaveChanges();
             }
             catch (Exception ex)
@@ -93,7 +93,7 @@ namespace SAGA.API.Controllers
 
                 db.Entry(r).State = EntityState.Modified;
                 r.Activo = false;
-           
+
                 db.SaveChanges();
             }
             catch (Exception ex)
@@ -104,7 +104,49 @@ namespace SAGA.API.Controllers
             return Ok(msj);
         }
 
+        [HttpPost]
+        [Route("addGroupRol")]
+        public IHttpActionResult AddGroupRol(List<RolEntidad> listJson)
+        {
+            string msj = "Agrego";
 
+            try
+            {
+                List<RolEntidad> obj = new List<RolEntidad>();
 
+                foreach (RolEntidad re in listJson)
+                {
+                    db.RolEntidades.Add(re);
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                msj = ex.Message;
+            }
+            return Ok(msj);
+        }
+
+        [HttpGet]
+        [Route("getEstructuraRoles")]
+        public IHttpActionResult GetEstructuraRoles()
+        {
+           
+             var dtos = db.Privilegios.GroupBy( g => new { g.Rol, g.RolId, g.EstructuraId, g.Estructura.Nombre, g.Create, g.Read, g.Update, g.Delete }).Select(P => new
+                {
+                    RolId = db.Roles.Where(x => x.Id.Equals(P.Key.RolId)).Select(R => R.Id).FirstOrDefault(),
+                    Rol = db.Roles.Where(x => x.Id.Equals(P.Key.RolId)).Select(R => R.Rol).FirstOrDefault(),
+                    EstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.Key.EstructuraId)).Select(E => E.Id).FirstOrDefault(),
+                    Nombre = db.Estructuras.Where(x => x.Id.Equals(P.Key.EstructuraId)).Select(E => E.Nombre).FirstOrDefault(),
+                    create = P.Key.Create,
+                    read = P.Key.Read,
+                    update = P.Key.Update,
+                    delete = P.Key.Delete
+                }).OrderBy(o => new { o.Rol, o.EstructuraId }).ToList();
+
+          
+
+            return Ok(dtos);
+        }
     }
 }

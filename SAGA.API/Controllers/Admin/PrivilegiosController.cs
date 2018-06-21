@@ -19,33 +19,6 @@ namespace SAGA.API.Controllers.Admin
             db = new SAGADBContext();
         }
 
-        [HttpPost]
-        [Route("agregarPrivilegio")]
-        public IHttpActionResult AgregarPrivilegio(List<Privilegio> listJson)
-        {
-            string mensaje = "Se agregó Privilegio";
-
-            try
-            {
-                foreach (Privilegio ru in listJson)
-                {
-
-                    db.Privilegios.Add(ru);
-                }
-
-
-                //db.SaveChanges();
-
-
-            }
-            catch (Exception ex)
-            {
-                mensaje = ex.Message;
-            }
-
-            return Ok(mensaje);
-        }
-
         [HttpGet]
         [Route("GetEstructura")]
         public IHttpActionResult GetEstructura()
