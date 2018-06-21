@@ -49,6 +49,7 @@ namespace SAGA.DAL
         public DbSet<TipoDiscapacidad> TiposDiscapacidades { get; set; }
         public DbSet<TipoLicencia> TiposLicencias { get; set; }
         public DbSet<Year> Years { get; set; }
+        public DbSet<Frecuencias> Frecuencias { get; set; }
         #endregion
 
         #region PROSPECTOS/CLIENTES (Vtas)
@@ -254,6 +255,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TipoLicenciaMap().ToTable("TiposLicencias", "BTra"));
             modelBuilder.Configurations.Add(new TipoRedSocialMap().ToTable("TiposRedesSociales", "BTra"));
             modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
+            modelBuilder.Configurations.Add(new FrecuenciasMap().ToTable("Frecuencias", "BTra"));
             #endregion
 
             #region Reclutamiento_Recl
@@ -1139,11 +1141,22 @@ namespace SAGA.DAL
                 Property(x => x.Nombre).HasMaxLength(50).IsRequired();
             }
         }
-		#endregion
 
-		#region "Mapeo Vtas"
-		#region Prospectos / Clientes
-		public class ActividadEmpMap : EntityTypeConfiguration<ActividadEmpresa>
+        public class FrecuenciasMap : EntityTypeConfiguration<Frecuencias>
+        {
+            public FrecuenciasMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Frecuencia).IsRequired();
+                Property(x => x.Activo).IsOptional();
+            }
+        }
+
+        #endregion
+
+        #region "Mapeo Vtas"
+        #region Prospectos / Clientes
+        public class ActividadEmpMap : EntityTypeConfiguration<ActividadEmpresa>
 		{
 			public ActividadEmpMap()
 			{
