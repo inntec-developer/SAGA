@@ -69,20 +69,6 @@ namespace SAGA.API.Controllers.Admin
 
             }).OrderBy(o => o.nombre).ToList();
 
-
-            //dts = db.Personas.Select(c => new PersonasDtos
-            //{       Grupos = db.Personas.Where(p => p.Id.Equals(db.GruposUsuarios.Select(g => g.UsuarioId))).Select( gs => new
-            //{
-            //Grupo = db.Grupos.Where(x => x.Id.Equals(db.GruposUsuarios.Select(xx => xx.GrupoId))).Select(ng => ng.Nombre)
-            //}),
-            //    nombre = c.Nombre,
-            //    apellidoPaterno = c.ApellidoPaterno,
-            //    apellidoMaterno = c.ApellidoMaterno,
-            //    TipoUriario = db.Usuarios.Where(x => x.Id.Equals(c.Id)).Select(x => x.TipoUsuario.Tipo).FirstOrDefault(),
-            //    Usuario = db.Usuarios.Where(u => u.Id.Equals(c.Id)).Select(x => x.Usuario).FirstOrDefault(),
-            //    Email = db.Emails.Where(e => e.PersonaId.Equals(c.Id)).Select(x => x.email).FirstOrDefault()
-            //}).ToList();
-
             return Ok(persona);
 
         }
@@ -238,6 +224,25 @@ namespace SAGA.API.Controllers.Admin
             }
 
             return Ok(msj);
+        }
+
+        [HttpGet]
+        [Route("setUsers")]
+        public IHttpActionResult SetUsers(string p, string e)
+        {
+            var query =
+                   (from users in db.Usuarios
+                    join email in db.Emails on users.Id equals email.EntidadId
+                    where users.Password == p & email.email == e
+                    select new { IdUser = users.Id }).ToList();
+             
+            if (query.Count() == 0)
+                return Ok(0);
+            else
+
+                return Ok(query.FirstOrDefault());
+     
+
         }
 
     }
