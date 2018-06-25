@@ -19,9 +19,9 @@ namespace SAGA.API.Controllers
     public class RequisicionesController : ApiController
     {
         private SAGADBContext db;
-        Damfo290Dto DamfoDto;
-        BusinessDay businessDay;
-        Rastreabilidad rastreabilidad;
+        private Damfo290Dto DamfoDto;
+        private BusinessDay businessDay;
+        private Rastreabilidad rastreabilidad;
 
         public RequisicionesController()
         {
@@ -103,7 +103,8 @@ namespace SAGA.API.Controllers
                     r.fch_Limite,
                     r.Prioridad,
                     r.Confidencial,
-                    r.Estatus
+                    r.Estatus,
+                    asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id)).Select( x =>x.GrpUsrId).ToList()
                 }).FirstOrDefault();
                 return Ok(requisicion);
             }
@@ -186,28 +187,40 @@ namespace SAGA.API.Controllers
         [Route("updateRequisiciones")]
         public IHttpActionResult UpdateRequi(RequisicionDto requi)
         {
-            try
+            db.Database.Log = Console.Write;
+            using (DbContextTransaction beginTran = db.Database.BeginTransaction())
             {
-                var requisicion = db.Requisiciones.Find(requi.Id);
-                db.Entry(requisicion).State = EntityState.Modified;
-                requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
-                requisicion.EstatusId = requi.EstatusId;
-                requisicion.PrioridadId = requi.PrioridadId;
-                requisicion.Confidencial = requi.Confidencial;
-                requisicion.fch_Modificacion = DateTime.Now;
-                requisicion.UsuarioMod = requi.Usuario;
-                db.SaveChanges();
+                try
+                {
+                    var requisicion = db.Requisiciones.Find(requi.Id);
+                    db.Entry(requisicion).State = EntityState.Modified;
+                    requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
+                    requisicion.EstatusId = requi.EstatusId;
+                    requisicion.PrioridadId = requi.PrioridadId;
+                    requisicion.Confidencial = requi.Confidencial;
+                    requisicion.fch_Modificacion = DateTime.Now;
+                    requisicion.UsuarioMod = requi.Usuario;
+                    requisicion.AsignacionRequi = requi.AsignacionRequi;
+                    db.SaveChanges();
 
-                int Folio = requisicion.Folio;
-                Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
-                //Isertar el registro de la rastreabilidad. 
-                rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.Usuario,  3);
-                return Ok(requi.Folio);
+                    int Folio = requisicion.Folio;
+                    //Creacion de Trazabalidad par ala requisición.
+                    Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
+                    //Isertar el registro de la rastreabilidad. 
+                    rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.Usuario, 3);
+
+                    beginTran.Commit();
+
+                    return Ok(requi.Folio);
+                }
+                catch (Exception ex)
+                {
+                    beginTran.Rollback();
+                    Console.Write(ex.Message);
+                    return NotFound();
+                }
             }
-            catch (Exception ex)
-            {
-                return Ok(ex.Message);
-            }
+           
 
         }
 

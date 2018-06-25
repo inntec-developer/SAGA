@@ -49,21 +49,6 @@ namespace SAGA.API.Controllers.Component
                         TipoEntidadId = g.TipoEntidadId
                     })
                 ).OrderByDescending( g=> g.TipoEntidadId);
-
-
-            //var usuarios = db.Usuarios
-            //    .Where(u => u.Activo.Equals(true))
-            //    .Select(x => x.Nombre)
-            //    .ToList();
-
-
-            //var grupos = db.Grupos
-            //    .Where(g => g.Activo.Equals(true))
-            //    .Select(g => g.Nombre)
-            //    .ToList();
-
-            
-
             return Ok(asignacion);
         }
 

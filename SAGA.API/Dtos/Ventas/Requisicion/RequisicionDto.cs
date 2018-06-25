@@ -15,5 +15,7 @@ namespace SAGA.API.Dtos
         public int EstatusId { get; set; }
         public bool Confidencial { get; set; }
         public string Usuario { get; set; }
+        public virtual ICollection<AsignacionRequi> AsignacionRequi { get; set; }
+
     }
 }
