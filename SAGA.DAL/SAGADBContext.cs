@@ -50,6 +50,7 @@ namespace SAGA.DAL
         public DbSet<TipoLicencia> TiposLicencias { get; set; }
         public DbSet<Year> Years { get; set; }
         public DbSet<Frecuencias> Frecuencias { get; set; }
+        public DbSet<Alertashdr> Alertas { get; set; }
         #endregion
 
         #region PROSPECTOS/CLIENTES (Vtas)
@@ -1151,6 +1152,20 @@ namespace SAGA.DAL
                 Property(x => x.Activo).IsOptional();
             }
         }
+        public class AlertasMap : EntityTypeConfiguration<Alertashdr>
+        {
+            public AlertasMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.FrecuenciaId).IsRequired();
+                Property(x => x.CorreoTelefono).HasMaxLength(100).IsRequired();
+                Property(x => x.Fch_UltimaEjecucion).HasColumnType("datetime").IsRequired();
+                Property(x => x.Activo).IsOptional();
+            }
+        }
+
 
         #endregion
 
@@ -1208,6 +1223,7 @@ namespace SAGA.DAL
 			}
 		}
 		#endregion
+
 		#region Requisiciones
 		public class RequisicionMap : EntityTypeConfiguration<Requisicion>
 		{

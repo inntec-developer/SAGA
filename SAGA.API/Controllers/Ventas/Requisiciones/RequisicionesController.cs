@@ -200,7 +200,7 @@ namespace SAGA.API.Controllers
                     requisicion.Confidencial = requi.Confidencial;
                     requisicion.fch_Modificacion = DateTime.Now;
                     requisicion.UsuarioMod = requi.Usuario;
-                    requisicion.AsignacionRequi = requi.AsignacionRequi;
+                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id);
                     db.SaveChanges();
 
                     int Folio = requisicion.Folio;
@@ -298,6 +298,15 @@ namespace SAGA.API.Controllers
                 }
 
             } while (saveFailed);
+        }
+
+        private void AlterAsignacionRequi (ICollection<AsignacionRequi> asignaciones, Guid RequiId)
+        {
+            var asg = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(RequiId)).ToList();
+            if(asg.Count > 1)
+                db.AsignacionRequis.RemoveRange(asg);
+            else
+                db.AsignacionRequis.AddRange(asignaciones);
         }
 
        
