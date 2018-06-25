@@ -39,7 +39,8 @@ namespace SAGA.API.Controllers
                 EstructuraId = ee.Id,
                 IdPadre = ee.IdPadre,
                 Nombre = ee.Nombre,
-                Children = GetChild(Tree, ee.Id)
+                Children = GetChild(Tree, ee.Id),
+                TipoEstructuraId = ee.TipoEstructuraId
             }).ToList();
 
             return Ok(nodes);
@@ -54,7 +55,8 @@ namespace SAGA.API.Controllers
                         EstructuraId = c.Id,
                         Nombre = c.Nombre,
                         IdPadre = c.IdPadre,
-                        Children = GetChild(tree, c.Id)
+                        Children = GetChild(tree, c.Id),
+                        TipoEstructuraId = c.TipoEstructuraId
                     })
                     .ToList();
         }
