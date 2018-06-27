@@ -211,7 +211,7 @@ namespace SAGA.API.Controllers
 
                     beginTran.Commit();
 
-                    return Ok(requi.Folio);
+                    return Ok(HttpStatusCode.OK);
                 }
                 catch (Exception ex)
                 {
@@ -300,11 +300,46 @@ namespace SAGA.API.Controllers
             } while (saveFailed);
         }
 
-        private void AlterAsignacionRequi (ICollection<AsignacionRequi> asignaciones, Guid RequiId)
+        private void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId)
         {
-            var asg = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(RequiId)).ToList();
-            if(asg.Count > 1)
-                db.AsignacionRequis.RemoveRange(asg);
+            List<AsignacionRequi> NotChange = new List<AsignacionRequi>();
+            List<AsignacionRequi> CheckExcept = new List<AsignacionRequi>();
+            List<AsignacionRequi> AddElmt = new List<AsignacionRequi>();
+            List<AsignacionRequi> Delete = new List<AsignacionRequi>();
+            var asg = db.AsignacionRequis
+                .Where(x => x.RequisicionId.Equals(RequiId))
+                .ToList();
+            if (asg.Count() > 0)
+            {
+                for (int i = 0; i < asg.Count(); i++)
+                {
+                    if (asignaciones.Count() > 0)
+                    {
+                        for (int x = 0; x < asignaciones.Count(); x++)
+                        {
+                            if (asignaciones[x].GrpUsrId.Equals(asg[i].GrpUsrId))
+                            {
+                                NotChange.Add(asignaciones[x]);
+                                CheckExcept.Add(asg[i]);
+
+                            }
+                            if (asignaciones[x].GrpUsrId != asg[i].GrpUsrId)
+                            {
+                                AddElmt.Add(asignaciones[x]);
+
+                            }
+                        }
+                    }
+                }
+
+                var filterAdd = AddElmt.Except(NotChange).ToList();
+                var delet = asg.Except(CheckExcept).ToList();
+
+                if (delet.Count() > 0)
+                    db.AsignacionRequis.RemoveRange(delet);
+                if (filterAdd.Count() > 0)
+                    db.AsignacionRequis.AddRange(filterAdd);
+            }
             else
                 db.AsignacionRequis.AddRange(asignaciones);
         }
