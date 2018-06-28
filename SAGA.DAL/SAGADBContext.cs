@@ -51,6 +51,7 @@ namespace SAGA.DAL
         public DbSet<Year> Years { get; set; }
         public DbSet<Frecuencias> Frecuencias { get; set; }
         public DbSet<Alertashdr> Alertas { get; set; }
+        public DbSet<Alertasdtl> Alertasdtl { get; set; }
         #endregion
 
         #region PROSPECTOS/CLIENTES (Vtas)
@@ -257,6 +258,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TipoRedSocialMap().ToTable("TiposRedesSociales", "BTra"));
             modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
             modelBuilder.Configurations.Add(new FrecuenciasMap().ToTable("Frecuencias", "BTra"));
+            modelBuilder.Configurations.Add(new AlertasdtlMap().ToTable("Alertasdtl", "BTra"));
             #endregion
 
             #region Reclutamiento_Recl
@@ -1165,6 +1167,17 @@ namespace SAGA.DAL
                 Property(x => x.Activo).IsOptional();
             }
         }
+
+        public class AlertasdtlMap : EntityTypeConfiguration<Alertasdtl>
+        {
+            public AlertasdtlMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.alertaId).IsRequired();
+                Property(x => x.areaexperiencia).IsRequired();
+            }
+        }
+
 
 
         #endregion
