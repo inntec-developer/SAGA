@@ -7,6 +7,7 @@ using System.Web.Http;
 using SAGA.DAL;
 using SAGA.BOL;
 using SAGA.API.Dtos;
+using System.Data.Entity;
 
 namespace SAGA.API.Controllers
 {
@@ -75,7 +76,7 @@ namespace SAGA.API.Controllers
                         join P in db.Privilegios on RE.RolId equals P.RolId
                         join ES in db.Estructuras on P.EstructuraId equals ES.Id
                         where GU.EntidadId == idUser
-                        select new { idPadre = ES.IdPadre, EstructuraId = ES.Id, nombre = ES.Nombre, Rol = RE.Rol.Rol, Create = P.Create, Read = P.Read, Update = P.Update, Delete = P.Delete, Especial = P.Especial }).ToList();
+                        select new { idPadre = ES.IdPadre, EstructuraId = ES.Id, nombre = ES.Nombre,RolId = RE.RolId, Rol = RE.Rol.Rol, Create = P.Create, Read = P.Read, Update = P.Update, Delete = P.Delete, Especial = P.Especial }).ToList();
 
             foreach (var registro in
                 query.GroupBy(g => g.EstructuraId).Select((v, i) => new { Indice = i, Valor = v }) // Agrupar por el indice repetido. Valor tiene mis registros repetidos
@@ -86,7 +87,9 @@ namespace SAGA.API.Controllers
                     Read = x.Valor.Where(c => c.Read.Equals(true)).Select(c => c.Read).FirstOrDefault(),
                     Update = x.Valor.Where(c => c.Update.Equals(true)).Select(c => c.Update).FirstOrDefault(),
                     Delete = x.Valor.Where(c => c.Delete.Equals(true)).Select(c => c.Delete).FirstOrDefault(),
-                    Especial = x.Valor.Where(c => c.Especial.Equals(true)).Select(c => c.Especial).FirstOrDefault()
+                    Especial = x.Valor.Where(c => c.Especial.Equals(true)).Select(c => c.Especial).FirstOrDefault(),
+                    RolId = x.Valor.Select(c => c.RolId).FirstOrDefault(),
+                    Rol = x.Valor.Select(c => c.Rol).FirstOrDefault()
                 }))
             {
                 privilegios.Add(
@@ -96,7 +99,10 @@ namespace SAGA.API.Controllers
                         Create = registro.Create,
                         Read = registro.Read,
                         Update = registro.Update,
-                        Delete = registro.Delete
+                        Delete = registro.Delete, 
+                        Especial = registro.Especial,
+                        RolId = registro.RolId,
+                        Nombre = registro.Rol
                     });
 
 
@@ -106,6 +112,32 @@ namespace SAGA.API.Controllers
             return Ok(privilegios);
         }
 
+        [HttpPost]
+        [Route("modificarPrivilegios")]
+        public IHttpActionResult ModificarPrivilegios(PrivilegiosDtos listJson)
+        {
+            try
+            {
+                var r = db.Privilegios.Where(x => x.RolId.Equals(listJson.RolId) && x.EstructuraId.Equals(listJson.EstructuraId)).FirstOrDefault();
+
+                db.Entry(r).State = EntityState.Modified;
+
+                r.Create = listJson.Create;
+                r.Read = listJson.Read;
+                r.Update = listJson.Update;
+                r.Delete = listJson.Delete;
+                r.Especial = listJson.Especial;
+
+                db.SaveChanges();
+
+                return Ok(r);
+            }
+            catch( Exception ex )
+            {
+                return Ok(ex.Message);
+            }
+            
+        }
 
     }
 }

@@ -132,7 +132,7 @@ namespace SAGA.API.Controllers
         public IHttpActionResult GetEstructuraRoles()
         {
            
-             var dtos = db.Privilegios.GroupBy( g => new { g.Rol, g.RolId, g.EstructuraId, g.Estructura.Nombre, g.Create, g.Read, g.Update, g.Delete }).Select(P => new
+             var dtos = db.Privilegios.GroupBy( g => new { g.Rol, g.RolId, g.EstructuraId, g.Estructura.Nombre, g.Create, g.Read, g.Update, g.Delete, g.Especial }).Select(P => new
                 {
                     RolId = db.Roles.Where(x => x.Id.Equals(P.Key.RolId)).Select(R => R.Id).FirstOrDefault(),
                     Rol = db.Roles.Where(x => x.Id.Equals(P.Key.RolId)).Select(R => R.Rol).FirstOrDefault(),
@@ -141,7 +141,8 @@ namespace SAGA.API.Controllers
                     create = P.Key.Create,
                     read = P.Key.Read,
                     update = P.Key.Update,
-                    delete = P.Key.Delete
+                    delete = P.Key.Delete,
+                    especial = P.Key.Especial
                 }).OrderBy(o => new { o.Rol, o.EstructuraId }).ToList();
 
           

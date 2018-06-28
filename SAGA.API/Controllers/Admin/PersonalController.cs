@@ -140,6 +140,32 @@ namespace SAGA.API.Controllers.Admin
 
         }
 
+        [HttpGet]
+        [Route("getUsuarioByGrupo")]
+        public IHttpActionResult GetDtosByGrupo(Guid id)
+        {
+            try
+            {
+                var persona = db.GruposUsuarios.Where(x => x.GrupoId.Equals(id)).Select(u => new
+                {
+                    EntidadId = u.EntidadId,
+                    Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select( f => String.IsNullOrEmpty(f.Foto) ? "http://localhost:4200/assets/img/user/01.jpg" : f.Foto).FirstOrDefault(),
+                    TipoEntidadId = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.TipoEntidadId).FirstOrDefault(),
+                    nombre = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.Nombre).FirstOrDefault(),
+                    apellidoPaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoPaterno) ? "" : n.ApellidoPaterno).FirstOrDefault(),
+                    apellidoMaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoMaterno) ? "" : n.ApellidoMaterno).FirstOrDefault(),
+                    Usuario = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => string.IsNullOrEmpty(c.Usuario) ? "" : c.Usuario).FirstOrDefault(),
+                }).OrderBy(o => o.TipoEntidadId).ToList();
+
+                return Ok(persona);
+            }
+            catch( Exception ex)
+            {
+                return Ok(ex);
+            }
+
+        }
+
 
         [HttpPost]
         [Route("addUsuario")]

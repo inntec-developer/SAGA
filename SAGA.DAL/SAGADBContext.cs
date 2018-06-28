@@ -573,7 +573,7 @@ namespace SAGA.DAL
             public RolesMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Rol).HasMaxLength(20).IsRequired().IsUnicode();
+                Property(x => x.Rol).HasMaxLength(100).IsRequired().IsUnicode();
             }
         }
         public class TamanoEmpresaMap : EntityTypeConfiguration<TamanoEmpresa>
