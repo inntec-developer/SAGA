@@ -22,6 +22,7 @@ namespace SAGA.API.Controllers
         private Damfo290Dto DamfoDto;
         private BusinessDay businessDay;
         private Rastreabilidad rastreabilidad;
+        private SendEmails SendEmail;
 
         public RequisicionesController()
         {
@@ -29,6 +30,7 @@ namespace SAGA.API.Controllers
             DamfoDto = new Damfo290Dto();
             businessDay = new BusinessDay();
             rastreabilidad = new Rastreabilidad();
+            SendEmail = new SendEmails();
         }
 
         [HttpGet]
@@ -200,7 +202,7 @@ namespace SAGA.API.Controllers
                     requisicion.Confidencial = requi.Confidencial;
                     requisicion.fch_Modificacion = DateTime.Now;
                     requisicion.UsuarioMod = requi.Usuario;
-                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id);
+                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requi.Folio, requi.Usuario, requisicion.VBtra);
                     db.SaveChanges();
 
                     int Folio = requisicion.Folio;
@@ -300,8 +302,12 @@ namespace SAGA.API.Controllers
             } while (saveFailed);
         }
 
-        private void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId)
+        private void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId, int Folio, string Usuario, string VBra)
         {
+            var user = db.Usuarios.Where(x => x.Usuario.Equals(Usuario)).Select( x => 
+                x.Nombre + " " +x.ApellidoPaterno+" "+ x.ApellidoMaterno
+            ).FirstOrDefault();
+
             List<AsignacionRequi> NotChange = new List<AsignacionRequi>();
             List<AsignacionRequi> CheckExcept = new List<AsignacionRequi>();
             List<AsignacionRequi> AddElmt = new List<AsignacionRequi>();
@@ -336,12 +342,23 @@ namespace SAGA.API.Controllers
                 var delet = asg.Except(CheckExcept).ToList();
 
                 if (delet.Count() > 0)
+                {
                     db.AsignacionRequis.RemoveRange(delet);
+                    SendEmail.ConstructEmail(delet, NotChange, "D", Folio, user, VBra);
+                }
                 if (filterAdd.Count() > 0)
+                {
                     db.AsignacionRequis.AddRange(filterAdd);
+                    SendEmail.ConstructEmail(filterAdd, NotChange, "C", Folio, user, VBra);
+                }
+                    
             }
             else
+            {
                 db.AsignacionRequis.AddRange(asignaciones);
+                SendEmail.ConstructEmail(asignaciones, NotChange, "C", Folio, user, VBra);
+            }
+                
         }
 
        
