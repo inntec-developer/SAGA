@@ -257,18 +257,24 @@ namespace SAGA.API.Controllers.Admin
         public IHttpActionResult SetUsers(string p, string e)
         {
             PrivilegiosController obj = new PrivilegiosController();
-            var query =
+            var userData =
                    (from users in db.Usuarios
                     join email in db.Emails on users.Id equals email.EntidadId
                     where users.Password == p & email.email == e
-                    select ( users.Id )).FirstOrDefault();
+                    select new
+                    {
+                        id = users.Id,
+                        nombre = users.Nombre + " " + users.ApellidoPaterno + " " + users.ApellidoMaterno,
+                        usuario = users.Usuario
+                    }).ToList();
+            //var privilegios = obj.GetPrivilegios(query);
+
+           
 
 
 
-            var privilegios = obj.GetPrivilegios(query);
-                return Ok(privilegios);
-     
 
+            return Ok(userData);
         }
 
     }
