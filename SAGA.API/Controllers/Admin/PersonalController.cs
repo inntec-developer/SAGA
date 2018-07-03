@@ -256,17 +256,17 @@ namespace SAGA.API.Controllers.Admin
         [Route("setUsers")]
         public IHttpActionResult SetUsers(string p, string e)
         {
+            PrivilegiosController obj = new PrivilegiosController();
             var query =
                    (from users in db.Usuarios
                     join email in db.Emails on users.Id equals email.EntidadId
                     where users.Password == p & email.email == e
-                    select new { IdUser = users.Id }).ToList();
-             
-            if (query.Count() == 0)
-                return Ok(0);
-            else
+                    select ( users.Id )).FirstOrDefault();
 
-                return Ok(query.FirstOrDefault());
+
+
+            var privilegios = obj.GetPrivilegios(query);
+                return Ok(privilegios);
      
 
         }

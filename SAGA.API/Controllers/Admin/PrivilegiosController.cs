@@ -62,9 +62,9 @@ namespace SAGA.API.Controllers
                     .ToList();
         }
 
-        [HttpGet]
-        [Route("getPrivilegios")]
-        public IHttpActionResult GetPrivilegios(Guid idUser)
+        //[httpget]
+        //[route("getprivilegios")]
+        public List<PrivilegiosDtos> GetPrivilegios(Guid idUser)
         {
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
 
@@ -76,7 +76,7 @@ namespace SAGA.API.Controllers
                         join P in db.Privilegios on RE.RolId equals P.RolId
                         join ES in db.Estructuras on P.EstructuraId equals ES.Id
                         where GU.EntidadId == idUser
-                        select new { idPadre = ES.IdPadre, EstructuraId = ES.Id, nombre = ES.Nombre,RolId = RE.RolId, Rol = RE.Rol.Rol, Create = P.Create, Read = P.Read, Update = P.Update, Delete = P.Delete, Especial = P.Especial }).ToList();
+                          select new { idPadre = ES.IdPadre, EstructuraId = ES.Id, TipoEstructuraId = ES.TipoEstructuraId, nombre = ES.Nombre,RolId = RE.RolId, Rol = RE.Rol.Rol, Create = P.Create, Read = P.Read, Update = P.Update, Delete = P.Delete, Especial = P.Especial }).ToList();
 
             foreach (var registro in
                 query.GroupBy(g => g.EstructuraId).Select((v, i) => new { Indice = i, Valor = v }) // Agrupar por el indice repetido. Valor tiene mis registros repetidos
@@ -89,7 +89,8 @@ namespace SAGA.API.Controllers
                     Delete = x.Valor.Where(c => c.Delete.Equals(true)).Select(c => c.Delete).FirstOrDefault(),
                     Especial = x.Valor.Where(c => c.Especial.Equals(true)).Select(c => c.Especial).FirstOrDefault(),
                     RolId = x.Valor.Select(c => c.RolId).FirstOrDefault(),
-                    Rol = x.Valor.Select(c => c.Rol).FirstOrDefault()
+                    Rol = x.Valor.Select(c => c.Rol).FirstOrDefault(),
+                    TipoEstructuraId = x.Valor.Select(c=> c.TipoEstructuraId).FirstOrDefault()
                 }))
             {
                 privilegios.Add(
@@ -102,14 +103,15 @@ namespace SAGA.API.Controllers
                         Delete = registro.Delete, 
                         Especial = registro.Especial,
                         RolId = registro.RolId,
-                        Nombre = registro.Rol
+                        Nombre = registro.Rol,
+                        TipoEstructuraId = registro.TipoEstructuraId
                     });
 
 
 
             }
 
-            return Ok(privilegios);
+            return (privilegios);
         }
 
         [HttpPost]

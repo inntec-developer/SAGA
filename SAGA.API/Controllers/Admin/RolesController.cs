@@ -142,8 +142,9 @@ namespace SAGA.API.Controllers
                     read = P.Key.Read,
                     update = P.Key.Update,
                     delete = P.Key.Delete,
-                    especial = P.Key.Especial
-                }).OrderBy(o => new { o.Rol, o.EstructuraId }).ToList();
+                    especial = P.Key.Especial,
+                    TipoEstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.Key.EstructuraId)).Select(E => E.TipoEstructuraId).FirstOrDefault(),
+             }).OrderBy(o => new { o.Rol, o.EstructuraId }).ToList();
 
           
 
