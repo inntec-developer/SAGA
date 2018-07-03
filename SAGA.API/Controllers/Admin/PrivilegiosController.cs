@@ -62,8 +62,8 @@ namespace SAGA.API.Controllers
                     .ToList();
         }
 
-        //[httpget]
-        //[route("getprivilegios")]
+        [httpget]
+        [route("getprivilegios")]
         public List<PrivilegiosDtos> GetPrivilegios(Guid idUser)
         {
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
