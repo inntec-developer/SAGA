@@ -62,9 +62,9 @@ namespace SAGA.API.Controllers
                     .ToList();
         }
 
-        [httpget]
-        [route("getprivilegios")]
-        public List<PrivilegiosDtos> GetPrivilegios(Guid idUser)
+        [HttpGet]
+        [Route("getprivilegios")]
+        public IHttpActionResult GetPrivilegios(Guid idUser)
         {
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
 
@@ -111,7 +111,7 @@ namespace SAGA.API.Controllers
 
             }
 
-            return (privilegios);
+            return Ok(privilegios);
         }
 
         [HttpPost]
