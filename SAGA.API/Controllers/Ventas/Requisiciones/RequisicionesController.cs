@@ -351,7 +351,6 @@ namespace SAGA.API.Controllers
                     db.AsignacionRequis.AddRange(filterAdd);
                     SendEmail.ConstructEmail(filterAdd, NotChange, "C", Folio, user, VBra);
                 }
-                    
             }
             else
             {
