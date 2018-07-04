@@ -43,8 +43,7 @@ namespace SAGA.API.Controllers
         public IHttpActionResult Campos()
         {
             var datos = db.Estructuras.Where(a =>
-                                                a.Activo == true
-                                                && a.TipoEstructuraId == 8
+                                                a.TipoEstructuraId == 8
                                                 && a.TipoMovimientoId == 3
                                                 && a.Activo == true
                                             ).OrderBy(e => e.Id).ToList();
@@ -56,8 +55,7 @@ namespace SAGA.API.Controllers
         public IHttpActionResult Clasificaciones()
         {
             var datos = db.Estructuras.Where(a =>
-                                                a.Activo == true
-                                                && a.TipoEstructuraId == 7
+                                              a.TipoEstructuraId == 7
                                                 && a.TipoMovimientoId == 3
                                                 && a.Activo == true
                                             ).OrderBy(e => e.Id).ToList();
@@ -84,6 +82,8 @@ namespace SAGA.API.Controllers
                     foreach (var item in diferente)
                     {
                         ConfiguracionRequi caja = new ConfiguracionRequi();
+                      
+                       // caja.id = Guid.NewGuid();
                         caja.Campo = item.nombre;
                         caja.IdRequi = item.id;
                         caja.Detalle = item.detalle;
@@ -104,7 +104,10 @@ namespace SAGA.API.Controllers
                     lista.R_D = ResumenDetalle(item.resumen, item.detalle);
                     db.SaveChanges();
                 }
-                
+                var EstatusRequi = db.Requisiciones.Where(e => e.Id == idRequi).FirstOrDefault();
+                EstatusRequi.EstatusId = 7;
+                db.SaveChanges();
+
             }
             catch (Exception ex)
             {
