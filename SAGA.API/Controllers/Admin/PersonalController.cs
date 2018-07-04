@@ -264,7 +264,7 @@ namespace SAGA.API.Controllers.Admin
                     select new
                     {
                         id = users.Id,
-                        nombre = users.Nombre + " " + users.ApellidoPaterno + " " + users.ApellidoMaterno,
+                        nombre = users.Nombre + " " + users.ApellidoPaterno,
                         usuario = users.Usuario,
                         activo = users.Activo
                     }).ToList();
