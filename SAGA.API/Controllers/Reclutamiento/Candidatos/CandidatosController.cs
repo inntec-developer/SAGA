@@ -320,9 +320,26 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getvacantes")]
-        public IHttpActionResult GetVacantes()
+        public IHttpActionResult GetVacantes(Guid IdUsuario)
         {
-            var vacantes = db.Requisiciones.ToList();
+            var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
+                .Where(g => g.EntidadId.Equals(IdUsuario))
+                .Select(g => g.GrupoId)
+                .ToList();
+
+            var RequisicionesGrupos = db.AsignacionRequis
+                .Where(r => Grupos.Contains(r.GrpUsrId))
+                .Select(r => r.RequisicionId)
+                .ToList();
+
+            var RequisicionesInd = db.AsignacionRequis
+                .Where(r => r.GrpUsrId.Equals(IdUsuario))
+                .Select(r => r.RequisicionId)
+                .ToList();
+
+            var vacantes = db.Requisiciones
+                .Where(v => RequisicionesGrupos.Contains(v.Id) || RequisicionesInd.Contains(v.Id))
+                .ToList();
 
             return Ok(vacantes);
         }

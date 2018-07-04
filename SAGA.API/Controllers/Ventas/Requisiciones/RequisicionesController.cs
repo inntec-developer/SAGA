@@ -281,6 +281,32 @@ namespace SAGA.API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("reActivarRequisiciones")]
+        public IHttpActionResult ReActivar(RequisicionDeleteDto requi)
+        {
+            try
+            {
+                var requisicion = db.Requisiciones.Find(requi.Id);
+                db.Entry(requisicion).State = EntityState.Modified;
+                requisicion.EstatusId = 5;
+                requisicion.UsuarioMod = requi.UsuarioMod;
+                requisicion.fch_Modificacion = DateTime.Now;
+                db.SaveChanges();
+
+                int Folio = requisicion.Folio;
+                Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
+                //Isertar el registro de la rastreabilidad. 
+                rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 3);
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.NotAcceptable);
+            }
+        }
+
         private void Save()
         {
             bool saveFailed;
