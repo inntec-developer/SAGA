@@ -265,16 +265,22 @@ namespace SAGA.API.Controllers.Admin
                     {
                         id = users.Id,
                         nombre = users.Nombre + " " + users.ApellidoPaterno + " " + users.ApellidoMaterno,
-                        usuario = users.Usuario
+                        usuario = users.Usuario,
+                        activo = users.Activo
                     }).ToList();
             //var privilegios = obj.GetPrivilegios(query);
 
-           
-
-
-
-
-            return Ok(userData);
+            if(userData.Count() > 0)
+            {
+                if (userData.Select(x => x.activo).FirstOrDefault() == true)
+                    return Ok(userData);
+                else
+                    return Ok(HttpStatusCode.NotAcceptable);
+            }
+            else
+            {
+                return Ok(HttpStatusCode.NotFound);
+            }
         }
 
     }
