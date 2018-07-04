@@ -269,12 +269,14 @@ namespace SAGA.API.Controllers.Admin
                     }).ToList();
             //var privilegios = obj.GetPrivilegios(query);
 
-           
-
-
-
-
-            return Ok(userData);
+            if(userData.Count() > 0)
+            {
+                return Ok(userData);
+            }
+            else
+            {
+                return Ok(HttpStatusCode.NotFound);
+            }
         }
 
     }
