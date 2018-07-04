@@ -327,6 +327,17 @@ namespace SAGA.API.Controllers
             return Ok(vacantes);
         }
 
+        [HttpGet]
+        [Route("getvacantesdtl")]
+        public IHttpActionResult GetVacantesdtl(Guid IdVacante)
+        {
+            var vacantesdtl = db.Requisiciones
+                .Where(v => v.Id.Equals(IdVacante))
+                .ToList();
+
+            return Ok(vacantesdtl);
+        }
+
         [HttpPost]
         [Route("postapartado")]
         public IHttpActionResult ApartarCandidato(ProcesoCandidato cdto)
