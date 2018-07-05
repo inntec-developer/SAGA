@@ -232,6 +232,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi.Id)).ToList();
                
                 var requisicion = db.Requisiciones.Find(requi.Id);
                 db.Entry(requisicion).State = EntityState.Modified;
@@ -239,13 +240,20 @@ namespace SAGA.API.Controllers
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
                 requisicion.EstatusId = 9;
-                db.SaveChanges();
+
+                db.AsignacionRequis.RemoveRange(asignados);
+
+                
 
                 int Folio = requisicion.Folio;
+                string VBra = requisicion.VBtra; 
                 Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
                 //Isertar el registro de la rastreabilidad. 
                 rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 4);
 
+                SendEmail.ConstructEmail(asignados, null, "RD", Folio, string.Empty, VBra);
+
+                db.SaveChanges();
 
                 return Ok(HttpStatusCode.OK);
             }
@@ -261,17 +269,28 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi.Id)).ToList();
+
                 var requisicion = db.Requisiciones.Find(requi.Id);
                 db.Entry(requisicion).State = EntityState.Modified;
                 requisicion.EstatusId = 8;
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
-                db.SaveChanges();
+
+                db.AsignacionRequis.RemoveRange(asignados);
+
+                
 
                 int Folio = requisicion.Folio;
+                string VBra = requisicion.VBtra;
+
                 Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
                 //Isertar el registro de la rastreabilidad. 
                 rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 6);
+
+                SendEmail.ConstructEmail(asignados, null, "RU", Folio, string.Empty, VBra);
+
+                db.SaveChanges();
 
                 return Ok(HttpStatusCode.OK);
             }
@@ -292,12 +311,15 @@ namespace SAGA.API.Controllers
                 requisicion.EstatusId = 5;
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
-                db.SaveChanges();
+                
 
                 int Folio = requisicion.Folio;
                 Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
                 //Isertar el registro de la rastreabilidad. 
                 rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 3);
+
+                db.SaveChanges();
+
 
                 return Ok(HttpStatusCode.OK);
             }
