@@ -21,6 +21,8 @@ namespace SAGA.API.Dtos
         public bool Update { get; set; }
         public bool Delete { get; set; }
         public bool Especial { get; set; }
+        public string Accion { get; set; }
+        public string Icono { get; set; }
 
         public ICollection<PrivilegiosDtos> Children { get; set; }
     }

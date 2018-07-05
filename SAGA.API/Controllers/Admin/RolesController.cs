@@ -82,18 +82,17 @@ namespace SAGA.API.Controllers
             return Ok(msj);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("deleteRoles")]
-        public IHttpActionResult deleteRoles(Roles listJson)
+        public IHttpActionResult deleteRoles(int id)
         {
             string msj = "Borró";
             try
             {
-                var r = db.Roles.Find(listJson.Id);
+                var r = db.Roles.Find(id);
 
-                db.Entry(r).State = EntityState.Modified;
-                r.Activo = false;
-
+                db.Entry(r).State = EntityState.Deleted;
+              
                 db.SaveChanges();
             }
             catch (Exception ex)
