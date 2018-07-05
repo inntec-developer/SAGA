@@ -81,7 +81,7 @@ namespace SAGA.API.Utilerias
             return AddEmail;
         }
 
-        public void ConstructEmail(List<AsignacionRequi> asignaciones, List<AsignacionRequi>NotChange, string action, int Folio, string Usuario, string VBr)
+        public void ConstructEmail(List<AsignacionRequi> asignaciones, List<AsignacionRequi> NotChange, string action, int Folio, string Usuario, string VBr)
         {
             foreach(AsignacionRequi asg in asignaciones)
             {
@@ -97,19 +97,22 @@ namespace SAGA.API.Utilerias
                 }
             }
 
-            if(NotChange.Count() > 0)
+            if(NotChange != null)
             {
-                foreach(AsignacionRequi nc in NotChange)
+                if (NotChange.Count() > 0)
                 {
-                    grpUserNotChange = db.GruposUsuarios.Where(x => x.GrupoId.Equals(nc.GrpUsrId)).ToList();
-                    if (grpUserNotChange.Count() > 0)
+                    foreach (AsignacionRequi nc in NotChange)
                     {
-                        var emails = EmailsNotChange(grpUserNotChange).Distinct();
-                    }
-                    else
-                    {
-                        var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(nc.GrpUsrId)).Select(x => x.email).FirstOrDefault();
-                        emailNoChange.Add(sendEmail);
+                        grpUserNotChange = db.GruposUsuarios.Where(x => x.GrupoId.Equals(nc.GrpUsrId)).ToList();
+                        if (grpUserNotChange.Count() > 0)
+                        {
+                            var emails = EmailsNotChange(grpUserNotChange).Distinct();
+                        }
+                        else
+                        {
+                            var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(nc.GrpUsrId)).Select(x => x.email).FirstOrDefault();
+                            emailNoChange.Add(sendEmail);
+                        }
                     }
                 }
             }
@@ -140,6 +143,21 @@ namespace SAGA.API.Utilerias
                     m.Subject = "Des-asignación  de Requisicion";
                     body = "<p>Des-asignación  de Requisición:</p>";
                     body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha desasignado de la vacante <strong>{1}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{2}</big></strong>.", Usuario, VBr, Folio);
+                    body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
+                }
+                if(action == "RD")
+                {
+                    m.Subject = "Eliminación de Requisicion";
+                    body = "<p>Eliminación de Requisición:</p>";
+                    body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{1}</big></strong>, fue eliminada.", VBr, Folio);
+                    body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
+                }
+
+                if (action == "RU")
+                {
+                    m.Subject = "Cancelación de Requisicion";
+                    body = "<p>Cancelación de Requisición:</p>";
+                    body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{1}</big></strong>, fue cancelada.",  VBr, Folio);
                     body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
                 }
 
