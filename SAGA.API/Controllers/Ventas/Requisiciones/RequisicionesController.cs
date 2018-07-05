@@ -150,9 +150,11 @@ namespace SAGA.API.Controllers
         //api/Requisiciones/getRequisiciones
         [HttpGet]
         [Route("getRequisiciones")]
-        public IHttpActionResult GetRequisiciones()
+        public IHttpActionResult GetRequisiciones(string propietario)
         {
-            var requisicion = db.Requisiciones.Where( e => e.Activo.Equals(true))
+            var requisicion = db.Requisiciones
+                .Where( e => e.Activo.Equals(true))
+                .Where( e => e.Propietario.Equals(propietario) )
                 .Select(e => new
                 {
                     e.Id, e.VBtra,
