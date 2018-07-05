@@ -257,7 +257,10 @@ namespace SAGA.API.Controllers.Admin
         public IHttpActionResult SetUsers(string p, string e)
         {
             PrivilegiosController obj = new PrivilegiosController();
-            var userData =
+            List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
+            UsuarioDto userData = new UsuarioDto();
+
+            var Data =
                    (from users in db.Usuarios
                     join email in db.Emails on users.Id equals email.EntidadId
                     where users.Password == p & email.email == e
@@ -266,14 +269,21 @@ namespace SAGA.API.Controllers.Admin
                         id = users.Id,
                         nombre = users.Nombre + " " + users.ApellidoPaterno,
                         usuario = users.Usuario,
-                        activo = users.Activo
+                        activo = users.Activo,
+                        email = email.email
                     }).ToList();
-            //var privilegios = obj.GetPrivilegios(query);
 
-            if(userData.Count() > 0)
+            if(Data.Count() > 0)
             {
-                if (userData.Select(x => x.activo).FirstOrDefault() == true)
+                if (Data.Select(x => x.activo).FirstOrDefault() == true)
+                {
+                    userData.Id = Data.Select(x => x.id).FirstOrDefault();
+                    userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
+                    userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
+                    userData.Privilegios = obj.GetPrivilegios2(userData.Id);
+                    userData.Email = Data.Select(x => x.email).FirstOrDefault();
                     return Ok(userData);
+                }
                 else
                     return Ok(HttpStatusCode.NotAcceptable);
             }
