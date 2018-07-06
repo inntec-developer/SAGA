@@ -187,6 +187,63 @@ namespace SAGA.API.Controllers
             return Ok(requisicion);
         }
 
+        [HttpGet]
+        [Route("getRequiReclutador")]
+        public IHttpActionResult GtRequiReclutador(Guid IdUsuario)
+        {
+            var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
+                .Where(g => g.EntidadId.Equals(IdUsuario))
+                .Select(g => g.GrupoId)
+                .ToList();
+
+            var RequisicionesGrupos = db.AsignacionRequis
+                .Where(r => Grupos.Contains(r.GrpUsrId))
+                .Select(r => r.RequisicionId)
+                .ToList();
+
+            var RequisicionesInd = db.AsignacionRequis
+                .Where(r => r.GrpUsrId.Equals(IdUsuario))
+                .Select(r => r.RequisicionId)
+                .ToList();
+
+            var vacantes = db.Requisiciones
+                .Where(e => RequisicionesGrupos.Contains(e.Id) || RequisicionesInd.Contains(e.Id))
+                .Select(e => new
+                {
+                    e.Id,
+                    e.VBtra,
+                    e.TipoReclutamiento,
+                    e.ClaseReclutamiento,
+                    e.SueldoMinimo,
+                    e.SueldoMaximo,
+                    e.fch_Creacion,
+                    e.fch_Cumplimiento,
+                    e.Estatus,
+                    Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select(p => new {
+                        p.Descripcion,
+                        p.Id
+                    }).FirstOrDefault(),
+                    Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new
+                    {
+                        c.Nombrecomercial,
+                        c.GiroEmpresas,
+                        c.ActividadEmpresas,
+                        c.RFC
+                    }).FirstOrDefault(),
+                    HorarioRequi = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => new {
+                        x.Nombre,
+                        x.deDia,
+                        x.aDia,
+                        x.deHora,
+                        x.aHora,
+                        x.numeroVacantes,
+                        x.Especificaciones
+                    }).ToList(),
+                    e.Folio
+                }).ToList().OrderByDescending(x => x.Folio);
+            return Ok(vacantes);
+        }
+
         [HttpPost]
         [Route("updateRequisiciones")]
         public IHttpActionResult UpdateRequi(RequisicionDto requi)
