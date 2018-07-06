@@ -102,6 +102,7 @@ namespace SAGA.DAL
         public DbSet<TipodeNomina> TiposNominas { get; set; }
         public DbSet<TipoPsicometria> TiposPsicometrias { get; set; }
         public DbSet<TipoReclutamiento> TiposReclutamientos { get; set; }
+        public DbSet<CfgRequi> CfgRequi { get; set; }
         #endregion
 
         #region Sist
@@ -139,6 +140,7 @@ namespace SAGA.DAL
         public DbSet<Tratamiento> Tratamientos { get; set; }
         public DbSet<PostNombre> PostNombres { get; set; }
         public DbSet<RolEntidad> RolEntidades { get; set; }
+        public DbSet<ConfiguracionMovs> ConfiguracionesMov { get; set; }
         #endregion
 
         #region REQUISICIONES (Vtas)
@@ -232,6 +234,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new OficinaReclutamientoMap().ToTable("OficinasReclutamiento"));
             modelBuilder.Configurations.Add(new TipoOficinaMap().ToTable("TiposOficinas"));
             modelBuilder.Configurations.Add(new RolEntidadesMap().ToTable("RolEntidades"));
+            modelBuilder.Configurations.Add(new ConfiguracionMovsMap().ToTable("ConfiguracionesMovs"));
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
@@ -287,6 +290,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new PsicometriasClienteMap().ToTable("PsicometriasCliente", "Recl"));
             modelBuilder.Configurations.Add(new ProcesoPerfilMap().ToTable("ProcesoPerfil", "Recl"));
             modelBuilder.Configurations.Add(new RutasPerfilMap().ToTable("RutasPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new CfgRequiMap().ToTable("CfgRequi", "Recl"));
 
             //modelBuilder.Configurations.Add(new VacantesMap().ToTable("Vacantes", "Recl"));
 
@@ -881,6 +885,20 @@ namespace SAGA.DAL
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.EntidadId).IsRequired();
                 Property(x => x.RolId).IsRequired();
+            }
+        }
+
+        public class ConfiguracionMovsMap : EntityTypeConfiguration<ConfiguracionMovs>
+        {
+            public ConfiguracionMovsMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.EstructuraId).IsRequired();
+                Property(x => x.esPublicable).IsRequired();
+                Property(x => x.esEditable).IsRequired();
+                Property(x => x.nuevaEtiqueta).HasMaxLength(150).IsOptional();
+                Property(x => x.nuevoValor).HasMaxLength(150).IsOptional();
             }
         }
 
@@ -1861,6 +1879,19 @@ namespace SAGA.DAL
 			}
 		}
 
-		#endregion
-	}
+        public class CfgRequiMap : EntityTypeConfiguration<CfgRequi>
+        {
+            public CfgRequiMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.ConfigMovId).IsRequired();
+                Property(x => x.R_D).IsRequired();
+                Property(x => x.R).IsRequired();
+                Property(x => x.D).IsRequired();
+            }
+        }
+
+        #endregion
+    }
 }
