@@ -149,12 +149,18 @@ namespace SAGA.API.Controllers.Admin
                 var persona = db.GruposUsuarios.Where(x => x.GrupoId.Equals(id)).Select(u => new
                 {
                     EntidadId = u.EntidadId,
-                    Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select( f => String.IsNullOrEmpty(f.Foto) ? "http://localhost:4200/assets/img/user/01.jpg" : f.Foto).FirstOrDefault(),
+                    Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(f => String.IsNullOrEmpty(f.Foto) ? "http://localhost:4200/assets/img/user/01.jpg" : f.Foto).FirstOrDefault(),
                     TipoEntidadId = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.TipoEntidadId).FirstOrDefault(),
                     nombre = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.Nombre).FirstOrDefault(),
                     apellidoPaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoPaterno) ? "" : n.ApellidoPaterno).FirstOrDefault(),
                     apellidoMaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoMaterno) ? "" : n.ApellidoMaterno).FirstOrDefault(),
                     Usuario = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => string.IsNullOrEmpty(c.Usuario) ? "" : c.Usuario).FirstOrDefault(),
+                    grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.EntidadId)).Select(g => new
+                    {
+                        Id = g.GrupoId,
+                        grupo = db.Entidad.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault()
+                    })
+
                 }).OrderBy(o => o.TipoEntidadId).ToList();
 
                 return Ok(persona);
@@ -242,6 +248,33 @@ namespace SAGA.API.Controllers.Admin
                 usuario.UsuarioAlta = "INNTEC";
                 usuario.TipoUsuarioId = listJson.TipoUsuarioId;
                 usuario.Foto = listJson.Foto;
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                msj = ex.Message;
+            }
+
+            return Ok(msj);
+        }
+
+        [HttpPost]
+        [Route("deleteUserGroup")]
+        public IHttpActionResult DeleteUserGroup(GrupoUsuarios indices)
+        {
+            string msj = "Borró usuario";
+
+            try
+            {
+               var idGU =  db.GruposUsuarios
+                    .Where(x => x.EntidadId.Equals(indices.EntidadId))
+                    .Where(x => x.GrupoId.Equals(indices.GrupoId))
+                    .Select(x => x.Id).FirstOrDefault();
+       
+                var dts = db.GruposUsuarios.Find(idGU);
+
+                db.Entry(dts).State = EntityState.Deleted;
+
                 db.SaveChanges();
             }
             catch (Exception ex)
