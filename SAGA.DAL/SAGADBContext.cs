@@ -1511,7 +1511,7 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.id);
 				Property(e => e.id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(e => e.IdRequi).IsRequired();
+                Property(e => e.RequisicionId).IsRequired();
 				Property(e => e.IdEstructura).IsRequired();
 				Property(e => e.Campo).HasMaxLength(500).IsRequired();
 				Property(e => e.R_D).IsRequired();

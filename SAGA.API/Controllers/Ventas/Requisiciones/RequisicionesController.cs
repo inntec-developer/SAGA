@@ -388,6 +388,46 @@ namespace SAGA.API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("asignacionRequisiciones")]
+        public IHttpActionResult AsginarRequi(AsignarVacanteReclutador requi)
+        {
+            db.Database.Log = Console.Write;
+            using (DbContextTransaction beginTran = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    var requisicion = db.Requisiciones.Find(requi.Id);
+                    db.Entry(requisicion).State = EntityState.Modified;
+                    requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
+                    requisicion.Aprobador = requi.Aprobador;
+                    requisicion.Aprobada = true;
+                    requisicion.DiasEnvio = requi.DiasEnvio;
+                    requisicion.fch_Modificacion = DateTime.Now;
+                    requisicion.UsuarioMod = requi.Usuario;
+                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra);
+                    int Folio = requisicion.Folio;
+                    //Creacion de Trazabalidad par ala requisición.
+                    Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
+                    //Isertar el registro de la rastreabilidad. 
+                    rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.Usuario, 5);
+                    db.SaveChanges();
+
+                    beginTran.Commit();
+
+                    return Ok(HttpStatusCode.OK);
+                }
+                catch (Exception ex)
+                {
+                    beginTran.Rollback();
+                    Console.Write(ex.Message);
+                    return NotFound();
+                }
+            }
+
+
+        }
+
         private void Save()
         {
             bool saveFailed;
@@ -409,7 +449,7 @@ namespace SAGA.API.Controllers
             } while (saveFailed);
         }
 
-        private void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId, int Folio, string Usuario, string VBra)
+        public void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId, int Folio, string Usuario, string VBra)
         {
             var user = db.Usuarios.Where(x => x.Usuario.Equals(Usuario)).Select( x => 
                 x.Nombre + " " +x.ApellidoPaterno+" "+ x.ApellidoMaterno

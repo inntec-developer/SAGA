@@ -91,6 +91,7 @@ namespace SAGA.BOL
         public virtual ICollection<CompetenciaGerencialRequi> competetenciasGerencialRequi { get; set; }
         public virtual ICollection<AsignacionRequi> AsignacionRequi { get; set; }
         public virtual ICollection<HorariosDireccionesRequi> HorariosDirecionesRequi { get;  set;}
+        //public virtual ICollection<ConfiguracionRequi> ConfiguracionRequi { get; set; }
 
 
         public Requisicion()
