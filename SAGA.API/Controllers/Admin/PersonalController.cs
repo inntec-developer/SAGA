@@ -86,6 +86,7 @@ namespace SAGA.API.Controllers.Admin
                 apellidoPaterno = string.IsNullOrEmpty(u.ApellidoPaterno) ? "" : u.ApellidoPaterno,
                 apellidoMaterno = string.IsNullOrEmpty(u.ApellidoMaterno) ? "" : u.ApellidoMaterno,
                 Usuario = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Usuario).FirstOrDefault(),
+                Descripcion = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(x => string.IsNullOrEmpty(x.Descripcion) ? "" : x.Descripcion).FirstOrDefault(),
                 Departamento = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
                 Email = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
                     email = e.email
@@ -93,7 +94,14 @@ namespace SAGA.API.Controllers.Admin
                 grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
                 {
                     Id = g.GrupoId,
-                    Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault()
+                    Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault(),
+
+                }),
+                roles = db.RolEntidades.Where(x => x.EntidadId.Equals(u.Id)).Select(r => new
+                {
+                    id = r.Id,
+                    rol = r.Rol.Rol
+
                 })
 
             }).OrderBy(o => o.nombre).ToList();

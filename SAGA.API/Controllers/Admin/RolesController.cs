@@ -143,7 +143,7 @@ namespace SAGA.API.Controllers
                     delete = P.Key.Delete,
                     especial = P.Key.Especial,
                     TipoEstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.Key.EstructuraId)).Select(E => E.TipoEstructuraId).FirstOrDefault(),
-             }).OrderBy(o => new { o.Rol, o.EstructuraId }).ToList();
+             }).Where(x => x.TipoEstructuraId > 3).OrderBy(o => new { o.Rol, o.EstructuraId }).ToList();
 
           
 

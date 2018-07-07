@@ -50,7 +50,7 @@ namespace SAGA.API.Controllers
         public ICollection<PrivilegiosDtos> GetChild(List<PrivilegiosDtos> tree, int id)
         {
             return  tree
-                    .Where(c => c.IdPadre == id && c.TipoEstructuraId < 7)
+                    .Where(c => c.IdPadre == id)
                     .Select(c => new PrivilegiosDtos 
                     {
                         EstructuraId = c.Id,
@@ -125,15 +125,14 @@ namespace SAGA.API.Controllers
         {
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
 
-            // me da los privilegios de roles en donde se encuentra el usuario 
+            // me da los privilegios de roles en donde se encuentra el usuario            join G in db.Grupos on E.Id equals G.Id join GU in db.GruposUsuarios on G.Id equals GU.GrupoId
+
             // me falta que tambien me saque los datos de usuarios sin grupos
             var query = (from E in db.Entidad
                          join RE in db.RolEntidades on E.Id equals RE.EntidadId
-                         join G in db.Grupos on E.Id equals G.Id
-                         join GU in db.GruposUsuarios on G.Id equals GU.GrupoId
                          join P in db.Privilegios on RE.RolId equals P.RolId
                          join ES in db.Estructuras on P.EstructuraId equals ES.Id
-                         where GU.EntidadId == idUser
+                         where E.Id == idUser
                          select new { idPadre = ES.IdPadre, EstructuraId = ES.Id, TipoEstructuraId = ES.TipoEstructuraId, nombre = ES.Nombre, link = ES.Accion, icon = ES.Icono, RolId = RE.RolId, Rol = RE.Rol.Rol, Create = P.Create, Read = P.Read, Update = P.Update, Delete = P.Delete, Especial = P.Especial }).ToList();
 
             foreach (var registro in
