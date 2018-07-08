@@ -38,15 +38,69 @@ namespace SAGA.API.Controllers
             return Ok(datos);
         }
 
+
+        private bool ValidaHaycampos(int SubSesionID)
+        {
+            var estructura = db.Estructuras.Where(e => e.IdPadre == SubSesionID && e.TipoEstructuraId == 8 && e.TipoMovimientoId == 3).ToList();  
+            var lista = estructura.Select(e => e.Id).ToList();
+            var ConfiguracionesMov = db.ConfiguracionesMov.Where(e => lista.Contains(e.EstructuraId)).ToList();
+            bool bandera = false;
+            foreach (var item in ConfiguracionesMov)
+            {
+                if (item.esPublicable)
+                {
+                    bandera = true;
+                }
+            }
+            return bandera;
+        }
+
+        [HttpGet]
+        [Route("getGenerales")]
+        public IHttpActionResult General(Guid Requi)
+        {
+            var ConfiguracionesMov = db.ConfiguracionesMov.ToList();
+            var CfgRequi = db.CfgRequi.ToList();
+            List<listadoEstru> lista = new List<listadoEstru>();
+            var datos = db.Estructuras.Where(a => a.Activo == true
+                                               && a.TipoEstructuraId == 8
+                                               && a.TipoMovimientoId == 3
+                                            ).OrderBy(e => e.Orden).ToList();
+            var configura = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
+            foreach (var item in datos)
+            {
+                listadoEstru pieza = new listadoEstru();
+                pieza.Id = item.Id;
+                pieza.idPadre = item.IdPadre;
+                pieza.Nombre = item.Nombre;
+                pieza.Descripcion = item.Descripcion;
+                pieza.Activo = item.Activo;
+                pieza.Confidencial = item.Confidencial;
+                pieza.Icono = item.Icono;
+                pieza.Resumen = CfgRequi.Where(e=>e.ConfigMovId == ConfiguracionesMov.Where(a=>a.EstructuraId ==item.Id).FirstOrDefault().Id).FirstOrDefault().R;
+                pieza.Detalle = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().D;
+                pieza.Publica = ConfiguracionesMov.Where(e => e.EstructuraId == item.Id).FirstOrDefault().esPublicable;
+                if (configura.Count > 0)
+                {
+                    pieza.Resumen = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Resumen).FirstOrDefault();
+                    pieza.Detalle = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Detalle).FirstOrDefault();
+                }
+                lista.Add(pieza);
+            }
+
+            return Ok(lista);
+        }
+
         [HttpGet]
         [Route("getCampos")]
         public IHttpActionResult Campos()
         {
+          
             var datos = db.Estructuras.Where(a =>
                                                 a.TipoEstructuraId == 8
                                                 && a.TipoMovimientoId == 3
                                                 && a.Activo == true
-                                            ).OrderBy(e => e.Id).ToList();
+                                            ).OrderBy(e => e.Orden).ToList();
             return Ok(datos);
         }
 
@@ -59,7 +113,23 @@ namespace SAGA.API.Controllers
                                                 && a.TipoMovimientoId == 3
                                                 && a.Activo == true
                                             ).OrderBy(e => e.Id).ToList();
-            return Ok(datos);
+            List<listadoEstru> lista = new List<listadoEstru>();
+            foreach (var item in datos)
+            {
+                listadoEstru pieza = new listadoEstru();
+                pieza.Id = item.Id;
+                pieza.idPadre = item.IdPadre;
+                pieza.Nombre = item.Nombre;
+                pieza.Descripcion = item.Descripcion;
+                pieza.Activo = item.Activo;
+                pieza.Confidencial = item.Confidencial;
+                pieza.Icono = item.Icono;
+                pieza.Resumen = false;
+                pieza.Detalle = false;
+                pieza.Publica = ValidaHaycampos(item.Id);
+                lista.Add(pieza);
+            }
+            return Ok(lista);
         }
 
 
@@ -73,7 +143,7 @@ namespace SAGA.API.Controllers
             {
                 var requi = db.ConfiguracionRequis.ToList();
                 Guid idRequi = ListadoJson.Select(a => a.id).FirstOrDefault();
-                var datos = db.ConfiguracionRequis.Where(e => e.IdRequi == idRequi).ToList();
+                var datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == idRequi).ToList();
 
                 if (datos.Count < ListadoJson.Count)
                 {
@@ -85,7 +155,7 @@ namespace SAGA.API.Controllers
                       
                        // caja.id = Guid.NewGuid();
                         caja.Campo = item.nombre;
-                        caja.IdRequi = item.id;
+                        caja.RequisicionId = item.id;
                         caja.Detalle = item.detalle;
                         caja.Resumen = item.resumen;
                         caja.R_D = ResumenDetalle(item.resumen, item.detalle);
@@ -93,7 +163,7 @@ namespace SAGA.API.Controllers
                         db.ConfiguracionRequis.Add(caja);
                         db.SaveChanges();
                     }
-                    datos = db.ConfiguracionRequis.Where(e => e.IdRequi == idRequi).ToList();
+                    datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == idRequi).ToList();
                 }
 
                 foreach (var item in ListadoJson)
@@ -126,7 +196,7 @@ namespace SAGA.API.Controllers
             bool bandera;
             try
             {
-                var datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
+                var datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
                 if (datos.Count == 0)
                 {
                     var estructura = db.Estructuras.Where(e => e.TipoEstructuraId == 7 ).ToList();
@@ -134,7 +204,7 @@ namespace SAGA.API.Controllers
                     {
                         ConfiguracionRequi caja = new ConfiguracionRequi();
                         caja.Campo = item.Nombre;
-                        caja.IdRequi = Requi;
+                        caja.RequisicionId = Requi;
                         caja.Detalle = false;
                         caja.Resumen = false;
                         caja.R_D = 0;
@@ -142,23 +212,23 @@ namespace SAGA.API.Controllers
                         db.ConfiguracionRequis.Add(caja);
                         db.SaveChanges();
                     }
-                    datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
+                    datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
                 }
 
-                var listaConfi = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi && e.IdEstructura == Idcampo).ToList();
+                var listaConfi = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi && e.IdEstructura == Idcampo).ToList();
                 if (listaConfi.Count == 0)
                 {
                     var estructura = db.Estructuras.Where(e => e.TipoEstructuraId == 7 && e.Id == Idcampo).FirstOrDefault();
                     ConfiguracionRequi caja = new ConfiguracionRequi();
                     caja.Campo = estructura.Nombre;
-                    caja.IdRequi = Requi;
+                    caja.RequisicionId = Requi;
                     caja.Detalle = false;
                     caja.Resumen = false;
                     caja.R_D = 0;
                     caja.IdEstructura = Idcampo;
                     db.ConfiguracionRequis.Add(caja);
                     db.SaveChanges();
-                    datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
+                    datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
                 }
                 var lista = datos.Where(e => e.IdEstructura == Idcampo).FirstOrDefault();
                 lista.Resumen = resumen;
@@ -184,7 +254,7 @@ namespace SAGA.API.Controllers
             bool bandera;
             try
             {
-                var datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
+                var datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
                 if (datos.Count == 0)
                 {
                     var estructura = db.Estructuras.Where(e => e.TipoEstructuraId == 7).ToList();
@@ -192,7 +262,7 @@ namespace SAGA.API.Controllers
                     {
                         ConfiguracionRequi caja = new ConfiguracionRequi();
                         caja.Campo = item.Nombre;
-                        caja.IdRequi = Requi;
+                        caja.RequisicionId = Requi;
                         caja.Detalle = false;
                         caja.Resumen = false;
                         caja.R_D = 0;
@@ -200,22 +270,22 @@ namespace SAGA.API.Controllers
                         db.ConfiguracionRequis.Add(caja);
                         db.SaveChanges();
                     }
-                    datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
+                    datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
                 }
-                var listaConfi = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi && e.IdEstructura == Idcampo).ToList();
+                var listaConfi = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi && e.IdEstructura == Idcampo).ToList();
                 if (listaConfi.Count == 0)
                 {
                     var estructura = db.Estructuras.Where(e => e.TipoEstructuraId == 7 && e.Id == Idcampo).FirstOrDefault();
                     ConfiguracionRequi caja = new ConfiguracionRequi();
                     caja.Campo = estructura.Nombre;
-                    caja.IdRequi = Requi;
+                    caja.RequisicionId = Requi;
                     caja.Detalle = false;
                     caja.Resumen = false;
                     caja.R_D = 0;
                     caja.IdEstructura = Idcampo;
                     db.ConfiguracionRequis.Add(caja);
                     db.SaveChanges();
-                    datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
+                    datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
                 }
 
                 var lista = datos.Where(e => e.IdEstructura == Idcampo).FirstOrDefault();
@@ -234,38 +304,7 @@ namespace SAGA.API.Controllers
             return Ok(obj);
         }
 
-        [HttpGet]
-        [Route("getGenerales")]
-        public IHttpActionResult General(Guid Requi)
-        {
-            List<listadoEstru> lista = new List<listadoEstru>();
-            var datos = db.Estructuras.Where(a => a.Activo == true
-                                               && a.TipoEstructuraId == 8
-                                               && a.TipoMovimientoId == 3
-                                            ).OrderBy(e => e.Orden).ToList();
-            var configura = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();          
-                foreach (var item in datos)
-                {
-                    listadoEstru pieza = new listadoEstru();
-                    pieza.Id = item.Id;
-                    pieza.idPadre = item.IdPadre;
-                    pieza.Nombre = item.Nombre;
-                    pieza.Descripcion = item.Descripcion;
-                    pieza.Activo = item.Activo;
-                    pieza.Confidencial = item.Confidencial;
-                    pieza.Icono = item.Icono;
-                    pieza.Resumen = false;
-                    pieza.Detalle = false;
-                    if (configura.Count > 0)
-                    {
-                        pieza.Resumen = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Resumen).FirstOrDefault();
-                        pieza.Detalle = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Detalle).FirstOrDefault();
-                    }
-                    lista.Add(pieza);
-                }
- 
-            return Ok(lista);
-        }
+      
 
 
         [HttpGet]
@@ -411,7 +450,7 @@ namespace SAGA.API.Controllers
 
         private int Bandera(Guid Requi, int Idcampo)
         {
-            var datos = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi && e.IdEstructura == Idcampo).FirstOrDefault();
+            var datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi && e.IdEstructura == Idcampo).FirstOrDefault();
             if (datos.Resumen == true && datos.Detalle == true)
             {
                 return 3;
@@ -438,7 +477,7 @@ namespace SAGA.API.Controllers
                                                 && a.TipoEstructuraId == 8
                                                 && a.TipoMovimientoId == 3
                                              ).OrderBy(e=>e.Orden).ToList();
-            var configuracion = db.ConfiguracionRequis.Where(e => e.IdRequi == Requi).ToList();
+            var configuracion = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
             foreach (var item in datos)
             {
                 listadoEstru pieza = new listadoEstru();
@@ -476,6 +515,7 @@ namespace SAGA.API.Controllers
             public string Icono { get; set; }
             public bool? Resumen { get; set; }
             public bool? Detalle { get; set; }
+            public bool? Publica { get; set; }
         }
 
         public class listaPublicar
