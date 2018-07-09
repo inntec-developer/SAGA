@@ -11,6 +11,8 @@ namespace SAGA.API.Dtos
         public string Nombre { get; set; }
         public string Email { get; set; }
         public string Usuario { get; set; }
+        public string Foto { get; set; }
+        public string Clave { get; set; }
         public List<PrivilegiosDtos> Privilegios { get; set; }
     }
 }
