@@ -54,18 +54,7 @@ namespace SAGA.DAL
         public DbSet<Alertasdtl> Alertasdtl { get; set; }
         #endregion
 
-        #region PROSPECTOS/CLIENTES (Vtas)
-        public DbSet<Agencia> Agencias { get; set; }
-        public DbSet<Cliente> Clientes { get; set; }
-        public DbSet<ConfiguracionRequi> ConfiguracionRequis { get; set; }
-        public DbSet<Contacto> Contactos { get; set; }
-        public DbSet<RedSocial> RedesSociales { get; set; }
-        public DbSet<Referenciado> Referenciados { get; set; }
-        public DbSet<TamanoEmpresa> TamanoEmpresas { get; set; }
-        public DbSet<TipoBase> TiposBases { get; set; }
-        #endregion
-
-        #region DAMFO 290 (Recl)
+        #region Recl
         public DbSet<ActividadesPerfil> ActividadesPerfil { get; set; }
         public DbSet<AptitudesPerfil> AptitudesPerfil { get; set; }
         public DbSet<Aptitud> Aptitudes { get; set; }
@@ -103,10 +92,10 @@ namespace SAGA.DAL
         public DbSet<TipoPsicometria> TiposPsicometrias { get; set; }
         public DbSet<TipoReclutamiento> TiposReclutamientos { get; set; }
         public DbSet<CfgRequi> CfgRequi { get; set; }
+        public DbSet<ComentarioEntrevista> ComentariosEntrevistas { get; set; }
         #endregion
 
         #region Sist
-
         public DbSet<Ambito> Ambitos { get; set; }
         public DbSet<Area> Areas { get; set; }
         public DbSet<Cargo> Cargos { get; set; }
@@ -143,7 +132,7 @@ namespace SAGA.DAL
         public DbSet<ConfiguracionMovs> ConfiguracionesMov { get; set; }
         #endregion
 
-        #region REQUISICIONES (Vtas)
+        #region Vtas
         public DbSet<Requisicion> Requisiciones { get; set; }
         public DbSet<EscolaridadesRequi> EscolaridadesRequis { get; set; }
         public DbSet<AptitudesRequi> AptitudesRequis { get; set; }
@@ -162,6 +151,15 @@ namespace SAGA.DAL
         public DbSet<AsignacionRequi> AsignacionRequis { get; set; }
         public DbSet<TipoUsuario> TiposUsuarios { get; set; }
         public DbSet<HorariosDireccionesRequi> HorariosDireccionesRequi { get; set; }
+
+        public DbSet<Agencia> Agencias { get; set; }
+        public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<ConfiguracionRequi> ConfiguracionRequis { get; set; }
+        public DbSet<Contacto> Contactos { get; set; }
+        public DbSet<RedSocial> RedesSociales { get; set; }
+        public DbSet<Referenciado> Referenciados { get; set; }
+        public DbSet<TamanoEmpresa> TamanoEmpresas { get; set; }
+        public DbSet<TipoBase> TiposBases { get; set; }
         #endregion
 
         /*
@@ -262,6 +260,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
             modelBuilder.Configurations.Add(new FrecuenciasMap().ToTable("Frecuencias", "BTra"));
             modelBuilder.Configurations.Add(new AlertasdtlMap().ToTable("Alertasdtl", "BTra"));
+            
             #endregion
 
             #region Reclutamiento_Recl
@@ -291,10 +290,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new ProcesoPerfilMap().ToTable("ProcesoPerfil", "Recl"));
             modelBuilder.Configurations.Add(new RutasPerfilMap().ToTable("RutasPerfil", "Recl"));
             modelBuilder.Configurations.Add(new CfgRequiMap().ToTable("CfgRequi", "Recl"));
-
-            //modelBuilder.Configurations.Add(new VacantesMap().ToTable("Vacantes", "Recl"));
-
-
+            modelBuilder.Configurations.Add(new ComentarioEntrevistaMap().ToTable("ComentariosEntrevistas", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -1150,7 +1146,6 @@ namespace SAGA.DAL
 
 			}
 		}
-
         public  class DepartamentoMap : EntityTypeConfiguration<Departamento>
         {
             public DepartamentoMap()
@@ -1162,7 +1157,6 @@ namespace SAGA.DAL
                 Property(x => x.Nombre).HasMaxLength(50).IsRequired();
             }
         }
-
         public class FrecuenciasMap : EntityTypeConfiguration<Frecuencias>
         {
             public FrecuenciasMap()
@@ -1185,7 +1179,6 @@ namespace SAGA.DAL
                 Property(x => x.Activo).IsOptional();
             }
         }
-
         public class AlertasdtlMap : EntityTypeConfiguration<Alertasdtl>
         {
             public AlertasdtlMap()
@@ -1195,9 +1188,6 @@ namespace SAGA.DAL
                 Property(x => x.areaexperiencia).IsRequired();
             }
         }
-
-
-
         #endregion
 
         #region "Mapeo Vtas"
@@ -1534,7 +1524,7 @@ namespace SAGA.DAL
         #endregion
         #endregion
 
-        #region "Mapeo Recl(DAMFO)"
+        #region "Mapeo Recl"
         public class ActividadesPerfilMap : EntityTypeConfiguration<ActividadesPerfil>
 		{
 			public ActividadesPerfilMap()
@@ -1878,7 +1868,6 @@ namespace SAGA.DAL
                 Property(x => x.Fch_Modificacion).IsOptional().HasColumnType("Datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 			}
 		}
-
         public class CfgRequiMap : EntityTypeConfiguration<CfgRequi>
         {
             public CfgRequiMap()
@@ -1891,7 +1880,21 @@ namespace SAGA.DAL
                 Property(x => x.D).IsRequired();
             }
         }
-
+        public class ComentarioEntrevistaMap : EntityTypeConfiguration<ComentarioEntrevista>
+        {
+            public ComentarioEntrevistaMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.RequisicionId).IsOptional();
+                Property(x => x.Comentario).HasMaxLength(500).IsRequired();
+                Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.UsuarioMod).HasMaxLength(30).IsOptional();
+                Property(x => x.fch_Modificacion).IsOptional();
+            }
+        }
         #endregion
     }
 }

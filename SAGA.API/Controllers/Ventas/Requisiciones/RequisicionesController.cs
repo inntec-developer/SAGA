@@ -239,7 +239,8 @@ namespace SAGA.API.Controllers
                         x.numeroVacantes,
                         x.Especificaciones
                     }).ToList(),
-                    e.Folio
+                    e.Folio,
+                    e.DiasEnvio
                 }).ToList().OrderByDescending(x => x.Folio);
             return Ok(vacantes);
         }
@@ -333,6 +334,8 @@ namespace SAGA.API.Controllers
                 var requisicion = db.Requisiciones.Find(requi.Id);
                 db.Entry(requisicion).State = EntityState.Modified;
                 requisicion.EstatusId = 8;
+                requisicion.Aprobada = false;
+                requisicion.Aprobador = string.Empty; 
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
 
@@ -400,18 +403,25 @@ namespace SAGA.API.Controllers
                     var requisicion = db.Requisiciones.Find(requi.Id);
                     db.Entry(requisicion).State = EntityState.Modified;
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
-                    requisicion.Aprobador = requi.Aprobador;
-                    requisicion.Aprobada = true;
+                    if(requisicion.EstatusId != 7)
+                    {
+                        requisicion.EstatusId = 6;
+                        requisicion.Aprobador = requi.Usuario;
+                        requisicion.Aprobada = true;
+                        requisicion.fch_Aprobacion = DateTime.Now;
+                    }
                     requisicion.DiasEnvio = requi.DiasEnvio;
                     requisicion.fch_Modificacion = DateTime.Now;
                     requisicion.UsuarioMod = requi.Usuario;
+                    db.SaveChanges();
                     AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra);
+                    db.SaveChanges();
                     int Folio = requisicion.Folio;
                     //Creacion de Trazabalidad par ala requisición.
                     Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
                     //Isertar el registro de la rastreabilidad. 
                     rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.Usuario, 5);
-                    db.SaveChanges();
+                    
 
                     beginTran.Commit();
 
