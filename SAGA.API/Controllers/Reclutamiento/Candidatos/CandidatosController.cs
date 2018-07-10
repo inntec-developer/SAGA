@@ -359,44 +359,37 @@ namespace SAGA.API.Controllers
         [Route("postapartado")]
         public IHttpActionResult ApartarCandidato(ProcesoCandidato cdto)
         {
-            using (var dbContextTransaction = db.Database.BeginTransaction())
+            try
             {
-                try
+                if(db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(cdto.CandidatoId)).Count() == 0)
                 {
                     cdto.Fch_Creacion = DateTime.Now;
                     cdto.Fch_Creacion.ToUniversalTime();
                     db.ProcesoCandidatos.Add(cdto);
                     db.SaveChanges();
-                    dbContextTransaction.Commit();
-
-                }
-                catch (Exception)
-                {
-                    dbContextTransaction.Rollback();
                 }
             }
-            return Ok(cdto);
+            catch (Exception)
+            {
+
+            }
+             return Ok(cdto);
         }
 
         [HttpGet]
         [Route("postliberado")]
         public IHttpActionResult LiberarCandidato(int Id)
         {
-            using (var dbContextTransaction = db.Database.BeginTransaction())
+            try
             {
-                try
-                {
-                    ProcesoCandidato ProcesoCandidato = db.ProcesoCandidatos.Find(Id);
-                    db.ProcesoCandidatos.Remove(ProcesoCandidato);
-                    Save();
-                    dbContextTransaction.Commit();
-                    return Ok(true);
-                }
-                catch (Exception ex)
-                {
-                    dbContextTransaction.Rollback();
-                    return Ok(ex.Message);
-                }
+                ProcesoCandidato ProcesoCandidato = db.ProcesoCandidatos.Find(Id);
+                db.ProcesoCandidatos.Remove(ProcesoCandidato);
+                Save();
+                return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
             }
         }
 
