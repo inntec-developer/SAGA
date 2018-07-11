@@ -256,6 +256,21 @@ namespace SAGA.API.Controllers
             
         }
 
+        [HttpGet]
+        [Route("getDireccionRequisicon")]
+        public IHttpActionResult GetDireccionRequisicon(Guid Id)
+        {
+            try
+            {
+                var direccion = db.Direcciones.Where(x => x.Id.Equals(Id)).ToList();
+                return Ok(direccion);
+            }
+            catch(Exception ex)
+            {
+                return NotFound();
+            }
+        }
+
         [HttpPost]
         [Route("updateRequisiciones")]
         public IHttpActionResult UpdateRequi(RequisicionDto requi)
