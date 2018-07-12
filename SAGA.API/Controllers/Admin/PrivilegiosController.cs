@@ -20,47 +20,47 @@ namespace SAGA.API.Controllers
             db = new SAGADBContext();
         }
 
-        [HttpGet]
-        [Route("GetEstructura")]
-        public IHttpActionResult GetEstructura()
-        {
-            List<PrivilegiosDtos> Tree = new List<PrivilegiosDtos>();
+        //[HttpGet]
+        //[Route("GetEstructura")]
+        //public IHttpActionResult GetEstructura()
+        //{
+        //    List<PrivilegiosDtos> Tree = new List<PrivilegiosDtos>();
 
-            Tree = db.Estructuras.Where(e => e.Id > 1 ).Select(ee => new PrivilegiosDtos()
-            {
-                Id = ee.Id,
-                IdPadre = ee.IdPadre,
-                Nombre = ee.Nombre,
-                TipoEstructuraId = ee.TipoEstructuraId
-            }).ToList();
+        //    Tree = db.Estructuras.Where(e => e.Id > 1 ).Select(ee => new PrivilegiosDtos()
+        //    {
+        //        Id = ee.Id,
+        //        IdPadre = ee.IdPadre,
+        //        Nombre = ee.Nombre,
+        //        TipoEstructuraId = ee.TipoEstructuraId
+        //    }).ToList();
 
           
-            var nodes = Tree.Where(x => x.TipoEstructuraId.Equals(2)).Select(ee => new PrivilegiosDtos()
-            {
-                EstructuraId = ee.Id,
-                IdPadre = ee.IdPadre,
-                Nombre = ee.Nombre,
-                Children = GetChild(Tree, ee.Id),
-                TipoEstructuraId = ee.TipoEstructuraId
-            }).ToList();
+        //    var nodes = Tree.Where(x => x.TipoEstructuraId.Equals(2)).Select(ee => new PrivilegiosDtos()
+        //    {
+        //        EstructuraId = ee.Id,
+        //        IdPadre = ee.IdPadre,
+        //        Nombre = ee.Nombre,
+        //        Children = GetChild(Tree, ee.Id),
+        //        TipoEstructuraId = ee.TipoEstructuraId
+        //    }).ToList();
 
-            return Ok(nodes);
-        }
+        //    return Ok(nodes);
+        //}
 
-        public ICollection<PrivilegiosDtos> GetChild(List<PrivilegiosDtos> tree, int id)
-        {
-            return  tree
-                    .Where(c => c.IdPadre == id)
-                    .Select(c => new PrivilegiosDtos 
-                    {
-                        EstructuraId = c.Id,
-                        Nombre = c.Nombre,
-                        IdPadre = c.IdPadre,
-                        Children = GetChild(tree, c.Id),
-                        TipoEstructuraId = c.TipoEstructuraId
-                    })
-                    .ToList();
-        }
+        //public ICollection<PrivilegiosDtos> GetChild(List<PrivilegiosDtos> tree, int id)
+        //{
+        //    return  tree
+        //            .Where(c => c.IdPadre == id)
+        //            .Select(c => new PrivilegiosDtos 
+        //            {
+        //                EstructuraId = c.Id,
+        //                Nombre = c.Nombre,
+        //                IdPadre = c.IdPadre,
+        //                Children = GetChild(tree, c.Id),
+        //                TipoEstructuraId = c.TipoEstructuraId
+        //            })
+        //            .ToList();
+        //}
 
         [HttpGet]
         [Route("getprivilegios")]
@@ -68,8 +68,6 @@ namespace SAGA.API.Controllers
         {
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
 
-            // me da los privilegios de roles en donde se encuentra el usuario 
-            // me falta que tambien me saque los datos de usuarios sin grupos
             var query = ( from E in db.Entidad
                         join RE in db.RolEntidades on E.Id equals RE.EntidadId
                         join G in db.Grupos on E.Id equals G.Id

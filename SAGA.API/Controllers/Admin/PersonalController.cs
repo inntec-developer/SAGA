@@ -99,7 +99,7 @@ namespace SAGA.API.Controllers.Admin
                 }),
                 roles = db.RolEntidades.Where(x => x.EntidadId.Equals(u.Id)).Select(r => new
                 {
-                    id = r.Id,
+                    id = r.RolId,
                     rol = r.Rol.Rol
 
                 })

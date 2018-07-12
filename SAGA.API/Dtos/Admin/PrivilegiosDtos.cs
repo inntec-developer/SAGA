@@ -23,7 +23,7 @@ namespace SAGA.API.Dtos
         public bool Especial { get; set; }
         public string Accion { get; set; }
         public string Icono { get; set; }
-
+        public int Orden { get; set; }
         public ICollection<PrivilegiosDtos> Children { get; set; }
     }
 }

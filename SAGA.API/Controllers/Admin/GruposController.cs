@@ -143,7 +143,7 @@ namespace SAGA.API.Controllers.Admin
         [Route("getGruposRoles")]
         public IHttpActionResult GetGruposRoles()
         {
-            var grupos = db.Grupos.Where(g => g.Activo == true).Select(g => new
+            var grupos = db.Grupos.Where(x => x.Activo == true).Select(g => new
             {
                 Id = g.Id,
                 Foto = g.Foto,
