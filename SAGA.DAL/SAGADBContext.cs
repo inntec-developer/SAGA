@@ -1890,7 +1890,7 @@ namespace SAGA.DAL
                 Property(x => x.RequisicionId).IsOptional();
                 Property(x => x.Comentario).HasMaxLength(500).IsRequired();
                 Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
-                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
                 Property(x => x.UsuarioMod).HasMaxLength(30).IsOptional();
                 Property(x => x.fch_Modificacion).IsOptional();
             }

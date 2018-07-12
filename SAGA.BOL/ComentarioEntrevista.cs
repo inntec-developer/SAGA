@@ -20,5 +20,10 @@ namespace SAGA.BOL
         public string UsuarioMod { get; set; }
 
         public virtual Candidato Candidato { get; set; }
+
+        public ComentarioEntrevista()
+        {
+            this.Id = Guid.NewGuid();
+        }
     }
 }

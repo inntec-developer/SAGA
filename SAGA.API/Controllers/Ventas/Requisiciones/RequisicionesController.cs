@@ -169,66 +169,10 @@ namespace SAGA.API.Controllers
                         p.Descripcion,
                         p.Id
                     }).FirstOrDefault(),
-                    Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new
-                    {
+                    Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new{
+
                         c.Nombrecomercial, c.GiroEmpresas,
-                        c.ActividadEmpresas, c.RFC }).FirstOrDefault(),
-                    HorarioRequi = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => new {
-                        x.Nombre,
-                        x.deDia,
-                        x.aDia,
-                        x.deHora,
-                        x.aHora,
-                        x.numeroVacantes,
-                        x.Especificaciones
-                    }).ToList(),
-                    e.Folio
-                }).ToList().OrderByDescending(x => x.Folio);
-            return Ok(requisicion);
-        }
-
-        [HttpGet]
-        [Route("getRequiReclutador")]
-        public IHttpActionResult GtRequiReclutador(Guid IdUsuario)
-        {
-            var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
-                .Where(g => g.EntidadId.Equals(IdUsuario))
-                .Select(g => g.GrupoId)
-                .ToList();
-
-            var RequisicionesGrupos = db.AsignacionRequis
-                .Where(r => Grupos.Contains(r.GrpUsrId))
-                .Select(r => r.RequisicionId)
-                .ToList();
-
-            var RequisicionesInd = db.AsignacionRequis
-                .Where(r => r.GrpUsrId.Equals(IdUsuario))
-                .Select(r => r.RequisicionId)
-                .ToList();
-
-            var vacantes = db.Requisiciones
-                .Where(e => RequisicionesGrupos.Contains(e.Id) || RequisicionesInd.Contains(e.Id))
-                .Select(e => new
-                {
-                    e.Id,
-                    e.VBtra,
-                    e.TipoReclutamiento,
-                    e.ClaseReclutamiento,
-                    e.SueldoMinimo,
-                    e.SueldoMaximo,
-                    e.fch_Creacion,
-                    e.fch_Cumplimiento,
-                    e.Estatus,
-                    Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select(p => new {
-                        p.Descripcion,
-                        p.Id
-                    }).FirstOrDefault(),
-                    Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new
-                    {
-                        c.Nombrecomercial,
-                        c.GiroEmpresas,
-                        c.ActividadEmpresas,
-                        c.RFC
+                        c.ActividadEmpresas, c.RFC
                     }).FirstOrDefault(),
                     HorarioRequi = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => new {
                         x.Nombre,
@@ -240,9 +184,91 @@ namespace SAGA.API.Controllers
                         x.Especificaciones
                     }).ToList(),
                     e.Folio,
-                    e.DiasEnvio
+                    //Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select( s => new {
+                    //    s.Nombre,
+                    //    s.ApellidoPaterno
+                    //}).FirstOrDefaultAsync()
                 }).ToList().OrderByDescending(x => x.Folio);
-            return Ok(vacantes);
+            return Ok(requisicion);
+        }
+
+        [HttpGet]
+        [Route("getRequiReclutador")]
+        public IHttpActionResult GtRequiReclutador(Guid IdUsuario)
+        {
+            try
+            {
+                var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
+                .Where(g => g.EntidadId.Equals(IdUsuario))
+                .Select(g => g.GrupoId)
+                .ToList();
+
+                var RequisicionesGrupos = db.AsignacionRequis
+                    .Where(r => Grupos.Contains(r.GrpUsrId))
+                    .Select(r => r.RequisicionId)
+                    .ToList();
+
+                var RequisicionesInd = db.AsignacionRequis
+                    .Where(r => r.GrpUsrId.Equals(IdUsuario))
+                    .Select(r => r.RequisicionId)
+                    .ToList();
+
+                var vacantes = db.Requisiciones
+                    .Where(e => RequisicionesGrupos.Contains(e.Id) || RequisicionesInd.Contains(e.Id))
+                    .Select(e => new
+                    {
+                        e.Id,
+                        e.VBtra,
+                        e.TipoReclutamiento,
+                        e.ClaseReclutamiento,
+                        e.SueldoMinimo,
+                        e.SueldoMaximo,
+                        e.fch_Creacion,
+                        e.fch_Cumplimiento,
+                        e.Estatus,
+                        Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select(p => new {
+                            p.Descripcion,
+                            p.Id
+                        }).FirstOrDefault(),
+                        Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new
+                        {
+                            c.Nombrecomercial,
+                            c.GiroEmpresas,
+                            c.ActividadEmpresas,
+                            c.RFC
+                        }).FirstOrDefault(),
+                        //Vacantes = getVacantes(e.Id),
+                        Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => new {
+                            s.Nombre,
+                            s.ApellidoPaterno
+                        }).FirstOrDefault(),
+                        e.Folio,
+                        e.DiasEnvio
+                    }).ToList().OrderByDescending(x => x.Folio);
+                return Ok(vacantes);
+
+            }
+            catch(Exception ex)
+            {
+                string mensaje = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+            
+        }
+
+        [HttpGet]
+        [Route("getDireccionRequisicon")]
+        public IHttpActionResult GetDireccionRequisicon(Guid Id)
+        {
+            try
+            {
+                var direccion = db.Direcciones.Where(x => x.Id.Equals(Id)).ToList();
+                return Ok(direccion);
+            }
+            catch(Exception ex)
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost]
@@ -517,6 +543,18 @@ namespace SAGA.API.Controllers
                 
         }
 
-       
+        public byte getVacantes(Guid Id)
+        {
+            byte vacantes = 0;
+            var horarios = db.HorariosRequis.Where(x => x.RequisicionId.Equals(Id)).Select(x => x.numeroVacantes).ToList();
+
+            foreach(byte x in horarios)
+            {
+                var contar = x + x; 
+                vacantes =Convert.ToByte(contar);
+            }
+
+            return vacantes;
+        }
     }
 }

@@ -359,47 +359,91 @@ namespace SAGA.API.Controllers
         [Route("postapartado")]
         public IHttpActionResult ApartarCandidato(ProcesoCandidato cdto)
         {
-            using (var dbContextTransaction = db.Database.BeginTransaction())
+            try
             {
-                try
+                if(db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(cdto.CandidatoId)).Count() == 0)
                 {
                     cdto.Fch_Creacion = DateTime.Now;
                     cdto.Fch_Creacion.ToUniversalTime();
                     db.ProcesoCandidatos.Add(cdto);
                     db.SaveChanges();
-                    dbContextTransaction.Commit();
-
-                }
-                catch (Exception)
-                {
-                    dbContextTransaction.Rollback();
                 }
             }
-            return Ok(cdto);
+            catch (Exception)
+            {
+
+            }
+             return Ok(cdto);
         }
 
         [HttpGet]
         [Route("postliberado")]
         public IHttpActionResult LiberarCandidato(int Id)
         {
-            using (var dbContextTransaction = db.Database.BeginTransaction())
+            try
             {
-                try
-                {
-                    ProcesoCandidato ProcesoCandidato = db.ProcesoCandidatos.Find(Id);
-                    db.ProcesoCandidatos.Remove(ProcesoCandidato);
-                    Save();
-                    dbContextTransaction.Commit();
-                    return Ok(true);
-                }
-                catch (Exception ex)
-                {
-                    dbContextTransaction.Rollback();
-                    return Ok(ex.Message);
-                }
+                ProcesoCandidato ProcesoCandidato = db.ProcesoCandidatos.Find(Id);
+                db.ProcesoCandidatos.Remove(ProcesoCandidato);
+                Save();
+                return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
             }
         }
 
+        [HttpGet]
+        [Route("getComentarios")]
+        public IHttpActionResult GetComentarios(Guid Id)
+        {
+            var comentarios = db.ComentariosEntrevistas
+                .Where(x => x.CandidatoId.Equals(Id))
+                .Select(x => new {
+                  Comentario = x.Comentario,
+                  Requisicion = db.Requisiciones
+                                    .Where( r => r.Id.Equals(x.RequisicionId)).
+                                    Select(r => new {
+                                        VBtra = r.VBtra,
+                                        Folio = r.Folio
+                                    }).FirstOrDefault(),
+                 fchComentario = x.fch_Creacion,
+                 Usuario = db.Usuarios.Where(u => u.Usuario.Equals(x.UsuarioAlta)).Select( u => new {
+                            Nombre = u.Nombre+ " " + u.ApellidoPaterno,
+                            Foto = u.Foto  
+                         }).FirstOrDefault()                    
+                })
+                .ToList();
+            return Ok(comentarios);
+        }
+
+        [HttpPost]
+        [Route("addComentarios")]
+        public IHttpActionResult AddComentarios(ComentariosEntrevistaDto comentario)
+        {
+            try
+            {
+                ComentarioEntrevista cm = new ComentarioEntrevista();
+                cm.Comentario = comentario.Comentario;
+                cm.CandidatoId = comentario.CandidatoId;
+                cm.RequisicionId = comentario.RequisicionId;
+                cm.UsuarioAlta = comentario.Usuario;
+                cm.fch_Creacion = DateTime.Now;
+                cm.fch_Creacion.ToUniversalTime();
+                cm.UsuarioMod = comentario.Usuario;
+                cm.fch_Modificacion = cm.fch_Creacion;
+
+
+                db.ComentariosEntrevistas.Add(cm);
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
         private void Save()
         {
             bool saveFailed;
