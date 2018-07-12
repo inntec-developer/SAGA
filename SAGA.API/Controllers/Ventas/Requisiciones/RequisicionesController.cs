@@ -48,7 +48,7 @@ namespace SAGA.API.Controllers
                                             join estado in db.Estados on direccion.EstadoId equals estado.Id
                                             join municipio in db.Municipios on direccion.MunicipioId equals municipio.Id
                                             join colonia in db.Colonias on direccion.ColoniaId equals colonia.Id
-                                            where damfo.Id == Id
+                                            where damfo.Id == Id && direccion.Activo == true
                                             select new Damfo290AddressDto
                                             {
                                                 Id = direccion.Id,
@@ -89,6 +89,7 @@ namespace SAGA.API.Controllers
             }
 
         }
+
         //api/Requisiciones/getRequisicion
         [HttpGet]
         [Route("getByFolio")]
@@ -116,7 +117,6 @@ namespace SAGA.API.Controllers
             }
 
         }
-
 
         //api/Requisiciones/createRequi
         [HttpPost]
@@ -192,6 +192,7 @@ namespace SAGA.API.Controllers
             return Ok(requisicion);
         }
 
+        //api/getRequiReclutador
         [HttpGet]
         [Route("getRequiReclutador")]
         public IHttpActionResult GtRequiReclutador(Guid IdUsuario)
@@ -256,6 +257,7 @@ namespace SAGA.API.Controllers
             
         }
 
+        //api/getDireccionRequisicon
         [HttpGet]
         [Route("getDireccionRequisicon")]
         public IHttpActionResult GetDireccionRequisicon(Guid Id)
@@ -271,6 +273,43 @@ namespace SAGA.API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("upadateVacantes")]
+        public IHttpActionResult UpdateVacantes(HorariosRequi horario)
+        {
+            try
+            {
+                var hr = db.HorariosRequis.Find(horario.Id);
+                db.Entry(hr).State = EntityState.Modified;
+                hr.numeroVacantes = horario.numeroVacantes;
+                hr.UsuarioMod = horario.Usuario;
+                hr.fch_Modificacion = DateTime.Now;
+                db.SaveChanges();
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception)
+            {
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        //api/getDireccionRequisicon
+        [HttpGet]
+        [Route("getHorariosRequisicion")]
+        public IHttpActionResult GetHorariosRequisicion(Guid Id)
+        {
+            try
+            {
+                var direccion = db.HorariosRequis.Where(x => x.RequisicionId.Equals(Id)).ToList();
+                return Ok(direccion);
+            }
+            catch (Exception ex)
+            {
+                return NotFound();
+            }
+        }
+
+        //api/updateRequisiciones
         [HttpPost]
         [Route("updateRequisiciones")]
         public IHttpActionResult UpdateRequi(RequisicionDto requi)
@@ -312,6 +351,7 @@ namespace SAGA.API.Controllers
 
         }
 
+        //api/deleteRequisiciones
         [HttpPost]
         [Route("deleteRequisiciones")]
         public IHttpActionResult DeleteRequi(RequisicionDeleteDto requi)
@@ -349,6 +389,7 @@ namespace SAGA.API.Controllers
             }
         }
 
+        //api
         [HttpPost]
         [Route("cancelRequisiciones")]
         public IHttpActionResult CancelRequi(RequisicionDeleteDto requi)
@@ -388,6 +429,7 @@ namespace SAGA.API.Controllers
             }
         }
 
+        //api/reActivarRequisiciones
         [HttpPost]
         [Route("reActivarRequisiciones")]
         public IHttpActionResult ReActivar(RequisicionDeleteDto requi)
@@ -417,6 +459,7 @@ namespace SAGA.API.Controllers
             }
         }
 
+        //api/asignacionRequisiciones
         [HttpPost]
         [Route("asignacionRequisiciones")]
         public IHttpActionResult AsginarRequi(AsignarVacanteReclutador requi)
