@@ -20,47 +20,7 @@ namespace SAGA.API.Controllers
             db = new SAGADBContext();
         }
 
-        //[HttpGet]
-        //[Route("GetEstructura")]
-        //public IHttpActionResult GetEstructura()
-        //{
-        //    List<PrivilegiosDtos> Tree = new List<PrivilegiosDtos>();
-
-        //    Tree = db.Estructuras.Where(e => e.Id > 1 ).Select(ee => new PrivilegiosDtos()
-        //    {
-        //        Id = ee.Id,
-        //        IdPadre = ee.IdPadre,
-        //        Nombre = ee.Nombre,
-        //        TipoEstructuraId = ee.TipoEstructuraId
-        //    }).ToList();
-
-          
-        //    var nodes = Tree.Where(x => x.TipoEstructuraId.Equals(2)).Select(ee => new PrivilegiosDtos()
-        //    {
-        //        EstructuraId = ee.Id,
-        //        IdPadre = ee.IdPadre,
-        //        Nombre = ee.Nombre,
-        //        Children = GetChild(Tree, ee.Id),
-        //        TipoEstructuraId = ee.TipoEstructuraId
-        //    }).ToList();
-
-        //    return Ok(nodes);
-        //}
-
-        //public ICollection<PrivilegiosDtos> GetChild(List<PrivilegiosDtos> tree, int id)
-        //{
-        //    return  tree
-        //            .Where(c => c.IdPadre == id)
-        //            .Select(c => new PrivilegiosDtos 
-        //            {
-        //                EstructuraId = c.Id,
-        //                Nombre = c.Nombre,
-        //                IdPadre = c.IdPadre,
-        //                Children = GetChild(tree, c.Id),
-        //                TipoEstructuraId = c.TipoEstructuraId
-        //            })
-        //            .ToList();
-        //}
+        
 
         [HttpGet]
         [Route("getprivilegios")]

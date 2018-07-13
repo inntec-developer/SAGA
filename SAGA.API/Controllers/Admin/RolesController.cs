@@ -14,6 +14,7 @@ namespace SAGA.API.Controllers
     [RoutePrefix("api/admin")]
     public class RolesController : ApiController
     {
+        private string name;
         private SAGADBContext db;
         public RolesController()
         {
@@ -31,23 +32,27 @@ namespace SAGA.API.Controllers
                 Roles obj = new Roles();
 
                 obj.Rol = privilegios.Select(n => n.Nombre).FirstOrDefault();
+                obj.Activo = true;
 
                 db.Roles.Add(obj);
                 db.SaveChanges();
 
                 foreach (PrivilegiosDtos ru in privilegios)
                 {
-                    Privilegio o = new Privilegio();
-                    o.RolId = obj.Id;
-                    o.EstructuraId = ru.EstructuraId;
-                    o.Create = ru.Create;
-                    o.Read = ru.Read;
-                    o.Update = ru.Update;
-                    o.Delete = ru.Delete;
-                    o.Especial = ru.Especial;
-
-                    db.Privilegios.Add(o);
-                    db.SaveChanges();
+                    if (ru.Create || ru.Read || ru.Update || ru.Delete || ru.Especial)
+                    {
+                        Privilegio o = new Privilegio();
+                        o.RolId = obj.Id;
+                        o.EstructuraId = ru.EstructuraId;
+                        o.Create = ru.Create;
+                        o.Read = ru.Read;
+                        o.Update = ru.Update;
+                        o.Delete = ru.Delete;
+                        o.Especial = ru.Especial;
+                        
+                        db.Privilegios.Add(o);
+                        db.SaveChanges();
+                    }
 
                 }
             }
@@ -91,8 +96,35 @@ namespace SAGA.API.Controllers
             {
                 var r = db.Roles.Find(id);
 
-                db.Entry(r).State = EntityState.Deleted;
+                db.Entry(r).State = EntityState.Modified;
+                r.Activo = false;
               
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                msj = ex.Message;
+            }
+
+            return Ok(msj);
+        }
+        [HttpPost]
+        [Route("deleteUserRol")]
+        public IHttpActionResult DeleteUserRol(RolEntidad indices)
+        {
+            string msj = "Borró usuario";
+
+            try
+            {
+                var idGU = db.RolEntidades
+                     .Where(x => x.EntidadId.Equals(indices.EntidadId))
+                     .Where(x => x.RolId.Equals(indices.RolId))
+                     .Select(x => x.Id).FirstOrDefault();
+
+                var dts = db.RolEntidades.Find(idGU);
+
+                db.Entry(dts).State = EntityState.Deleted;
+
                 db.SaveChanges();
             }
             catch (Exception ex)
@@ -130,24 +162,45 @@ namespace SAGA.API.Controllers
         [Route("getEstructuraRoles")]
         public IHttpActionResult GetEstructuraRoles()
         {
-           
-             var dtos = db.Privilegios.GroupBy( g => new { g.Rol, g.RolId, g.EstructuraId, g.Estructura.Nombre, g.Create, g.Read, g.Update, g.Delete, g.Especial }).Select(P => new
-                {
-                    RolId = db.Roles.Where(x => x.Id.Equals(P.Key.RolId)).Select(R => R.Id).FirstOrDefault(),
-                    Rol = db.Roles.Where(x => x.Id.Equals(P.Key.RolId)).Select(R => R.Rol).FirstOrDefault(),
-                    EstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.Key.EstructuraId)).Select(E => E.Id).FirstOrDefault(),
-                    Nombre = db.Estructuras.Where(x => x.Id.Equals(P.Key.EstructuraId)).Select(E => E.Nombre).FirstOrDefault(),
-                    create = P.Key.Create,
-                    read = P.Key.Read,
-                    update = P.Key.Update,
-                    delete = P.Key.Delete,
-                    especial = P.Key.Especial,
-                    TipoEstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.Key.EstructuraId)).Select(E => E.TipoEstructuraId).FirstOrDefault(),
-             }).Where(x => x.TipoEstructuraId > 3).OrderBy(o => new { o.Rol, o.EstructuraId }).ToList();
+            var dtos = db.Privilegios.Select(P => new
+            {
+                RolId = db.Roles.Where(x => x.Id.Equals(P.RolId)).Select(R => R.Id).FirstOrDefault(),
+                Rol = db.Roles.Where(x => x.Id.Equals(P.RolId)).Select(R => R.Rol).FirstOrDefault(),
+                Activo = db.Roles.Where(x => x.Id.Equals(P.RolId)).Select(R => R.Activo).FirstOrDefault(),
+                EstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.EstructuraId)).Select(E => E.Id).FirstOrDefault(),
+                Nombre = db.Estructuras.Where(x => x.Id.Equals(P.EstructuraId)).Select(E => E.Nombre).FirstOrDefault(),
+                create = P.Create,
+                read = P.Read,
+                update = P.Update,
+                delete = P.Delete,
+                especial = P.Especial,
+                orden = db.Estructuras.Where(x => x.Id.Equals(P.EstructuraId)).Select(E => E.Orden).FirstOrDefault(),
+                TipoEstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.EstructuraId)).Select(E => E.TipoEstructuraId).FirstOrDefault(),
+            }).Where(x => x.Activo).OrderBy(o => o.RolId).ToList();
 
-          
+
+            //var dtos = db.Privilegios.GroupBy( g => new { g.Rol, g.RolId, g.EstructuraId, g.Estructura.Nombre, g.Estructura.Orden, g.Create, g.Read, g.Update, g.Delete, g.Especial }).Select(P => new
+            //   {
+            //       RolId = db.Roles.Where(x => x.Id.Equals(P.Key.RolId) && x.Activo).Select(R => R.Id).FirstOrDefault(),
+            //       Rol = db.Roles.Where(x => x.Id.Equals(P.Key.RolId) && x.Activo).Select(R => R.Rol).FirstOrDefault(),
+            //       EstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.Key.EstructuraId)).Select(E => E.Id).FirstOrDefault(),
+            //       Nombre = db.Estructuras.Where(x => x.Id.Equals(P.Key.EstructuraId)).Select(E => E.Nombre).FirstOrDefault(),
+            //       create = P.Key.Create,
+            //       read = P.Key.Read,
+            //       update = P.Key.Update,
+            //       delete = P.Key.Delete,
+            //       especial = P.Key.Especial,
+            //       orden = P.Key.Orden,
+            //       TipoEstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.Key.EstructuraId)).Select(E => E.TipoEstructuraId).FirstOrDefault(),
+            //}).OrderBy(o => o.orden ).ToList();
+
+
 
             return Ok(dtos);
         }
+
+        
+
+
     }
 }

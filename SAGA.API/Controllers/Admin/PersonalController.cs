@@ -79,7 +79,7 @@ namespace SAGA.API.Controllers.Admin
         {
             var persona = db.Entidad.Where(x => x.TipoEntidadId.Equals(1) || x.TipoEntidadId.Equals(4)).Select(u => new
             {
-                Id = u.Id,
+                EntidadId = u.Id,
                 Foto = String.IsNullOrEmpty(u.Foto) ? "http://localhost:4200/assets/img/user/01.jpg" : u.Foto,
                 Clave = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault(),
                 nombre = u.Nombre,
@@ -94,7 +94,7 @@ namespace SAGA.API.Controllers.Admin
                 grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
                 {
                     Id = g.GrupoId,
-                    Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault(),
+                    Grupo = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault(),
 
                 }),
                 roles = db.RolEntidades.Where(x => x.EntidadId.Equals(u.Id)).Select(r => new
@@ -166,7 +166,7 @@ namespace SAGA.API.Controllers.Admin
                     grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.EntidadId)).Select(g => new
                     {
                         Id = g.GrupoId,
-                        grupo = db.Entidad.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault()
+                        Grupo = db.Entidad.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault()
                     })
 
                 }).OrderBy(o => o.TipoEntidadId).ToList();
