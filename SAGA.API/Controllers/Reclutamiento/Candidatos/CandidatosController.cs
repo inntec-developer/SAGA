@@ -160,14 +160,15 @@ namespace SAGA.API.Controllers
                 .Where(c => c.Id != null)
                  .Select(c => new FiltrosDto {
                      IdCandidato = c.CandidatoId,
-                     IdPais = c.Candidato.PaisNacimientoId,
-                     IdEstado = c.Candidato.EstadoNacimientoId,
-                     IdMunicipio = c.Candidato.MunicipioNacimientoId,
+                     IdPais = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.PaisId).FirstOrDefault(),
+                     IdEstado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.EstadoId).FirstOrDefault(),
+                     IdMunicipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.MunicipioId).FirstOrDefault(),
                      nombre = c.Candidato.Nombre,
                      apellidoPaterno = c.Candidato.ApellidoPaterno,
                      apellidoMaterno = c.Candidato.ApellidoMaterno,
-                     cp = c.Candidato.CodigoPostal,
+                     cp = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.CodigoPostal).FirstOrDefault(),
                      curp = c.Candidato.CURP,
+                     fechaNacimiento = c.Candidato.FechaNacimiento,
                      rfc = c.Candidato.RFC,
                      nss = c.Candidato.NSS,
                      Formaciones = c.Formaciones,
@@ -176,9 +177,12 @@ namespace SAGA.API.Controllers
                      IdPerfil = c.AboutMe.Select(p => p.PerfilExperienciaId).FirstOrDefault(),
                      IdGenero = c.Candidato.GeneroId,
                      IdPDiscapacidad = c.Candidato.TipoDiscapacidadId,
+                     IdTipoLicencia = c.Candidato.TipoLicenciaId,
                      IdNvEstudios = c.Conocimientos.Select(n => n.NivelId).FirstOrDefault(),
                      Acercademi = c.AboutMe,
-                     Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault()
+                     Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault(),
+                     Idiomas = c.Idiomas,
+                     Reubicacion = c.Candidato.puedeRehubicarse
 
                  }).ToList();
 
@@ -205,9 +209,18 @@ namespace SAGA.API.Controllers
             }
             if (Filtros.cp != null)
             {
-                Filtrado = Filtrado
-                    .Where(c => c.cp.Equals(Filtros.cp))
-                    .ToList();
+                List<FiltrosDto> fl = new List<FiltrosDto>();
+                foreach (FiltrosDto x in Filtrado)
+                {
+                    if(x.cp != null)
+                    {
+                        if (x.cp.Contains(Filtros.cp))
+                        {
+                            fl.Add(x);
+                        }
+                    }
+                }
+                Filtrado = fl;
             }
 
             if (Filtros.IdAreaExp != null)
@@ -224,6 +237,13 @@ namespace SAGA.API.Controllers
                     .ToList();
             }
 
+            if (Filtros.Salario != null)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.Salario.Equals(Filtros.Salario))
+                    .ToList();
+            }
+
             if (Filtros.IdGenero != null)
             {
                 Filtrado = Filtrado
@@ -231,10 +251,24 @@ namespace SAGA.API.Controllers
                     .ToList();
             }
 
+            if(Filtros.Reubicacion)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.Reubicacion == true)
+                    .ToList();
+            }
+
             if (Filtros.IdPDiscapacidad != null)
             {
                 Filtrado = Filtrado
                     .Where(c => c.IdPDiscapacidad.Equals(Filtros.IdPDiscapacidad))
+                    .ToList();
+            }
+
+            if (Filtros.IdTipoLicencia != null)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.IdTipoLicencia.Equals(Filtros.IdTipoLicencia))
                     .ToList();
             }
 
@@ -247,9 +281,31 @@ namespace SAGA.API.Controllers
 
             if (Filtros.IdIdiomas != null)
             {
-                Filtrado = Filtrado
-                    .Where(c => c.IdIdiomas.Equals(Filtros.IdIdiomas))
-                    .ToList();
+                List<FiltrosDto> fl = new List<FiltrosDto>();
+                foreach (FiltrosDto x in Filtrado)
+                {
+                    var I = x.Idiomas.Where(i => i.IdiomaId.Equals(Filtros.IdIdiomas)).FirstOrDefault();
+                    if (I != null)
+                    {
+                        fl.Add(x);
+                    }
+                }
+                Filtrado = fl;
+            }
+
+            if(Filtros.Edad > 0)
+            {
+                foreach(FiltrosDto x in Filtrado)
+                {
+                    int edad = DateTime.Today.AddTicks(-Convert.ToDateTime(x.fechaNacimiento).Ticks).Year - 1;
+                    if(edad == Filtros.Edad)
+                    {
+                        Filtrado = Filtrado
+                            .Where(c => c.fechaNacimiento.Equals(x.fechaNacimiento))
+                            .ToList();
+                        break;
+                    }
+                }
             }
 
             //CandidatosDto Candidatos = new CandidatosDto();
@@ -271,7 +327,7 @@ namespace SAGA.API.Controllers
             //                         }).ToList();
 
             return Ok(Filtrado);
-        }
+         }
 
         [HttpGet]
         [Route("getcandidatoid")]

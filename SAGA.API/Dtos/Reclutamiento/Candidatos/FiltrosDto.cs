@@ -12,6 +12,7 @@ namespace SAGA.API.Dtos
         public string nombre { get; set; }
         public string apellidoPaterno { get; set; }
         public string apellidoMaterno { get; set; }
+        public DateTime? fechaNacimiento { get; set; }
         public string curp { get; set; }
         public string rfc { get; set; }
         public string nss { get; set; }
@@ -24,6 +25,7 @@ namespace SAGA.API.Dtos
         public int? IdPerfil { get; set; }
         public int? IdGenero { get; set; }
         public int? IdPDiscapacidad { get; set; }
+        public int? IdTipoLicencia { get; set; }
         public int? IdNvEstudios { get; set; }
         public int? IdIdiomas { get; set; }
         public decimal? Salario { get; set; }
@@ -33,5 +35,6 @@ namespace SAGA.API.Dtos
         public virtual ICollection<Formacion> Formaciones { get; set; }
         public virtual ICollection<ExperienciaProfesional> Experiencias { get; set; }
         public virtual ICollection<AboutMe> Acercademi { get; set; }
+        public virtual ICollection<PerfilIdioma> Idiomas { get; set; }
     }
 }
