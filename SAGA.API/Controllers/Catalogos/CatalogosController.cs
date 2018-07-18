@@ -82,7 +82,7 @@ namespace SAGA.API.Controllers
         [Route("getGrupos")]
         public IHttpActionResult getGrupos()
         {
-            var grupos = db.Grupos.Select(g => new
+            var grupos = db.Grupos.Where(x => x.Activo).Select(g => new
             {
                 Id = g.Id,
                 Foto = g.Foto,
@@ -98,7 +98,7 @@ namespace SAGA.API.Controllers
         [Route("getRoles")]
         public IHttpActionResult getRoles()
         {
-            var roles = db.Roles.ToList();
+            var roles = db.Roles.Where(x => x.Activo).ToList();
             return Ok(roles);
         }
 

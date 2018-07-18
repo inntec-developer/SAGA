@@ -14,7 +14,7 @@ namespace SAGA.API.Controllers
     [RoutePrefix("api/admin")]
     public class RolesController : ApiController
     {
-        private string name;
+ 
         private SAGADBContext db;
         public RolesController()
         {
