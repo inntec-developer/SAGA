@@ -28,15 +28,32 @@ namespace SAGA.API.Controllers.Admin
         public HttpResponseMessage UploadImage()
         {
             string imageName = null;
-            var httpRequest = System.Web.HttpContext.Current.Request;
-            var postedFile = httpRequest.Files["Image"];
-            //imageName = new string(Path.GetFileNameWithoutExtension(postedFile.FileName).Take(10).ToArray()).Replace(" ", "-");
-            //imageName = imageName + Path.GetExtension(postedFile.FileName);
-            imageName = Path.GetFileName(postedFile.FileName);
-            var filePath = HttpContext.Current.Server.MapPath("~/Utilerias/" + imageName);
-            postedFile.SaveAs(filePath);
 
-            return Request.CreateResponse(HttpStatusCode.Created);
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
+                var postedFile = httpRequest.Files["Image"];
+                //imageName = new string(Path.GetFileNameWithoutExtension(postedFile.FileName).Take(10).ToArray()).Replace(" ", "-");
+                //imageName = imageName + Path.GetExtension(postedFile.FileName);
+                imageName = Path.GetFileName(postedFile.FileName);
+
+                var path = "~/assets/img/user/" + imageName;
+
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
+
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
+
+                postedFile.SaveAs(fullPath);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+
+            }
+            catch(Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest);
+            }
+           
         }
         [HttpPost]
         [Route("addGrupo")]
