@@ -157,37 +157,31 @@ namespace SAGA.API.Controllers
                 .Where( e => e.Propietario.Equals(propietario) )
                 .Select(e => new
                 {
-                    e.Id, e.VBtra,
-                    e.TipoReclutamiento,
-                    e.ClaseReclutamiento,
-                    e.SueldoMinimo,
-                    e.SueldoMaximo,
-                    e.fch_Creacion,
-                    e.fch_Cumplimiento,
-                    e.Estatus,
-                    Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select(p => new {
-                        p.Descripcion,
-                        p.Id
+                    Id = e.Id,
+                    VBtra = e.VBtra,
+                    TipoReclutamiento = e.TipoReclutamiento,
+                    ClaseReclutamiento = e.ClaseReclutamiento,
+                    SueldoMinimo = e.SueldoMinimo,
+                    SueldoMaximo = e.SueldoMaximo,
+                    fch_Creacion = e.fch_Creacion,
+                    fch_Cumplimiento = e.fch_Cumplimiento,
+                    Estatus = e.Estatus,
+                    Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).FirstOrDefault(),
+                    Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new ClienteRequiDto
+                    {
+                        Nombrecomercial = c.Nombrecomercial,
+                        GiroEmpresas = c.GiroEmpresas,
+                        ActividadEmpresas = c.ActividadEmpresas,
+                        RFC = c.RFC
                     }).FirstOrDefault(),
-                    Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new{
-
-                        c.Nombrecomercial, c.GiroEmpresas,
-                        c.ActividadEmpresas, c.RFC
+                    Vacantes = e.horariosRequi.Sum(h => h.numeroVacantes),
+                    Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => new SolicitanteDto
+                    {
+                        Nombre = s.Nombre,
+                        ApellidoPaterno = s.ApellidoPaterno
                     }).FirstOrDefault(),
-                    HorarioRequi = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => new {
-                        x.Nombre,
-                        x.deDia,
-                        x.aDia,
-                        x.deHora,
-                        x.aHora,
-                        x.numeroVacantes,
-                        x.Especificaciones
-                    }).ToList(),
-                    e.Folio,
-                    //Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select( s => new {
-                    //    s.Nombre,
-                    //    s.ApellidoPaterno
-                    //}).FirstOrDefaultAsync()
+                    Folio = e.Folio,
+                    DiasEnvio = e.DiasEnvio
                 }).ToList().OrderByDescending(x => x.Folio);
             return Ok(requisicion);
         }
@@ -216,35 +210,32 @@ namespace SAGA.API.Controllers
 
                 var vacantes = db.Requisiciones
                     .Where(e => RequisicionesGrupos.Contains(e.Id) || RequisicionesInd.Contains(e.Id))
-                    .Select(e => new
+                    .Select(e => new RequisicionGrallDto
                     {
-                        e.Id,
-                        e.VBtra,
-                        e.TipoReclutamiento,
-                        e.ClaseReclutamiento,
-                        e.SueldoMinimo,
-                        e.SueldoMaximo,
-                        e.fch_Creacion,
-                        e.fch_Cumplimiento,
-                        e.Estatus,
-                        Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).Select(p => new {
-                            p.Descripcion,
-                            p.Id
-                        }).FirstOrDefault(),
-                        Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new
+                        Id = e.Id,
+                        VBtra = e.VBtra,
+                        TipoReclutamiento  = e.TipoReclutamiento,
+                        ClaseReclutamiento  = e.ClaseReclutamiento,
+                        SueldoMinimo = e.SueldoMinimo,
+                        SueldoMaximo = e.SueldoMaximo,
+                        fch_Creacion = e.fch_Creacion,
+                        fch_Cumplimiento = e.fch_Cumplimiento,
+                        Estatus = e.Estatus,
+                        Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).FirstOrDefault(),
+                        Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new ClienteRequiDto
                         {
-                            c.Nombrecomercial,
-                            c.GiroEmpresas,
-                            c.ActividadEmpresas,
-                            c.RFC
+                            Nombrecomercial = c.Nombrecomercial,
+                            GiroEmpresas = c.GiroEmpresas,
+                            ActividadEmpresas = c.ActividadEmpresas,
+                            RFC = c.RFC
                         }).FirstOrDefault(),
-                        //Vacantes = getVacantes(e.Id),
-                        Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => new {
-                            s.Nombre,
-                            s.ApellidoPaterno
+                        Vacantes = e.horariosRequi.Sum(h => h.numeroVacantes),
+                        Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => new SolicitanteDto {
+                            Nombre = s.Nombre,
+                            ApellidoPaterno = s.ApellidoPaterno
                         }).FirstOrDefault(),
-                        e.Folio,
-                        e.DiasEnvio
+                        Folio = e.Folio,
+                        DiasEnvio = e.DiasEnvio
                     }).ToList().OrderByDescending(x => x.Folio);
                 return Ok(vacantes);
 
@@ -586,15 +577,15 @@ namespace SAGA.API.Controllers
                 
         }
 
-        public byte getVacantes(Guid Id)
+        public int getVacantes(Guid Id)
         {
-            byte vacantes = 0;
+            int vacantes = 0;
             var horarios = db.HorariosRequis.Where(x => x.RequisicionId.Equals(Id)).Select(x => x.numeroVacantes).ToList();
 
-            foreach(byte x in horarios)
+            foreach(int x in horarios)
             {
                 var contar = x + x; 
-                vacantes =Convert.ToByte(contar);
+                vacantes =Convert.ToInt32(contar);
             }
 
             return vacantes;

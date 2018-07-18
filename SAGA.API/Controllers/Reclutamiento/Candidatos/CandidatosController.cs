@@ -182,7 +182,8 @@ namespace SAGA.API.Controllers
                      Acercademi = c.AboutMe,
                      Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault(),
                      Idiomas = c.Idiomas,
-                     Reubicacion = c.Candidato.puedeRehubicarse
+                     Reubicacion = c.Candidato.puedeRehubicarse,
+                     TpVehiculo = c.Candidato.tieneVehiculoPropio
 
                  }).ToList();
 
@@ -269,6 +270,13 @@ namespace SAGA.API.Controllers
             {
                 Filtrado = Filtrado
                     .Where(c => c.IdTipoLicencia.Equals(Filtros.IdTipoLicencia))
+                    .ToList();
+            }
+
+            if (Filtros.TpVehiculo)
+            {
+                Filtrado = Filtrado
+                    .Where(c => c.TpVehiculo == true)
                     .ToList();
             }
 
