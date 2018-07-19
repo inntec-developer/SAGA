@@ -174,7 +174,7 @@ namespace SAGA.API.Controllers
                         ActividadEmpresas = c.ActividadEmpresas,
                         RFC = c.RFC
                     }).FirstOrDefault(),
-                    Vacantes = e.horariosRequi.Sum(h => h.numeroVacantes),
+                    Vacantes = e.horariosRequi.Count() > 0 ?  e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                     Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => new SolicitanteDto
                     {
                         Nombre = s.Nombre,
