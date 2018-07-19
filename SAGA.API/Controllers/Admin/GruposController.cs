@@ -32,12 +32,12 @@ namespace SAGA.API.Controllers.Admin
             try
             {
                 var httpRequest = HttpContext.Current.Request;
-                var postedFile = httpRequest.Files["Image"];
+                var postedFile = httpRequest.Files["image"];
                 //imageName = new string(Path.GetFileNameWithoutExtension(postedFile.FileName).Take(10).ToArray()).Replace(" ", "-");
                 //imageName = imageName + Path.GetExtension(postedFile.FileName);
                 imageName = Path.GetFileName(postedFile.FileName);
 
-                var path = "~/assets/img/user/" + imageName;
+                var path = "~/utilerias/img/user/" + imageName;
 
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
 
