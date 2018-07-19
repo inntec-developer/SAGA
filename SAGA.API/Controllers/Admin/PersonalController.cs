@@ -80,7 +80,7 @@ namespace SAGA.API.Controllers.Admin
             var persona = db.Entidad.Where(x => x.TipoEntidadId.Equals(1) || x.TipoEntidadId.Equals(4)).Select(u => new
             {
                 EntidadId = u.Id,
-                Foto = String.IsNullOrEmpty(u.Foto) ? "http://localhost:4200/assets/img/user/01.jpg" : u.Foto,
+                Foto = String.IsNullOrEmpty(u.Foto) ? "utilerias/img/user/default.jpg" : u.Foto,
                 Clave = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault(),
                 nombre = u.Nombre,
                 apellidoPaterno = string.IsNullOrEmpty(u.ApellidoPaterno) ? "" : u.ApellidoPaterno,
@@ -157,7 +157,7 @@ namespace SAGA.API.Controllers.Admin
                 var persona = db.GruposUsuarios.Where(x => x.GrupoId.Equals(id)).Select(u => new
                 {
                     EntidadId = u.EntidadId,
-                    Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(f => String.IsNullOrEmpty(f.Foto) ? "http://localhost:4200/assets/img/user/01.jpg" : f.Foto).FirstOrDefault(),
+                    Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(f => String.IsNullOrEmpty(f.Foto) ? "utilerias/img/user/default.jpg" : f.Foto).FirstOrDefault(),
                     TipoEntidadId = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.TipoEntidadId).FirstOrDefault(),
                     nombre = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.Nombre).FirstOrDefault(),
                     apellidoPaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoPaterno) ? "" : n.ApellidoPaterno).FirstOrDefault(),
