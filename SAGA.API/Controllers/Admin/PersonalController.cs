@@ -9,6 +9,8 @@ using SAGA.BOL;
 using SAGA.API.Dtos;
 using AutoMapper;
 using System.Data.Entity;
+using System.Web;
+using System.IO;
 
 namespace SAGA.API.Controllers.Admin
 {
@@ -265,6 +267,60 @@ namespace SAGA.API.Controllers.Admin
 
             return Ok(msj);
         }
+
+        [HttpPost]
+        [Route("UploadImage")]
+        public IHttpActionResult UploadImage()
+        {
+            string msj = "Se actualizó foto";
+            string imageName = null;
+
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
+                var postedFile = httpRequest.Files["image"];
+                var id = Guid.Parse(Path.GetFileNameWithoutExtension(postedFile.FileName).ToString());
+                //var id = new string(Path.GetFileNameWithoutExtension(postedFile.FileName).Take(10).ToArray()).Replace(" ", "-");
+
+                //imageName = imageName + Path.GetExtension(postedFile.FileName);
+                imageName = Path.GetFileName(postedFile.FileName);
+
+                var path = "~/utilerias/img/user/" + imageName;
+
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
+
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
+
+                postedFile.SaveAs(fullPath);
+
+                ActualizarFoto(id, imageName);
+
+                return Ok(msj);
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+
+        }
+
+
+        public Boolean ActualizarFoto(Guid id, string imageName)
+        {
+            
+           // var entidad = db.Entidad.Where(x => x.Id.Equals(id)).FirstOrDefault();
+            var entidad = db.Entidad.Find(id);
+
+            db.Entry(entidad).State = EntityState.Modified;
+            entidad.Foto = "utilerias/img/user/" + imageName;
+
+            db.SaveChanges();
+
+            return true;
+        }
+
 
         [HttpPost]
         [Route("deleteUserGroup")]

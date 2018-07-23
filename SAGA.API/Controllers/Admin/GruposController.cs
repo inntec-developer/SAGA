@@ -22,44 +22,12 @@ namespace SAGA.API.Controllers.Admin
         {
             db = new SAGADBContext();
         }
-
-        [HttpPost]
-        [Route("UploadImage")]
-        public HttpResponseMessage UploadImage()
-        {
-            string imageName = null;
-
-            try
-            {
-                var httpRequest = HttpContext.Current.Request;
-                var postedFile = httpRequest.Files["image"];
-                //imageName = new string(Path.GetFileNameWithoutExtension(postedFile.FileName).Take(10).ToArray()).Replace(" ", "-");
-                //imageName = imageName + Path.GetExtension(postedFile.FileName);
-                imageName = Path.GetFileName(postedFile.FileName);
-
-                var path = "~/utilerias/img/user/" + imageName;
-
-                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
-
-                if (File.Exists(fullPath))
-                    File.Delete(fullPath);
-
-                postedFile.SaveAs(fullPath);
-
-                return Request.CreateResponse(HttpStatusCode.OK);
-
-            }
-            catch(Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest);
-            }
-           
-        }
+ 
         [HttpPost]
         [Route("addGrupo")]
         public IHttpActionResult AddGrupo(GruposDtos listJson)
         {
-            string msj = "Agregó";
+            string msj = "los datos se agregaron";
           
 
             try
@@ -86,7 +54,7 @@ namespace SAGA.API.Controllers.Admin
         [Route("updateGrupo")]
         public IHttpActionResult updateGrupo(Grupos listJson)
         {
-            string msj = "Actualizó";
+            string msj = "Los datos se actualizaron con éxito";
             try
             {
                 var g = db.Grupos.Find(listJson.Id);
@@ -111,7 +79,7 @@ namespace SAGA.API.Controllers.Admin
         [Route("deleteGrupo")]
         public IHttpActionResult deleteGrupo(Grupos listJson)
         {
-            string msj = "Borró";
+            string msj = "Los datos se borraron con éxito";
             try
             {
                 var r = db.Grupos.Find(listJson.Id);
@@ -134,7 +102,7 @@ namespace SAGA.API.Controllers.Admin
         [Route("addUserGroup")]
         public IHttpActionResult AddUserGroup(List<GrupoUsuarios> listJson)
         {
-            string msj = "Agrego";
+            string msj = "Los datos se agregaron con éxito";
 
             try
             {
