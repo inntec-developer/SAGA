@@ -319,9 +319,12 @@ namespace SAGA.API.Controllers
                     var requisicion = db.Requisiciones.Find(requi.Id);
                     db.Entry(requisicion).State = EntityState.Modified;
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
-                    requisicion.EstatusId = requi.EstatusId;
                     requisicion.PrioridadId = requi.PrioridadId;
                     requisicion.Confidencial = requi.Confidencial;
+                    if (requi.Confidencial && requisicion.EstatusId == 7)
+                        requisicion.EstatusId = 6;
+                    else
+                        requisicion.EstatusId = requi.EstatusId;
                     requisicion.fch_Modificacion = DateTime.Now;
                     requisicion.UsuarioMod = requi.Usuario;
                     AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requi.Folio, requi.Usuario, requisicion.VBtra);
