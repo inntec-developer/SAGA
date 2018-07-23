@@ -173,12 +173,11 @@ namespace SAGA.API.Controllers
                      nss = c.Candidato.NSS,
                      Formaciones = c.Formaciones,
                      Experiencias = c.Experiencias,
-                     IdAreaExp = c.Experiencias.Select(a => a.AreaId).FirstOrDefault(),
+                     IdAreaExp = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault(),
                      IdPerfil = c.AboutMe.Select(p => p.PerfilExperienciaId).FirstOrDefault(),
                      IdGenero = c.Candidato.GeneroId,
                      IdPDiscapacidad = c.Candidato.TipoDiscapacidadId,
                      IdTipoLicencia = c.Candidato.TipoLicenciaId,
-                     IdNvEstudios = c.Conocimientos.Select(n => n.NivelId).FirstOrDefault(),
                      Acercademi = c.AboutMe,
                      Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault(),
                      Idiomas = c.Idiomas,
@@ -283,7 +282,7 @@ namespace SAGA.API.Controllers
             if (Filtros.IdNvEstudios != null)
             {
                 Filtrado = Filtrado
-                    .Where(c => c.IdNvEstudios.Equals(Filtros.IdNvEstudios))
+                    .Where(c => c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault().Equals(Filtros.IdNvEstudios))
                     .ToList();
             }
 
