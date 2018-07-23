@@ -23,6 +23,8 @@ namespace SAGA.BOL
         public Guid PerfilCandidatoId { get; set; }
         public PerfilCandidato PerfilCandidato { get; set; }
 
+        public bool Actual { get; set; }
+
         public Certificacion()
         {
             this.Id = Guid.NewGuid();

@@ -9,7 +9,7 @@ namespace SAGA.API.Dtos
     public class RequisicionDto
     {
         public Guid Id { get; set; }
-        public int Folio { get; set; }
+        public Int64 Folio { get; set; }
         public DateTime fch_Cumplimiento { get; set; }
         public int PrioridadId { get; set; }
         public int EstatusId { get; set; }

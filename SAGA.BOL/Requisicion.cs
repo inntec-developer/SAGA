@@ -48,7 +48,7 @@ namespace SAGA.BOL
         public int JornadaLaboralId { get; set; }
         public int TipoModalidadId { get; set; }
         public bool Activo { get; set; }
-        public int Folio { get; set; }
+        public Int64 Folio { get; set; }
         public DateTime? fch_Limite { get; set; }
         public int? DiasEnvio { get; set; }
 

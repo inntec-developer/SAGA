@@ -81,7 +81,7 @@ namespace SAGA.API.Utilerias
             return AddEmail;
         }
 
-        public void ConstructEmail(List<AsignacionRequi> asignaciones, List<AsignacionRequi> NotChange, string action, int Folio, string Usuario, string VBr)
+        public void ConstructEmail(List<AsignacionRequi> asignaciones, List<AsignacionRequi> NotChange, string action, Int64 Folio, string Usuario, string VBr)
         {
             foreach(AsignacionRequi asg in asignaciones)
             {

@@ -10,9 +10,10 @@ namespace SAGA.BOL
     public class Folio
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int Anio { get; set; }
         public int Mes { get; set; }
+        public int Dia { get; set; }
         public int Consecutivo { get; set; }
         public string TipoMovimiento { get; set; }
         public DateTime fch_Creacion { get; set; }

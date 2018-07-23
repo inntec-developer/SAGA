@@ -970,7 +970,8 @@ namespace SAGA.DAL
 				Property(x => x.YearTerminoId).IsOptional();
 				Property(x => x.MonthTerminoId).IsOptional();
 				Property(x => x.PerfilCandidatoId).IsRequired();
-			}
+                Property(x => x.Actual).IsOptional();
+            }
 		}
 		public class ConocimientoOHabilidadMap : EntityTypeConfiguration<ConocimientoOHabilidad>
 		{
@@ -997,8 +998,9 @@ namespace SAGA.DAL
 				Property(x => x.MonthTerminoId).IsOptional();
 				Property(x => x.Horas).IsOptional();
 				Property(x => x.PerfilCandidatoId).IsRequired();
+                Property(x => x.Actual).IsOptional();
 
-			}
+            }
 		}
 		public class DocumentoValidadorMap : EntityTypeConfiguration<DocumentoValidador>
 		{
@@ -1030,8 +1032,8 @@ namespace SAGA.DAL
 				Property(x => x.MonthInicioId).IsOptional();
 				Property(x => x.YearTerminoId).IsOptional();
 				Property(x => x.MonthTerminoId).IsOptional();
-
-			}
+                Property(x => x.Actual).IsOptional();
+            }
 		}
 		public class FormaContactoMap : EntityTypeConfiguration<FormaContacto>
 		{

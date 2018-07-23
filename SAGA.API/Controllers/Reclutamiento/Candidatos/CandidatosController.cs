@@ -477,7 +477,7 @@ namespace SAGA.API.Controllers
                             Foto = u.Foto  
                          }).FirstOrDefault()                    
                 })
-                .ToList();
+                .ToList().OrderByDescending( c => c.fchComentario);
             return Ok(comentarios);
         }
 

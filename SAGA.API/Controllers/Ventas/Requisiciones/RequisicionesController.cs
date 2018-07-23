@@ -93,7 +93,7 @@ namespace SAGA.API.Controllers
         //api/Requisiciones/getRequisicion
         [HttpGet]
         [Route("getByFolio")]
-        public IHttpActionResult GetRequisicionFolio(int folio)
+        public IHttpActionResult GetRequisicionFolio(Int64 folio)
         {
             if (folio != 0)
             {
@@ -134,7 +134,7 @@ namespace SAGA.API.Controllers
                 var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @UserAlta", _params).SingleOrDefault();
 
                 Guid RequisicionId = requi.Id;
-                int Folio = requi.Folio;
+                Int64 Folio = requi.Folio;
 
 
                 return Ok(requi);
@@ -181,7 +181,10 @@ namespace SAGA.API.Controllers
                         ApellidoPaterno = s.ApellidoPaterno
                     }).FirstOrDefault(),
                     Folio = e.Folio,
-                    DiasEnvio = e.DiasEnvio
+                    DiasEnvio = e.DiasEnvio,
+                    Confidencial = e.Confidencial,
+                    Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
+                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count()
                 }).ToList().OrderByDescending(x => x.Folio);
             return Ok(requisicion);
         }
@@ -235,7 +238,10 @@ namespace SAGA.API.Controllers
                             ApellidoPaterno = s.ApellidoPaterno
                         }).FirstOrDefault(),
                         Folio = e.Folio,
-                        DiasEnvio = e.DiasEnvio
+                        DiasEnvio = e.DiasEnvio,
+                        Confidencial = e.Confidencial,
+                        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
+                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count()
                     }).ToList().OrderByDescending(x => x.Folio);
                 return Ok(vacantes);
 
@@ -321,7 +327,7 @@ namespace SAGA.API.Controllers
                     AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requi.Folio, requi.Usuario, requisicion.VBtra);
                     db.SaveChanges();
 
-                    int Folio = requisicion.Folio;
+                    Int64 Folio = requisicion.Folio;
                     //Creacion de Trazabalidad par ala requisición.
                     Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
                     //Isertar el registro de la rastreabilidad. 
@@ -362,7 +368,7 @@ namespace SAGA.API.Controllers
 
                 
 
-                int Folio = requisicion.Folio;
+                Int64 Folio = requisicion.Folio;
                 string VBra = requisicion.VBtra; 
                 Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
                 //Isertar el registro de la rastreabilidad. 
@@ -401,7 +407,7 @@ namespace SAGA.API.Controllers
 
                 
 
-                int Folio = requisicion.Folio;
+                Int64 Folio = requisicion.Folio;
                 string VBra = requisicion.VBtra;
 
                 Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
@@ -434,7 +440,7 @@ namespace SAGA.API.Controllers
                 requisicion.fch_Modificacion = DateTime.Now;
                 
 
-                int Folio = requisicion.Folio;
+                Int64 Folio = requisicion.Folio;
                 Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
                 //Isertar el registro de la rastreabilidad. 
                 rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 3);
@@ -476,7 +482,7 @@ namespace SAGA.API.Controllers
                     db.SaveChanges();
                     AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra);
                     db.SaveChanges();
-                    int Folio = requisicion.Folio;
+                    Int64 Folio = requisicion.Folio;
                     //Creacion de Trazabalidad par ala requisición.
                     Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
                     //Isertar el registro de la rastreabilidad. 
@@ -519,7 +525,7 @@ namespace SAGA.API.Controllers
             } while (saveFailed);
         }
 
-        public void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId, int Folio, string Usuario, string VBra)
+        public void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId, Int64 Folio, string Usuario, string VBra)
         {
             var user = db.Usuarios.Where(x => x.Usuario.Equals(Usuario)).Select( x => 
                 x.Nombre + " " +x.ApellidoPaterno+" "+ x.ApellidoMaterno
@@ -575,20 +581,6 @@ namespace SAGA.API.Controllers
                 SendEmail.ConstructEmail(asignaciones, NotChange, "C", Folio, user, VBra);
             }
                 
-        }
-
-        public int getVacantes(Guid Id)
-        {
-            int vacantes = 0;
-            var horarios = db.HorariosRequis.Where(x => x.RequisicionId.Equals(Id)).Select(x => x.numeroVacantes).ToList();
-
-            foreach(int x in horarios)
-            {
-                var contar = x + x; 
-                vacantes =Convert.ToInt32(contar);
-            }
-
-            return vacantes;
         }
     }
 }

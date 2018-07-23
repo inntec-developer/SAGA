@@ -37,5 +37,7 @@ namespace SAGA.BOL
         public Guid PerfilCandidatoId { get; set; }
         public virtual PerfilCandidato PerfilCandidato { get; set; }
 
+        public bool Actual { get; set; }
+
     }
 }

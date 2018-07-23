@@ -12,7 +12,7 @@ namespace SAGA.BOL
         [Key]
         public Guid Id { get; set; }
         public int TipoMovimientoId { get; set; }
-        public int Folio { get; set; }
+        public Int64 Folio { get; set; }
         public DateTime fch_Creacion { get; set; }
         public string UsuarioAlta { get; set; }
         public Guid UsuarioId { get; set; }

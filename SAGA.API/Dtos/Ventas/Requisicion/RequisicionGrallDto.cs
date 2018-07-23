@@ -21,8 +21,11 @@ namespace SAGA.API.Dtos
         public ClienteRequiDto Cliente { get; set; }
         public int Vacantes { get; set; }
         public SolicitanteDto Solicita { get; set; }
-        public int Folio { get; set; }
+        public Int64 Folio { get; set; }
         public int? DiasEnvio { get; set; }
+        public bool Confidencial { get; set; }
+        public int Postulados { get; set; }
+        public int EnProceso { get; set; }
     }
 
     

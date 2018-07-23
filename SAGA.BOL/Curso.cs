@@ -28,6 +28,8 @@ namespace SAGA.BOL
         public Guid PerfilCandidatoId { get; set; }
         public PerfilCandidato PerfilCandidato { get; set; }
 
+        public bool Actual { get; set; }
+
         public Curso()
         {
             this.Id = Guid.NewGuid();
