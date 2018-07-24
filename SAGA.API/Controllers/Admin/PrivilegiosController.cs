@@ -206,7 +206,7 @@ namespace SAGA.API.Controllers
 
                 db.SaveChanges();
 
-                return Ok(r);
+                return Ok("Los cambios se realizarón con éxito");
             }
             catch( Exception ex )
             {
