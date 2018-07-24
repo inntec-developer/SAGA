@@ -215,5 +215,46 @@ namespace SAGA.API.Controllers
             
         }
 
+        [HttpPost]
+        [Route("agregarSeccion")]
+        public IHttpActionResult AgregarSeccion(List<PrivilegiosDtos> privilegios)
+        {
+            string mensaje = "Se agregó Rol";
+            //int id = 0;
+            try
+            {
+                var rolId = privilegios.Select(n => n.RolId).FirstOrDefault();
+
+                var r = db.Privilegios.Where(x => x.RolId.Equals(rolId)).FirstOrDefault();
+
+                db.Entry(r).State = EntityState.Added;
+
+                foreach (PrivilegiosDtos ru in privilegios)
+                {
+                    if (ru.Create || ru.Read || ru.Update || ru.Delete || ru.Especial)
+                    {
+                        Privilegio o = new Privilegio();
+                        o.RolId = rolId;
+                        o.EstructuraId = ru.EstructuraId;
+                        o.Create = ru.Create;
+                        o.Read = ru.Read;
+                        o.Update = ru.Update;
+                        o.Delete = ru.Delete;
+                        o.Especial = ru.Especial;
+
+                        db.Privilegios.Add(o);
+                        db.SaveChanges();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message;
+            }
+            return Ok(mensaje);
+
+        }
+
     }
 }
