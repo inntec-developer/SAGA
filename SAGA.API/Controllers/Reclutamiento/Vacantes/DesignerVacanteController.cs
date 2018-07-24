@@ -77,9 +77,16 @@ namespace SAGA.API.Controllers
                 pieza.Activo = item.Activo;
                 pieza.Confidencial = item.Confidencial;
                 pieza.Icono = item.Icono;
-                pieza.Resumen = CfgRequi.Where(e=>e.ConfigMovId == ConfiguracionesMov.Where(a=>a.EstructuraId ==item.Id).FirstOrDefault().Id).FirstOrDefault().R;
-                pieza.Detalle = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().D;
-                pieza.Publica = ConfiguracionesMov.Where(e => e.EstructuraId == item.Id).FirstOrDefault().esPublicable;
+                pieza.Resumen = false;
+                pieza.Detalle = false;
+                pieza.Publica = false;
+                if (ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).Count() > 0)
+                {
+                    pieza.Resumen = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().R;
+                    pieza.Detalle = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().D;
+                    pieza.Publica = ConfiguracionesMov.Where(e => e.EstructuraId == item.Id).FirstOrDefault().esPublicable;
+                }
+               
                 if (configura.Count > 0)
                 {
                     pieza.Resumen = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Resumen).FirstOrDefault();
