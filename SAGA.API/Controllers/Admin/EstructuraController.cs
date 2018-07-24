@@ -32,8 +32,9 @@ namespace SAGA.API.Controllers.Admin
                 Id = ee.Id,
                 IdPadre = ee.IdPadre,
                 Nombre = ee.Nombre,
-                TipoEstructuraId = ee.TipoEstructuraId
-            }).ToList();
+                TipoEstructuraId = ee.TipoEstructuraId,
+                Orden = ee.Orden
+            }).OrderBy(o => o.Orden).ToList();
 
 
             var nodes = Tree.Where(x => x.TipoEstructuraId.Equals(2)).Select(ee => new PrivilegiosDtos()
@@ -42,8 +43,9 @@ namespace SAGA.API.Controllers.Admin
                 IdPadre = ee.IdPadre,
                 Nombre = ee.Nombre,
                 Children = GetChild(Tree, ee.Id),
-                TipoEstructuraId = ee.TipoEstructuraId
-            }).ToList();
+                TipoEstructuraId = ee.TipoEstructuraId,
+                Orden = ee.Orden
+            }).OrderBy(o=>o.Orden).ToList();
 
             return Ok(nodes);
         }
@@ -58,8 +60,9 @@ namespace SAGA.API.Controllers.Admin
                         Nombre = c.Nombre,
                         IdPadre = c.IdPadre,
                         Children = GetChild(tree, c.Id),
-                        TipoEstructuraId = c.TipoEstructuraId
-                    })
+                        TipoEstructuraId = c.TipoEstructuraId,
+                        Orden = c.Orden
+                    }).OrderBy(o=>o.Orden)
                     .ToList();
         }
 

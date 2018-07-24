@@ -379,7 +379,7 @@ namespace SAGA.API.Controllers.Admin
                     userData.Id = Data.Select(x => x.id).FirstOrDefault();
                     userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
                     userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
-                    userData.Privilegios = obj.GetPrivilegios2(userData.Id);
+                    userData.Privilegios = obj.GetPrivilegios(userData.Id);
                     userData.Email = Data.Select(x => x.email).FirstOrDefault();
                     userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
                     userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
