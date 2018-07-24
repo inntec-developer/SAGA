@@ -14,8 +14,8 @@ namespace SAGA.BOL
         public string Nombre { get; set; }
         public byte deDiaId { get; set; }
         public byte aDiaId { get; set; }
-        public string deHora { get; set; }
-        public string aHora { get; set; }
+        public DateTime deHora { get; set; }
+        public DateTime aHora { get; set; }
         public byte numeroVacantes { get; set; }
         public string Especificaciones { get; set; }
         public Guid DAMFO290Id { get; set; }

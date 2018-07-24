@@ -1329,8 +1329,8 @@ namespace SAGA.DAL
 				Property(x => x.Nombre).HasMaxLength(100).IsRequired();
 				Property(x => x.deDiaId).IsRequired();
 				Property(x => x.aDiaId).IsRequired();
-				Property(x => x.deHora).HasMaxLength(25).IsRequired();
-				Property(x => x.aHora).HasMaxLength(25).IsRequired();
+				Property(x => x.deHora).IsRequired();
+				Property(x => x.aHora).IsRequired();
 				Property(x => x.numeroVacantes).HasColumnType("tinyint").IsRequired();
 				Property(x => x.Especificaciones).HasMaxLength(500).IsRequired();
 				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(30);
@@ -1707,8 +1707,8 @@ namespace SAGA.DAL
 				Property(x => x.Nombre).HasMaxLength(100).IsRequired();
 				Property(x => x.deDiaId).IsRequired();
 				Property(x => x.aDiaId).IsRequired();
-				Property(x => x.deHora).HasMaxLength(25).IsRequired();
-				Property(x => x.aHora).HasMaxLength(25).IsRequired();
+				Property(x => x.deHora).IsRequired();
+				Property(x => x.aHora).IsRequired();
 				Property(x => x.numeroVacantes).HasColumnType("tinyint").IsRequired();
 				Property(x => x.Especificaciones).HasMaxLength(500);
 				Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(30);
