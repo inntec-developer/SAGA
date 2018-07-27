@@ -11,6 +11,7 @@ using AutoMapper;
 using System.Data.Entity;
 using System.Web;
 using System.IO;
+using System.Drawing;
 
 namespace SAGA.API.Controllers.Admin
 {
@@ -260,7 +261,6 @@ namespace SAGA.API.Controllers.Admin
         [Route("UploadImage")]
         public IHttpActionResult UploadImage()
         {
-            string msj = "Se actualizó foto";
             string imageName = null;
 
             try
@@ -284,16 +284,47 @@ namespace SAGA.API.Controllers.Admin
 
                 ActualizarFoto(id, imageName);
 
-                return Ok(msj);
+                return Ok(HttpStatusCode.Created); //201
 
             }
             catch (Exception ex)
             {
-                return Ok(ex.Message);
+                return Ok(HttpStatusCode.InternalServerError);
             }
 
         }
 
+        [HttpGet]
+        [Route("getImage")]
+        public IHttpActionResult GetImage2(Guid imageName)
+        {
+            var ruta = db.Entidad.Where(x => x.Id.Equals(imageName)).Select(i => i.Foto).FirstOrDefault();
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/" + ruta);
+
+            Bitmap bmp = new Bitmap(fullPath);
+            FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+            byte[] bimage = new byte[fs.Length];
+            fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
+            fs.Close();
+
+            return Ok(bimage);
+        }
+
+
+        public byte[] GetImage(string ruta)
+        {
+            List<byte[]> aux = new List<byte[]>();
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/" + ruta);
+
+           // Bitmap bmp = new Bitmap(fullPath);
+            FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.ReadWrite);
+            byte[] bimage = new byte[fs.Length];
+            fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
+            fs.Close();
+            fs = null;
+
+            return bimage;
+        }
 
         public Boolean ActualizarFoto(Guid id, string imageName)
         {

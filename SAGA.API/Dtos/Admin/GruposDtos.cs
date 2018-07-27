@@ -14,6 +14,7 @@ namespace SAGA.API.Dtos
         public string Descripcion { get; set; }
         public string UsuarioAlta { get; set; }
         public string Nombre { get; set;  }
+        public String FotoAux { get; set; }
         public ICollection<Grupos> Grupos { get; set; }
 
     }

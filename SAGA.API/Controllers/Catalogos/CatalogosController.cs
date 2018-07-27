@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using SAGA.API.Dtos;
+using SAGA.API.Controllers.Admin;
 
 namespace SAGA.API.Controllers
 {
@@ -82,6 +83,8 @@ namespace SAGA.API.Controllers
         [Route("getGrupos")]
         public IHttpActionResult getGrupos()
         {
+            PersonalController obj = new PersonalController();
+            List<GruposDtos> data = new List<GruposDtos>();
             var grupos = db.Grupos.Where(x => x.Activo).Select(g => new
             {
                 Id = g.Id,
@@ -89,9 +92,24 @@ namespace SAGA.API.Controllers
                 Activo = g.Activo,
                 Descripcion = g.Descripcion,
                 Nombre = g.Nombre,
-                UsuarioAlta = g.UsuarioAlta
+                UsuarioAlta = g.UsuarioAlta,
             }).OrderBy(g => g.Nombre).ToList();
-            return Ok(grupos);
+
+            foreach(var g in grupos)
+            {
+                var aux = obj.GetImage(g.Foto);
+                data.Add(new GruposDtos {
+                    Id = g.Id,
+                    Foto = g.Foto,
+                    Activo = g.Activo,
+                    Descripcion = g.Descripcion,
+                    Nombre = g.Nombre,
+                    UsuarioAlta = g.UsuarioAlta,
+                    FotoAux = "data:image/jpeg;base64," + Convert.ToBase64String(aux) });
+            }
+
+            obj = null;
+            return Ok(data);
         }
 
         [HttpGet]
