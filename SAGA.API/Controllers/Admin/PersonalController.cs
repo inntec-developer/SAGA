@@ -135,19 +135,7 @@ namespace SAGA.API.Controllers.Admin
 
             }).ToList();
 
-
-            //dts = db.Personas.Select(c => new PersonasDtos
-            //{
-            //    nombre = c.Nombre,
-            //    apellidoPaterno = c.ApellidoPaterno,
-            //    apellidoMaterno = c.ApellidoMaterno,
-            //    TipoUriario = db.Usuarios.Where(x => x.Id.Equals(c.Id)).Select(x => x.TipoUsuario.Tipo).FirstOrDefault(),
-            //    Usuario = db.Usuarios.Where(u => u.Id.Equals(c.Id)).Select(x => x.Usuario).FirstOrDefault(),
-            //    Email = db.Emails.Where(e => e.PersonaId.Equals(c.Id)).Select(x => x.email).FirstOrDefault()
-            //}).ToList();
-
             return Ok(persona);
-
         }
 
         [HttpGet]
@@ -350,6 +338,49 @@ namespace SAGA.API.Controllers.Admin
         }
 
         [HttpGet]
+        [Route("validarEmail")]
+        public IHttpActionResult ValidarEmail(string e)
+        {
+            UsuarioDto userData = new UsuarioDto();
+
+            var Data =
+                   (from users in db.Usuarios
+                    join email in db.Emails on users.Id equals email.EntidadId
+                    where email.email == e
+                    select new
+                    {
+                        id = users.Id,
+                        nombre = users.Nombre + " " + users.ApellidoPaterno,
+                        usuario = users.Usuario,
+                        activo = users.Activo,
+                        email = email.email,
+                        foto = users.Foto,
+                        clave = users.Clave
+                    }).ToList();
+
+            if (Data.Count() > 0)
+            {
+                if (Data.Select(x => x.activo).FirstOrDefault())
+                {
+                    userData.Id = Data.Select(x => x.id).FirstOrDefault();
+                    userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
+                    userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
+                    userData.Email = Data.Select(x => x.email).FirstOrDefault();
+                    userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
+                    userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
+
+                    return Ok(userData);
+                }
+                else
+                    return Ok(HttpStatusCode.Found); // 302 encontro pero no esta activo
+            }
+            else
+            {
+                return Ok(HttpStatusCode.NotFound); // 404 no esta registrado
+            }
+        }
+
+        [HttpGet]
         [Route("setUsers")]
         public IHttpActionResult SetUsers(string p, string e)
         {
@@ -383,6 +414,7 @@ namespace SAGA.API.Controllers.Admin
                     userData.Email = Data.Select(x => x.email).FirstOrDefault();
                     userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
                     userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
+
                     return Ok(userData);
                 }
                 else
