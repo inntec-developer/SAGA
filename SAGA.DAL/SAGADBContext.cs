@@ -130,6 +130,7 @@ namespace SAGA.DAL
         public DbSet<PostNombre> PostNombres { get; set; }
         public DbSet<RolEntidad> RolEntidades { get; set; }
         public DbSet<ConfiguracionMovs> ConfiguracionesMov { get; set; }
+        public DbSet<LogsIngresos> LogsIngresos { get; set; }
         #endregion
 
         #region Vtas
@@ -233,6 +234,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TipoOficinaMap().ToTable("TiposOficinas"));
             modelBuilder.Configurations.Add(new RolEntidadesMap().ToTable("RolEntidades"));
             modelBuilder.Configurations.Add(new ConfiguracionMovsMap().ToTable("ConfiguracionesMovs"));
+            modelBuilder.Configurations.Add(new LogsIngresosMap().ToTable("LogsIngresos"));
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
@@ -895,6 +897,19 @@ namespace SAGA.DAL
                 Property(x => x.esEditable).IsRequired();
                 Property(x => x.nuevaEtiqueta).HasMaxLength(150).IsOptional();
                 Property(x => x.nuevoValor).HasMaxLength(150).IsOptional();
+            }
+        }
+
+        public class LogsIngresosMap : EntityTypeConfiguration<LogsIngresos>
+        {
+            public LogsIngresosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.ASPId).IsOptional();
+                Property(x => x.EntidadId).IsOptional();
+                Property(x => x.EstructuraId).IsRequired();
+                Property(x => x.fch_Ingreso).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
             }
         }
 
