@@ -201,8 +201,20 @@ namespace SAGA.API.Controllers
                 .Select(g => g.GrupoId)
                 .ToList();
 
+
+                var GruposEnGrupos = db.GruposUsuarios
+                    .Where(x => Grupos.Contains(x.EntidadId))
+                    .Select(g => g.GrupoId)
+                    .ToList();
+
+                
                 var RequisicionesGrupos = db.AsignacionRequis
                     .Where(r => Grupos.Contains(r.GrpUsrId))
+                    .Select(r => r.RequisicionId)
+                    .ToList();
+
+                var RequiGrupoEnGrupo = db.AsignacionRequis
+                    .Where(r => GruposEnGrupos.Contains(r.GrpUsrId))
                     .Select(r => r.RequisicionId)
                     .ToList();
 
@@ -211,8 +223,11 @@ namespace SAGA.API.Controllers
                     .Select(r => r.RequisicionId)
                     .ToList();
 
+
+                
+
                 var vacantes = db.Requisiciones
-                    .Where(e => RequisicionesGrupos.Contains(e.Id) || RequisicionesInd.Contains(e.Id))
+                    .Where(e => RequisicionesGrupos.Contains(e.Id) || RequisicionesInd.Contains(e.Id) || RequiGrupoEnGrupo.Contains(e.Id))
                     .Select(e => new RequisicionGrallDto
                     {
                         Id = e.Id,

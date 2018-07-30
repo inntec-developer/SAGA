@@ -38,7 +38,8 @@ namespace SAGA.API.Utilerias
             foreach (GrupoUsuarios gp in grp)
             {
                 var email = db.Emails.Where(x => x.EntidadId.Equals(gp.EntidadId)).Select(x => x.email).FirstOrDefault();
-                if (email == null)
+                var tipoEntidad = gp.Entidad.TipoEntidadId;
+                if (tipoEntidad == 4)
                 {
                     /* Genera la nueva lista de suarios dentro de una celular para posteriormente mandar llamar de nuevo checkEmail y continuar con la busqueda
                      * de corres electronicos. 
@@ -65,7 +66,8 @@ namespace SAGA.API.Utilerias
             foreach (GrupoUsuarios gp in grpNc)
             {
                 var email = db.Emails.Where(x => x.EntidadId.Equals(gp.EntidadId)).Select(x => x.email).FirstOrDefault();
-                if (email == null)
+                var tipoEntidad = gp.Entidad.TipoEntidadId;
+                if (tipoEntidad == 4)
                 {
                     /* Genera la nueva lista de suarios dentro de una celular para posteriormente mandar llamar de nuevo EmailsNotChange y continuar con la busqueda
                      * de corres electronicos. 
