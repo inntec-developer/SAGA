@@ -80,10 +80,16 @@ namespace SAGA.API.Controllers
                 pieza.Resumen = false;
                 pieza.Detalle = false;
                 pieza.Publica = false;
-                if (ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).Count() > 0)
+                try
                 {
                     pieza.Resumen = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().R;
                     pieza.Detalle = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().D;
+                }
+                catch (Exception)
+                {
+                }
+                if (ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).Count() > 0)
+                {
                     pieza.Publica = ConfiguracionesMov.Where(e => e.EstructuraId == item.Id).FirstOrDefault().esPublicable;
                 }
                
