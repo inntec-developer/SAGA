@@ -10,6 +10,7 @@ namespace SAGA.API.Dtos
     public class PersonasDtos
     {
         public Guid Id { get; set; }
+        public Guid EntidadId { get; set; }
         public string nombre { get; set; }
         public string apellidoPaterno { get; set; }
         public string apellidoMaterno { get; set; }
@@ -26,7 +27,9 @@ namespace SAGA.API.Dtos
         public int TipoEntidadID { get; set; }
         public string TipoEntidad { get; set; }
         public string Foto { get; set; }
-
+        public String FotoAux { get; set; }
+        public string Descripcion { get; set; }
+        public ICollection<Grupos> Grupos { get; set; }
 
     }
 }
