@@ -80,6 +80,8 @@ namespace SAGA.API.Controllers.Admin
         [Route("getEntidades")]
         public IHttpActionResult GetEntidades()
         {
+            List<PersonasDtos> data = new List<PersonasDtos>();
+
             var persona = db.Entidad.Where(x => x.TipoEntidadId.Equals(1) || x.TipoEntidadId.Equals(4)).Select(u => new
             {
                 EntidadId = u.Id,
@@ -91,7 +93,7 @@ namespace SAGA.API.Controllers.Admin
                 Usuario = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Usuario).FirstOrDefault(),
                 Descripcion = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(x => string.IsNullOrEmpty(x.Descripcion) ? "" : x.Descripcion).FirstOrDefault(),
                 Departamento = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
-                Email = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
+                Emails = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
                     email = e.email
                 }),
                 grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
@@ -108,6 +110,26 @@ namespace SAGA.API.Controllers.Admin
                 })
 
             }).OrderBy(o => o.nombre).ToList();
+
+            //foreach (var g in persona)
+            //{
+            //    var aux = GetImage(g.Foto);
+            //    data.Add(new PersonasDtos()
+            //    {
+            //        EntidadId = g.EntidadId,
+            //        Foto = g.Foto,
+            //        Clave = g.Clave,
+            //        nombre = g.nombre,
+            //        apellidoPaterno = g.apellidoPaterno,
+            //        apellidoMaterno = g.apellidoMaterno,
+            //        Usuario = g.Usuario,
+            //        Descripcion = g.Descripcion,
+            //        FotoAux = aux
+
+                   
+            //    });
+            //}
+
 
             return Ok(persona);
 
@@ -143,9 +165,10 @@ namespace SAGA.API.Controllers.Admin
         [Route("getUsuarioByGrupo")]
         public IHttpActionResult GetDtosByGrupo(Guid id)
         {
+            List<PersonasDtos> data = new List<PersonasDtos>();
             try
             {
-                var persona = db.GruposUsuarios.Where(x => x.GrupoId.Equals(id)).Select(u => new
+                var persona = db.GruposUsuarios.Where(x => x.GrupoId.Equals(id) & x.Grupo.Activo).Select(u => new
                 {
                     EntidadId = u.EntidadId,
                     Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(f => String.IsNullOrEmpty(f.Foto) ? "utilerias/img/user/default.jpg" : f.Foto).FirstOrDefault(),
@@ -162,7 +185,23 @@ namespace SAGA.API.Controllers.Admin
 
                 }).OrderBy(o => o.TipoEntidadId).ToList();
 
-                return Ok(persona);
+                foreach (var g in persona)
+                {
+                    var aux = GetImage(g.Foto);
+                    data.Add(new PersonasDtos()
+                    {
+                        EntidadId = g.EntidadId,
+                        Foto = g.Foto,
+                        TipoEntidadID = g.TipoEntidadId,
+                        nombre = g.nombre,
+                        apellidoPaterno = g.apellidoPaterno,
+                        apellidoMaterno = g.apellidoMaterno,
+                        Usuario = g.Usuario,
+                        FotoAux = aux
+                    });
+                }
+
+                return Ok(data);
             }
             catch( Exception ex)
             {
@@ -311,7 +350,7 @@ namespace SAGA.API.Controllers.Admin
         }
 
 
-        public byte[] GetImage(string ruta)
+        public string GetImage(string ruta)
         {
             List<byte[]> aux = new List<byte[]>();
             string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/" + ruta);
@@ -323,7 +362,7 @@ namespace SAGA.API.Controllers.Admin
             fs.Close();
             fs = null;
 
-            return bimage;
+            return ("data:image/jpeg;base64," + Convert.ToBase64String(bimage));
         }
 
         public Boolean ActualizarFoto(Guid id, string imageName)

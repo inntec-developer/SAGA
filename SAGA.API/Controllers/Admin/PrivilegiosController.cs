@@ -8,6 +8,7 @@ using SAGA.DAL;
 using SAGA.BOL;
 using SAGA.API.Dtos;
 using System.Data.Entity;
+using System.Collections;
 
 namespace SAGA.API.Controllers
 {
@@ -20,55 +21,84 @@ namespace SAGA.API.Controllers
             db = new SAGADBContext();
         }
 
-        
+        public List<Guid> GetGrupo(Guid grupo, List<Guid> listaIds)
+        {
+
+            var idG = db.GruposUsuarios
+                    .Where(x => x.EntidadId == grupo)
+                    .Select(g => g.GrupoId).ToList();
+
+            if (idG.Count > 0)
+            {
+                listaIds.Add(idG.FirstOrDefault());
+                return GetGrupo(idG.FirstOrDefault(), listaIds);
+            }
+
+            return listaIds;
+        }
+
 
         [HttpGet]
         [Route("getprivilegios")]
         public IHttpActionResult GetPrivilegios2(Guid idUser)
         {
+           
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
 
-            var query = (
-                         from GU in db.GruposUsuarios where GU.GrupoId == idUser || GU.EntidadId == idUser
-                         from U in db.Usuarios where U.Id == idUser
-                         from RE in db.RolEntidades where RE.EntidadId == idUser || RE.EntidadId == GU.GrupoId
-                         from P in db.Privilegios where P.RolId == RE.RolId
-                         from ES in db.Estructuras where P.EstructuraId == ES.Id
-                         select new {
-                             idPadre = ES.IdPadre,
-                             EstructuraId = ES.Id,
-                             TipoEstructuraId = ES.TipoEstructuraId,
-                             nombre = ES.Nombre,
-                             link = ES.Accion,
-                             icon = ES.Icono,
-                             Orden = ES.Orden,
-                             RolId = RE.RolId,
-                             Rol = RE.Rol.Rol,
-                             Create = P.Create,
-                             Read = P.Read,
-                             Update = P.Update,
-                             Delete = P.Delete,
-                             Especial = P.Especial })
-                         .OrderBy(o => o.Orden).ToList();
+            var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
+                           .Where(g => g.EntidadId.Equals(idUser) & g.Grupo.Activo)
+                           .Select(g => g.GrupoId)
+                           .ToList();
+
+            //falta el for para los demas grupos
+
+            var mocos = GetGrupo(Grupos.FirstOrDefault(), Grupos);
+
+            Grupos.Add(idUser);
+
+            var roles = db.RolEntidades
+                        .Where(x => Grupos.Contains(x.EntidadId))
+                        .Select(r => r.RolId
+                        ).ToList();
+
+            var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId) & x.Rol.Activo)
+                   .Select(P => new
+                   {
+                       RolId = P.RolId,
+                       Rol = P.Rol.Rol,
+                       Nombre = P.Estructura.Nombre,
+                       Create = P.Create,
+                       Read = P.Read,
+                       Update = P.Update,
+                       Delete = P.Delete,
+                       Especial = P.Especial,
+                       IdPadre = P.Estructura.IdPadre,
+                       EstructuraId = P.Estructura.Id,
+                       Accion = P.Estructura.Accion,
+                       Icono = P.Estructura.Icono,
+                       TipoEstructuraId = P.Estructura.TipoEstructuraId,
+                       Orden = P.Estructura.Orden
+                   }).OrderBy(o => o.Orden).ToList();
 
             foreach (var registro in
-                query.GroupBy(g => g.EstructuraId).Select((v, i) => new { Indice = i, Valor = v }) // Agrupar por el indice repetido. Valor tiene mis registros repetidos
-                .Select(x => new
-                {
-                    IdPadre = x.Valor.Select(c => c.idPadre).FirstOrDefault(),
-                    EstructuraId = x.Valor.Key,
-                    Create = x.Valor.Where(c => c.Create.Equals(true)).Select(c => c.Create).FirstOrDefault(),
-                    Read = x.Valor.Where(c => c.Read.Equals(true)).Select(c => c.Read).FirstOrDefault(),
-                    Update = x.Valor.Where(c => c.Update.Equals(true)).Select(c => c.Update).FirstOrDefault(),
-                    Delete = x.Valor.Where(c => c.Delete.Equals(true)).Select(c => c.Delete).FirstOrDefault(),
-                    Especial = x.Valor.Where(c => c.Especial.Equals(true)).Select(c => c.Especial).FirstOrDefault(),
-                    RolId = x.Valor.Select(c => c.RolId).FirstOrDefault(),
-                    Rol = x.Valor.Select(c => c.nombre).FirstOrDefault(),
-                    Link = x.Valor.Select(c => c.link).FirstOrDefault(),
-                    Icon = x.Valor.Select(c => c.icon).FirstOrDefault(),
-                    TipoEstructuraId = x.Valor.Select(c => c.TipoEstructuraId).FirstOrDefault(),
-                    Orden = x.Valor.Select(c => c.Orden).FirstOrDefault()
-                }))
+               privilegiosRoles.GroupBy(g => g.EstructuraId).Select((v, i) => new { Indice = i, Valor = v }) // Agrupar por el indice repetido. Valor tiene mis registros repetidos
+               .Select(x => new {
+
+                   IdPadre = x.Valor.Select(c => c.IdPadre).FirstOrDefault(),
+                   EstructuraId = x.Valor.Key,
+                   Nombre = x.Valor.Select(c => c.Nombre).FirstOrDefault(),
+                   Create = x.Valor.Where(c => c.Create.Equals(true)).Select(c => c.Create).FirstOrDefault(),
+                   Read = x.Valor.Where(c => c.Read.Equals(true)).Select(c => c.Read).FirstOrDefault(),
+                   Update = x.Valor.Where(c => c.Update.Equals(true)).Select(c => c.Update).FirstOrDefault(),
+                   Delete = x.Valor.Where(c => c.Delete.Equals(true)).Select(c => c.Delete).FirstOrDefault(),
+                   Especial = x.Valor.Where(c => c.Especial.Equals(true)).Select(c => c.Especial).FirstOrDefault(),
+                   RolId = x.Valor.Select(c => c.RolId).FirstOrDefault(),
+                   Rol = x.Valor.Select(c => c.Rol).FirstOrDefault(),
+                   Link = x.Valor.Select(c => c.Accion).FirstOrDefault(),
+                   Icon = x.Valor.Select(c => c.Icono).FirstOrDefault(),
+                   TipoEstructuraId = x.Valor.Select(c => c.TipoEstructuraId).FirstOrDefault(),
+                   Orden = x.Valor.Select(c => c.Orden).FirstOrDefault()
+               }))
             {
                 privilegios.Add(
                     new PrivilegiosDtos
@@ -81,83 +111,73 @@ namespace SAGA.API.Controllers
                         Delete = registro.Delete,
                         Especial = registro.Especial,
                         RolId = registro.RolId,
-                        Nombre = registro.Rol, //nombre de la estructura
+                        Nombre = registro.Nombre.ToString(), //nombre de la estructura
                         TipoEstructuraId = registro.TipoEstructuraId,
                         Accion = registro.Link,
                         Icono = registro.Icon,
                         Orden = registro.Orden
 
                     });
-
-
-
             }
 
             return Ok(privilegios);
+
+
         }
         public List<PrivilegiosDtos> GetPrivilegios(Guid idUser)
         {
-            // me da los privilegios de roles en donde se encuentra el usuario            join G in db.Grupos on E.Id equals G.Id join GU in db.GruposUsuarios on G.Id equals GU.GrupoId
 
-            // me falta que tambien me saque los datos de usuarios sin grupos
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
+         
+            var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
+                           .Where(g => g.EntidadId.Equals(idUser) & g.Grupo.Activo)
+                           .Select(g => g.GrupoId)
+                           .ToList();
 
-            //var query = (from E in db.Entidad
-            //             join RE in db.RolEntidades on E.Id equals RE.EntidadId
-            //             join G in db.Grupos on E.Id equals G.Id
-            //             join GU in db.GruposUsuarios on G.Id equals GU.GrupoId
-            //             join P in db.Privilegios on RE.RolId equals P.RolId
-            //             join ES in db.Estructuras on P.EstructuraId equals ES.Id
-            //             where GU.EntidadId == idUser || E.Id == idUser
-            //             select new { idPadre = ES.IdPadre, EstructuraId = ES.Id, TipoEstructuraId = ES.TipoEstructuraId, nombre = ES.Nombre, link = ES.Accion, icon = ES.Icono, Orden = ES.Orden, RolId = RE.RolId, Rol = RE.Rol.Rol, Create = P.Create, Read = P.Read, Update = P.Update, Delete = P.Delete, Especial = P.Especial })
-            //              .OrderBy(o => o.Orden).ToList();
+            var mocos = GetGrupo(Grupos.FirstOrDefault(), Grupos);
 
-            var query = (
-                       from GU in db.GruposUsuarios
-                       where GU.GrupoId == idUser || GU.EntidadId == idUser
-                       from U in db.Usuarios
-                       where U.Id == idUser
-                       from RE in db.RolEntidades
-                       where RE.EntidadId == idUser || RE.EntidadId == GU.GrupoId
-                       from P in db.Privilegios
-                       where P.RolId == RE.RolId
-                       from ES in db.Estructuras
-                       where P.EstructuraId == ES.Id
-                       select new
-                       {
-                           idPadre = ES.IdPadre,
-                           EstructuraId = ES.Id,
-                           TipoEstructuraId = ES.TipoEstructuraId,
-                           nombre = ES.Nombre,
-                           link = ES.Accion,
-                           icon = ES.Icono,
-                           Orden = ES.Orden,
-                           RolId = RE.RolId,
-                           Rol = RE.Rol.Rol,
-                           Create = P.Create,
-                           Read = P.Read,
-                           Update = P.Update,
-                           Delete = P.Delete,
-                           Especial = P.Especial
-                       })
-                       .OrderBy(o => o.Orden).ToList();
+            Grupos.Add(idUser);
 
+            var roles = db.RolEntidades
+                       .Where(x => Grupos.Contains(x.EntidadId) & x.Rol.Activo)
+                       .Select(r => r.RolId
+                       ).ToList();
+
+            var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId))
+                   .Select(P => new
+                   {
+                       RolId = P.RolId,
+                       Rol = P.Rol.Rol,
+                       Nombre = P.Estructura.Nombre,
+                       Create = P.Create,
+                       Read = P.Read,
+                       Update = P.Update,
+                       Delete = P.Delete,
+                       Especial = P.Especial,
+                       IdPadre = P.Estructura.IdPadre,
+                       EstructuraId = P.Estructura.Id,
+                       Accion = P.Estructura.Accion,
+                       Icono = P.Estructura.Icono,
+                       TipoEstructuraId = P.Estructura.TipoEstructuraId,
+                       Orden = P.Estructura.Orden
+                   }).OrderBy(o => o.Orden).ToList();
 
             foreach (var registro in
-                query.GroupBy(g => g.EstructuraId).Select((v, i) => new { Indice = i, Valor = v }) // Agrupar por el indice repetido. Valor tiene mis registros repetidos
+                privilegiosRoles.GroupBy(g => g.EstructuraId).Select((v, i) => new { Indice = i, Valor = v }) // Agrupar por el indice repetido. Valor tiene mis registros repetidos
                 .Select(x => new {
 
-                    IdPadre = x.Valor.Select(c => c.idPadre).FirstOrDefault(),
+                    IdPadre = x.Valor.Select(c => c.IdPadre).FirstOrDefault(),
                     EstructuraId = x.Valor.Key,
+                    Nombre = x.Valor.Select(c => c.Nombre).FirstOrDefault(),
                     Create = x.Valor.Where(c => c.Create.Equals(true)).Select(c => c.Create).FirstOrDefault(),
                     Read = x.Valor.Where(c => c.Read.Equals(true)).Select(c => c.Read).FirstOrDefault(),
                     Update = x.Valor.Where(c => c.Update.Equals(true)).Select(c => c.Update).FirstOrDefault(),
                     Delete = x.Valor.Where(c => c.Delete.Equals(true)).Select(c => c.Delete).FirstOrDefault(),
                     Especial = x.Valor.Where(c => c.Especial.Equals(true)).Select(c => c.Especial).FirstOrDefault(),
                     RolId = x.Valor.Select(c => c.RolId).FirstOrDefault(),
-                    Rol = x.Valor.Select(c => c.nombre).FirstOrDefault(),
-                    Link = x.Valor.Select(c => c.link).FirstOrDefault(),
-                    Icon = x.Valor.Select(c => c.icon).FirstOrDefault(),
+                    Rol = x.Valor.Select(c => c.Rol).FirstOrDefault(),
+                    Link = x.Valor.Select(c => c.Accion).FirstOrDefault(),
+                    Icon = x.Valor.Select(c => c.Icono).FirstOrDefault(),
                     TipoEstructuraId = x.Valor.Select(c => c.TipoEstructuraId).FirstOrDefault(),
                     Orden = x.Valor.Select(c => c.Orden).FirstOrDefault()
                 }))
@@ -173,16 +193,13 @@ namespace SAGA.API.Controllers
                         Delete = registro.Delete,
                         Especial = registro.Especial,
                         RolId = registro.RolId,
-                        Nombre = registro.Rol, //nombre de la estructura
+                        Nombre = registro.Nombre, //nombre de la estructura
                         TipoEstructuraId = registro.TipoEstructuraId,
                         Accion = registro.Link,
                         Icono = registro.Icon,
                         Orden = registro.Orden
 
                     });
-
-
-
             }
 
             return privilegios;

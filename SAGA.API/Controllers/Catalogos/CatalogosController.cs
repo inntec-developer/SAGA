@@ -98,14 +98,16 @@ namespace SAGA.API.Controllers
             foreach(var g in grupos)
             {
                 var aux = obj.GetImage(g.Foto);
-                data.Add(new GruposDtos {
+                data.Add(new GruposDtos
+                {
                     Id = g.Id,
                     Foto = g.Foto,
                     Activo = g.Activo,
                     Descripcion = g.Descripcion,
                     Nombre = g.Nombre,
                     UsuarioAlta = g.UsuarioAlta,
-                    FotoAux = "data:image/jpeg;base64," + Convert.ToBase64String(aux) });
+                    FotoAux = aux
+                });
             }
 
             obj = null;
