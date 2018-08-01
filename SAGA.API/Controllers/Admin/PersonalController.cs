@@ -77,6 +77,52 @@ namespace SAGA.API.Controllers.Admin
         }
 
         [HttpGet]
+        [Route("getEntidades2")]
+        public IHttpActionResult GetEntidades2()
+        {
+            List<PersonasDtos> data = new List<PersonasDtos>();
+
+            var persona = db.Entidad.Where(x => x.TipoEntidadId.Equals(1) || x.TipoEntidadId.Equals(4)).Select(u => new
+            {
+                EntidadId = u.Id,
+                Foto = String.IsNullOrEmpty(u.Foto) ? "utilerias/img/user/default.jpg" : u.Foto,
+                Clave = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault(),
+                nombre = u.Nombre,
+                apellidoPaterno = string.IsNullOrEmpty(u.ApellidoPaterno) ? "" : u.ApellidoPaterno,
+                apellidoMaterno = string.IsNullOrEmpty(u.ApellidoMaterno) ? "" : u.ApellidoMaterno,
+                Usuario = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Usuario).FirstOrDefault(),
+                Descripcion = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(x => string.IsNullOrEmpty(x.Descripcion) ? "" : x.Descripcion).FirstOrDefault(),
+                Departamento = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
+                Emails = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
+                    email = e.email
+                }),
+                grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
+                {
+                    Id = g.GrupoId,
+                    Grupo = g.Grupo.Nombre,
+                    Rol = db.RolEntidades.Where(x => x.EntidadId.Equals(g.GrupoId)).Select(r => new
+                    {
+                        id = r.RolId,
+                        rol = r.Rol.Rol
+
+                    })
+
+                }),
+                roles = db.RolEntidades.Where(x => x.EntidadId.Equals(u.Id)).Select(r => new
+                {
+                    id = r.RolId,
+                    rol = r.Rol.Rol
+
+                })
+
+            }).OrderBy(o => o.nombre).ToList();
+
+          
+            return Ok(persona);
+
+        }
+
+        [HttpGet]
         [Route("getEntidades")]
         public IHttpActionResult GetEntidades()
         {
@@ -230,14 +276,12 @@ namespace SAGA.API.Controllers.Admin
                 usuario.emails = listJson.Email;
                 usuario.DepartamentoId = listJson.DepartamentoId;
                 usuario.UsuarioAlta = "INNTEC";
-                usuario.TipoUsuarioId = 5;
+                usuario.TipoUsuarioId = 0;
                 usuario.Password = listJson.Password;
                 usuario.TipoEntidadId = 1;
                 usuario.Foto = listJson.Foto;
                 db.Usuarios.Add(usuario);
                 db.SaveChanges();
-
-
             }
             catch (Exception ex)
             {
@@ -418,7 +462,7 @@ namespace SAGA.API.Controllers.Admin
             var Data =
                    (from users in db.Usuarios
                     join email in db.Emails on users.Id equals email.EntidadId
-                    where email.email == e & users.TipoUsuarioId == 1
+                    where email.email == e & users.TipoEntidadId == 1
                     select new
                     {
                         id = users.Id,

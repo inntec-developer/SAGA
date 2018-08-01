@@ -139,7 +139,7 @@ namespace SAGA.API.Controllers
         [Route("addGroupRol")]
         public IHttpActionResult AddGroupRol(List<RolEntidad> listJson)
         {
-            string msj = "Agrego";
+            string msj = "Los datos se agregaron con éxito";
 
             try
             {
