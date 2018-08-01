@@ -124,9 +124,10 @@ namespace SAGA.API.Controllers.Admin
             //        apellidoMaterno = g.apellidoMaterno,
             //        Usuario = g.Usuario,
             //        Descripcion = g.Descripcion,
-            //        FotoAux = aux
-
-                   
+            //        FotoAux = aux,
+            //        Email = g.Emails.Select(x => new Email {
+            //               email = x.email.ToString()
+            //       }).ToList()
             //    });
             //}
 
@@ -177,6 +178,7 @@ namespace SAGA.API.Controllers.Admin
                     apellidoPaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoPaterno) ? "" : n.ApellidoPaterno).FirstOrDefault(),
                     apellidoMaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoMaterno) ? "" : n.ApellidoMaterno).FirstOrDefault(),
                     Usuario = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => string.IsNullOrEmpty(c.Usuario) ? "" : c.Usuario).FirstOrDefault(),
+                    Departamento = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
                     grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.EntidadId)).Select(g => new
                     {
                         Id = g.GrupoId,
@@ -185,23 +187,23 @@ namespace SAGA.API.Controllers.Admin
 
                 }).OrderBy(o => o.TipoEntidadId).ToList();
 
-                foreach (var g in persona)
-                {
-                    var aux = GetImage(g.Foto);
-                    data.Add(new PersonasDtos()
-                    {
-                        EntidadId = g.EntidadId,
-                        Foto = g.Foto,
-                        TipoEntidadID = g.TipoEntidadId,
-                        nombre = g.nombre,
-                        apellidoPaterno = g.apellidoPaterno,
-                        apellidoMaterno = g.apellidoMaterno,
-                        Usuario = g.Usuario,
-                        FotoAux = aux
-                    });
-                }
+                //foreach (var g in persona)
+                //{
+                //    var aux = GetImage(g.Foto);
+                //    data.Add(new PersonasDtos()
+                //    {
+                //        EntidadId = g.EntidadId,
+                //        Foto = g.Foto,
+                //        TipoEntidadID = g.TipoEntidadId,
+                //        nombre = g.nombre,
+                //        apellidoPaterno = g.apellidoPaterno,
+                //        apellidoMaterno = g.apellidoMaterno,
+                //        Usuario = g.Usuario,
+                //        FotoAux = aux
+                //    });
+                //}
 
-                return Ok(data);
+                return Ok(persona);
             }
             catch( Exception ex)
             {
