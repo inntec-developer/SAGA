@@ -418,7 +418,7 @@ namespace SAGA.API.Controllers.Admin
             var Data =
                    (from users in db.Usuarios
                     join email in db.Emails on users.Id equals email.EntidadId
-                    where email.email == e
+                    where email.email == e & users.TipoUsuarioId == 1
                     select new
                     {
                         id = users.Id,
