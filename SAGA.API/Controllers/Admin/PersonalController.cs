@@ -472,7 +472,8 @@ namespace SAGA.API.Controllers.Admin
                         activo = users.Activo,
                         email = email.email,
                         foto = users.Foto,
-                        clave = users.Clave
+                        clave = users.Clave,
+                        tipousuario = users.TipoUsuarioId
                     }).ToList();
 
             if(Data.Count() > 0)
@@ -482,10 +483,27 @@ namespace SAGA.API.Controllers.Admin
                     userData.Id = Data.Select(x => x.id).FirstOrDefault();
                     userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
                     userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
-                    userData.Privilegios = obj.GetPrivilegios(userData.Id);
+                    // userData.Privilegios = obj.GetPrivilegios(userData.Id);
                     userData.Email = Data.Select(x => x.email).FirstOrDefault();
                     userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
                     userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
+
+                    if (Data.Select(tu => tu.tipousuario).FirstOrDefault() == 1)
+                    {
+                        if (db.Roles.ToList().Count() > 0)
+                        {
+                            userData.Privilegios = obj.GetPrivilegios(userData.Id);
+                        }
+                        else
+                        {
+                            userData.Privilegios = obj.GetPrivilegiosDios();
+                        }
+                    }
+                    else
+                    {
+                        userData.Privilegios = obj.GetPrivilegios(userData.Id);
+                    }
+                  
 
                     return Ok(userData);
                 }

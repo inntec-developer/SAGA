@@ -51,10 +51,8 @@ namespace SAGA.API.Controllers
                            .ToList();
 
             //falta el for para los demas grupos
-            foreach (var ids in Grupos)
-            {
-                var mocos = GetGrupo(ids, Grupos);
-            }
+            
+            var mocos = GetGrupo(Grupos.FirstOrDefault(), Grupos);
 
             Grupos.Add(idUser);
 
@@ -136,11 +134,7 @@ namespace SAGA.API.Controllers
                            .Select(g => g.GrupoId)
                            .ToList();
 
-            //falta el for para los demas grupos
-            foreach (var ids in Grupos)
-            {
-                var mocos = GetGrupo(ids, Grupos);
-            }
+            var mocos = GetGrupo(Grupos.FirstOrDefault(), Grupos);
 
             Grupos.Add(idUser);
 
@@ -211,6 +205,31 @@ namespace SAGA.API.Controllers
             return privilegios;
         }
 
+        //[HttpGet]
+        //[Route("getprivilegiosDios")]
+        public List<PrivilegiosDtos> GetPrivilegiosDios()
+        {
+            List<PrivilegiosDtos> privilegiosDios = new List<PrivilegiosDtos>();
+
+            privilegiosDios = db.Estructuras.Where(x => x.Id.Equals(2) || ( x.Id >= 117 && x.Id <= 127 ))
+                   .Select(P => new PrivilegiosDtos
+                   {
+                       Nombre = P.Nombre,
+                       Create = true,
+                       Read = true,
+                       Update = true,
+                       Delete = true,
+                       Especial = true,
+                       IdPadre = P.IdPadre,
+                       EstructuraId = P.Id,
+                       Accion = P.Accion,
+                       Icono = P.Icono,
+                       TipoEstructuraId = P.TipoEstructuraId,
+                       Orden = P.Orden
+                   }).OrderBy(o => o.Orden).ToList();
+
+            return (privilegiosDios);
+        }
         [HttpPost]
         [Route("modificarPrivilegios")]
         public IHttpActionResult ModificarPrivilegios(PrivilegiosDtos listJson)
