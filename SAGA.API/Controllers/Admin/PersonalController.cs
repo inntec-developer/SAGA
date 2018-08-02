@@ -384,7 +384,17 @@ namespace SAGA.API.Controllers.Admin
         public IHttpActionResult GetImage2(Guid imageName)
         {
             var ruta = db.Entidad.Where(x => x.Id.Equals(imageName)).Select(i => i.Foto).FirstOrDefault();
-            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/" + ruta);
+            string fullPath;
+
+            try
+            {
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/" + ruta);
+            }
+            catch
+            {
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/user/default.jpg");
+
+            }
 
             Bitmap bmp = new Bitmap(fullPath);
             FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
@@ -399,7 +409,16 @@ namespace SAGA.API.Controllers.Admin
         public string GetImage(string ruta)
         {
             List<byte[]> aux = new List<byte[]>();
-            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/" + ruta);
+            string fullPath;
+            try
+            {
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/" + ruta);
+            }
+            catch
+            {
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/user/default.jpg" );
+
+            }
 
            // Bitmap bmp = new Bitmap(fullPath);
             FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.ReadWrite);
