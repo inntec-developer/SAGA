@@ -457,12 +457,10 @@ namespace SAGA.API.Controllers.Admin
         [Route("validarEmail")]
         public IHttpActionResult ValidarEmail(string e)
         {
-            UsuarioDto userData = new UsuarioDto();
-
             var Data =
                    (from users in db.Usuarios
                     join email in db.Emails on users.Id equals email.EntidadId
-                    where email.email == e & users.TipoEntidadId == 1
+                    where email.email == e & users.TipoEntidadId.Equals(1)
                     select new
                     {
                         id = users.Id,
@@ -478,14 +476,39 @@ namespace SAGA.API.Controllers.Admin
             {
                 if (Data.Select(x => x.activo).FirstOrDefault())
                 {
-                    userData.Id = Data.Select(x => x.id).FirstOrDefault();
-                    userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
-                    userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
-                    userData.Email = Data.Select(x => x.email).FirstOrDefault();
-                    userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
-                    userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
+                    return Ok(HttpStatusCode.Found);
+                }
+                else
+                    return Ok(HttpStatusCode.Found); // 302 encontro pero no esta activo
+            }
+            else
+            {
+                return Ok(HttpStatusCode.NotFound); // 404 no esta registrado
+            }
+        }
 
-                    return Ok(userData);
+        [HttpGet]
+        [Route("validarDAL")]
+        public IHttpActionResult ValidarDAL(string dal)
+        {
+            var Data =
+                   (from users in db.Usuarios
+                    where users.Clave == dal & users.TipoEntidadId.Equals(1)
+                    select new
+                    {
+                        id = users.Id,
+                        nombre = users.Nombre + " " + users.ApellidoPaterno,
+                        usuario = users.Usuario,
+                        activo = users.Activo,
+                        foto = users.Foto,
+                        clave = users.Clave
+                    }).ToList();
+
+            if (Data.Count() > 0)
+            {
+                if (Data.Select(x => x.activo).FirstOrDefault())
+                {
+                    return Ok(HttpStatusCode.Found); //302 ya esta
                 }
                 else
                     return Ok(HttpStatusCode.Found); // 302 encontro pero no esta activo
