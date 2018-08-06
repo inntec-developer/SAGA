@@ -50,6 +50,7 @@ namespace SAGA.API.Controllers.Admin
             return Ok(nodes);
         }
 
+    
         public ICollection<PrivilegiosDtos> GetChild(List<PrivilegiosDtos> tree, int id)
         {
             return tree

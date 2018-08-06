@@ -205,6 +205,7 @@ namespace SAGA.API.Controllers
             return privilegios;
         }
 
+ 
         //[HttpGet]
         //[Route("getprivilegiosDios")]
         public List<PrivilegiosDtos> GetPrivilegiosDios()
@@ -232,27 +233,30 @@ namespace SAGA.API.Controllers
         }
         [HttpPost]
         [Route("modificarPrivilegios")]
-        public IHttpActionResult ModificarPrivilegios(PrivilegiosDtos listJson)
+        public IHttpActionResult ModificarPrivilegios(List<PrivilegiosDtos> listJson)
         {
             try
             {
-                var r = db.Privilegios.Where(x => x.RolId.Equals(listJson.RolId) && x.EstructuraId.Equals(listJson.EstructuraId)).FirstOrDefault();
 
-                db.Entry(r).State = EntityState.Modified;
+                foreach (PrivilegiosDtos ru in listJson)
+                {
+                    var r = db.Privilegios.Where(x => x.RolId.Equals(ru.RolId) && x.EstructuraId.Equals(ru.EstructuraId)).FirstOrDefault();
 
-                r.Create = listJson.Create;
-                r.Read = listJson.Read;
-                r.Update = listJson.Update;
-                r.Delete = listJson.Delete;
-                r.Especial = listJson.Especial;
+                    db.Entry(r).State = EntityState.Modified;
 
-                db.SaveChanges();
+                    r.Create = ru.Create;
+                    r.Read = ru.Read;
+                    r.Update = ru.Update;
+                    r.Delete = ru.Delete;
+                    r.Especial = ru.Especial;
 
-                return Ok("Los cambios se realizarón con éxito");
+                    db.SaveChanges();
+                }
+                return Ok(HttpStatusCode.Created);
             }
             catch( Exception ex )
             {
-                return Ok(ex.Message);
+                return Ok(HttpStatusCode.NotModified);
             }
             
         }

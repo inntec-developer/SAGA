@@ -25,8 +25,6 @@ namespace SAGA.API.Controllers
         [Route("agregarRol")]
         public IHttpActionResult AgregarRol(List<PrivilegiosDtos> privilegios)
         {
-            string mensaje = "Se agregó Rol";
-            //int id = 0;
             try
             {
                 Roles obj = new Roles();
@@ -55,12 +53,14 @@ namespace SAGA.API.Controllers
                     }
 
                 }
+
+                return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message;
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
-            return Ok(mensaje);
+            
 
         }
 
@@ -91,7 +91,6 @@ namespace SAGA.API.Controllers
         [Route("deleteRoles")]
         public IHttpActionResult deleteRoles(int id)
         {
-            string msj = "Borró";
             try
             {
                 var r = db.Roles.Find(id);
@@ -100,13 +99,15 @@ namespace SAGA.API.Controllers
                 r.Activo = false;
               
                 db.SaveChanges();
+
+
+                return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {
-                msj = ex.Message;
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
 
-            return Ok(msj);
         }
         [HttpPost]
         [Route("deleteUserRol")]
@@ -160,23 +161,25 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getEstructuraRoles")]
-        public IHttpActionResult GetEstructuraRoles()
+        public IHttpActionResult GetEstructuraRoles(int rol)
         {
-            var dtos = db.Privilegios.Select(P => new
+            var privilegiosRoles = db.Privilegios.Where(x => x.RolId.Equals(rol) & x.Rol.Activo)
+            .Select(P => new PrivilegiosDtos()
             {
-                RolId = db.Roles.Where(x => x.Id.Equals(P.RolId)).Select(R => R.Id).FirstOrDefault(),
-                Rol = db.Roles.Where(x => x.Id.Equals(P.RolId)).Select(R => R.Rol).FirstOrDefault(),
-                Activo = db.Roles.Where(x => x.Id.Equals(P.RolId)).Select(R => R.Activo).FirstOrDefault(),
-                EstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.EstructuraId)).Select(E => E.Id).FirstOrDefault(),
-                Nombre = db.Estructuras.Where(x => x.Id.Equals(P.EstructuraId)).Select(E => E.Nombre).FirstOrDefault(),
-                create = P.Create,
-                read = P.Read,
-                update = P.Update,
-                delete = P.Delete,
-                especial = P.Especial,
-                orden = db.Estructuras.Where(x => x.Id.Equals(P.EstructuraId)).Select(E => E.Orden).FirstOrDefault(),
-                TipoEstructuraId = db.Estructuras.Where(x => x.Id.Equals(P.EstructuraId)).Select(E => E.TipoEstructuraId).FirstOrDefault(),
-            }).Where(x => x.Activo).OrderBy(o => o.RolId).ToList();
+                RolId = P.RolId,
+                Nombre = P.Estructura.Nombre,
+                Create = P.Create,
+                Read = P.Read,
+                Update = P.Update,
+                Delete = P.Delete,
+                Especial = P.Especial,
+                IdPadre = P.Estructura.IdPadre,
+                EstructuraId = P.Estructura.Id,
+                Accion = P.Estructura.Accion,
+                Icono = P.Estructura.Icono,
+                TipoEstructuraId = P.Estructura.TipoEstructuraId,
+                Orden = P.Estructura.Orden
+            }).OrderBy(o => o.Orden).ToList();
 
 
             //var dtos = db.Privilegios.GroupBy( g => new { g.Rol, g.RolId, g.EstructuraId, g.Estructura.Nombre, g.Estructura.Orden, g.Create, g.Read, g.Update, g.Delete, g.Especial }).Select(P => new
@@ -196,11 +199,33 @@ namespace SAGA.API.Controllers
 
 
 
-            return Ok(dtos);
+            return Ok(privilegiosRoles);
+
         }
 
-        
-
+        public ICollection<PrivilegiosDtos> GetChild( int id)
+        {
+            return db.Privilegios
+                    .Where(x => x.Estructura.IdPadre == id)
+                    .Select(P => new PrivilegiosDtos
+                    {
+                        RolId = P.RolId,
+                        Nombre = P.Estructura.Nombre,
+                        Create = P.Create,
+                        Read = P.Read,
+                        Update = P.Update,
+                        Delete = P.Delete,
+                        Especial = P.Especial,
+                        IdPadre = P.Estructura.IdPadre,
+                        EstructuraId = P.Estructura.Id,
+                        Accion = P.Estructura.Accion,
+                        Icono = P.Estructura.Icono,
+                        TipoEstructuraId = P.Estructura.TipoEstructuraId,
+                        Orden = P.Estructura.Orden,
+                        Children = GetChild(P.EstructuraId)
+                    }).OrderBy(o => o.Orden)
+                    .ToList();
+        }
 
     }
 }

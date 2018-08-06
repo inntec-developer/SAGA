@@ -258,6 +258,58 @@ namespace SAGA.API.Controllers.Admin
 
         }
 
+        [HttpGet]
+        [Route("getEntidadesByRol")]
+        public IHttpActionResult GetDtosByRol(int id)
+        {
+            List<PersonasDtos> data = new List<PersonasDtos>();
+            try
+            {
+                var persona = db.RolEntidades.Where(x => x.RolId.Equals(id) & x.Rol.Activo).Select(u => new
+                {
+                    EntidadId = u.EntidadId,
+                    Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(f => String.IsNullOrEmpty(f.Foto) ? "utilerias/img/user/default.jpg" : f.Foto).FirstOrDefault(),
+                    TipoEntidadId = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.TipoEntidadId).FirstOrDefault(),
+                    nombre = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.Nombre).FirstOrDefault(),
+                    apellidoPaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoPaterno) ? "" : n.ApellidoPaterno).FirstOrDefault(),
+                    apellidoMaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoMaterno) ? "" : n.ApellidoMaterno).FirstOrDefault(),
+                    Usuario = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => string.IsNullOrEmpty(c.Usuario) ? "" : c.Usuario).FirstOrDefault(),
+                    Departamento = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
+                    Descripcion = db.GruposUsuarios.Where(x => x.GrupoId.Equals(u.EntidadId)).Select(d => d.Grupo.Descripcion).FirstOrDefault(),
+                    grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.EntidadId)).Select(g => new
+                    {
+                        Id = g.GrupoId,
+                        Grupo = db.Entidad.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault()
+                    })
+
+                }).OrderBy(o => o.TipoEntidadId).ToList();
+
+                //foreach (var g in persona)
+                //{
+                //    var aux = GetImage(g.Foto);
+                //    data.Add(new PersonasDtos()
+                //    {
+                //        EntidadId = g.EntidadId,
+                //        Foto = g.Foto,
+                //        TipoEntidadID = g.TipoEntidadId,
+                //        nombre = g.nombre,
+                //        apellidoPaterno = g.apellidoPaterno,
+                //        apellidoMaterno = g.apellidoMaterno,
+                //        Usuario = g.Usuario,
+                //        FotoAux = aux
+                //    });
+                //}
+
+                return Ok(persona);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex);
+            }
+
+        }
+
+
 
         [HttpPost]
         [Route("addUsuario")]
@@ -282,13 +334,14 @@ namespace SAGA.API.Controllers.Admin
                 usuario.Foto = listJson.Foto;
                 db.Usuarios.Add(usuario);
                 db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {
-                msj = ex.Message;
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
 
-            return Ok(msj);
         }
 
         [HttpGet]
@@ -549,7 +602,7 @@ namespace SAGA.API.Controllers.Admin
             var Data =
                    (from users in db.Usuarios
                     join email in db.Emails on users.Id equals email.EntidadId
-                    where users.Password == p & email.email == e
+                    where users.Password == p & email.email == e & users.TipoEntidadId == 1
                     select new
                     {
                         id = users.Id,
@@ -569,32 +622,30 @@ namespace SAGA.API.Controllers.Admin
                     userData.Id = Data.Select(x => x.id).FirstOrDefault();
                     userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
                     userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
-                    // userData.Privilegios = obj.GetPrivilegios(userData.Id);
+                    userData.Privilegios = obj.GetPrivilegios(userData.Id);
                     userData.Email = Data.Select(x => x.email).FirstOrDefault();
                     userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
                     userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
 
-                    if (Data.Select(tu => tu.tipousuario).FirstOrDefault() == 1)
-                    {
-                        if (db.Roles.ToList().Count() > 0)
-                        {
-                            userData.Privilegios = obj.GetPrivilegios(userData.Id);
-                        }
-                        else
-                        {
-                            userData.Privilegios = obj.GetPrivilegiosDios();
-                        }
-                    }
-                    else
-                    {
-                        userData.Privilegios = obj.GetPrivilegios(userData.Id);
-                    }
-                  
+                    return Ok(userData);
+                }
+                else if(Data.Select(x => x.activo).FirstOrDefault() == false && db.Roles.ToList().Count() == 0)
+                {
+                    userData.Id = Data.Select(x => x.id).FirstOrDefault();
+                    userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
+                    userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
+                    userData.Privilegios = obj.GetPrivilegiosDios();
+                    userData.Email = Data.Select(x => x.email).FirstOrDefault();
+                    userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
+                    userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
 
                     return Ok(userData);
                 }
                 else
+                {
                     return Ok(HttpStatusCode.NotAcceptable);
+                }
+                    
             }
             else
             {
