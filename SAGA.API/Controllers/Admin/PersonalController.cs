@@ -85,6 +85,8 @@ namespace SAGA.API.Controllers.Admin
             var persona = db.Entidad.Where(x => x.TipoEntidadId.Equals(1) || x.TipoEntidadId.Equals(4)).Select(u => new
             {
                 EntidadId = u.Id,
+                userActivo = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
+                grupoActivo = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
                 Foto = String.IsNullOrEmpty(u.Foto) ? "utilerias/img/user/default.jpg" : u.Foto,
                 Clave = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault(),
                 nombre = u.Nombre,
@@ -115,9 +117,13 @@ namespace SAGA.API.Controllers.Admin
 
                 })
 
-            }).OrderBy(o => o.nombre).ToList();
+            }).Where(a => a.grupoActivo || a.userActivo).OrderBy(o => o.nombre).ToList();
 
-          
+
+            //var mocos = persona.Where(u => u.userActivo).ToList();
+            //var mocos2 = persona.Where(g => g.grupoActivo).ToList();
+
+            //var mocos3 = mocos.Union(mocos2);
             return Ok(persona);
 
         }
@@ -133,6 +139,8 @@ namespace SAGA.API.Controllers.Admin
                 EntidadId = u.Id,
                 Foto = String.IsNullOrEmpty(u.Foto) ? "utilerias/img/user/default.jpg" : u.Foto,
                 Clave = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault(),
+                userActivo = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
+                grupoActivo = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
                 nombre = u.Nombre,
                 apellidoPaterno = string.IsNullOrEmpty(u.ApellidoPaterno) ? "" : u.ApellidoPaterno,
                 apellidoMaterno = string.IsNullOrEmpty(u.ApellidoMaterno) ? "" : u.ApellidoMaterno,
@@ -155,7 +163,7 @@ namespace SAGA.API.Controllers.Admin
 
                 })
 
-            }).OrderBy(o => o.nombre).ToList();
+            }).Where(a => a.grupoActivo || a.userActivo).OrderBy(o => o.nombre).ToList();
 
             //foreach (var g in persona)
             //{
@@ -315,11 +323,11 @@ namespace SAGA.API.Controllers.Admin
         [Route("addUsuario")]
         public IHttpActionResult AddUsuario(PersonasDtos listJson)
         {
-            string msj = "Se agregó usuario";
-
             try
             {
-                var usuario = Mapper.Map<PersonasDtos, Usuarios>(listJson);
+                //var usuario = Mapper.Map<PersonasDtos, Usuarios>(listJson);
+                var usuario = new Usuarios();
+
                 usuario.Clave = listJson.Clave;
                 usuario.Usuario = listJson.Usuario;
                 usuario.Nombre = listJson.nombre;
@@ -332,6 +340,7 @@ namespace SAGA.API.Controllers.Admin
                 usuario.Password = listJson.Password;
                 usuario.TipoEntidadId = 1;
                 usuario.Foto = listJson.Foto;
+
                 db.Usuarios.Add(usuario);
                 db.SaveChanges();
 
@@ -596,7 +605,6 @@ namespace SAGA.API.Controllers.Admin
         public IHttpActionResult SetUsers(string p, string e)
         {
             PrivilegiosController obj = new PrivilegiosController();
-            List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
             UsuarioDto userData = new UsuarioDto();
 
             var Data =
