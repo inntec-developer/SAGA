@@ -29,41 +29,16 @@ namespace SAGA.API.Controllers
         {
             var damfo290 = db.DAMFO290.Select(df => new
             {
-                df.Id,
-                Cliente = db.Clientes.Where(c => c.Id == df.ClienteId).Select(a => new
-                {
-                    a.RazonSocial,
-                    GiroEmpresas = db.GirosEmpresas.Where(ge => ge.Id.Equals(df.Cliente.GiroEmpresaId)).FirstOrDefault(),
-                    ActividadEmpresas = db.ActividadesEmpresas.Where(ae => ae.Id.Equals(df.Cliente.ActividadEmpresaId)).FirstOrDefault()
-                }).FirstOrDefault(),
-                df.NombrePerfil,
-                TipoReclutamiento = db.TiposReclutamientos.Where(tr => tr.Id.Equals(df.TipoReclutamientoId)).FirstOrDefault(),
-                ClaseReclutamiento = db.ClasesReclutamientos.Where(cr => cr.Id.Equals(df.ClaseReclutamientoId)).FirstOrDefault(),
-                df.SueldoMinimo,
-                df.SueldoMaximo,
-                df.fch_Creacion
-
+                Id = df.Id,
+                Cliente = df.Cliente.Nombrecomercial,
+                NombrePerfil = df.NombrePerfil,
+                Vacantes = df.horariosPerfil.Count() > 0 ? df.horariosPerfil.Sum( h => h.numeroVacantes) : 0,
+                SueldoMinimo = df.SueldoMinimo,
+                SueldoMaximo = df.SueldoMaximo,
+                TipoReclutamiento = df.TipoReclutamiento.tipoReclutamiento,
+                ClaseReclutamiento = df.ClaseReclutamiento.clasesReclutamiento,
+                fch_Creacion = df.fch_Creacion
             }).ToList();
-
-            //DamfoDto.Damfo290Gral = (from damfo in db.DAMFO290
-            //                         join cliente in db.Clientes on damfo.ClienteId equals cliente.Id
-            //                         join giroEmpresa in db.GirosEmpresas on cliente.GiroEmpresaId equals giroEmpresa.Id
-            //                         join actividadEmpresa in db.ActividadesEmpresas on giroEmpresa.Id equals actividadEmpresa.Id
-            //                         join tipoReclutamiento in db.TiposReclutamientos on damfo.TipoReclutamientoId equals tipoReclutamiento.Id
-            //                         join claseReclutamiento in db.ClasesReclutamientos on damfo.ClaseReclutamientoId equals claseReclutamiento.Id
-            //                         select new Damfo290GralDto
-            //                         {
-            //                             Id = damfo.Id,
-            //                             Cliente = cliente.RazonSocial,
-            //                             NombrePerfil = damfo.NombrePerfil,
-            //                             GiroEmpresa = giroEmpresa.giroEmpresa,
-            //                             ActividadEmpresa = actividadEmpresa.actividadEmpresa,
-            //                             TipoReclutamiento = tipoReclutamiento.tipoReclutamiento,
-            //                             ClaseReclutamiento = claseReclutamiento.clasesReclutamiento,
-            //                             SueldoMinimo = damfo.SueldoMinimo,
-            //                             SueldoMaximo = damfo.SueldoMaximo,
-            //                             fch_Creacion = damfo.fch_Creacion
-            //                         }).ToList();
 
 
             return Ok(damfo290);

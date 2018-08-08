@@ -153,39 +153,39 @@ namespace SAGA.API.Controllers
         public IHttpActionResult GetRequisiciones(string propietario)
         {
             var requisicion = db.Requisiciones
-                .Where( e => e.Activo.Equals(true))
-                .Where( e => e.Propietario.Equals(propietario) )
+                .Where(e => e.Activo.Equals(true) && e.Propietario.Equals(propietario))
                 .Select(e => new
                 {
                     Id = e.Id,
                     VBtra = e.VBtra,
-                    TipoReclutamiento = e.TipoReclutamiento,
-                    ClaseReclutamiento = e.ClaseReclutamiento,
+                    TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                    ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
                     SueldoMinimo = e.SueldoMinimo,
                     SueldoMaximo = e.SueldoMaximo,
                     fch_Creacion = e.fch_Creacion,
                     fch_Cumplimiento = e.fch_Cumplimiento,
-                    Estatus = e.Estatus,
-                    Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).FirstOrDefault(),
-                    Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new ClienteRequiDto
-                    {
-                        Nombrecomercial = c.Nombrecomercial,
-                        GiroEmpresas = c.GiroEmpresas,
-                        ActividadEmpresas = c.ActividadEmpresas,
-                        RFC = c.RFC
-                    }).FirstOrDefault(),
+                    Estatus = e.Estatus.Descripcion,
+                    EstatusId = e.EstatusId,
+                    Prioridad = e.Prioridad.Descripcion,
+                    PrioridadId = e.PrioridadId,
+                    //Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).FirstOrDefault(),
+                    Cliente = e.Cliente.Nombrecomercial,
+                    GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
+                    ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
+                    //Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new ClienteRequiDto
+                    //{
+                    //    Nombrecomercial = c.Nombrecomercial,
+                    //    GiroEmpresas = c.GiroEmpresas,
+                    //    ActividadEmpresas = c.ActividadEmpresas,
+                    //    RFC = c.RFC
+                    //}).FirstOrDefault(),
                     Vacantes = e.horariosRequi.Count() > 0 ?  e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-                    Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => new SolicitanteDto
-                    {
-                        Nombre = s.Nombre,
-                        ApellidoPaterno = s.ApellidoPaterno
-                    }).FirstOrDefault(),
                     Folio = e.Folio,
                     DiasEnvio = e.DiasEnvio,
                     Confidencial = e.Confidencial,
                     Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                     EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count()
-                }).ToList().OrderByDescending(x => x.Folio);
+                }).ToList().OrderBy(x => x.Folio);
             return Ok(requisicion);
         }
 

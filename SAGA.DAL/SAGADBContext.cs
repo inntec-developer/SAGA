@@ -674,7 +674,7 @@ namespace SAGA.DAL
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
                 Property(x => x.Foto).HasMaxLength(200);
-                Property(x => x.Clave).HasMaxLength(20);
+                Property(x => x.Clave).HasMaxLength(50);
                 Property(x => x.DepartamentoId).IsOptional();
 
                 //HasMany(x => x.Grupos)
