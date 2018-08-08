@@ -27,9 +27,6 @@ namespace SAGA.API.Controllers.Admin
         [Route("addGrupo")]
         public IHttpActionResult AddGrupo(GruposDtos listJson)
         {
-            string msj = "los datos se agregaron";
-          
-
             try
             {
                 var grupo = Mapper.Map<GruposDtos, Grupos>(listJson);
@@ -41,20 +38,20 @@ namespace SAGA.API.Controllers.Admin
                 grupo.Foto = listJson.Foto;
                 db.Grupos.Add(grupo);
                 db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
             }
             catch(Exception ex)
             {
-                msj = ex.Message;
-
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
-            return Ok(msj);
+            
         }
 
         [HttpPost]
         [Route("updateGrupo")]
         public IHttpActionResult updateGrupo(Grupos listJson)
         {
-            string msj = "Los datos se actualizaron con éxito";
             try
             {
                 var g = db.Grupos.Find(listJson.Id);
@@ -66,20 +63,21 @@ namespace SAGA.API.Controllers.Admin
                 g.Activo = listJson.Activo;
                 g.Foto = listJson.Foto;              
                 db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {
-                msj = ex.Message;
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
 
-            return Ok(msj);
+           
         }
 
         [HttpPost]
         [Route("deleteGrupo")]
         public IHttpActionResult deleteGrupo(Grupos listJson)
         {
-            string msj = "Los datos se borraron con éxito";
             try
             {
                 var r = db.Grupos.Find(listJson.Id);
@@ -88,13 +86,13 @@ namespace SAGA.API.Controllers.Admin
                 r.Activo = false;
 
                 db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {
-                msj = ex.Message;
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
-
-            return Ok(msj);
         }
 
 
@@ -102,8 +100,6 @@ namespace SAGA.API.Controllers.Admin
         [Route("addUserGroup")]
         public IHttpActionResult AddUserGroup(List<GrupoUsuarios> listJson)
         {
-            string msj = "Los datos se agregaron con éxito";
-
             try
             {
                 List<GrupoUsuarios> obj = new List<GrupoUsuarios>();
@@ -114,14 +110,12 @@ namespace SAGA.API.Controllers.Admin
                     db.SaveChanges();
                 }
 
-               
-                
+                return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {
-                msj = ex.Message;
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
-            return Ok(msj);
         }
 
         [HttpGet]

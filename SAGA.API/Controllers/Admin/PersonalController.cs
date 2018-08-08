@@ -357,35 +357,31 @@ namespace SAGA.API.Controllers.Admin
         [Route("udActivo")]
         public IHttpActionResult UdActivo(Guid id, bool v)
         {
-            string msj = "Actualizó";
             try
             {
-
                 var usuario = db.Usuarios.Find(id);
 
                 db.Usuarios.Attach(usuario);
                 usuario.Activo = v;
 
                 db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {
-                msj = ex.Message;
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
-
-            return Ok(msj);
         }
         [HttpPost]
         [Route("updateUsuario")]
         public IHttpActionResult UpdateUsuario(PersonasDtos listJson)
         {
-            string msj = "Actualizó usuario";
-
             try
             {
                 var usuario = db.Usuarios.Find(listJson.Id);
                 db.Entry(usuario).State = EntityState.Modified;
-
+                usuario.Clave = listJson.Clave;
                 usuario.Usuario = listJson.Usuario;
                 usuario.Nombre = listJson.nombre;
                 usuario.ApellidoPaterno = listJson.apellidoPaterno;
@@ -395,13 +391,13 @@ namespace SAGA.API.Controllers.Admin
                 usuario.TipoUsuarioId = listJson.TipoUsuarioId;
                 usuario.Foto = listJson.Foto;
                 db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {
-                msj = ex.Message;
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
-
-            return Ok(msj);
         }
 
         [HttpPost]
@@ -511,8 +507,6 @@ namespace SAGA.API.Controllers.Admin
         [Route("deleteUserGroup")]
         public IHttpActionResult DeleteUserGroup(GrupoUsuarios indices)
         {
-            string msj = "Borró usuario";
-
             try
             {
                var idGU =  db.GruposUsuarios
@@ -525,13 +519,13 @@ namespace SAGA.API.Controllers.Admin
                 db.Entry(dts).State = EntityState.Deleted;
 
                 db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {
-                msj = ex.Message;
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
-
-            return Ok(msj);
         }
 
         [HttpGet]
