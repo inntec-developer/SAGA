@@ -237,20 +237,35 @@ namespace SAGA.API.Controllers
         {
             try
             {
-
                 foreach (PrivilegiosDtos ru in listJson)
                 {
-                    var r = db.Privilegios.Where(x => x.RolId.Equals(ru.RolId) && x.EstructuraId.Equals(ru.EstructuraId)).FirstOrDefault();
+                
+                    if (ru.RolId > 0)
+                    {
+                        var r = db.Privilegios.Where(x => x.RolId.Equals(ru.RolId) && x.EstructuraId.Equals(ru.EstructuraId)).FirstOrDefault();
+                        if (r != null)
+                        {
+                            db.Entry(r).State = EntityState.Modified;
 
-                    db.Entry(r).State = EntityState.Modified;
+                            r.Create = ru.Create;
+                            r.Read = ru.Read;
+                            r.Update = ru.Update;
+                            r.Delete = ru.Delete;
+                            r.Especial = ru.Especial;
 
-                    r.Create = ru.Create;
-                    r.Read = ru.Read;
-                    r.Update = ru.Update;
-                    r.Delete = ru.Delete;
-                    r.Especial = ru.Especial;
+                            db.SaveChanges();
+                        }
+                        else
+                        {
+                            this.AgregarSeccion(ru);
 
-                    db.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        return Ok(HttpStatusCode.NotModified);
+
+                    }
                 }
                 return Ok(HttpStatusCode.Created);
             }
@@ -261,44 +276,35 @@ namespace SAGA.API.Controllers
             
         }
 
-        [HttpPost]
-        [Route("agregarSeccion")]
-        public IHttpActionResult AgregarSeccion(List<PrivilegiosDtos> privilegios)
+        //[HttpPost]
+        //[Route("agregarSeccion")]
+        public bool AgregarSeccion(PrivilegiosDtos p)
         {
-            string mensaje = "Se agregó Rol";
-            //int id = 0;
             try
             {
-                var rolId = privilegios.Select(n => n.RolId).FirstOrDefault();
+                Privilegio o = new Privilegio();
 
-                var r = db.Privilegios.Where(x => x.RolId.Equals(rolId)).FirstOrDefault();
-
-                db.Entry(r).State = EntityState.Added;
-
-                foreach (PrivilegiosDtos ru in privilegios)
+                if (p.Create || p.Read || p.Update || p.Delete || p.Especial)
                 {
-                    if (ru.Create || ru.Read || ru.Update || ru.Delete || ru.Especial)
-                    {
-                        Privilegio o = new Privilegio();
-                        o.RolId = rolId;
-                        o.EstructuraId = ru.EstructuraId;
-                        o.Create = ru.Create;
-                        o.Read = ru.Read;
-                        o.Update = ru.Update;
-                        o.Delete = ru.Delete;
-                        o.Especial = ru.Especial;
+                    o.RolId = p.RolId;
+                    o.EstructuraId = p.EstructuraId;
+                    o.Create = p.Create;
+                    o.Read = p.Read;
+                    o.Update = p.Update;
+                    o.Delete = p.Delete;
+                    o.Especial = p.Especial;
 
-                        db.Privilegios.Add(o);
-                        db.SaveChanges();
-                    }
-
+                    db.Privilegios.Add(o);
+                    db.SaveChanges();
                 }
+                return true;
+
+          
             }
             catch (Exception ex)
             {
-                mensaje = ex.Message;
+                return false;
             }
-            return Ok(mensaje);
 
         }
 

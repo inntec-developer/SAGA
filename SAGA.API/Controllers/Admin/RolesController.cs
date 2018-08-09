@@ -163,7 +163,7 @@ namespace SAGA.API.Controllers
         [Route("getEstructuraRoles")]
         public IHttpActionResult GetEstructuraRoles(int rol)
         {
-            var privilegiosRoles = db.Privilegios.Where(x => x.RolId.Equals(rol) & x.Rol.Activo)
+            var privilegiosRoles = db.Privilegios.Where(x => x.RolId.Equals(rol) & x.Rol.Activo.Equals(true))
             .Select(P => new PrivilegiosDtos()
             {
                 RolId = P.RolId,
