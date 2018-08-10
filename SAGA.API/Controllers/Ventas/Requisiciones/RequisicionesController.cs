@@ -177,9 +177,9 @@ namespace SAGA.API.Controllers
                     Confidencial = e.Confidencial,
                     Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                     EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count()
-                }).ToList().OrderBy(x => x.Folio);
+                }).ToList().OrderByDescending(x => x.Folio);
             return Ok(requisicion);
-        }
+        } 
 
         //api/getRequiReclutador
         [HttpGet]
