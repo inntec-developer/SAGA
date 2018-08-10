@@ -52,6 +52,7 @@ namespace SAGA.DAL
         public DbSet<Frecuencias> Frecuencias { get; set; }
         public DbSet<Alertashdr> Alertas { get; set; }
         public DbSet<Alertasdtl> Alertasdtl { get; set; }
+        public DbSet<DpTpDiscapacidad> DpTpDiscapacidad { get; set; }
         #endregion
 
         #region Recl
@@ -262,7 +263,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
             modelBuilder.Configurations.Add(new FrecuenciasMap().ToTable("Frecuencias", "BTra"));
             modelBuilder.Configurations.Add(new AlertasdtlMap().ToTable("Alertasdtl", "BTra"));
-            
+            modelBuilder.Configurations.Add(new DpTpDiscapacidadMap().ToTable("DpTpDiscapacidad", "BTra"));
             #endregion
 
             #region Reclutamiento_Recl
@@ -1260,10 +1261,21 @@ namespace SAGA.DAL
 				Property(x => x.clasesReclutamiento).HasMaxLength(50).IsRequired();
 			}
 		}
-		#endregion
 
-		#region Requisiciones
-		public class RequisicionMap : EntityTypeConfiguration<Requisicion>
+        public class DpTpDiscapacidadMap : EntityTypeConfiguration<DpTpDiscapacidad>
+        {
+            public DpTpDiscapacidadMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.tipoDiscapacidadId).IsRequired();
+            }
+        }
+
+        #endregion
+
+        #region Requisiciones
+        public class RequisicionMap : EntityTypeConfiguration<Requisicion>
 		{
 			public RequisicionMap()
 			{

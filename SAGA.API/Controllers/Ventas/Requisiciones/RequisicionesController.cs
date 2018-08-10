@@ -107,7 +107,7 @@ namespace SAGA.API.Controllers
                     r.Prioridad,
                     r.Confidencial,
                     r.Estatus,
-                    asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id)).Select( x =>x.GrpUsrId).ToList()
+                    asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => x.GrpUsrId).ToList()
                 }).FirstOrDefault();
                 return Ok(requisicion);
             }
@@ -168,18 +168,10 @@ namespace SAGA.API.Controllers
                     EstatusId = e.EstatusId,
                     Prioridad = e.Prioridad.Descripcion,
                     PrioridadId = e.PrioridadId,
-                    //Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).FirstOrDefault(),
                     Cliente = e.Cliente.Nombrecomercial,
                     GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
                     ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
-                    //Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new ClienteRequiDto
-                    //{
-                    //    Nombrecomercial = c.Nombrecomercial,
-                    //    GiroEmpresas = c.GiroEmpresas,
-                    //    ActividadEmpresas = c.ActividadEmpresas,
-                    //    RFC = c.RFC
-                    //}).FirstOrDefault(),
-                    Vacantes = e.horariosRequi.Count() > 0 ?  e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                    Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                     Folio = e.Folio,
                     DiasEnvio = e.DiasEnvio,
                     Confidencial = e.Confidencial,
@@ -207,7 +199,7 @@ namespace SAGA.API.Controllers
                     .Select(g => g.GrupoId)
                     .ToList();
 
-                
+
                 var RequisicionesGrupos = db.AsignacionRequis
                     .Where(r => Grupos.Contains(r.GrpUsrId))
                     .Select(r => r.RequisicionId)
@@ -224,7 +216,7 @@ namespace SAGA.API.Controllers
                     .ToList();
 
 
-                
+
 
                 var vacantes = db.Requisiciones
                     .Where(e => RequisicionesGrupos.Contains(e.Id) || RequisicionesInd.Contains(e.Id) || RequiGrupoEnGrupo.Contains(e.Id))
@@ -232,41 +224,37 @@ namespace SAGA.API.Controllers
                     {
                         Id = e.Id,
                         VBtra = e.VBtra,
-                        TipoReclutamiento  = e.TipoReclutamiento,
-                        ClaseReclutamiento  = e.ClaseReclutamiento,
+                        TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                        ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
                         SueldoMinimo = e.SueldoMinimo,
                         SueldoMaximo = e.SueldoMaximo,
                         fch_Creacion = e.fch_Creacion,
                         fch_Cumplimiento = e.fch_Cumplimiento,
-                        Estatus = e.Estatus,
-                        Prioridad = db.Prioridades.Where(p => p.Id == e.PrioridadId).FirstOrDefault(),
-                        Cliente = db.Clientes.Where(c => c.Id == e.ClienteId).Select(c => new ClienteRequiDto
-                        {
-                            Nombrecomercial = c.Nombrecomercial,
-                            GiroEmpresas = c.GiroEmpresas,
-                            ActividadEmpresas = c.ActividadEmpresas,
-                            RFC = c.RFC
-                        }).FirstOrDefault(),
-                        Vacantes = e.horariosRequi.Sum(h => h.numeroVacantes),
-                        Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => new SolicitanteDto {
-                            Nombre = s.Nombre,
-                            ApellidoPaterno = s.ApellidoPaterno
-                        }).FirstOrDefault(),
+                        Estatus = e.Estatus.Descripcion,
+                        EstatusId = e.EstatusId,
+                        Prioridad = e.Prioridad.Descripcion,
+                        PrioridadId = e.PrioridadId,
+                        Cliente = e.Cliente.Nombrecomercial,
+                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         Folio = e.Folio,
                         DiasEnvio = e.DiasEnvio,
                         Confidencial = e.Confidencial,
                         Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
-                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count()
-                    }).ToList().OrderByDescending(x => x.Folio);
+                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
+                        Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => new SolicitanteDto {
+                           Nombre =  s.Nombre,
+                           ApellidoPaterno =  s.ApellidoPaterno
+                        }).FirstOrDefault()
+            }).ToList().OrderByDescending(x => x.Folio);
                 return Ok(vacantes);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string mensaje = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
-            
+
         }
 
         //api/getDireccionRequisicon
@@ -279,7 +267,7 @@ namespace SAGA.API.Controllers
                 var direccion = db.Direcciones.Where(x => x.Id.Equals(Id)).ToList();
                 return Ok(direccion);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return NotFound();
             }
@@ -362,7 +350,7 @@ namespace SAGA.API.Controllers
                     return NotFound();
                 }
             }
-           
+
 
         }
 
@@ -374,7 +362,7 @@ namespace SAGA.API.Controllers
             try
             {
                 var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi.Id)).ToList();
-               
+
                 var requisicion = db.Requisiciones.Find(requi.Id);
                 db.Entry(requisicion).State = EntityState.Modified;
                 requisicion.Activo = false;
@@ -384,10 +372,10 @@ namespace SAGA.API.Controllers
 
                 db.AsignacionRequis.RemoveRange(asignados);
 
-                
+
 
                 Int64 Folio = requisicion.Folio;
-                string VBra = requisicion.VBtra; 
+                string VBra = requisicion.VBtra;
                 Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
                 //Isertar el registro de la rastreabilidad. 
                 rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 4);
@@ -417,13 +405,13 @@ namespace SAGA.API.Controllers
                 db.Entry(requisicion).State = EntityState.Modified;
                 requisicion.EstatusId = 8;
                 requisicion.Aprobada = false;
-                requisicion.Aprobador = string.Empty; 
+                requisicion.Aprobador = string.Empty;
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
 
                 db.AsignacionRequis.RemoveRange(asignados);
 
-                
+
 
                 Int64 Folio = requisicion.Folio;
                 string VBra = requisicion.VBtra;
@@ -438,7 +426,7 @@ namespace SAGA.API.Controllers
 
                 return Ok(HttpStatusCode.OK);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Ok(HttpStatusCode.NotAcceptable);
             }
@@ -456,7 +444,7 @@ namespace SAGA.API.Controllers
                 requisicion.EstatusId = 5;
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
-                
+
 
                 Int64 Folio = requisicion.Folio;
                 Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
@@ -487,7 +475,7 @@ namespace SAGA.API.Controllers
                     var requisicion = db.Requisiciones.Find(requi.Id);
                     db.Entry(requisicion).State = EntityState.Modified;
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
-                    if(requisicion.EstatusId != 7)
+                    if (requisicion.EstatusId != 7)
                     {
                         requisicion.EstatusId = 6;
                         requisicion.Aprobador = requi.Usuario;
@@ -505,7 +493,7 @@ namespace SAGA.API.Controllers
                     Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
                     //Isertar el registro de la rastreabilidad. 
                     rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.Usuario, 5);
-                    
+
 
                     beginTran.Commit();
 
@@ -545,8 +533,8 @@ namespace SAGA.API.Controllers
 
         public void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId, Int64 Folio, string Usuario, string VBra)
         {
-            var user = db.Usuarios.Where(x => x.Usuario.Equals(Usuario)).Select( x => 
-                x.Nombre + " " +x.ApellidoPaterno+" "+ x.ApellidoMaterno
+            var user = db.Usuarios.Where(x => x.Usuario.Equals(Usuario)).Select(x =>
+               x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno
             ).FirstOrDefault();
 
             List<AsignacionRequi> NotChange = new List<AsignacionRequi>();
@@ -598,7 +586,7 @@ namespace SAGA.API.Controllers
                 db.AsignacionRequis.AddRange(asignaciones);
                 SendEmail.ConstructEmail(asignaciones, NotChange, "C", Folio, user, VBra);
             }
-                
+
         }
     }
 }
