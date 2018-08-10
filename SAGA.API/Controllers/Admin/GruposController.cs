@@ -12,7 +12,7 @@ using System.Data.Entity;
 using System.IO;
 using System.Web;
 
-namespace SAGA.API.Controllers.Admin
+namespace SAGA.API.Controllers
 {
     [RoutePrefix("api/admin")]
     public class GruposController : ApiController
