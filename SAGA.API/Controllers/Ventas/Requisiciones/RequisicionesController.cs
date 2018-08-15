@@ -107,7 +107,19 @@ namespace SAGA.API.Controllers
                     r.Prioridad,
                     r.Confidencial,
                     r.Estatus,
-                    asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => x.GrpUsrId).ToList()
+                    asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => x.GrpUsrId).ToList(),
+                    asignadosN = (from R in db.Requisiciones
+                                 join AR in db.AsignacionRequis on R.Id equals AR.RequisicionId
+                                 join E in db.Entidad on AR.GrpUsrId equals E.Id
+                                 where R.ClienteId == r.ClienteId
+                                 select new
+                                 {
+                                     Nombre = E.Nombre,
+                                     ApellidoPaterno = E.ApellidoPaterno,
+                                     ApellidoMaterno = E.ApellidoMaterno
+                                 }).Distinct(),
+                    vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                    r.VBtra
                 }).FirstOrDefault();
                 return Ok(requisicion);
             }

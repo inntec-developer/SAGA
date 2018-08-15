@@ -337,6 +337,47 @@ namespace SAGA.API.Controllers
          }
 
         [HttpGet]
+        [Route("getMisCandidatos")]
+        public IHttpActionResult GetMisCandidatos(string reclutador)
+        {
+            var candidatos = db.ProcesoCandidatos.Where(x =>x.Reclutador.Equals(reclutador)).Select(x => x.CandidatoId).ToList();
+
+            List<FiltrosDto> misCandidatos = new List<FiltrosDto>();
+            misCandidatos = db.PerfilCandidato
+                .Where(c => candidatos.Contains(c.CandidatoId))
+                 .Select(c => new FiltrosDto
+                 {
+                     IdCandidato = c.CandidatoId,
+                     IdPais = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.PaisId).FirstOrDefault(),
+                     IdEstado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.EstadoId).FirstOrDefault(),
+                     IdMunicipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.MunicipioId).FirstOrDefault(),
+                     nombre = c.Candidato.Nombre,
+                     apellidoPaterno = c.Candidato.ApellidoPaterno,
+                     apellidoMaterno = c.Candidato.ApellidoMaterno,
+                     cp = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.CodigoPostal).FirstOrDefault(),
+                     curp = c.Candidato.CURP,
+                     fechaNacimiento = c.Candidato.FechaNacimiento,
+                     rfc = c.Candidato.RFC,
+                     nss = c.Candidato.NSS,
+                     Formaciones = c.Formaciones,
+                     Experiencias = c.Experiencias,
+                     IdAreaExp = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault(),
+                     IdPerfil = c.AboutMe.Select(p => p.PerfilExperienciaId).FirstOrDefault(),
+                     IdGenero = c.Candidato.GeneroId,
+                     IdPDiscapacidad = c.Candidato.TipoDiscapacidadId,
+                     IdTipoLicencia = c.Candidato.TipoLicenciaId,
+                     Acercademi = c.AboutMe,
+                     Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault(),
+                     Idiomas = c.Idiomas,
+                     Reubicacion = c.Candidato.puedeRehubicarse,
+                     TpVehiculo = c.Candidato.tieneVehiculoPropio
+
+                 }).ToList();
+
+            return Ok(misCandidatos.Distinct());
+        }
+
+        [HttpGet]
         [Route("getcandidatoid")]
         public IHttpActionResult GetCandidatoid(Guid Id)
         {
@@ -476,7 +517,7 @@ namespace SAGA.API.Controllers
                             Foto = u.Foto  
                          }).FirstOrDefault()                    
                 })
-                .ToList().OrderByDescending( c => c.fchComentario);
+                .ToList().OrderBy( c => c.fchComentario);
             return Ok(comentarios);
         }
 

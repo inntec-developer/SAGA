@@ -137,7 +137,7 @@ namespace SAGA.API.Utilerias
                     m.Subject = "Asignacion de Requisicion "+ Folio;
                     body = "<p>Asignación de Requisición:</p>";
                     body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>. ", Usuario, VBr, Folio);
-                    body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de reclutamiento segido de entidades de reclutamiento, selecciona la opción de vacantes, para dar el seguimiento correspondiente.</p> ";
+                    body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de reclutamiento seguido de entidades de reclutamiento, selecciona la opción de vacantes, para dar el seguimiento correspondiente.</p> ";
                     body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
                 }
                 if (action == "D")
