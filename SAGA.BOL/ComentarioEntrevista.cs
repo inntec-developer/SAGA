@@ -11,7 +11,7 @@ namespace SAGA.BOL
     {
         [Key]
         public Guid Id { get; set; }
-        //public Guid RespuestaId { get; set; }
+        public Guid RespuestaId { get; set; }
         public string Comentario { get; set; }
         public Guid CandidatoId { get; set; }
         public Guid RequisicionId { get; set; }

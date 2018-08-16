@@ -668,7 +668,7 @@ namespace SAGA.DAL
             public UsuariosMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Usuario).HasMaxLength(20).IsRequired().IsUnicode();
+                Property(x => x.Usuario).HasMaxLength(30).IsRequired().IsUnicode();
                 Property(x => x.Password).HasMaxLength(40).IsRequired();
                 Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(30);
                 Property(x => x.UsuarioMod).IsOptional().HasMaxLength(30);
@@ -1115,8 +1115,10 @@ namespace SAGA.DAL
 				Property(x => x.CandidatoId).IsRequired();
 				Property(x => x.RequisicionId).IsRequired();
 				Property(x => x.StatusId).IsRequired();
+                Property(X => X.fch_Postulacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
 
-			}
+
+            }
 		}
 		public class StatusPostulacionMap : EntityTypeConfiguration<StatusPostulacion>
 		{
@@ -1922,6 +1924,7 @@ namespace SAGA.DAL
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
                 Property(x => x.UsuarioMod).HasMaxLength(30).IsOptional();
                 Property(x => x.fch_Modificacion).IsOptional();
+                Property(x => x.RespuestaId).IsOptional();
             }
         }
         #endregion
