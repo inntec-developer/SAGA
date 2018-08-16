@@ -7,9 +7,9 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace SAGA.API.Controllers.Reclutamiento.SeguimientoVacante
+namespace SAGA.API.Controllers
 {
-    [RoutePrefix("api/comentarioVacante")]
+    [RoutePrefix("api/reclutamiento/SeguimientoVacante")]
     public class ComentariosVacanteController : ApiController
     {
     }

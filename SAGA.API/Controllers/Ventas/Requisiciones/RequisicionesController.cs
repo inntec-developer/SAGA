@@ -108,16 +108,11 @@ namespace SAGA.API.Controllers
                     r.Confidencial,
                     r.Estatus,
                     asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => x.GrpUsrId).ToList(),
-                    asignadosN = (from R in db.Requisiciones
-                                 join AR in db.AsignacionRequis on R.Id equals AR.RequisicionId
-                                 join E in db.Entidad on AR.GrpUsrId equals E.Id
-                                 where R.ClienteId == r.ClienteId
-                                 select new
-                                 {
-                                     Nombre = E.Nombre,
-                                     ApellidoPaterno = E.ApellidoPaterno,
-                                     ApellidoMaterno = E.ApellidoMaterno
-                                 }).Distinct(),
+                    asignadosN = r.AsignacionRequi.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => new {
+                        x.GrpUsr.Nombre,
+                        x.GrpUsr.ApellidoMaterno,
+                        x.GrpUsr.ApellidoPaterno
+                    }),
                     vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                     r.VBtra
                 }).FirstOrDefault();
@@ -188,6 +183,13 @@ namespace SAGA.API.Controllers
                     DiasEnvio = e.DiasEnvio,
                     Confidencial = e.Confidencial,
                     Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
+                    PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Select(p => new
+                    {
+                       p.Candidato.Nombre,
+                       p.Candidato.ApellidoPaterno,
+                       p.Candidato.ApellidoMaterno,
+                       p.Candidato.CURP
+                    }),
                     EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count()
                 }).ToList().OrderByDescending(x => x.Folio);
             return Ok(requisicion);
@@ -232,7 +234,7 @@ namespace SAGA.API.Controllers
 
                 var vacantes = db.Requisiciones
                     .Where(e => RequisicionesGrupos.Contains(e.Id) || RequisicionesInd.Contains(e.Id) || RequiGrupoEnGrupo.Contains(e.Id))
-                    .Select(e => new RequisicionGrallDto
+                    .Select(e => new
                     {
                         Id = e.Id,
                         VBtra = e.VBtra,
@@ -252,12 +254,19 @@ namespace SAGA.API.Controllers
                         DiasEnvio = e.DiasEnvio,
                         Confidencial = e.Confidencial,
                         Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
+                        PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Select(p => new
+                        {
+                            p.Candidato.Nombre,
+                            p.Candidato.ApellidoPaterno,
+                            p.Candidato.ApellidoMaterno,
+                            p.Candidato.CURP
+                        }),
                         EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                         Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => new SolicitanteDto {
                            Nombre =  s.Nombre,
                            ApellidoPaterno =  s.ApellidoPaterno
                         }).FirstOrDefault()
-            }).ToList().OrderByDescending(x => x.Folio);
+            }).ToList().OrderByDescending(e => e.Folio);
                 return Ok(vacantes);
 
             }
