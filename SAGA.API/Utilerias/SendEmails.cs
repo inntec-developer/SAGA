@@ -6,6 +6,8 @@ using System.Configuration;
 using System.Linq;
 using System.Net.Mail;
 using System.Web;
+using System.Text;
+using SAGA.API.Dtos;
 
 namespace SAGA.API.Utilerias
 {
@@ -172,5 +174,47 @@ namespace SAGA.API.Utilerias
             }
             
         }
+
+        public void SendEmailRegistro(PersonasDtos dtos)
+        {
+            string body = "";
+            string email = dtos.Email.Select(x => x.email).FirstOrDefault().ToString();
+            var aux = db.Usuarios.Where(x => x.Id.Equals(dtos.EntidadId)).Select(f => new
+            {
+                fecha = f.fch_Creacion,
+                pass = f.Password
+
+            }).FirstOrDefault();
+           
+            string from = "noreply@damsa.com.mx";
+            MailMessage m = new MailMessage();
+            m.From = new MailAddress(from, "SAGA Inn");
+            m.To.Add(email);
+
+            m.Subject = "Tu acceso al sistema SAGA ERP de DAMSA está listo!";
+            body = "<html><body><table width=\"80%\" style=\"font-family:'calibri'\">";
+            body = body + "<tr><th bgcolor=\"#044464\" style=\"color:white; text-align:left;\">Se creó una nueva cuenta para SAGA ERP </th></ tr>";
+            body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Clave / Usuario de Empleado :</font></td></tr>";
+            body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} / {1} </td></tr>", dtos.Clave, dtos.Usuario);
+            body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Nombre :</font></td></tr>";
+            body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} {1} {2} </td></tr>", dtos.nombre, dtos.apellidoPaterno, dtos.apellidoMaterno);
+            body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Correo :</font></td></tr>";
+            body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", email);
+            body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Contraseña :</font></td></tr>";
+            body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", aux.pass);
+            body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Registrado :</font></td></tr>";
+            body = body + string.Format("<tr bgcolor=\"#FDC613\"><td>{0}<br/>", aux.fecha);
+            body = body + "<p> Podrás acceder mediante la siguiente dirección: http://websb.damsa.com.mx<br/>";
+            body = body + "Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx </p></td></tr></table></body></html>";
+
+            m.Body = body;
+            m.IsBodyHtml = true;
+            SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+            smtp.EnableSsl = true;
+            smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+            smtp.Send(m);
+        }
+
+
     }
 }

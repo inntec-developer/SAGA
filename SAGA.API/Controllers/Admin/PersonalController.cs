@@ -12,8 +12,9 @@ using System.Data.Entity;
 using System.Web;
 using System.IO;
 using System.Drawing;
+using SAGA.API.Utilerias;
 
-namespace SAGA.API.Controllers.Admin
+namespace SAGA.API.Controllers
 {
     [RoutePrefix("api/admin")]
     public class PersonalController : ApiController
@@ -48,7 +49,7 @@ namespace SAGA.API.Controllers.Admin
 
             var persona = db.Usuarios.Select(u => new
             {
-                Id = u.Id,
+                EntidadId = u.Id,
                 Foto = u.Foto,
                 Clave = u.Clave,
                 nombre = u.Nombre,
@@ -318,7 +319,6 @@ namespace SAGA.API.Controllers.Admin
         }
 
 
-
         [HttpPost]
         [Route("addUsuario")]
         public IHttpActionResult AddUsuario(PersonasDtos listJson)
@@ -353,6 +353,25 @@ namespace SAGA.API.Controllers.Admin
 
         }
 
+        [HttpPost]
+        [Route("sendEmailRegister")]
+        public IHttpActionResult SendEmailRegister(PersonasDtos Dtos)
+        {
+            try
+            {
+                SendEmails obj = new SendEmails();
+                obj.SendEmailRegistro(Dtos);
+              
+                
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+
         [HttpGet]
         [Route("udActivo")]
         public IHttpActionResult UdActivo(Guid id, bool v)
@@ -373,6 +392,7 @@ namespace SAGA.API.Controllers.Admin
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
+
         [HttpPost]
         [Route("updateUsuario")]
         public IHttpActionResult UpdateUsuario(PersonasDtos listJson)
