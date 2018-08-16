@@ -22,16 +22,20 @@ namespace SAGA.API.Controllers
         [Route("getCard")]
         public IHttpActionResult GetDatosCard(Guid ClientId)
         {
+
             var dts = db.Clientes.Where(x => x.Id.Equals(ClientId)).Select(C => new
             {
                 NombreComercial = C.Nombrecomercial,
                 RazonSocial = C.RazonSocial,
-                Telefonos = C.telefonos.Select(t => new
+                Telefonos = C.telefonos.Where(x => x.Activo.Equals(true)).Select(t => new
                 {
                     Tipo = t.TipoTelefono.Tipo,
                     Telefono = t.telefono,
-                    Ext = t.Extension,
-                    Activo = t.Activo,
+                    Exts = C.telefonos.Where(xx => xx.telefono.Equals(t.telefono)).Select( ex => new
+                    {
+                        ext = ex.Extension
+                    }),
+                    Activo = t.Activo ? "Activo" : "",
                     Principal = t.esPrincipal
                 }),
                 Direccion = C.direcciones.Select(d => new
@@ -67,7 +71,7 @@ namespace SAGA.API.Controllers
                 Asignados = (from R in db.Requisiciones
                          join AR in db.AsignacionRequis on R.Id equals AR.RequisicionId
                          join E in db.Entidad on AR.GrpUsrId equals E.Id
-                         where R.ClienteId == ClientId
+                         where R.ClienteId.Equals(ClientId)
                              select new
                          {
                              Nombre = E.Nombre,
@@ -76,17 +80,7 @@ namespace SAGA.API.Controllers
                          }).Distinct()
 
 
-        });
-
-            //var mocos = (from R in db.Requisiciones
-            //             join AR in db.AsignacionRequis on R.Id equals AR.RequisicionId
-            //             join E in db.Entidad on AR.GrpUsrId equals E.Id
-            //             where R.ClienteId == id
-            //             select new
-            //             {
-            //                 nombre = E.Nombre
-            //             }).Distinct();
-           
+        }).ToList();
 
             return Ok(dts);
         }
