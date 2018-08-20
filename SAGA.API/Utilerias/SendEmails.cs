@@ -179,17 +179,28 @@ namespace SAGA.API.Utilerias
         {
             string body = "";
             string email = dtos.Email.Select(x => x.email).FirstOrDefault().ToString();
+
             var aux = db.Usuarios.Where(x => x.Id.Equals(dtos.EntidadId)).Select(f => new
             {
                 fecha = f.fch_Creacion,
                 pass = f.Password
 
             }).FirstOrDefault();
-           
+
+            var emails = db.Usuarios.Where(x => x.TipoUsuarioId.Equals(1)).Select(e => new
+            {
+                email = db.Emails.Where(x => x.EntidadId.Equals(e.Id)).Select(em => em.email).FirstOrDefault()
+
+            }).ToList();
+
             string from = "noreply@damsa.com.mx";
             MailMessage m = new MailMessage();
             m.From = new MailAddress(from, "SAGA Inn");
             m.To.Add(email);
+            foreach (var e in emails)
+            {
+                m.To.Add(e.email.ToString());
+            }
 
             m.Subject = "Tu acceso al sistema SAGA ERP de DAMSA está listo!";
             body = "<html><body><table width=\"80%\" style=\"font-family:'calibri'\">";
