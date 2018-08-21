@@ -239,7 +239,9 @@ namespace SAGA.API.Controllers
                         Id = e.Id,
                         VBtra = e.VBtra,
                         TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                        tipoReclutamientoId = e.TipoReclutamientoId,
                         ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
+                        ClaseReclutamientoId = e.ClaseReclutamientoId,
                         SueldoMinimo = e.SueldoMinimo,
                         SueldoMaximo = e.SueldoMaximo,
                         fch_Creacion = e.fch_Creacion,
@@ -256,18 +258,8 @@ namespace SAGA.API.Controllers
                         //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                         Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
                         Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
-                        PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Select(p => new
-                        {
-                            p.Candidato.Nombre,
-                            p.Candidato.ApellidoPaterno,
-                            p.Candidato.ApellidoMaterno,
-                            p.Candidato.CURP
-                        }),
                         EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
-                        Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => new SolicitanteDto {
-                           Nombre =  s.Nombre,
-                           ApellidoPaterno =  s.ApellidoPaterno
-                        }).FirstOrDefault()
+                        Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => s.Nombre  + " " +  s.ApellidoPaterno ).FirstOrDefault()
                     }).ToList().OrderByDescending(e => e.Folio);
                 return Ok(vacantes);
 
