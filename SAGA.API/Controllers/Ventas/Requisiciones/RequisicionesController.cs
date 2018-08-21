@@ -253,6 +253,8 @@ namespace SAGA.API.Controllers
                         Folio = e.Folio,
                         DiasEnvio = e.DiasEnvio,
                         Confidencial = e.Confidencial,
+                        //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
+                        Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
                         Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                         PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Select(p => new
                         {
@@ -266,7 +268,7 @@ namespace SAGA.API.Controllers
                            Nombre =  s.Nombre,
                            ApellidoPaterno =  s.ApellidoPaterno
                         }).FirstOrDefault()
-            }).ToList().OrderByDescending(e => e.Folio);
+                    }).ToList().OrderByDescending(e => e.Folio);
                 return Ok(vacantes);
 
             }
