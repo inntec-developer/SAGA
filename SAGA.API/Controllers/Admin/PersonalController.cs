@@ -399,7 +399,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var usuario = db.Usuarios.Find(listJson.Id);
+                var usuario = db.Usuarios.Find(listJson.EntidadId);
                 db.Entry(usuario).State = EntityState.Modified;
                 usuario.Clave = listJson.Clave;
                 usuario.Usuario = listJson.Usuario;
@@ -459,14 +459,13 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getImage")]
-        public IHttpActionResult GetImage2(Guid imageName)
+        public IHttpActionResult GetImage2(string ruta)
         {
-            var ruta = db.Entidad.Where(x => x.Id.Equals(imageName)).Select(i => i.Foto).FirstOrDefault();
-            string fullPath;
+           string fullPath;
 
             try
             {
-                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/" + ruta);
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/user/" + ruta);
             }
             catch
             {
@@ -474,13 +473,16 @@ namespace SAGA.API.Controllers
 
             }
 
+           
+
             Bitmap bmp = new Bitmap(fullPath);
             FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
             byte[] bimage = new byte[fs.Length];
             fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
             fs.Close();
+            
+            return Ok(Convert.ToBase64String(bimage));
 
-            return Ok(bimage);
         }
 
 
