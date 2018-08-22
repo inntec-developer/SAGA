@@ -464,21 +464,31 @@ namespace SAGA.API.Controllers
             try
             {
                 fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/" + ruta);
+                // Bitmap bmp = new Bitmap(fullPath);
+                FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.ReadWrite);
+                byte[] bimage = new byte[fs.Length];
+                fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
+                fs.Close();
+                fs = null;
+
+                return ("data:image/jpeg;base64," + Convert.ToBase64String(bimage));
             }
             catch
             {
                 fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/user/default.jpg" );
+                // Bitmap bmp = new Bitmap(fullPath);
+                FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.ReadWrite);
+                byte[] bimage = new byte[fs.Length];
+                fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
+                fs.Close();
+                fs = null;
 
+                return ("data:image/jpeg;base64," + Convert.ToBase64String(bimage));
             }
 
-           // Bitmap bmp = new Bitmap(fullPath);
-            FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.ReadWrite);
-            byte[] bimage = new byte[fs.Length];
-            fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
-            fs.Close();
-            fs = null;
+          
 
-            return ("data:image/jpeg;base64," + Convert.ToBase64String(bimage));
+     
         }
 
         public Boolean ActualizarFoto(Guid id, string imageName)
