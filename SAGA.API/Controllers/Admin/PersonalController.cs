@@ -457,35 +457,6 @@ namespace SAGA.API.Controllers
 
         }
 
-        [HttpGet]
-        [Route("getImage")]
-        public IHttpActionResult GetImage2(string ruta)
-        {
-           string fullPath;
-
-            try
-            {
-                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/user/" + ruta);
-            }
-            catch
-            {
-                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/user/default.jpg");
-
-            }
-
-           
-
-            Bitmap bmp = new Bitmap(fullPath);
-            FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
-            byte[] bimage = new byte[fs.Length];
-            fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
-            fs.Close();
-            
-            return Ok(Convert.ToBase64String(bimage));
-
-        }
-
-
         public string GetImage(string ruta)
         {
             List<byte[]> aux = new List<byte[]>();

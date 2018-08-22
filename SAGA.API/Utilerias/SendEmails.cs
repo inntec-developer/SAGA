@@ -199,9 +199,9 @@ namespace SAGA.API.Utilerias
             m.To.Add(email);
             foreach (var e in emails)
             {
-                m.To.Add(e.email.ToString());
+                m.Bcc.Add(e.email.ToString());
             }
-
+           
             m.Subject = "Tu acceso al sistema SAGA ERP de DAMSA está listo!";
             body = "<html><body><table width=\"80%\" style=\"font-family:'calibri'\">";
             body = body + "<tr><th bgcolor=\"#044464\" style=\"color:white; text-align:left;\">Se creó una nueva cuenta para SAGA ERP </th></ tr>";
