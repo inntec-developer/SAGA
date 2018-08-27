@@ -13,7 +13,7 @@ namespace SAGA.BOL
         public Guid Id { get; set; }
         public byte TipoRedSocialId { get; set; }
         public string redSocial { get; set; }
-        public Guid? EntidadId { get; set; }
+        public Guid EntidadId { get; set; }
         public string UsuarioAlta { get; set; }
         public DateTime fch_Creacion { get; set; }
         public string UsuarioMod { get; set; }
