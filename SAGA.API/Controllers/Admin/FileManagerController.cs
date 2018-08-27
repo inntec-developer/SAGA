@@ -14,17 +14,54 @@ using System.Web.Http.Cors;
 
 namespace SAGA.API.Controllers
 {
-
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     [RoutePrefix("api/admin")]
     public class FileManagerController : ApiController
     {
-       
+
+
+        [HttpGet]
+        [Route("viewFile")]
+        public HttpResponseMessage ViewFile(string ruta)
+        {
+            HttpResponseMessage result = Request.CreateResponse(HttpStatusCode.OK);
+            try
+            {
+                string path = System.Web.Hosting.HostingEnvironment.MapPath("~/" + ruta);
+         
+
+                if (File.Exists(path))
+                {
+                    byte[] pdf = System.IO.File.ReadAllBytes(path);
+                    string nom = Path.GetFileName(path);
+                    string ext = Path.GetExtension(path);
+                    string mimetype = MimeMapping.GetMimeMapping(path);
+
+                    result.Content = new ByteArrayContent(pdf);
+                    result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline");
+                    result.Content.Headers.ContentDisposition.FileName = nom;
+                    result.Content.Headers.ContentType = new MediaTypeHeaderValue(mimetype);
+                }
+                else
+                {
+                    result = Request.CreateResponse(HttpStatusCode.NoContent);
+
+                }
+            }
+            catch(Exception ex)
+            {
+                result = Request.CreateResponse(HttpStatusCode.BadRequest);
+            }
+
+            return result;
+
+        }
+
         [HttpGet]
         [Route("getFiles")]
-        [EnableCors(origins: "*", headers: "*", methods: "*")]
-        public IHttpActionResult GetFiles()
+        public IHttpActionResult GetFiles(string entidadId)
         {
-            var path = "~/utilerias/";
+            var path = "~/utilerias/Files/users/" + entidadId;
             string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
             DirectoryInfo folderInfo = new DirectoryInfo(fullPath);
             List<string> extensions = folderInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly).Select(x => x.FullName).ToList();
@@ -55,65 +92,67 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("downloadFiles")]
-        public IHttpActionResult DownloadFiles(string file)
+        public HttpResponseMessage DownloadFiles(string file)
         {
-            try
-            {
-                string localFilePath = System.Web.Hosting.HostingEnvironment.MapPath(file);
+            string path = System.Web.Hosting.HostingEnvironment.MapPath(file);
+            byte[] pdf = System.IO.File.ReadAllBytes(path);
+            string nom = Path.GetFileName(path);
+            string ext = Path.GetExtension(path);
+            string mimetype = MimeMapping.GetMimeMapping(path);
 
-                if (File.Exists(localFilePath))
-                {
-                    string nom = Path.GetFileName(localFilePath);
 
-                    string userProfileFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                    string DownloadsFolder = userProfileFolder + "\\Downloads\\";
-                    var ruta_descarga = Path.Combine(DownloadsFolder, nom);
+            HttpResponseMessage result = Request.CreateResponse(HttpStatusCode.OK);
+            result.Content = new ByteArrayContent(pdf);
+            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline");
+            result.Content.Headers.ContentDisposition.FileName = nom;
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue(mimetype);
+            return result;
 
-                    WebClient wc = new WebClient();
-                    wc.DownloadFile(localFilePath, ruta_descarga);
 
-                    return Ok(HttpStatusCode.OK);
-                }
-                else
-                {
-                    return Ok(HttpStatusCode.BadRequest);
-                }
+            //try
+            //{
+            //    string localFilePath = System.Web.Hosting.HostingEnvironment.MapPath(file);
 
-            }
-            catch( Exception ex)
-            {
-                return Ok(HttpStatusCode.ExpectationFailed);
-            }
+            //    if (File.Exists(localFilePath))
+            //    {
+            //        string nom = Path.GetFileName(localFilePath);
 
-          
+            //        string userProfileFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            //        string DownloadsFolder = userProfileFolder + "\\Downloads\\";
+            //        var ruta_descarga = Path.Combine(DownloadsFolder, nom);
+
+            //        WebClient wc = new WebClient();
+            //        wc.DownloadFile(localFilePath, ruta_descarga);
+
+            //        return Ok(HttpStatusCode.OK);
+            //    }
+            //    else
+            //    {
+            //        return Ok(HttpStatusCode.BadRequest);
+            //    }
+
+            //}
+            //catch( Exception ex)
+            //{
+            //    return Ok(HttpStatusCode.ExpectationFailed);
+            //}
+
+
         }
 
         [HttpPost]
-        [Route("UploadFile")]
-        public IHttpActionResult UploadImage()
+        [Route("uploadFile")]
+        public IHttpActionResult UploadFile()
         {
             string fileName = null;
-            var path = "";
             try
             {
                 var httpRequest = HttpContext.Current.Request;
                 var postedFile = httpRequest.Files["file"];
-                var id = Guid.Parse(Path.GetFileNameWithoutExtension(postedFile.FileName).ToString());
-                //var id = new string(Path.GetFileNameWithoutExtension(postedFile.FileName).Take(10).ToArray()).Replace(" ", "-");
 
-                var ext = Path.GetExtension(postedFile.FileName);
                 fileName = Path.GetFileName(postedFile.FileName);
 
-                if (ext == ".jpg" || ext == ".jpeg" || ext == ".png")
-                {
-                    path = "~/utilerias/img/user/" + fileName;
-                }
-                else
-                {
-                    path = "~/utilerias/pdf/" + fileName;
-                }
-
-                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/users/83569bac-0d68-e811-80e1-9e274155325e/" + fileName);
 
                 if (File.Exists(fullPath))
                     File.Delete(fullPath);
