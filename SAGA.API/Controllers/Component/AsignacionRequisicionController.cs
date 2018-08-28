@@ -25,11 +25,11 @@ namespace SAGA.API.Controllers.Component
         public IHttpActionResult GetUserGroup()
    
         {
-            var rol = db.Privilegios.Where(p => p.EstructuraId.Equals(15)).Select(x => x.RolId).ToList();
+            var rol = db.Privilegios.Where(p => p.EstructuraId.Equals(130)).Select(x => x.RolId).ToList();
             var entidad = db.RolEntidades.Where(x => rol.Contains(x.RolId)).Select(x => x.EntidadId).ToList();
 
             var asignacion = db.Usuarios
-                .Where(u => u.Activo.Equals(true) && u.TipoUsuarioId <= 5 && entidad.Contains(u.Id))
+                .Where(u => u.Activo.Equals(true) && u.TipoUsuarioId <= 5 && u.TipoUsuarioId > 0 && entidad.Contains(u.Id))
                 .Select(x => new AsigancionDto
                 {
                     Id = x.Id,
@@ -59,11 +59,11 @@ namespace SAGA.API.Controllers.Component
         public IHttpActionResult GetUserGroupL()
 
         {
-            var rol = db.Privilegios.Where(p => p.EstructuraId.Equals(15)).Select(x => x.RolId).ToList();
+            var rol = db.Privilegios.Where(p => p.EstructuraId.Equals(130)).Select(x => x.RolId).ToList();
             var entidad = db.RolEntidades.Where(x => rol.Contains(x.RolId)).Select(x => x.EntidadId).ToList();
 
             var asignacion = db.Usuarios
-                .Where(u => u.Activo.Equals(true) && u.TipoUsuarioId <= 6 && entidad.Contains(u.Id))
+                .Where(u => u.Activo.Equals(true) && u.TipoUsuarioId <= 6 && u.TipoUsuarioId > 0 && entidad.Contains(u.Id))
                 .Select(x => new AsigancionDto
                 {
                     Id = x.Id,
@@ -87,7 +87,5 @@ namespace SAGA.API.Controllers.Component
                 ).OrderBy(g => g.Nombre);
             return Ok(asignacion);
         }
-
-
     }
 }

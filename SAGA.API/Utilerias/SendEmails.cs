@@ -33,7 +33,7 @@ namespace SAGA.API.Utilerias
         }
 
         /*Recupera la lista de E-mail a la cuel se le mandara correo elctronico, en caso de que encuntre una Celula/Grupo este recorrera los 
-         * usarios que esten dentro de las mismas, sin importar cuentas celulas encuentre, este seguira repitiendo hasta buscar en la ltima celular/grupo.
+         * usarios que esten dentro de las mismas, sin importar cuentas celulas encuentre, este seguira repitiendo hasta buscar en la Ultima celular/grupo.
          */
         public List<string> checkEmails(List<GrupoUsuarios> grp)
         {
@@ -60,7 +60,7 @@ namespace SAGA.API.Utilerias
 
         /* Recupara la lista de E-mails que sifriran cambios y posteriormente estos seran excluidos de la lista generada anteriormente
          * Si la entidad esta en dos celulas diferentes y una de ellas se elimina de la requisicion este usario no recibira el correo
-         * eletronico ya que dentro de otra celula aun tiene permisos para visualizarla, lo mismo para si a entidad esta propia(usario)
+         * eletronico ya que dentro de otra celula aun tiene permisos para visualizarla, lo mismo para si La entidad esta propia(usario)
          * y este se elimina de la celula donde se encuetra, no recibira el correo ya que esta como individual en la requisicion.
         */
         public List<string> EmailsNotChange(List<GrupoUsuarios> grpNc)
@@ -71,7 +71,7 @@ namespace SAGA.API.Utilerias
                 var tipoEntidad = gp.Entidad.TipoEntidadId;
                 if (tipoEntidad == 4)
                 {
-                    /* Genera la nueva lista de suarios dentro de una celular para posteriormente mandar llamar de nuevo EmailsNotChange y continuar con la busqueda
+                    /* Genera la nueva lista de usarios dentro de una celular para posteriormente mandar llamar de nuevo EmailsNotChange y continuar con la busqueda
                      * de corres electronicos. 
                      */
                     List<GrupoUsuarios> rama = db.GruposUsuarios.Where(x => x.GrupoId.Equals(gp.EntidadId)).ToList();
