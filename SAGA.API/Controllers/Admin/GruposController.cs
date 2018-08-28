@@ -25,17 +25,18 @@ namespace SAGA.API.Controllers
  
         [HttpPost]
         [Route("addGrupo")]
-        public IHttpActionResult AddGrupo(GruposDtos listJson)
+        public IHttpActionResult AddGrupo(Grupos listJson)
         {
             try
             {
-                var grupo = Mapper.Map<GruposDtos, Grupos>(listJson);
+                Grupos grupo = new Grupos();
                 grupo.Nombre = listJson.Nombre;
                 grupo.Activo = listJson.Activo;
                 grupo.Descripcion = listJson.Descripcion;
                 grupo.UsuarioAlta = "INNTEC";
                 grupo.TipoEntidadId = 4;
                 grupo.Foto = listJson.Foto;
+                grupo.TipoGrupoId = listJson.TipoGrupoId;
                 db.Grupos.Add(grupo);
                 db.SaveChanges();
 
@@ -61,7 +62,8 @@ namespace SAGA.API.Controllers
                 g.Descripcion = listJson.Descripcion;
                 g.UsuarioAlta = "INNTEC";
                 g.Activo = listJson.Activo;
-                g.Foto = listJson.Foto;              
+                g.Foto = listJson.Foto;
+                g.TipoGrupoId = listJson.TipoGrupoId;
                 db.SaveChanges();
 
                 return Ok(HttpStatusCode.Created);

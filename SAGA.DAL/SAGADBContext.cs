@@ -523,6 +523,7 @@ namespace SAGA.DAL
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
                 Property(x => x.Foto).HasMaxLength(200);
                 Property(x => x.Descripcion).HasMaxLength(100);
+                Property(x => x.TipoGrupoId).IsOptional();
             }
         }
         public class JornadaLaboralMap : EntityTypeConfiguration<JornadaLaboral>

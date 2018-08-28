@@ -93,6 +93,8 @@ namespace SAGA.API.Controllers
                 Descripcion = g.Descripcion,
                 Nombre = g.Nombre,
                 UsuarioAlta = g.UsuarioAlta,
+                TipoGrupoId = db.TiposUsuarios.Where(x => x.Id.Equals(g.TipoGrupoId)).Select(id => id.Id).FirstOrDefault(),
+                TipoGrupo = db.TiposUsuarios.Where(x => x.Id.Equals(g.TipoGrupoId)).Select(n => n.Tipo).FirstOrDefault()
             }).OrderBy(g => g.Nombre).ToList();
 
             foreach(var g in grupos)
@@ -106,6 +108,8 @@ namespace SAGA.API.Controllers
                     Descripcion = g.Descripcion,
                     Nombre = g.Nombre,
                     UsuarioAlta = g.UsuarioAlta,
+                    TipoGrupoId = g.TipoGrupoId,
+                    TipoGrupo = g.TipoGrupo,
                     FotoAux = aux
                 });
             }
