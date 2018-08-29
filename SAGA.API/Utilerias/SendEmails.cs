@@ -97,7 +97,9 @@ namespace SAGA.API.Utilerias
                 else
                 {
                     var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(asg.GrpUsrId)).Select(x => x.email).FirstOrDefault();
-                    AddEmail.Add(sendEmail);
+                    if(sendEmail != null)
+                        AddEmail.Add(sendEmail);
+                    
                 }
             }
 
