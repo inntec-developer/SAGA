@@ -41,7 +41,7 @@ namespace SAGA.API.Controllers.Component
                 .Union(
                     db.Grupos
                     .OrderByDescending(g => g.Nombre)
-                    .Where(g => g.Activo.Equals(true) && entidad.Contains(g.Id))
+                    .Where(g => g.Activo.Equals(true) && g.TipoGrupoId <= 5 && g.TipoGrupoId > 0 && entidad.Contains(g.Id))
                     .Select(g => new AsigancionDto
                     {
                         Id = g.Id,
