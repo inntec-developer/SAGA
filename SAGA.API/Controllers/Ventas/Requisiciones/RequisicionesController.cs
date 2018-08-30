@@ -202,38 +202,31 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
-                .Where(g => g.EntidadId.Equals(IdUsuario))
-                .Select(g => g.GrupoId)
-                .ToList();
+                List<Guid> grp = new List<Guid>();
+
+                var Grupos = db.GruposUsuarios
+                    .Where(g => g.EntidadId.Equals(IdUsuario) & g.Grupo.Activo)
+                           .Select(g => g.GrupoId)
+                           .ToList();
 
 
-                var GruposEnGrupos = db.GruposUsuarios
-                    .Where(x => Grupos.Contains(x.EntidadId))
-                    .Select(g => g.GrupoId)
+                foreach (var grps in Grupos)
+                {
+                    grp = GetGrupo(grps, grp);
+                }
+
+                grp.Add(IdUsuario);
+
+                var asig = db.AsignacionRequis
+                    .OrderByDescending(e => e.Id)
+                    .Where(a => grp.Distinct().Contains(a.GrpUsrId))
+                    .Select(a => a.RequisicionId)
+                    .Distinct()
                     .ToList();
-
-
-                var RequisicionesGrupos = db.AsignacionRequis
-                    .Where(r => Grupos.Contains(r.GrpUsrId))
-                    .Select(r => r.RequisicionId)
-                    .ToList();
-
-                var RequiGrupoEnGrupo = db.AsignacionRequis
-                    .Where(r => GruposEnGrupos.Contains(r.GrpUsrId))
-                    .Select(r => r.RequisicionId)
-                    .ToList();
-
-                var RequisicionesInd = db.AsignacionRequis
-                    .Where(r => r.GrpUsrId.Equals(IdUsuario))
-                    .Select(r => r.RequisicionId)
-                    .ToList();
-
-
 
 
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                    .Where(e => RequisicionesGrupos.Contains(e.Id) || RequisicionesInd.Contains(e.Id) || RequiGrupoEnGrupo.Contains(e.Id))
+                    .Where(e => asig.Contains(e.Id) && e.Activo.Equals(true))
                     .Select(e => new
                     {
                         Id = e.Id,
@@ -603,6 +596,32 @@ namespace SAGA.API.Controllers
                 SendEmail.ConstructEmail(asignaciones, NotChange, "C", Folio, user, VBra);
             }
 
+        }
+
+        public List<Guid> GetGrupo(Guid grupo, List<Guid> listaIds)
+        {
+            if (!listaIds.Contains(grupo))
+            {
+                listaIds.Add(grupo);
+                var listadoNuevo = db.GruposUsuarios
+                    .Where(g => g.EntidadId.Equals(grupo) & g.Grupo.Activo)
+                           .Select(g => g.GrupoId)
+                           .ToList();
+                foreach (Guid g in listadoNuevo)
+                {
+                    var gp = db.GruposUsuarios
+                        .Where(x => x.EntidadId.Equals(g))
+                        .Select(x => x.GrupoId)
+                        .ToList();
+                    foreach (Guid gr in gp)
+                    {
+                        listaIds.Add(gr);
+                        GetGrupo(gr, listaIds);
+                    }
+                    listaIds.Add(g);
+                }
+            }
+            return listaIds;
         }
     }
 }

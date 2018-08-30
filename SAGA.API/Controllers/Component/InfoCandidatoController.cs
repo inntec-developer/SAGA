@@ -14,14 +14,10 @@ namespace SAGA.API.Controllers.Component
     public class InfoCandidatoController : ApiController
     {
         private SAGADBContext db;
-        List<GrupoUsuarios> Grupos;
-        List<Guid> Requis;
 
         public InfoCandidatoController()
         {
             db = new SAGADBContext();
-            Grupos = new List<GrupoUsuarios>();
-            Requis = new List<Guid>();
         }
 
         [Route("getInfoCandidato")]
@@ -73,49 +69,31 @@ namespace SAGA.API.Controllers.Component
         {
             try
             {
-                Grupos = db.GruposUsuarios.ToList();
-                //var Usario = db.Usuarios.Where(u => u.Id.Equals(id)).Select(u => u.TipoUsuarioId).FirstOrDefault();
-                // var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
-                //.Where(g => g.EntidadId.Equals(Id))
-                //.Select(g => g.GrupoId)
-                //.ToList();
+                List<Guid> grp = new List<Guid>();
+
+                var Grupos = db.GruposUsuarios
+                    .Where(g => g.EntidadId.Equals(Id) & g.Grupo.Activo)
+                           .Select(g => g.GrupoId)
+                           .ToList();
 
 
-                // var GruposEnGrupos = db.GruposUsuarios
-                //     .Where(x => Grupos.Contains(x.EntidadId))
-                //     .Select(g => g.GrupoId)
-                //     .ToList();
+                foreach (var grps in Grupos)
+                {
+                    grp = GetGrupo(grps, grp);
+                }
 
 
-                // var RequisicionesGrupos = db.AsignacionRequis
-                //     .Where(r => Grupos.Contains(r.GrpUsrId))
-                //     .Select(r => r.RequisicionId)
-                //     .ToList();
+                grp.Add(Id);
 
-                // var RequiGrupoEnGrupo = db.AsignacionRequis
-                //     .Where(r => GruposEnGrupos.Contains(r.GrpUsrId))
-                //     .Select(r => r.RequisicionId)
-                //     .ToList();
+                var asig = db.AsignacionRequis
+                    .OrderByDescending(e => e.Id)
+                    .Where(a => grp.Distinct().Contains(a.GrpUsrId))
+                    .Select(a => a.RequisicionId)
+                    .Distinct()
+                    .ToList();
 
-                // var RequisicionesInd = db.AsignacionRequis
-                //     .Where(r => r.GrpUsrId.Equals(Id))
-                //     .Select(r => r.RequisicionId)
-                //     .ToList();
-
-
-
-
-                var grp = db.GruposUsuarios.Where(x => x.EntidadId.Equals(Id)).ToList();
-
-                
-
-                var requisGrup = checkGrupsReclutador(grp);
-                var requiUser = db.AsignacionRequis.Where(r => r.GrpUsrId.Equals(Id)).Select(r => r.RequisicionId).ToList();
-
-                var requis = requisGrup.Union(requiUser);
-
-                var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                    .Where(e => requis.Contains(e.Id))
+                var vacantes = db.Requisiciones
+                    .Where(e => asig.Contains(e.Id) && e.Activo.Equals(true))
                     .Select(e => new
                     {
                         Id = e.Id,
@@ -128,34 +106,41 @@ namespace SAGA.API.Controllers.Component
                         fch_Cumplimiento = e.fch_Cumplimiento,
                         Estatus = e.Estatus.Descripcion,
                         EstatusId = e.EstatusId,
-                    }).Distinct().ToList();
+                        Confidencial = e.Confidencial
+                    }).ToList();
                 return Ok(vacantes);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
         }
 
-
-        /* Mandamos el Usario que esta solicitando las requisiciones, y los grupos a los cueles pertenece*/
-        public IEnumerable<Guid> checkGrupsReclutador(List<GrupoUsuarios> grp)
+        public List<Guid> GetGrupo(Guid grupo, List<Guid> listaIds)
         {
-            foreach (GrupoUsuarios gp in grp)
+            if (!listaIds.Contains(grupo))
             {
-                var requis = db.AsignacionRequis.Where(r => r.GrpUsrId.Equals(gp.GrupoId)).Select( r=> r.RequisicionId).ToList();
-                Requis.AddRange(requis);
-                foreach(GrupoUsuarios gps in Grupos)
+                listaIds.Add(grupo);
+                var listadoNuevo = db.GruposUsuarios
+                    .Where(g => g.EntidadId.Equals(grupo) & g.Grupo.Activo)
+                           .Select(g => g.GrupoId)
+                           .ToList();
+                foreach (Guid g in listadoNuevo)
                 {
-                    if(gps.EntidadId == gp.GrupoId)
+                    var gp = db.GruposUsuarios
+                        .Where(x => x.EntidadId.Equals(g))
+                        .Select(x => x.GrupoId)
+                        .ToList();
+                    foreach(Guid gr in gp)
                     {
-                        var rama = Grupos.Where(x => x.GrupoId.Equals(gps.EntidadId)).ToList();
-                        checkGrupsReclutador(rama);
+                        listaIds.Add(gr);
+                        GetGrupo(gr, listaIds);
                     }
+                    listaIds.Add(g);
                 }
             }
-            return Requis.Distinct();
+            return listaIds;
         }
     }
 }
