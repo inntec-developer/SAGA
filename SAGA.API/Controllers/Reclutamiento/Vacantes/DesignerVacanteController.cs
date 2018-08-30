@@ -146,6 +146,62 @@ namespace SAGA.API.Controllers
         }
 
 
+
+        [HttpPost]
+        [Route("GuardarVacante")]
+        public IHttpActionResult GuardarVacante(List<listaPublicar> ListadoJson)
+        {
+            string mensaje = "Publicacion Exitosa, configuracion guardada";
+            bool bandera = true;
+            try
+            {
+                var requi = db.ConfiguracionRequis.ToList();
+                Guid idRequi = ListadoJson.Select(a => a.id).FirstOrDefault();
+                var datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == idRequi).ToList();
+
+                if (datos.Count < ListadoJson.Count)
+                {
+                    var listaID = datos.Select(e => e.IdEstructura).ToList();
+                    var diferente = ListadoJson.Where(e => !listaID.Contains(e.idCampo)).ToList();
+                    foreach (var item in diferente)
+                    {
+                        ConfiguracionRequi caja = new ConfiguracionRequi();
+
+                        // caja.id = Guid.NewGuid();
+                        caja.Campo = item.nombre;
+                        caja.RequisicionId = item.id;
+                        caja.Detalle = item.detalle;
+                        caja.Resumen = item.resumen;
+                        caja.R_D = ResumenDetalle(item.resumen, item.detalle);
+                        caja.IdEstructura = item.idCampo;
+                        db.ConfiguracionRequis.Add(caja);
+                        db.SaveChanges();
+                    }
+                    datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == idRequi).ToList();
+                }
+
+                foreach (var item in ListadoJson)
+                {
+                    var lista = datos.Where(e => e.IdEstructura == item.idCampo).FirstOrDefault();
+                    lista.Detalle = item.detalle;
+                    lista.Resumen = item.resumen;
+                    lista.R_D = ResumenDetalle(item.resumen, item.detalle);
+                    db.SaveChanges();
+                }
+                var EstatusRequi = db.Requisiciones.Where(e => e.Id == idRequi).FirstOrDefault();
+                //EstatusRequi.EstatusId = 7;
+                db.SaveChanges();
+
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message;
+                bandera = false;
+            }
+            var obj = new { Mensaje = mensaje, Bandera = bandera };
+            return Ok(obj);
+        }
+
         [HttpPost]
         [Route("updatePublicar")]
         public IHttpActionResult PublicarVacante(List<listaPublicar> ListadoJson)

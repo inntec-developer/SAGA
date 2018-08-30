@@ -232,7 +232,7 @@ namespace SAGA.API.Controllers
 
 
 
-                var vacantes = db.Requisiciones
+                var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                     .Where(e => RequisicionesGrupos.Contains(e.Id) || RequisicionesInd.Contains(e.Id) || RequiGrupoEnGrupo.Contains(e.Id))
                     .Select(e => new
                     {
@@ -259,8 +259,9 @@ namespace SAGA.API.Controllers
                         Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
                         Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                         EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
-                        Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => s.Nombre  + " " +  s.ApellidoPaterno ).FirstOrDefault()
-                    }).ToList().OrderByDescending(e => e.Folio);
+                        Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                        AreaExperiencia = e.Area.areaExperiencia
+                    }).ToList();
                 return Ok(vacantes);
 
             }
