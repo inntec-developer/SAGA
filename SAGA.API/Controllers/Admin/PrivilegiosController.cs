@@ -23,17 +23,31 @@ namespace SAGA.API.Controllers
 
         public List<Guid> GetGrupo(Guid grupo, List<Guid> listaIds)
         {
-
-            var idG = db.GruposUsuarios
-                    .Where(x => x.EntidadId == grupo)
-                    .Select(g => g.GrupoId).ToList();
-
-            if (idG.Count > 0)
+            if (!listaIds.Contains(grupo))
             {
-                listaIds.Add(idG.FirstOrDefault());
-                return GetGrupo(idG.FirstOrDefault(), listaIds);
-            }
+                listaIds.Add(grupo);
 
+                var idG = db.GruposUsuarios
+                        .Where(x => x.EntidadId == grupo)
+                        .Select(g => g.GrupoId).ToList();
+
+                if (idG.Count > 0)
+                {
+                    foreach (var id in idG)
+                    {
+                        var idG2 = db.GruposUsuarios
+                       .Where(x => x.EntidadId == grupo)
+                       .Select(g => g.GrupoId).ToList();
+
+                        foreach (var x in idG2)
+                        {
+                            listaIds.Add(x);
+                            GetGrupo(x, listaIds);
+                        }
+                        listaIds.Add(id);
+                    }
+                }
+            }
             return listaIds;
         }
 
@@ -42,8 +56,8 @@ namespace SAGA.API.Controllers
         [Route("getprivilegios")]
         public IHttpActionResult GetPrivilegios2(Guid idUser)
         {
-           
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
+            List<Guid> listGrupos = new List<Guid>();
 
             var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
                            .Where(g => g.EntidadId.Equals(idUser) & g.Grupo.Activo)
@@ -52,12 +66,17 @@ namespace SAGA.API.Controllers
 
             //falta el for para los demas grupos
             
-            var mocos = GetGrupo(Grupos.FirstOrDefault(), Grupos);
+            foreach(var idg in Grupos)
+            {
+                var mocos = GetGrupo(idg, listGrupos);
+            }
 
-            Grupos.Add(idUser);
+
+            listGrupos.Add(idUser);
+            listGrupos.Distinct();
 
             var roles = db.RolEntidades
-                        .Where(x => Grupos.Contains(x.EntidadId))
+                        .Where(x => listGrupos.Contains(x.EntidadId))
                         .Select(r => r.RolId
                         ).ToList();
 
@@ -128,15 +147,21 @@ namespace SAGA.API.Controllers
         {
 
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
-         
+            List<Guid> listGrupos = new List<Guid>();
+
             var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
                            .Where(g => g.EntidadId.Equals(idUser) & g.Grupo.Activo.Equals(true))
                            .Select(g => g.GrupoId)
                            .ToList();
 
-            var mocos = GetGrupo(Grupos.FirstOrDefault(), Grupos);
+            foreach (var idg in Grupos)
+            {
+                var mocos = GetGrupo(idg, listGrupos);
+            }
 
-            Grupos.Add(idUser);
+
+            listGrupos.Add(idUser);
+            listGrupos.Distinct();
 
             var roles = db.RolEntidades
                        .Where(x => Grupos.Contains(x.EntidadId) & x.Rol.Activo.Equals(true))
