@@ -65,7 +65,6 @@ namespace SAGA.API.Controllers.Component
         [Route("getMisVacantes")]
         [HttpGet]
         public IHttpActionResult _GetMisVacantes(Guid Id)
-
         {
             try
             {
@@ -141,6 +140,30 @@ namespace SAGA.API.Controllers.Component
                 }
             }
             return listaIds;
+        }
+
+        [Route("getPostulaciones")]
+        [HttpGet]
+        public IHttpActionResult GetPostulaciones(Guid Id)
+        {
+            try
+            {
+                var postulaciones = db.Postulaciones
+                    .Where(p => p.CandidatoId.Equals(Id) && p.Requisicion.Activo.Equals(true))
+                    .Select(p => new
+                    {
+                        Folio = p.Requisicion.Folio,
+                        vBtra = p.Requisicion.VBtra,
+                        Estatus = p.Status.Status,
+                        EstatusId = p.StatusId
+                    }).OrderByDescending(p => p.Folio).ToList();
+                return Ok(postulaciones);
+            }
+            catch(Exception ex)
+            {
+                string msd = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
         }
     }
 }

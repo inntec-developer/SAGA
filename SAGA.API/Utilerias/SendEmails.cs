@@ -35,25 +35,30 @@ namespace SAGA.API.Utilerias
         /*Recupera la lista de E-mail a la cuel se le mandara correo elctronico, en caso de que encuntre una Celula/Grupo este recorrera los 
          * usarios que esten dentro de las mismas, sin importar cuentas celulas encuentre, este seguira repitiendo hasta buscar en la Ultima celular/grupo.
          */
-        public List<string> checkEmails(List<GrupoUsuarios> grp)
+        public List<string> checkEmails(List<Guid> grp)
         {
-            foreach (GrupoUsuarios gp in grp)
+            foreach (var gp in grp)
             {
-                var email = db.Emails.Where(x => x.EntidadId.Equals(gp.EntidadId)).Select(x => x.email).FirstOrDefault();
-                var tipoEntidad = gp.Entidad.TipoEntidadId;
-                if (tipoEntidad == 4)
+                var grupoInGrupo = db.GruposUsuarios.Where(x => x.GrupoId.Equals(gp)).ToList();
+                if(grupoInGrupo.Count > 0)
                 {
-                    /* Genera la nueva lista de suarios dentro de una celular para posteriormente mandar llamar de nuevo checkEmail y continuar con la busqueda
-                     * de corres electronicos. 
-                     */
-                    List<GrupoUsuarios> rama = db.GruposUsuarios.Where(x => x.GrupoId.Equals(gp.EntidadId)).ToList();
-                    checkEmails(rama);
+                    foreach (var grupo in grupoInGrupo)
+                    {
+                        var email = db.Emails.Where(x => x.EntidadId.Equals(grupo.EntidadId)).Select(x => x.email).FirstOrDefault();
+                        var tipoEntidad = grupo.Entidad.TipoEntidadId;
+                        if (tipoEntidad != 4)
+                        {
+                            /*Agrega el correo encontrado a la lista de correos.*/
+                            AddEmail.Add(email);
+                        }
+                    }
                 }
                 else
                 {
-                    /*Agrega el correo encontrado a la lista de correos.*/
+                    var email = db.Emails.Where(x => x.EntidadId.Equals(gp)).Select(x => x.email).FirstOrDefault();
                     AddEmail.Add(email);
                 }
+               
             }
             return AddEmail;
         }
@@ -67,114 +72,148 @@ namespace SAGA.API.Utilerias
         {
             foreach (GrupoUsuarios gp in grpNc)
             {
-                var email = db.Emails.Where(x => x.EntidadId.Equals(gp.EntidadId)).Select(x => x.email).FirstOrDefault();
-                var tipoEntidad = gp.Entidad.TipoEntidadId;
-                if (tipoEntidad == 4)
+                var grupoInGrupo = db.GruposUsuarios.Where(x => x.GrupoId.Equals(gp)).ToList();
+                foreach(var grupo in grupoInGrupo)
                 {
-                    /* Genera la nueva lista de usarios dentro de una celular para posteriormente mandar llamar de nuevo EmailsNotChange y continuar con la busqueda
-                     * de corres electronicos. 
-                     */
-                    List<GrupoUsuarios> rama = db.GruposUsuarios.Where(x => x.GrupoId.Equals(gp.EntidadId)).ToList();
-                    EmailsNotChange(rama);
-                }
-                else
-                {
-                    emailNoChange.Add(email);
+                    var email = db.Emails.Where(x => x.EntidadId.Equals(grupo.EntidadId)).Select(x => x.email).FirstOrDefault();
+                    var tipoEntidad = grupo.Entidad.TipoEntidadId;
+                    if (tipoEntidad != 4)
+                    {
+                        /*Agrega el correo encontrado a la lista de correos.*/
+                        emailNoChange.Add(email);
+                    }
                 }
             }
-            return AddEmail;
+            return emailNoChange;
+        }
+
+        public List<Guid> GetGrupo(Guid grupo, List<Guid> listaIds)
+        {
+            if (!listaIds.Contains(grupo))
+            {
+                listaIds.Add(grupo);
+                var listadoNuevo = db.GruposUsuarios
+                    .Where(g => g.GrupoId.Equals(grupo) & g.Grupo.Activo)
+                           .Select(g => g.GrupoId)
+                           .ToList();
+                foreach (Guid g in listadoNuevo)
+                {
+                    //listaIds.Add(g);
+                    var gp = db.GruposUsuarios
+                        .Where(x => x.GrupoId.Equals(g))
+                        .Select(x => x.EntidadId)
+                        .ToList();
+                    foreach (Guid gr in gp)
+                    {
+                        GetGrupo(gr, listaIds);
+                    }
+                }
+            }
+            return listaIds;
         }
 
         public void ConstructEmail(List<AsignacionRequi> asignaciones, List<AsignacionRequi> NotChange, string action, Int64 Folio, string Usuario, string VBr)
         {
-            foreach(AsignacionRequi asg in asignaciones)
+            try
             {
-                grpUser = db.GruposUsuarios.Where(x => x.GrupoId.Equals(asg.GrpUsrId)).ToList();
-                if (grpUser.Count() > 0)
+                List<Guid> grp = new List<Guid>();
+                foreach (AsignacionRequi asg in asignaciones)
                 {
-                    var emails = checkEmails(grpUser).Distinct();
-                }
-                else
-                {
-                    var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(asg.GrpUsrId)).Select(x => x.email).FirstOrDefault();
-                    if(sendEmail != null)
-                        AddEmail.Add(sendEmail);
-                    
-                }
-            }
-
-            if(NotChange != null)
-            {
-                if (NotChange.Count() > 0)
-                {
-                    foreach (AsignacionRequi nc in NotChange)
+                    grpUser = db.GruposUsuarios.Where(x => x.GrupoId.Equals(asg.GrpUsrId)).ToList();
+                    foreach (var grps in grpUser)
                     {
-                        grpUserNotChange = db.GruposUsuarios.Where(x => x.GrupoId.Equals(nc.GrpUsrId)).ToList();
-                        if (grpUserNotChange.Count() > 0)
+                        grp = GetGrupo(grps.EntidadId, grp);
+                    }
+
+                    if (grpUser.Count() > 0)
+                    {
+                        var emails = checkEmails(grp).Distinct();
+                    }
+                    else
+                    {
+                        var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(asg.GrpUsrId)).Select(x => x.email).FirstOrDefault();
+                        if (sendEmail != null)
+                            AddEmail.Add(sendEmail);
+
+                    }
+                }
+
+                if (NotChange != null)
+                {
+                    if (NotChange.Count() > 0)
+                    {
+                        foreach (AsignacionRequi nc in NotChange)
                         {
-                            var emails = EmailsNotChange(grpUserNotChange).Distinct();
-                        }
-                        else
-                        {
-                            var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(nc.GrpUsrId)).Select(x => x.email).FirstOrDefault();
-                            emailNoChange.Add(sendEmail);
+                            grpUserNotChange = db.GruposUsuarios.Where(x => x.GrupoId.Equals(nc.GrpUsrId)).ToList();
+                            if (grpUserNotChange.Count() > 0)
+                            {
+                                var emails = EmailsNotChange(grpUserNotChange).Distinct();
+                            }
+                            else
+                            {
+                                var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(nc.GrpUsrId)).Select(x => x.email).FirstOrDefault();
+                                emailNoChange.Add(sendEmail);
+                            }
                         }
                     }
                 }
+                /* Exluir los correo de la lista AddEmail que no deben recibir el correo electronico.*/
+                distintEmails = AddEmail.Except(emailNoChange);
+                if (distintEmails.Count() > 0)
+                {
+                    string body = string.Empty;
+                    string from = ConfigurationManager.AppSettings["ToEmail"];
+                    MailMessage m = new MailMessage();
+                    m.From = new MailAddress(from, "SAGA Inn");
+
+                    foreach (string x in distintEmails)
+                    {
+                        m.To.Add(x.ToString());
+                    }
+
+                    if (action == "C")
+                    {
+                        m.Subject = "Asignacion de Requisicion " + Folio;
+                        body = "<p>Asignación de Requisición:</p>";
+                        body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>. ", Usuario, VBr, Folio);
+                        body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de reclutamiento seguido de entidades de reclutamiento, selecciona la opción de vacantes, para dar el seguimiento correspondiente.</p> ";
+                        body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
+                    }
+                    if (action == "D")
+                    {
+                        m.Subject = "Des-asignación  de Requisicion";
+                        body = "<p>Des-asignación  de Requisición:</p>";
+                        body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha desasignado de la vacante <strong>{1}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{2}</big></strong>.", Usuario, VBr, Folio);
+                        body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
+                    }
+                    if (action == "RD")
+                    {
+                        m.Subject = "Eliminación de Requisicion";
+                        body = "<p>Eliminación de Requisición:</p>";
+                        body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{1}</big></strong>, fue eliminada.", VBr, Folio);
+                        body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
+                    }
+
+                    if (action == "RU")
+                    {
+                        m.Subject = "Cancelación de Requisicion";
+                        body = "<p>Cancelación de Requisición:</p>";
+                        body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{1}</big></strong>, fue cancelada.", VBr, Folio);
+                        body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
+                    }
+
+                    m.Body = body;
+                    m.IsBodyHtml = true;
+                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                    smtp.EnableSsl = true;
+                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                    smtp.Send(m);
+                }
             }
-            /* Exluir los correo de la lista AddEmail que no deben recibir el correo electronico.*/
-            distintEmails = AddEmail.Except(emailNoChange);
-            if(distintEmails.Count() > 0)
+            catch (Exception ex)
             {
-                string body = string.Empty;
-                string from = ConfigurationManager.AppSettings["ToEmail"];
-                MailMessage m = new MailMessage();
-                m.From = new MailAddress(from, "SAGA Inn");
-
-                foreach (string x in distintEmails)
-                {
-                    m.To.Add(x.ToString());
-                }
-
-                if (action == "C")
-                {
-                    m.Subject = "Asignacion de Requisicion "+ Folio;
-                    body = "<p>Asignación de Requisición:</p>";
-                    body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>. ", Usuario, VBr, Folio);
-                    body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de reclutamiento seguido de entidades de reclutamiento, selecciona la opción de vacantes, para dar el seguimiento correspondiente.</p> ";
-                    body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
-                }
-                if (action == "D")
-                {
-                    m.Subject = "Des-asignación  de Requisicion";
-                    body = "<p>Des-asignación  de Requisición:</p>";
-                    body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha desasignado de la vacante <strong>{1}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{2}</big></strong>.", Usuario, VBr, Folio);
-                    body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
-                }
-                if(action == "RD")
-                {
-                    m.Subject = "Eliminación de Requisicion";
-                    body = "<p>Eliminación de Requisición:</p>";
-                    body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{1}</big></strong>, fue eliminada.", VBr, Folio);
-                    body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
-                }
-
-                if (action == "RU")
-                {
-                    m.Subject = "Cancelación de Requisicion";
-                    body = "<p>Cancelación de Requisición:</p>";
-                    body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{1}</big></strong>, fue cancelada.",  VBr, Folio);
-                    body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
-                }
-
-                m.Body = body;
-                m.IsBodyHtml = true;
-                SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
-                smtp.EnableSsl = true;
-                smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-                smtp.Send(m);
+                string msg = ex.Message;
             }
-            
         }
 
         public void SendEmailRegistro(PersonasDtos dtos)
@@ -203,7 +242,7 @@ namespace SAGA.API.Utilerias
             {
                 m.Bcc.Add(e.email.ToString());
             }
-           
+
             m.Subject = "Tu acceso al sistema SAGA ERP de DAMSA está listo!";
             body = "<html><body><table width=\"80%\" style=\"font-family:'calibri'\">";
             body = body + "<tr><th bgcolor=\"#044464\" style=\"color:white; text-align:left;\">Se creó una nueva cuenta para SAGA ERP </th></ tr>";
