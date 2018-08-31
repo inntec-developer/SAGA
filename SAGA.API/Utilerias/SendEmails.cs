@@ -32,9 +32,10 @@ namespace SAGA.API.Utilerias
             grpUserNotChange = new List<GrupoUsuarios>();
         }
 
-        /*Recupera la lista de E-mail a la cuel se le mandara correo elctronico, en caso de que encuntre una Celula/Grupo este recorrera los 
-         * usarios que esten dentro de las mismas, sin importar cuentas celulas encuentre, este seguira repitiendo hasta buscar en la Ultima celular/grupo.
+        /*Recupera la lista de E-mail a la cual se le mandara correo electrónico, en caso de que encuentre una Célula/Grupo este recorrerá los 
+         * Usuarios que estén dentro de las mismas, sin importar cuentas células encuentre, este seguirá repitiendo hasta buscar en la Ultima celular/grupo.
          */
+
         public List<string> checkEmails(List<Guid> grp)
         {
             foreach (var gp in grp)
@@ -63,11 +64,12 @@ namespace SAGA.API.Utilerias
             return AddEmail;
         }
 
-        /* Recupara la lista de E-mails que sifriran cambios y posteriormente estos seran excluidos de la lista generada anteriormente
-         * Si la entidad esta en dos celulas diferentes y una de ellas se elimina de la requisicion este usario no recibira el correo
-         * eletronico ya que dentro de otra celula aun tiene permisos para visualizarla, lo mismo para si La entidad esta propia(usario)
-         * y este se elimina de la celula donde se encuetra, no recibira el correo ya que esta como individual en la requisicion.
+        /* Recupera la lista de E-mails que sufrirán cambios y posteriormente estos serán excluidos de la lista generada anteriormente
+         * Si la entidad está en dos células diferentes y una de ellas se elimina de la requisición este usuario no recibirá el correo
+         * electrónico ya que dentro de otra célula aún tiene permisos para visualizarla, lo mismo para si La entidad esta propia(usuario)
+         * y este se elimina de la célula donde se encuentra, no recibirá el correo ya que esta como individual en la requisición.
         */
+
         public List<string> EmailsNotChange(List<GrupoUsuarios> grpNc)
         {
             foreach (GrupoUsuarios gp in grpNc)
@@ -98,7 +100,6 @@ namespace SAGA.API.Utilerias
                            .ToList();
                 foreach (Guid g in listadoNuevo)
                 {
-                    //listaIds.Add(g);
                     var gp = db.GruposUsuarios
                         .Where(x => x.GrupoId.Equals(g))
                         .Select(x => x.EntidadId)

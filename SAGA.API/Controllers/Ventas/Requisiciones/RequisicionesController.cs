@@ -73,7 +73,6 @@ namespace SAGA.API.Controllers
             }
         }
 
-        //api/Requisiciones/getRequisicion
         [HttpGet]
         [Route("getById")]
         public IHttpActionResult GetRequisicion(Guid Id)
@@ -90,7 +89,6 @@ namespace SAGA.API.Controllers
 
         }
 
-        //api/Requisiciones/getRequisicion
         [HttpGet]
         [Route("getByFolio")]
         public IHttpActionResult GetRequisicionFolio(Int64 folio)
@@ -125,7 +123,6 @@ namespace SAGA.API.Controllers
 
         }
 
-        //api/Requisiciones/createRequi
         [HttpPost]
         [Route("createRequi")]
         public IHttpActionResult Clon(CreateRequiDto cr)
@@ -154,7 +151,6 @@ namespace SAGA.API.Controllers
 
         }
 
-        //api/Requisiciones/getRequisiciones
         [HttpGet]
         [Route("getRequisiciones")]
         public IHttpActionResult GetRequisiciones(string propietario)
@@ -195,7 +191,6 @@ namespace SAGA.API.Controllers
             return Ok(requisicion);
         } 
 
-        //api/getRequiReclutador
         [HttpGet]
         [Route("getRequiReclutador")]
         public IHttpActionResult GtRequiReclutador(Guid IdUsuario)
@@ -266,7 +261,6 @@ namespace SAGA.API.Controllers
 
         }
 
-        //api/getDireccionRequisicon
         [HttpGet]
         [Route("getDireccionRequisicon")]
         public IHttpActionResult GetDireccionRequisicon(Guid Id)
@@ -302,7 +296,6 @@ namespace SAGA.API.Controllers
             }
         }
 
-        //api/getDireccionRequisicon
         [HttpGet]
         [Route("getHorariosRequisicion")]
         public IHttpActionResult GetHorariosRequisicion(Guid Id)
@@ -318,7 +311,6 @@ namespace SAGA.API.Controllers
             }
         }
 
-        //api/updateRequisiciones
         [HttpPost]
         [Route("updateRequisiciones")]
         public IHttpActionResult UpdateRequi(RequisicionDto requi)
@@ -363,7 +355,6 @@ namespace SAGA.API.Controllers
 
         }
 
-        //api/deleteRequisiciones
         [HttpPost]
         [Route("deleteRequisiciones")]
         public IHttpActionResult DeleteRequi(RequisicionDeleteDto requi)
@@ -401,7 +392,6 @@ namespace SAGA.API.Controllers
             }
         }
 
-        //api
         [HttpPost]
         [Route("cancelRequisiciones")]
         public IHttpActionResult CancelRequi(RequisicionDeleteDto requi)
@@ -441,7 +431,6 @@ namespace SAGA.API.Controllers
             }
         }
 
-        //api/reActivarRequisiciones
         [HttpPost]
         [Route("reActivarRequisiciones")]
         public IHttpActionResult ReActivar(RequisicionDeleteDto requi)
@@ -471,7 +460,6 @@ namespace SAGA.API.Controllers
             }
         }
 
-        //api/asignacionRequisiciones
         [HttpPost]
         [Route("asignacionRequisiciones")]
         public IHttpActionResult AsginarRequi(AsignarVacanteReclutador requi)
