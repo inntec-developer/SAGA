@@ -615,10 +615,8 @@ namespace SAGA.API.Controllers
                         .ToList();
                     foreach (Guid gr in gp)
                     {
-                        listaIds.Add(gr);
                         GetGrupo(gr, listaIds);
                     }
-                    listaIds.Add(g);
                 }
             }
             return listaIds;
