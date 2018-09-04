@@ -85,7 +85,7 @@ namespace SAGA.API.Controllers
         {
             PersonalController obj = new PersonalController();
             List<GruposDtos> data = new List<GruposDtos>();
-            var grupos = db.Grupos.Where(x => x.Activo).Select(g => new
+            var grupos = db.Grupos.Select(g => new
             {
                 Id = g.Id,
                 Foto = g.Foto,

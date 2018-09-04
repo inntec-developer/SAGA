@@ -48,6 +48,28 @@ namespace SAGA.API.Controllers
             }
             
         }
+        [HttpPost]
+        [Route("updateActivo")]
+        public IHttpActionResult updateActivo(Grupos data)
+        {
+            try
+            {
+                var g = db.Grupos.Find(data.Id);
+
+                db.Entry(g).State = EntityState.Modified;
+                g.Activo = data.Activo;
+
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+
+        }
 
         [HttpPost]
         [Route("updateGrupo")]
@@ -84,8 +106,7 @@ namespace SAGA.API.Controllers
             {
                 var r = db.Grupos.Find(listJson.Id);
 
-                db.Entry(r).State = EntityState.Modified;
-                r.Activo = false;
+                db.Entry(r).State = EntityState.Deleted;
 
                 db.SaveChanges();
 
