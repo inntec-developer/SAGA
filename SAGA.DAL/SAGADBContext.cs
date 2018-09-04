@@ -1891,13 +1891,15 @@ namespace SAGA.DAL
 			public ProcesoCandidatoMap()
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.CandidatoId).IsRequired().HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute("Index") { IsUnique = true } }));
+				Property(x => x.CandidatoId).IsRequired();
 				Property(x => x.RequisicionId).IsRequired();
-				Property(x => x.Reclutador).IsRequired();
-				Property(x => x.Estatus).IsRequired();
+                Property(x => x.Folio).IsRequired();
+                Property(x => x.ReclutadorId).IsRequired();
+				Property(x => x.Reclutador).IsRequired().HasMaxLength(100);
+				Property(x => x.EstatusId).IsRequired();
 				Property(x => x.TpContrato).IsOptional();
 				Property(x => x.Fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.Fch_Modificacion).IsOptional().HasColumnType("Datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+                Property(x => x.Fch_Modificacion).IsOptional().HasColumnType("Datetime");
 			}
 		}
         public class CfgRequiMap : EntityTypeConfiguration<CfgRequi>

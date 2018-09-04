@@ -106,7 +106,7 @@ namespace SAGA.API.Controllers.Component
                         Estatus = e.Estatus.Descripcion,
                         EstatusId = e.EstatusId,
                         Confidencial = e.Confidencial
-                    }).ToList();
+                    }).ToList().OrderByDescending(x => x.Folio.ToString());
                 return Ok(vacantes);
             }
             catch (Exception ex)
@@ -133,10 +133,8 @@ namespace SAGA.API.Controllers.Component
                         .ToList();
                     foreach(Guid gr in gp)
                     {
-                        listaIds.Add(gr);
                         GetGrupo(gr, listaIds);
                     }
-                    listaIds.Add(g);
                 }
             }
             return listaIds;
@@ -162,6 +160,47 @@ namespace SAGA.API.Controllers.Component
             catch(Exception ex)
             {
                 string msd = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Route("apartarCandidato")]
+        [HttpPost]
+        public IHttpActionResult ApartarCandidato(ProcesoCandidato proceso)
+        {
+            try
+            {
+                if(db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(proceso.CandidatoId)).Count() == 0)
+                {
+                    db.ProcesoCandidatos.Add(proceso);
+                    db.SaveChanges();
+                    return Ok(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.NotModified);
+                }
+            }
+            catch(Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+        [Route("desapartarCandidato")]
+        [HttpPost]
+        public IHttpActionResult LiberarCandidato(int Id)
+        {
+            try
+            {
+                ProcesoCandidato liberar = db.ProcesoCandidatos.Find(Id);
+                db.ProcesoCandidatos.Remove(liberar);
+                db.SaveChanges();
+                return Ok(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
         }
