@@ -183,12 +183,13 @@ namespace SAGA.API.Controllers.Component
             }
             catch(Exception ex)
             {
-                return Ok(ex.Message);
+                var msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
             }
         }
 
-        [Route("desapartarCandidato")]
-        [HttpPost]
+        [Route("liberarCandidato")]
+        [HttpDelete]
         public IHttpActionResult LiberarCandidato(int Id)
         {
             try
