@@ -20,5 +20,9 @@ namespace SAGA.BOL
         public int TpContrato { get; set; }
         public DateTime Fch_Creacion { get; set; }
         public DateTime? Fch_Modificacion { get; set; }
+        
+        public virtual Estatus Estatus { get; set; }
+        public virtual Candidato Candidato { get; set; }
+        public virtual Requisicion Requisicion { get; set; }
     }
 }
