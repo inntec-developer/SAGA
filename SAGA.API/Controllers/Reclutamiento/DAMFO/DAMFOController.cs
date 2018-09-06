@@ -27,7 +27,7 @@ namespace SAGA.API.Controllers
         [Route("getViewDamfos")]
         public IHttpActionResult Get()
         {
-            var damfo290 = db.DAMFO290.Select(df => new
+            var damfo290 = db.DAMFO290.Where(df => df.Activo).Select(df => new
             {
                 Id = df.Id,
                 Cliente = df.Cliente.Nombrecomercial,

@@ -189,7 +189,7 @@ namespace SAGA.API.Controllers.Component
         }
 
         [Route("liberarCandidato")]
-        [HttpDelete]
+        [HttpGet]
         public IHttpActionResult LiberarCandidato(int Id)
         {
             try

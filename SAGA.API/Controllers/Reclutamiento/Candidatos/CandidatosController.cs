@@ -336,40 +336,24 @@ namespace SAGA.API.Controllers
         [Route("getMisCandidatos")]
         public IHttpActionResult GetMisCandidatos(Guid Id)
         {
-            var candidatos = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id)).Select(x => x.CandidatoId).ToList();
-            List<FiltrosDto> misCandidatos = new List<FiltrosDto>();
-            misCandidatos = db.PerfilCandidato
-                .Where(c => candidatos.Contains(c.CandidatoId))
-                 .Select(c => new FiltrosDto
-                 {
-                     IdCandidato = c.CandidatoId,
-                     IdPais = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.PaisId).FirstOrDefault(),
-                     IdEstado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.EstadoId).FirstOrDefault(),
-                     IdMunicipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.MunicipioId).FirstOrDefault(),
-                     nombre = c.Candidato.Nombre,
-                     apellidoPaterno = c.Candidato.ApellidoPaterno,
-                     apellidoMaterno = c.Candidato.ApellidoMaterno,
-                     cp = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.CodigoPostal).FirstOrDefault(),
-                     curp = c.Candidato.CURP,
-                     fechaNacimiento = c.Candidato.FechaNacimiento,
-                     rfc = c.Candidato.RFC,
-                     nss = c.Candidato.NSS,
-                     Formaciones = c.Formaciones,
-                     Experiencias = c.Experiencias,
-                     IdAreaExp = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault(),
-                     IdPerfil = c.AboutMe.Select(p => p.PerfilExperienciaId).FirstOrDefault(),
-                     IdGenero = c.Candidato.GeneroId,
-                     IdPDiscapacidad = c.Candidato.TipoDiscapacidadId,
-                     IdTipoLicencia = c.Candidato.TipoLicenciaId,
-                     Acercademi = c.AboutMe,
-                     Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault(),
-                     Idiomas = c.Idiomas,
-                     Reubicacion = c.Candidato.puedeRehubicarse,
-                     TpVehiculo = c.Candidato.tieneVehiculoPropio
-
-                 }).ToList();
-
-            return Ok(misCandidatos.Distinct());
+            var candidatos = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id)).Select(x => new
+            {
+                candidatoId = x.CandidatoId,
+                nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
+                AreaExp = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault(),
+                AreaInt = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() != null ?
+                          db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() : "",
+                Edad = x.Candidato.FechaNacimiento,
+                curp = x.Candidato.CURP,
+                rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
+                sueldoMinimo = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault(),
+                localidad = x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault(),
+                folio = x.Folio,
+                vBtra = x.Requisicion.VBtra,
+                estatus = x.Estatus.Descripcion,
+                estatusId = x.EstatusId
+            }).ToList();
+            return Ok(candidatos);
         }
 
         [HttpGet]
