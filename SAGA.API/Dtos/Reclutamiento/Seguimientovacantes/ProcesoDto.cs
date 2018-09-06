@@ -7,7 +7,7 @@ namespace SAGA.API.Dtos.Reclutamiento.Seguimientovacantes
 {
     public class ProcesoDto
     {
-        public Guid CandidatoId { get; set; }
-        public int EstatusId { get; set; }
+        public Guid candidatoId { get; set; }
+        public int estatusId { get; set; }
     }
 }
