@@ -160,6 +160,8 @@ namespace SAGA.API.Controllers
                 .Where(c => c.Id != null)
                  .Select(c => new FiltrosDto {
                      IdCandidato = c.CandidatoId,
+                     Estado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Estado.estado).FirstOrDefault(),
+                     Municipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Municipio.municipio).FirstOrDefault(),
                      IdPais = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.PaisId).FirstOrDefault(),
                      IdEstado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.EstadoId).FirstOrDefault(),
                      IdMunicipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.MunicipioId).FirstOrDefault(),
@@ -314,34 +316,27 @@ namespace SAGA.API.Controllers
                     }
                 }
             }
+            var candidatos = Filtrado.Select(x => new
+            {
+                candidatoId = x.IdCandidato,
+                nombre = x.nombre + " " + x.apellidoPaterno + " " + x.apellidoMaterno,
+                AreaExp = x.Acercademi.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault(),
+                AreaInt = x.Acercademi.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
+                edad = x.fechaNacimiento,
+                curp = x.curp,
+                rfc = x.rfc != null ? x.rfc : "",
+                sueldoMinimo = x.Acercademi.Select(a => a.SalarioAceptable).FirstOrDefault(),
+                localidad = x.Estado + " / " + x.Municipio,
+            }).ToList();
 
-            //CandidatosDto Candidatos = new CandidatosDto();
-
-            //Candidatos.Candidatos = (from candidatos in db.Candidatos
-            //                         join perfilcandidato in db.PerfilCandidato on candidatos.Id equals perfilcandidato.CandidatoId
-            //                         join persona in db.Personas on candidatos.Id equals persona.Id
-            //                         where perfilcandidato.Id != null
-            //                         select new CandidatosGralDto
-            //                         {
-            //                             Id = candidatos.Id,
-            //                             Nombre = persona.Nombre,
-            //                             ApellidoPaterno = persona.ApellidoPaterno,
-            //                             ApellidoMaterno = persona.ApellidoMaterno,
-            //                             CP = candidatos.CodigoPostal,
-            //                             Curp = candidatos.CURP,
-            //                             Rfc = candidatos.RFC,
-            //                             Nss = candidatos.NSS
-            //                         }).ToList();
-
-            return Ok(Filtrado);
+            return Ok(candidatos);
          }
 
         [HttpGet]
         [Route("getMisCandidatos")]
-        public IHttpActionResult GetMisCandidatos(string reclutador)
+        public IHttpActionResult GetMisCandidatos(Guid Id)
         {
-            var candidatos = db.ProcesoCandidatos.Where(x =>x.Reclutador.Equals(reclutador)).Select(x => x.CandidatoId).ToList();
-
+            var candidatos = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id)).Select(x => x.CandidatoId).ToList();
             List<FiltrosDto> misCandidatos = new List<FiltrosDto>();
             misCandidatos = db.PerfilCandidato
                 .Where(c => candidatos.Contains(c.CandidatoId))

@@ -20,6 +20,8 @@ namespace SAGA.API.Dtos
         public int? IdEstado { get; set; }
         public int? IdMunicipio { get; set; }
         public int? IdColonia { get; set; }
+        public string Estado { get; set; }
+        public string Municipio { get; set; }
         public string cp { get; set; }
         public int? IdAreaExp { get; set; }
         public int? IdPerfil { get; set; }
