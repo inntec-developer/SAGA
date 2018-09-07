@@ -25,6 +25,7 @@ namespace SAGA.API.Controllers
         {
             var postulate = db.Postulaciones.Where(x => x.RequisicionId.Equals(VacanteId)).Select(x => x.CandidatoId).ToList();
             var candidatos = db.PerfilCandidato.Where(x => postulate.Contains(x.CandidatoId)).Select(x => new {
+                CandidatoId = x.CandidatoId,
                 nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
                 AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault(),
                 AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "" ,
@@ -59,23 +60,6 @@ namespace SAGA.API.Controllers
             });
 
             return Ok(postulate);
-
-
-
-
-            //var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId)).Select(c => c.CandidatoId).ToList();
-
-            //var candidatos = db.PerfilCandidato.Where(x => postulate.Contains(x.CandidatoId)).Select(x => new {
-            //    candidatoId = x.CandidatoId,
-            //    nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
-            //    AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault(),
-            //    AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
-            //    localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
-            //    sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault(),
-            //    edad = x.Candidato.FechaNacimiento,
-            //    rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-            //    curp = x.Candidato.CURP
-            //}).ToList();
 
         }
 
