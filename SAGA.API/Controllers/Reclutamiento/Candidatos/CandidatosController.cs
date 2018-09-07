@@ -320,12 +320,12 @@ namespace SAGA.API.Controllers
             {
                 candidatoId = x.IdCandidato,
                 nombre = x.nombre + " " + x.apellidoPaterno + " " + x.apellidoMaterno,
-                AreaExp = x.Acercademi.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault(),
+                AreaExp = x.Acercademi.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
                 AreaInt = x.Acercademi.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
                 edad = x.fechaNacimiento,
                 curp = x.curp,
                 rfc = x.rfc != null ? x.rfc : "",
-                sueldoMinimo = x.Acercademi.Select(a => a.SalarioAceptable).FirstOrDefault(),
+                sueldoMinimo = x.Acercademi.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? x.Acercademi.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
                 localidad = x.Estado + " / " + x.Municipio,
             }).ToList();
 
@@ -347,7 +347,8 @@ namespace SAGA.API.Controllers
                 Edad = x.Candidato.FechaNacimiento,
                 curp = x.Candidato.CURP,
                 rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-                sueldoMinimo = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault(),
+                sueldoMinimo = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault()).FirstOrDefault() != null ?
+                               db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault() : 0 ,
                 localidad = x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault(),
                 folio = x.Folio,
                 vBtra = x.Requisicion.VBtra,
