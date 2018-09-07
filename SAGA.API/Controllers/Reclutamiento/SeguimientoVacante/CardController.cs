@@ -20,8 +20,23 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getCard")]
-        public IHttpActionResult GetDatosCard(Guid ClientId)
+        public IHttpActionResult GetDatosCard(Guid ClientId, Guid RequisicionId)
         {
+            PrivilegiosController obj = new PrivilegiosController();
+            List<Guid> ids = new List<Guid>();
+            var Asignados = (from R in db.Requisiciones
+                             join AR in db.AsignacionRequis on R.Id equals AR.RequisicionId
+                             join E in db.Entidad on AR.GrpUsrId equals E.Id
+                             where R.Id.Equals(RequisicionId)
+                             select( E.Id )).ToList();
+
+
+            foreach (var id in Asignados)
+            {
+              obj.GetGrupo(id, ids);
+            }
+
+            ids.Distinct();
 
             var dts = db.Clientes.Where(x => x.Id.Equals(ClientId)).Select(C => new
             {
@@ -31,7 +46,7 @@ namespace SAGA.API.Controllers
                 {
                     Tipo = t.TipoTelefono.Tipo,
                     Telefono = t.telefono,
-                    Exts = C.telefonos.Where(xx => xx.telefono.Equals(t.telefono)).Select( ex => new
+                    Exts = C.telefonos.Where(xx => xx.telefono.Equals(t.telefono)).Select(ex => new
                     {
                         ext = ex.Extension
                     }),
@@ -55,32 +70,33 @@ namespace SAGA.API.Controllers
                 Contactos = C.Contactos.Select(p => new {
                     Puesto = p.Puesto,
                     Nombre = p.Nombre,
-                    ApellidoPaterno = p.ApellidoPaterno, 
+                    ApellidoPaterno = p.ApellidoPaterno,
                     ApellidoMaterno = p.ApellidoMaterno,
                     Tipo = p.TipoEntidad.tipoEntidad,
                     Telefonos = p.telefonos.Select(t => new
                     {
-                       ext = t.Extension,
-                       Telefono = t.telefono
+                        ext = t.Extension,
+                        Telefono = t.telefono
                     }),
                     Emails = p.emails.Select(e => new
                     {
                         email = e.email
                     })
                 }),
-                Asignados = (from R in db.Requisiciones
-                         join AR in db.AsignacionRequis on R.Id equals AR.RequisicionId
-                         join E in db.Entidad on AR.GrpUsrId equals E.Id
-                         where R.ClienteId.Equals(ClientId)
-                             select new
-                         {
-                             Nombre = E.Nombre,
-                             ApellidoPaterno = E.ApellidoPaterno,
-                             ApellidoMaterno = E.ApellidoMaterno
-                         }).Distinct()
-
-
-        }).ToList();
+                Asignados = db.Entidad.Where(x => ids.Contains(x.Id)).Select(E => new
+                { 
+                    EntidadId = E.Id,
+                    Nombre = E.Nombre,
+                    ApellidoPaterno = E.ApellidoPaterno,
+                    ApellidoMaterno = E.ApellidoMaterno,
+                    data = db.GruposUsuarios.Where(x => x.GrupoId.Equals(E.Id)).Select(G => new {
+                        Foto = G.Entidad.Foto,
+                        Nombre = G.Entidad.Nombre,
+                        ApellidoPaterno = G.Entidad.ApellidoPaterno,
+                        ApellidoMaterno = G.Entidad.ApellidoMaterno
+                    })
+                 })
+                }).ToList();
 
             return Ok(dts);
         }

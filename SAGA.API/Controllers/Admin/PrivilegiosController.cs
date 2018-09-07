@@ -36,12 +36,11 @@ namespace SAGA.API.Controllers
                     foreach (var id in idG)
                     {
                         var idG2 = db.GruposUsuarios
-                       .Where(x => x.EntidadId == grupo)
+                       .Where(x => x.EntidadId == id)
                        .Select(g => g.GrupoId).ToList();
 
                         foreach (var x in idG2)
                         {
-                            listaIds.Add(x);
                             GetGrupo(x, listaIds);
                         }
                         listaIds.Add(id);
