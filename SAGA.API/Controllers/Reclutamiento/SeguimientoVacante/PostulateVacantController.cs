@@ -55,7 +55,7 @@ namespace SAGA.API.Controllers
                     sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
                     edad = x.Candidato.FechaNacimiento,
                     rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-                    curp = x.Candidato.CURP
+                    curp = x.Candidato.CURP != null ? x.Candidato.CURP : ""
                 })
             });
 
