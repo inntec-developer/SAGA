@@ -239,6 +239,7 @@ namespace SAGA.API.Controllers
                         Prioridad = e.Prioridad.Descripcion,
                         PrioridadId = e.PrioridadId,
                         Cliente = e.Cliente.Nombrecomercial,
+                        ClienteId = e.Cliente.Id,
                         Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         Folio = e.Folio,
                         DiasEnvio = e.DiasEnvio,
