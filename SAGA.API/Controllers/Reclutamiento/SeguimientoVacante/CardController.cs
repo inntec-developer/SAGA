@@ -100,6 +100,7 @@ namespace SAGA.API.Controllers
                     Nombre = E.Nombre,
                     ApellidoPaterno = E.ApellidoPaterno,
                     ApellidoMaterno = E.ApellidoMaterno,
+                    Foto = E.Foto,
                     data = db.GruposUsuarios.Where(x => x.GrupoId.Equals(E.Id)).Select(G => new {
                         Foto = G.Entidad.Foto,
                         Nombre = G.Entidad.Nombre,

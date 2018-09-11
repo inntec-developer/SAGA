@@ -79,6 +79,8 @@ namespace SAGA.API.Controllers
                         .Select(r => r.RolId
                         ).ToList();
 
+            roles.Distinct();
+
             var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId) & x.Rol.Activo)
                    .Select(P => new
                    {
@@ -149,9 +151,11 @@ namespace SAGA.API.Controllers
             List<Guid> listGrupos = new List<Guid>();
 
             var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
-                           .Where(g => g.EntidadId.Equals(idUser) & g.Grupo.Activo.Equals(true))
+                           .Where(g => g.EntidadId.Equals(idUser) & g.Grupo.Activo)
                            .Select(g => g.GrupoId)
                            .ToList();
+
+            //falta el for para los demas grupos
 
             foreach (var idg in Grupos)
             {
@@ -163,11 +167,13 @@ namespace SAGA.API.Controllers
             listGrupos.Distinct();
 
             var roles = db.RolEntidades
-                       .Where(x => Grupos.Contains(x.EntidadId) & x.Rol.Activo.Equals(true))
-                       .Select(r => r.RolId
-                       ).ToList();
+                        .Where(x => listGrupos.Contains(x.EntidadId))
+                        .Select(r => r.RolId
+                        ).ToList();
 
-            var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId))
+            roles.Distinct();
+
+            var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId) && x.Rol.Activo)
                    .Select(P => new
                    {
                        RolId = P.RolId,
@@ -187,24 +193,24 @@ namespace SAGA.API.Controllers
                    }).OrderBy(o => o.Orden).ToList();
 
             foreach (var registro in
-                privilegiosRoles.GroupBy(g => g.EstructuraId).Select((v, i) => new { Indice = i, Valor = v }) // Agrupar por el indice repetido. Valor tiene mis registros repetidos
-                .Select(x => new {
+               privilegiosRoles.GroupBy(g => g.EstructuraId).Select((v, i) => new { Indice = i, Valor = v }) // Agrupar por el indice repetido. Valor tiene mis registros repetidos
+               .Select(x => new {
 
-                    IdPadre = x.Valor.Select(c => c.IdPadre).FirstOrDefault(),
-                    EstructuraId = x.Valor.Key,
-                    Nombre = x.Valor.Select(c => c.Nombre).FirstOrDefault(),
-                    Create = x.Valor.Where(c => c.Create.Equals(true)).Select(c => c.Create).FirstOrDefault(),
-                    Read = x.Valor.Where(c => c.Read.Equals(true)).Select(c => c.Read).FirstOrDefault(),
-                    Update = x.Valor.Where(c => c.Update.Equals(true)).Select(c => c.Update).FirstOrDefault(),
-                    Delete = x.Valor.Where(c => c.Delete.Equals(true)).Select(c => c.Delete).FirstOrDefault(),
-                    Especial = x.Valor.Where(c => c.Especial.Equals(true)).Select(c => c.Especial).FirstOrDefault(),
-                    RolId = x.Valor.Select(c => c.RolId).FirstOrDefault(),
-                    Rol = x.Valor.Select(c => c.Rol).FirstOrDefault(),
-                    Link = x.Valor.Select(c => c.Accion).FirstOrDefault(),
-                    Icon = x.Valor.Select(c => c.Icono).FirstOrDefault(),
-                    TipoEstructuraId = x.Valor.Select(c => c.TipoEstructuraId).FirstOrDefault(),
-                    Orden = x.Valor.Select(c => c.Orden).FirstOrDefault()
-                }))
+                   IdPadre = x.Valor.Select(c => c.IdPadre).FirstOrDefault(),
+                   EstructuraId = x.Valor.Key,
+                   Nombre = x.Valor.Select(c => c.Nombre).FirstOrDefault(),
+                   Create = x.Valor.Where(c => c.Create.Equals(true)).Select(c => c.Create).FirstOrDefault(),
+                   Read = x.Valor.Where(c => c.Read.Equals(true)).Select(c => c.Read).FirstOrDefault(),
+                   Update = x.Valor.Where(c => c.Update.Equals(true)).Select(c => c.Update).FirstOrDefault(),
+                   Delete = x.Valor.Where(c => c.Delete.Equals(true)).Select(c => c.Delete).FirstOrDefault(),
+                   Especial = x.Valor.Where(c => c.Especial.Equals(true)).Select(c => c.Especial).FirstOrDefault(),
+                   RolId = x.Valor.Select(c => c.RolId).FirstOrDefault(),
+                   Rol = x.Valor.Select(c => c.Rol).FirstOrDefault(),
+                   Link = x.Valor.Select(c => c.Accion).FirstOrDefault(),
+                   Icon = x.Valor.Select(c => c.Icono).FirstOrDefault(),
+                   TipoEstructuraId = x.Valor.Select(c => c.TipoEstructuraId).FirstOrDefault(),
+                   Orden = x.Valor.Select(c => c.Orden).FirstOrDefault()
+               }))
             {
                 privilegios.Add(
                     new PrivilegiosDtos
@@ -217,7 +223,7 @@ namespace SAGA.API.Controllers
                         Delete = registro.Delete,
                         Especial = registro.Especial,
                         RolId = registro.RolId,
-                        Nombre = registro.Nombre, //nombre de la estructura
+                        Nombre = registro.Nombre.ToString(), //nombre de la estructura
                         TipoEstructuraId = registro.TipoEstructuraId,
                         Accion = registro.Link,
                         Icono = registro.Icon,
@@ -225,7 +231,6 @@ namespace SAGA.API.Controllers
 
                     });
             }
-
             return privilegios;
         }
 
