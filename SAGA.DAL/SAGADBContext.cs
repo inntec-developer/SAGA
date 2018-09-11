@@ -94,6 +94,7 @@ namespace SAGA.DAL
         public DbSet<TipoReclutamiento> TiposReclutamientos { get; set; }
         public DbSet<CfgRequi> CfgRequi { get; set; }
         public DbSet<ComentarioEntrevista> ComentariosEntrevistas { get; set; }
+        public DbSet<ComentarioVacante> ComentariosVacantes { get; set; }
         #endregion
 
         #region Sist
@@ -294,6 +295,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new RutasPerfilMap().ToTable("RutasPerfil", "Recl"));
             modelBuilder.Configurations.Add(new CfgRequiMap().ToTable("CfgRequi", "Recl"));
             modelBuilder.Configurations.Add(new ComentarioEntrevistaMap().ToTable("ComentariosEntrevistas", "Recl"));
+            modelBuilder.Configurations.Add(new ComentarioVacanteMap().ToTable("ComentariosVacantes", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -1920,14 +1922,27 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.RespuestaId).IsOptional();
+                Property(x => x.Comentario).HasMaxLength(500).IsRequired();
                 Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.RequisicionId).IsOptional();
-                Property(x => x.Comentario).HasMaxLength(500).IsRequired();
-                Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
+                Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();                
+                Property(x => x.ReclutadorId).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-                Property(x => x.UsuarioMod).HasMaxLength(30).IsOptional();
-                Property(x => x.fch_Modificacion).IsOptional();
+            }
+        }
+        public class ComentarioVacanteMap : EntityTypeConfiguration<ComentarioVacante>
+        {
+            public ComentarioVacanteMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.RespuestaId).IsOptional();
+                Property(x => x.Comentario).HasMaxLength(500).IsRequired();
+                Property(x => x.RequisicionId).IsOptional();
+                Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
+                Property(x => x.ReclutadorId).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             }
         }
         #endregion
