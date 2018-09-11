@@ -28,12 +28,23 @@ namespace SAGA.API.Controllers
                              join AR in db.AsignacionRequis on R.Id equals AR.RequisicionId
                              join E in db.Entidad on AR.GrpUsrId equals E.Id
                              where R.Id.Equals(RequisicionId)
-                             select( E.Id )).ToList();
+                             select new
+                             {
+                                 Id = E.Id,
+                                 tipo = E.TipoEntidadId
+                             }).ToList();
 
 
             foreach (var id in Asignados)
             {
-              obj.GetGrupo(id, ids);
+                if(id.tipo == 4)
+                {
+                    obj.GetGrupo(id.Id, ids);
+                }
+                else
+                {
+                    ids.Add(id.Id);
+                }
             }
 
             ids.Distinct();

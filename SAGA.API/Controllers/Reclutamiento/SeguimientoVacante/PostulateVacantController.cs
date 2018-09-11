@@ -1,4 +1,5 @@
 ﻿using SAGA.API.Dtos.Reclutamiento.Seguimientovacantes;
+using SAGA.BOL;
 using SAGA.DAL;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,7 @@ namespace SAGA.API.Controllers
             {
                 candidatoId = c.CandidatoId,
                 estatus = c.Estatus.Descripcion,
+                estatusId = c.EstatusId,
                 perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
                 {
                     nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
@@ -65,22 +67,19 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updateStatus")]
-        public IHttpActionResult UpdateStatus(List<ProcesoDto> datos)
+        public IHttpActionResult UpdateStatus(ProcesoDto datos)
         {
             try
             {
-                foreach (var d in datos)
-                {
-                    var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(d.candidatoId)).Select(x => x.Id).FirstOrDefault();
+                var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId)).Select(x => x.Id).FirstOrDefault();
                     
                     var c = db.ProcesoCandidatos.Find(id);
                     db.Entry(c).State = System.Data.Entity.EntityState.Modified;
-                    c.EstatusId = d.estatusId;
+                    c.EstatusId = datos.estatusId;
 
                     db.SaveChanges();
-                }
 
-                return Ok(HttpStatusCode.Created);
+                     return Ok(HttpStatusCode.Created);
             }
             catch(Exception ex)
             {
@@ -89,6 +88,45 @@ namespace SAGA.API.Controllers
             
         }
 
+        [HttpPost]
+        [Route("updateStatusBolsa")]
+        public IHttpActionResult UpdateStatusBolsa(ProcesoDto datos)
+        {
+            try
+            {
+                Guid aux = new Guid("00000000-0000-0000-0000-000000000000");
+                var id = db.Postulaciones.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).FirstOrDefault();
+
+                if (id == aux)
+                {
+                    Postulacion obj = new Postulacion();
+                    obj.RequisicionId = datos.requisicionId;
+                    obj.CandidatoId = datos.candidatoId;
+                    obj.StatusId = datos.estatusId;
+
+                    db.Postulaciones.Add(obj);
+                    db.SaveChanges();
+
+                    return Ok(HttpStatusCode.Created);
+                }
+                else
+                {
+
+                    var c = db.Postulaciones.Find(id);
+                    db.Entry(c).State = System.Data.Entity.EntityState.Modified;
+                    c.StatusId = datos.estatusId;
+
+                    db.SaveChanges();
+
+                    return Ok(HttpStatusCode.Created);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
 
     }
 }
