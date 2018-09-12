@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.Entity;
 
 namespace SAGA.API.Controllers.Component
 {
@@ -170,9 +171,22 @@ namespace SAGA.API.Controllers.Component
         {
             try
             {
-                if(db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(proceso.CandidatoId)).Count() == 0)
+                var candidato = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(proceso.CandidatoId)).FirstOrDefault();
+                if (candidato == null)
                 {
                     db.ProcesoCandidatos.Add(proceso);
+                    db.SaveChanges();
+                    return Ok(HttpStatusCode.OK);
+                }
+                else if (candidato.EstatusId == 27)
+                {
+                    db.Entry(candidato).State = EntityState.Modified;
+                    candidato.Reclutador = proceso.Reclutador;
+                    candidato.ReclutadorId = proceso.ReclutadorId;
+                    candidato.RequisicionId = proceso.RequisicionId;
+                    candidato.Folio = proceso.Folio;
+                    candidato.EstatusId = proceso.EstatusId;
+                    candidato.Fch_Modificacion = DateTime.Now;
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);
                 }
@@ -195,7 +209,8 @@ namespace SAGA.API.Controllers.Component
             try
             {
                 ProcesoCandidato liberar = db.ProcesoCandidatos.Find(Id);
-                db.ProcesoCandidatos.Remove(liberar);
+                db.Entry(liberar).State = EntityState.Modified;
+                liberar.EstatusId = 27;
                 db.SaveChanges();
                 return Ok(HttpStatusCode.OK);
             }
