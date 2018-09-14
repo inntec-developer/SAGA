@@ -7,7 +7,10 @@ using System.Linq;
 using System.Net.Mail;
 using System.Web;
 using System.Text;
+using System.Web.Http;
 using SAGA.API.Dtos;
+using SAGA.API.Dtos.Reclutamiento.Seguimientovacantes;
+using System.Net;
 
 namespace SAGA.API.Utilerias
 {
