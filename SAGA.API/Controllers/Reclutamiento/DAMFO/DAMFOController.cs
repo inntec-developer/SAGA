@@ -27,18 +27,20 @@ namespace SAGA.API.Controllers
         [Route("getViewDamfos")]
         public IHttpActionResult Get()
         {
-            var damfo290 = db.DAMFO290.Where(df => df.Activo).Select(df => new
-            {
-                Id = df.Id,
-                Cliente = df.Cliente.Nombrecomercial,
-                NombrePerfil = df.NombrePerfil,
-                Vacantes = df.horariosPerfil.Count() > 0 ? df.horariosPerfil.Sum( h => h.numeroVacantes) : 0,
-                SueldoMinimo = df.SueldoMinimo,
-                SueldoMaximo = df.SueldoMaximo,
-                TipoReclutamiento = df.TipoReclutamiento.tipoReclutamiento,
-                ClaseReclutamiento = df.ClaseReclutamiento.clasesReclutamiento,
-                fch_Creacion = df.fch_Creacion
-            }).ToList();
+            var damfo290 = db.DAMFO290
+                .Where(df => df.Activo)
+                .Select(df => new {
+                    Id = df.Id,
+                    Cliente = df.Cliente.Nombrecomercial,
+                    NombrePerfil = df.NombrePerfil,
+                    Vacantes = df.horariosPerfil.Count() > 0 ? df.horariosPerfil.Sum(h => h.numeroVacantes) : 0,
+                    SueldoMinimo = df.SueldoMinimo,
+                    SueldoMaximo = df.SueldoMaximo,
+                    TipoReclutamiento = df.TipoReclutamiento.tipoReclutamiento,
+                    ClaseReclutamiento = df.ClaseReclutamiento.clasesReclutamiento,
+                    fch_Creacion = df.fch_Creacion,
+                    horariosActivos = df.horariosPerfil.Where(hp => hp.Activo).Count() > 0 ? df.horariosPerfil.Where(hp => hp.Activo).Count() : 0
+                }).ToList();
 
 
             return Ok(damfo290);
