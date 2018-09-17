@@ -233,7 +233,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-                usuario = "bmorales@damsa.com.mx";
+                //usuario = "bmorales@damsa.com.mx";
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA Inn");
