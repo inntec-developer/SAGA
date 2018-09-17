@@ -162,7 +162,9 @@ namespace SAGA.API.Controllers
                     Id = e.Id,
                     VBtra = e.VBtra,
                     TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                    tipoReclutamientoId = e.TipoReclutamientoId,
                     ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
+                    ClaseReclutamientoId = e.ClaseReclutamientoId,
                     SueldoMinimo = e.SueldoMinimo,
                     SueldoMaximo = e.SueldoMaximo,
                     fch_Creacion = e.fch_Creacion,
@@ -186,7 +188,8 @@ namespace SAGA.API.Controllers
                        p.Candidato.ApellidoMaterno,
                        p.Candidato.CURP
                     }),
-                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count()
+                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
+                    Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count()
                 }).ToList().OrderByDescending(x => x.Folio);
             return Ok(requisicion);
         } 
