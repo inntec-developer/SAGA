@@ -75,6 +75,27 @@ namespace SAGA.API.Controllers
         }
 
         [HttpPost]
+        [Route("updateStatusVacante")]
+        public IHttpActionResult UpdateStatusVacante(ProcesoDto datos)
+        {
+            try
+            {
+                var R = db.Requisiciones.Find(datos.requisicionId);
+                db.Entry(R).State = System.Data.Entity.EntityState.Modified;
+                R.EstatusId = datos.estatusId;
+
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
+
+        [HttpPost]
         [Route("updateStatus")]
         public IHttpActionResult UpdateStatus(ProcesoDto datos)
         {
