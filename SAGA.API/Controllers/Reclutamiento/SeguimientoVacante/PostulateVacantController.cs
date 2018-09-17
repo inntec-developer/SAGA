@@ -284,7 +284,7 @@ namespace SAGA.API.Controllers
                         body = body + string.Format("<p>Eres uno(a) de los/las finalistas para la vacante de <h1 style=\"color:#3366cc;\">{0}</h1></p>", datos.vacante);
                         body = body + "<p>Solo puedes estar en un proceso de seguimiento</p>";
                         body = body + "<p> Si esta vacante no es de tu inter&eacute;s puedes declinar a esta postulaci&oacute;n.</p>";
-                        body = body + "<a class=\"box\" href=\"http:/http://btweb.damsa.com.mx/\" target =\"_blank\">Ir a la Bolsa de Trabajo</a>";
+                        body = body + "<a class=\"box\" href=\"http://btweb.damsa.com.mx/\" target =\"_blank\">Ir a la Bolsa de Trabajo</a>";
                         body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", usuario);
                         body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
 

@@ -53,6 +53,7 @@ namespace SAGA.DAL
         public DbSet<Alertashdr> Alertas { get; set; }
         public DbSet<Alertasdtl> Alertasdtl { get; set; }
         public DbSet<DpTpDiscapacidad> DpTpDiscapacidad { get; set; }
+        public DbSet<MiCVUpload> MiCVUpload { get; set; }
         #endregion
 
         #region Recl
@@ -265,6 +266,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new FrecuenciasMap().ToTable("Frecuencias", "BTra"));
             modelBuilder.Configurations.Add(new AlertasdtlMap().ToTable("Alertasdtl", "BTra"));
             modelBuilder.Configurations.Add(new DpTpDiscapacidadMap().ToTable("DpTpDiscapacidad", "BTra"));
+            modelBuilder.Configurations.Add(new MiCVUploadMap().ToTable("MiCVUpload", "BTra"));
             #endregion
 
             #region Reclutamiento_Recl
@@ -1945,6 +1947,17 @@ namespace SAGA.DAL
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             }
         }
+
+        public class MiCVUploadMap : EntityTypeConfiguration<MiCVUpload>
+        {
+            public MiCVUploadMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.UrlCV).IsRequired();
+            }
+        }
+
         #endregion
     }
 }
