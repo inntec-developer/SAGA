@@ -173,7 +173,7 @@ namespace SAGA.API.Controllers
                     From = "Damsa",
                     To = Destino,
                     Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa de trabajo DAMSA te felicita por iniciar proceso para la vacante " + vacante + ". Solo puedes estar en un proceso de seguimiento. " +
-                                                                            "Si esta vancante no es de tu intéres puedes declinar a la postulacion. Entra a http://www.damsa.com.mx"
+                                                                            "Si esta vancante no es de tu intéres puedes declinar a la postulacion. Entra a http://btweb.damsa.com.mx/"
 
                 };
 
@@ -187,7 +187,7 @@ namespace SAGA.API.Controllers
                 {
                     From = "Damsa",
                     To = Destino,
-                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Finalista para la vacante " + vacante + ". Da seguimiento en http://www.damsa.com.mx"
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Finalista para la vacante " + vacante + ". Da seguimiento en http://btweb.damsa.com.mx/"
 
                 };
 
@@ -233,6 +233,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
+                usuario = "bmorales@damsa.com.mx";
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA Inn");
@@ -252,7 +253,7 @@ namespace SAGA.API.Controllers
                         body = body + string.Format("<h1 style=\"color:#3366cc;\">{0}</h1>", datos.vacante);
                         body = body + "<p>Solo puedes estar en un proceso de seguimiento</p>";
                         body = body + "<p> Si esta vacante no es de tu inter&eacute;s puedes declinar a esta postulaci&oacute;n.</p>";
-                        body = body + "<a class=\"box\" href=\"http://www.damsa.com.mx\" target=\"_blank\">Ir a la Bolsa de Trabajo</a>";
+                        body = body + "<a class=\"box\" href=\"http://btweb.damsa.com.mx/\" target=\"_blank\">Ir a la Bolsa de Trabajo</a>";
                         body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", usuario);
                         body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
 
@@ -283,7 +284,7 @@ namespace SAGA.API.Controllers
                         body = body + string.Format("<p>Eres uno(a) de los/las finalistas para la vacante de <h1 style=\"color:#3366cc;\">{0}</h1></p>", datos.vacante);
                         body = body + "<p>Solo puedes estar en un proceso de seguimiento</p>";
                         body = body + "<p> Si esta vacante no es de tu inter&eacute;s puedes declinar a esta postulaci&oacute;n.</p>";
-                        body = body + "<a class=\"box\" href=\"http://www.damsa.com.mx\" target=\"_blank\">Ir a la Bolsa de Trabajo</a>";
+                        body = body + "<a class=\"box\" href=\"http:/http://btweb.damsa.com.mx/\" target =\"_blank\">Ir a la Bolsa de Trabajo</a>";
                         body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", usuario);
                         body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
 
