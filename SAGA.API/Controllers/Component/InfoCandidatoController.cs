@@ -93,7 +93,7 @@ namespace SAGA.API.Controllers.Component
                     .ToList();
 
                 var vacantes = db.Requisiciones
-                    .Where(e => asig.Contains(e.Id) && e.Activo.Equals(true) && e.EstatusId.Equals(3) || e.EstatusId.Equals(7))
+                    .Where(e => asig.Contains(e.Id) && e.Activo.Equals(true) && e.EstatusId.Equals(3) || asig.Contains(e.Id) && e.Activo.Equals(true) && e.EstatusId.Equals(7))
                     .Select(e => new
                     {
                         Id = e.Id,
