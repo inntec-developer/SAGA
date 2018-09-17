@@ -1048,7 +1048,7 @@ namespace SAGA.DAL
 				Property(x => x.GradoEstudioId).IsRequired();
 				Property(x => x.EstadoEstudioId).IsRequired();
 				Property(x => x.DocumentoValidadorId).IsOptional();
-				Property(x => x.CarreraId).IsRequired();
+				Property(x => x.CarreraId).IsOptional();
 				Property(x => x.YearInicioId).IsOptional();
 				Property(x => x.MonthInicioId).IsOptional();
 				Property(x => x.YearTerminoId).IsOptional();

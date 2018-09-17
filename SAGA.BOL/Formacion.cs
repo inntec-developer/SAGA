@@ -19,7 +19,7 @@ namespace SAGA.BOL
         public int GradoEstudioId { get; set; }
         public int EstadoEstudioId { get; set; }
         public int? DocumentoValidadorId { get; set; }
-        public Guid CarreraId { get; set; }
+        public Guid? CarreraId { get; set; }
         public int? YearInicioId { get; set; }
         public int? MonthInicioId { get; set; }
         public int? YearTerminoId { get; set; }
