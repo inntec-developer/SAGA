@@ -230,7 +230,8 @@ namespace SAGA.API.Controllers
 
 
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                    .Where(e => asig.Contains(e.Id) && e.Activo.Equals(true))
+                    .Where(e => asig.Contains(e.Id))
+                    .Where(e => e.Activo.Equals(true))
                     .Select(e => new
                     {
                         Id = e.Id,
