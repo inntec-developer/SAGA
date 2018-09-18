@@ -189,7 +189,7 @@ namespace SAGA.API.Controllers
                         p.Candidato.CURP
                     }),
                     EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
-                    EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24).Select(d => new
+                    EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27).Select(d => new
                     {
                         candidatoId = d.CandidatoId,
                         nombre = d.Candidato.Nombre + " " + d.Candidato.ApellidoPaterno + " " + d.Candidato.ApellidoMaterno,

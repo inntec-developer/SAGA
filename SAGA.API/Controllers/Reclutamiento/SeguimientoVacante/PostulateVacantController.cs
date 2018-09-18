@@ -86,6 +86,10 @@ namespace SAGA.API.Controllers
 
                 db.SaveChanges();
 
+                if(datos.estatusId >= 34 && datos.estatusId <= 37)
+                {
+                    UpdateStatusBolsaFinalizado(datos);
+                }
 
                 return Ok(HttpStatusCode.Created);
             }
@@ -126,6 +130,7 @@ namespace SAGA.API.Controllers
             try
             {
                 Guid aux = new Guid("00000000-0000-0000-0000-000000000000");
+
                 var id = db.Postulaciones.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).FirstOrDefault();
 
                 if (id == aux)
@@ -159,6 +164,47 @@ namespace SAGA.API.Controllers
 
         }
 
+        public IHttpActionResult UpdateStatusBolsaFinalizado(ProcesoDto datos)
+        {
+            try
+            {
+                Guid aux = new Guid("00000000-0000-0000-0000-000000000000");
+                var ids = db.Postulaciones.Where(x => x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).ToList();
+
+                foreach(Guid id in ids)
+                {
+
+                    if (id == aux)
+                    {
+                        Postulacion obj = new Postulacion();
+                        obj.RequisicionId = datos.requisicionId;
+                        obj.CandidatoId = datos.candidatoId;
+                        obj.StatusId = 5;
+
+                        db.Postulaciones.Add(obj);
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        var c = db.Postulaciones.Find(id);
+                        db.Entry(c).State = System.Data.Entity.EntityState.Modified;
+                        c.StatusId = 5;
+
+                        db.SaveChanges();
+
+                    }
+
+                }
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
+
         public async Task<IHttpActionResult> EnviarSMS(string telefono, string vacante, int estatusId)
         {
             
@@ -171,10 +217,9 @@ namespace SAGA.API.Controllers
             {
                 SMSTextualRequest request = new SMSTextualRequest
                 {
-                    From = "Damsa",
+                    From = "DAMSA",
                     To = Destino,
-                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa de trabajo DAMSA te felicita por iniciar proceso para la vacante " + vacante + ". Solo puedes estar en un proceso de seguimiento. " +
-                                                                            "Si esta vancante no es de tu intéres puedes declinar a la postulacion. Entra a http://btweb.damsa.com.mx/"
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa Trabajo DAMSA te felicita por Iniciar proceso a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento"
 
                 };
 
@@ -186,9 +231,9 @@ namespace SAGA.API.Controllers
             {
                 SMSTextualRequest request = new SMSTextualRequest
                 {
-                    From = "Damsa",
+                    From = "DAMSA",
                     To = Destino,
-                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Finalista para la vacante " + vacante + ". Da seguimiento en http://btweb.damsa.com.mx/"
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa Trabajo DAMSA, te felicita por ser Finalista a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/click para dar seguimiento"
 
                 };
 
@@ -201,9 +246,9 @@ namespace SAGA.API.Controllers
             {
                 SMSTextualRequest request = new SMSTextualRequest
                 {
-                    From = "Damsa",
+                    From = "DAMSA",
                     To = Destino,
-                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa de Trabajo DAMSA te informa que el cliente ha seleccionado un candidato para el proceso de " + vacante + ". Entra a http://btweb.damsa.com.mx/ para encontrar vacantes similares."
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa Trabajo DAMSA, informa que el cliente ya cubrió la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento"
 
                 };
 
@@ -251,7 +296,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-                //usuario = "bmorales@damsa.com.mx";
+              //  usuario = "6371237713";
 
                 if (usuario != "")
                 {
