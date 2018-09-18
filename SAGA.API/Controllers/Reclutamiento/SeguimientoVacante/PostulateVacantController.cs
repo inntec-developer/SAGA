@@ -86,6 +86,7 @@ namespace SAGA.API.Controllers
 
                 db.SaveChanges();
 
+
                 return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
@@ -366,5 +367,60 @@ namespace SAGA.API.Controllers
        
         }
 
+        [HttpPost]
+        [Route("sendEmailsNoContratado")]
+        public IHttpActionResult SendEmailsNoContratados(List<ProcesoDto> datos)
+        {
+            var path = "~/utilerias/img/logo/logo.png";
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
+            path = "~/utilerias/img/logo/boton.png";
+            string fullPath2 = System.Web.Hosting.HostingEnvironment.MapPath(path);
+            string body = "";
+            string usuario = "";
+
+            string from = "noreply@damsa.com.mx";
+            MailMessage m = new MailMessage();
+            m.From = new MailAddress(from, "SAGA Inn");
+            m.Subject = "Bolsa de Trabajo DAMSA";
+
+            try
+            {
+                foreach (var e in datos)
+                {
+                    if (e.email.Contains("@"))
+                    {
+                        m.To.Add(e.email);
+                        body = "<html><head></head><body style=\"text-align:center; font-family:'calibri'\">";
+                        body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
+                        body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", e.nombre);
+                        body = body + "<br/><br/><br/>";
+                        body = body + string.Format("<p>Gracias por tu inter&eacute;s en nuestra empresa y por el tiempo que has dedicado para el proceso de <h1 style=\"color:#3366cc;\">{0}</h1></p>", e.vacante);
+                        body = body + "<p>Te escribimos para informarte que el cliente ha seleccionado un candidato, sin embargo y con tu conformidad, conservaremos tu CV en nuestra base de datos para futuras selecciones.</p>";
+                        body = body + "<p>Agradecemos tu participaci&oacute;n</p>";
+                        body = body + "<p>En la siguiente liga puedes encontrar vacantes similares:</p>";
+                        body = body + string.Format("<a href=\"http://btweb.damsa.com.mx/\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
+                        body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", e.email);
+                        body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
+                        body = body + "</body></html>";
+
+                        m.Body = body;
+                        m.IsBodyHtml = true;
+                        SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                        smtp.Send(m);
+                    }
+                }
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+            //
+
+        }
     }
 }
