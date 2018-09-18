@@ -253,7 +253,8 @@ namespace SAGA.API.Controllers
                         Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                         EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                         Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
-                        AreaExperiencia = e.Area.areaExperiencia
+                        AreaExperiencia = e.Area.areaExperiencia,
+                        Aprobador = e.Aprobador != null ? e.Aprobador : "",
                     }).ToList();
                 return Ok(vacantes);
 
