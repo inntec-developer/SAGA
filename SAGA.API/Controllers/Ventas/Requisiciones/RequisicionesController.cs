@@ -183,12 +183,18 @@ namespace SAGA.API.Controllers
                     Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                     PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Select(p => new
                     {
-                       p.Candidato.Nombre,
-                       p.Candidato.ApellidoPaterno,
-                       p.Candidato.ApellidoMaterno,
-                       p.Candidato.CURP
+                        p.Candidato.Nombre,
+                        p.Candidato.ApellidoPaterno,
+                        p.Candidato.ApellidoMaterno,
+                        p.Candidato.CURP
                     }),
                     EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
+                    EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27).Select(d => new
+                    {
+                        candidatoId = d.CandidatoId,
+                        nombre = d.Candidato.Nombre + " " + d.Candidato.ApellidoPaterno + " " + d.Candidato.ApellidoMaterno,
+                        email = d.Candidato.emails.Select(m => m.email).FirstOrDefault()
+                    }),
                     Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count()
                 }).ToList().OrderByDescending(x => x.Folio);
             return Ok(requisicion);

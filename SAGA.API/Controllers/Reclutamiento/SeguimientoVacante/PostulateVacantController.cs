@@ -86,6 +86,11 @@ namespace SAGA.API.Controllers
 
                 db.SaveChanges();
 
+                if(datos.estatusId >= 34 && datos.estatusId <= 37)
+                {
+                    UpdateStatusBolsaFinalizado(datos);
+                }
+
                 return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
@@ -125,6 +130,7 @@ namespace SAGA.API.Controllers
             try
             {
                 Guid aux = new Guid("00000000-0000-0000-0000-000000000000");
+
                 var id = db.Postulaciones.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).FirstOrDefault();
 
                 if (id == aux)
@@ -158,6 +164,47 @@ namespace SAGA.API.Controllers
 
         }
 
+        public IHttpActionResult UpdateStatusBolsaFinalizado(ProcesoDto datos)
+        {
+            try
+            {
+                Guid aux = new Guid("00000000-0000-0000-0000-000000000000");
+                var ids = db.Postulaciones.Where(x => x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).ToList();
+
+                foreach(Guid id in ids)
+                {
+
+                    if (id == aux)
+                    {
+                        Postulacion obj = new Postulacion();
+                        obj.RequisicionId = datos.requisicionId;
+                        obj.CandidatoId = datos.candidatoId;
+                        obj.StatusId = 5;
+
+                        db.Postulaciones.Add(obj);
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        var c = db.Postulaciones.Find(id);
+                        db.Entry(c).State = System.Data.Entity.EntityState.Modified;
+                        c.StatusId = 5;
+
+                        db.SaveChanges();
+
+                    }
+
+                }
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
+
         public async Task<IHttpActionResult> EnviarSMS(string telefono, string vacante, int estatusId)
         {
             
@@ -170,10 +217,9 @@ namespace SAGA.API.Controllers
             {
                 SMSTextualRequest request = new SMSTextualRequest
                 {
-                    From = "Damsa",
+                    From = "DAMSA",
                     To = Destino,
-                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa de trabajo DAMSA te felicita por iniciar proceso para la vacante " + vacante + ". Solo puedes estar en un proceso de seguimiento. " +
-                                                                            "Si esta vancante no es de tu intéres puedes declinar a la postulacion. Entra a http://btweb.damsa.com.mx/"
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa Trabajo DAMSA te felicita por Iniciar proceso a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento"
 
                 };
 
@@ -185,9 +231,9 @@ namespace SAGA.API.Controllers
             {
                 SMSTextualRequest request = new SMSTextualRequest
                 {
-                    From = "Damsa",
+                    From = "DAMSA",
                     To = Destino,
-                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Finalista para la vacante " + vacante + ". Da seguimiento en http://btweb.damsa.com.mx/"
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa Trabajo DAMSA, te felicita por ser Finalista a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/click para dar seguimiento"
 
                 };
 
@@ -200,9 +246,9 @@ namespace SAGA.API.Controllers
             {
                 SMSTextualRequest request = new SMSTextualRequest
                 {
-                    From = "Damsa",
+                    From = "DAMSA",
                     To = Destino,
-                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa de Trabajo DAMSA te informa que el cliente ha seleccionado un candidato para el proceso de " + vacante + ". Entra a http://btweb.damsa.com.mx/ para encontrar vacantes similares."
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa Trabajo DAMSA, informa que el cliente ya cubrió la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento"
 
                 };
 
@@ -250,7 +296,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-                //usuario = "bmorales@damsa.com.mx";
+              //  usuario = "6371237713";
 
                 if (usuario != "")
                 {
@@ -366,5 +412,60 @@ namespace SAGA.API.Controllers
        
         }
 
+        [HttpPost]
+        [Route("sendEmailsNoContratado")]
+        public IHttpActionResult SendEmailsNoContratados(List<ProcesoDto> datos)
+        {
+            var path = "~/utilerias/img/logo/logo.png";
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
+            path = "~/utilerias/img/logo/boton.png";
+            string fullPath2 = System.Web.Hosting.HostingEnvironment.MapPath(path);
+            string body = "";
+            string usuario = "";
+
+            string from = "noreply@damsa.com.mx";
+            MailMessage m = new MailMessage();
+            m.From = new MailAddress(from, "SAGA Inn");
+            m.Subject = "Bolsa de Trabajo DAMSA";
+
+            try
+            {
+                foreach (var e in datos)
+                {
+                    if (e.email.Contains("@"))
+                    {
+                        m.To.Add(e.email);
+                        body = "<html><head></head><body style=\"text-align:center; font-family:'calibri'\">";
+                        body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
+                        body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", e.nombre);
+                        body = body + "<br/><br/><br/>";
+                        body = body + string.Format("<p>Gracias por tu inter&eacute;s en nuestra empresa y por el tiempo que has dedicado para el proceso de <h1 style=\"color:#3366cc;\">{0}</h1></p>", e.vacante);
+                        body = body + "<p>Te escribimos para informarte que el cliente ha seleccionado un candidato, sin embargo y con tu conformidad, conservaremos tu CV en nuestra base de datos para futuras selecciones.</p>";
+                        body = body + "<p>Agradecemos tu participaci&oacute;n</p>";
+                        body = body + "<p>En la siguiente liga puedes encontrar vacantes similares:</p>";
+                        body = body + string.Format("<a href=\"http://btweb.damsa.com.mx/\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
+                        body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", e.email);
+                        body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
+                        body = body + "</body></html>";
+
+                        m.Body = body;
+                        m.IsBodyHtml = true;
+                        SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                        smtp.Send(m);
+                    }
+                }
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+            //
+
+        }
     }
 }
