@@ -186,7 +186,8 @@ namespace SAGA.API.Controllers
                         p.Candidato.Nombre,
                         p.Candidato.ApellidoPaterno,
                         p.Candidato.ApellidoMaterno,
-                        p.Candidato.CURP
+                        p.Candidato.CURP,
+                        email = p.Candidato.emails.Select(m => m.email).FirstOrDefault()
                     }),
                     EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                     EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27).Select(d => new

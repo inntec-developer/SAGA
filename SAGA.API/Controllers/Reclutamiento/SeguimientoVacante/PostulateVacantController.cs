@@ -16,6 +16,8 @@ using Infobip.Api.Config;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SAGA.API.Controllers
 {
@@ -207,7 +209,7 @@ namespace SAGA.API.Controllers
 
         public async Task<IHttpActionResult> EnviarSMS(string telefono, string vacante, int estatusId)
         {
-            
+            Regex reg = new Regex("[^a-zA-Z0-9] ");
             List<string> Destino = new List<string>(1) { ConfigurationManager.AppSettings["Lada"] + telefono };
             BasicAuthConfiguration BASIC_AUTH_CONFIGURATION = new BasicAuthConfiguration(ConfigurationManager.AppSettings["BaseUrl"], ConfigurationManager.AppSettings["UserInfobip"], ConfigurationManager.AppSettings["PassInfobip"]);
 
@@ -215,40 +217,57 @@ namespace SAGA.API.Controllers
 
             if (estatusId == 17)
             {
+                string texto = "Bolsa Trabajo DAMSA te felicita por Iniciar proceso a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento";
+                texto = texto.Normalize(NormalizationForm.FormD);
+                texto = reg.Replace(texto, " ");
+
                 SMSTextualRequest request = new SMSTextualRequest
                 {
                     From = "DAMSA",
                     To = Destino,
-                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa Trabajo DAMSA te felicita por Iniciar proceso a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento"
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + texto
 
                 };
 
                 SMSResponse smsResponse = await smsClient.ExecuteAsync(request); // Manda el mensaje con código.
 
                 SMSResponseDetails sentMessageInfo = smsResponse.Messages[0];
+
+                vacante = "";
             }
             else if(estatusId == 21)
             {
+                string texto = "Bolsa Trabajo DAMSA, te felicita por ser Finalista a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento";
+                texto = texto.Normalize(NormalizationForm.FormD);
+                texto = reg.Replace(texto, " ");
+
                 SMSTextualRequest request = new SMSTextualRequest
                 {
                     From = "DAMSA",
                     To = Destino,
-                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa Trabajo DAMSA, te felicita por ser Finalista a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/click para dar seguimiento"
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + texto
 
                 };
 
                 SMSResponse smsResponse = await smsClient.ExecuteAsync(request); // Manda el mensaje con código.
 
                 SMSResponseDetails sentMessageInfo = smsResponse.Messages[0];
+
+                vacante = "";
 
             }
             else if (estatusId == 27)
             {
+                string texto = string.Format("Bolsa Trabajo DAMSA, informa que el cliente cubrió la vacante {0}. http://btweb.damsa.com.mx/", vacante);
+
+                texto = texto.Normalize(NormalizationForm.FormD);
+                texto = reg.Replace(texto, " ");
+
                 SMSTextualRequest request = new SMSTextualRequest
                 {
                     From = "DAMSA",
                     To = Destino,
-                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + " Bolsa Trabajo DAMSA, informa que el cliente ya cubrió la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento"
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + texto
 
                 };
 
@@ -256,6 +275,7 @@ namespace SAGA.API.Controllers
 
                 SMSResponseDetails sentMessageInfo = smsResponse.Messages[0];
 
+                vacante = "";
             }
             return Ok(HttpStatusCode.Created);
         }
@@ -283,8 +303,6 @@ namespace SAGA.API.Controllers
 
                 conn.Open();
 
-             
-
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
@@ -296,7 +314,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-              //  usuario = "6371237713";
+               // usuario = "3333591793";
 
                 if (usuario != "")
                 {
