@@ -280,7 +280,26 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var direccion = db.Direcciones.Where(x => x.Id.Equals(Id)).ToList();
+                var direccion = db.Direcciones.Where(x => x.Id.Equals(Id))
+                    .Select(d => new {
+                        TipoDireccion = d.TipoDireccion.tipoDireccion,
+                        Pais = d.Pais.pais,
+                        Estado = d.Estado.estado,
+                        Municipio = d.Municipio.municipio,
+                        Colonia = d.Colonia.colonia,
+                        Calle = d.Calle,
+                        NumeroExterior = d.NumeroExterior,
+                        NumeroInterior = d.NumeroInterior != null ? d.NumeroInterior : "S/N",
+                        Activo = d.Activo,
+                        Principal = d.esPrincipal,
+                        RutasCamion = db.RutasPerfil
+                                        .Where(r => r.DireccionId.Equals(d.Id))
+                                        .Select(r => new {
+                                            Ruta = r.Ruta,
+                                            Via = r.Via
+                                        }).ToList()
+                    })
+                    .ToList();
                 return Ok(direccion);
             }
             catch (Exception ex)
