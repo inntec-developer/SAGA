@@ -109,14 +109,30 @@ namespace SAGA.API.Controllers
             try
             {
                 var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId)).Select(x => x.Id).FirstOrDefault();
-                    
-                    var c = db.ProcesoCandidatos.Find(id);
+                var c = db.ProcesoCandidatos.Find(id);
+
+                if (datos.estatusId == 12 && (c.EstatusId == 27 || c.EstatusId == 10))
+                {
                     db.Entry(c).State = System.Data.Entity.EntityState.Modified;
                     c.EstatusId = datos.estatusId;
 
                     db.SaveChanges();
 
-                     return Ok(HttpStatusCode.Created);
+                    return Ok(HttpStatusCode.Created);
+                }
+                else if(datos.estatusId != 12)
+                {
+                    db.Entry(c).State = System.Data.Entity.EntityState.Modified;
+                    c.EstatusId = datos.estatusId;
+
+                    db.SaveChanges();
+
+                    return Ok(HttpStatusCode.Created);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.Ambiguous);
+                }
             }
             catch(Exception ex)
             {
@@ -314,7 +330,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-               // usuario = "3333591793";
+               //usuario = "6371237713";
 
                 if (usuario != "")
                 {
