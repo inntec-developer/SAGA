@@ -330,7 +330,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-               //usuario = "6371237713";
+               usuario = "6371237713";
 
                 if (usuario != "")
                 {
@@ -446,6 +446,7 @@ namespace SAGA.API.Controllers
        
         }
 
+        //falta mensaje
         [HttpPost]
         [Route("sendEmailsNoContratado")]
         public IHttpActionResult SendEmailsNoContratados(List<ProcesoDto> datos)
@@ -455,7 +456,7 @@ namespace SAGA.API.Controllers
             path = "~/utilerias/img/logo/boton.png";
             string fullPath2 = System.Web.Hosting.HostingEnvironment.MapPath(path);
             string body = "";
-            string usuario = "";
+           // string usuario = "bmorales@damsa.com.mx";
 
             string from = "noreply@damsa.com.mx";
             MailMessage m = new MailMessage();
@@ -468,7 +469,7 @@ namespace SAGA.API.Controllers
                 {
                     if (e.email.Contains("@"))
                     {
-                        m.To.Add(e.email);
+                        m.Bcc.Add(e.email);
                         body = "<html><head></head><body style=\"text-align:center; font-family:'calibri'\">";
                         body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
                         body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", e.nombre);

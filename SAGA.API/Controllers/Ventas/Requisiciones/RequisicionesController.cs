@@ -187,14 +187,16 @@ namespace SAGA.API.Controllers
                         p.Candidato.ApellidoPaterno,
                         p.Candidato.ApellidoMaterno,
                         p.Candidato.CURP,
-                        email = p.Candidato.emails.Select(m => m.email).FirstOrDefault()
+                        email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
+                        p.StatusId
                     }),
                     EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                     EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27).Select(d => new
                     {
                         candidatoId = d.CandidatoId,
                         nombre = d.Candidato.Nombre + " " + d.Candidato.ApellidoPaterno + " " + d.Candidato.ApellidoMaterno,
-                        email = d.Candidato.emails.Select(m => m.email).FirstOrDefault()
+                        email = d.Candidato.emails.Select(m => m.email).FirstOrDefault(), 
+                        estatus = d.EstatusId
                     }),
                     Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count()
                 }).ToList().OrderByDescending(x => x.Folio);
