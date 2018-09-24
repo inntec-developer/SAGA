@@ -269,8 +269,6 @@ namespace SAGA.API.Controllers
 
                 SMSResponseDetails sentMessageInfo = smsResponse.Messages[0];
 
-                vacante = "";
-
             }
             else if (estatusId == 27)
             {
@@ -290,8 +288,6 @@ namespace SAGA.API.Controllers
                 SMSResponse smsResponse = await smsClient.ExecuteAsync(request); // Manda el mensaje con código.
 
                 SMSResponseDetails sentMessageInfo = smsResponse.Messages[0];
-
-                vacante = "";
             }
             return Ok(HttpStatusCode.Created);
         }
@@ -330,7 +326,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-               usuario = "6371237713";
+               //usuario = "6371237713";
 
                 if (usuario != "")
                 {
@@ -456,7 +452,7 @@ namespace SAGA.API.Controllers
             path = "~/utilerias/img/logo/boton.png";
             string fullPath2 = System.Web.Hosting.HostingEnvironment.MapPath(path);
             string body = "";
-           // string usuario = "bmorales@damsa.com.mx";
+            string usuario = "bmorales@damsa.com.mx";
 
             string from = "noreply@damsa.com.mx";
             MailMessage m = new MailMessage();
@@ -490,9 +486,39 @@ namespace SAGA.API.Controllers
                         smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
                         smtp.Send(m);
                     }
+                    else
+                    {
+                        SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["SAGADB"].ConnectionString);
+                        SqlCommand cmd = new SqlCommand();
+
+
+                        cmd.CommandText = "SELECT * FROM sist.AspNetUsers WHERE IdPersona=@candidatoId";
+                        cmd.Parameters.AddWithValue("@candidatoId", e.candidatoId);
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Connection = conn;
+
+                        conn.Open();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                usuario = reader["UserName"].ToString();
+                            }
+                        }
+
+
+                        conn.Close();
+
+                        if (usuario != "")
+                        {
+                            var res = EnviarSMS(usuario, e.vacante, 27);
+                        }
+
+                    }
                 }
 
-                return Ok(HttpStatusCode.Created);
+               return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {

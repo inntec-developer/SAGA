@@ -180,9 +180,10 @@ namespace SAGA.API.Controllers
                     Folio = e.Folio,
                     DiasEnvio = e.DiasEnvio,
                     Confidencial = e.Confidencial,
-                    Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
-                    PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Select(p => new
+                    Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Count(),
+                    PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Select(p => new
                     {
+                        p.CandidatoId,
                         p.Candidato.Nombre,
                         p.Candidato.ApellidoPaterno,
                         p.Candidato.ApellidoMaterno,
@@ -259,7 +260,7 @@ namespace SAGA.API.Controllers
                         Confidencial = e.Confidencial,
                         //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                         Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
-                        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
+                        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Count(),
                         EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
                         Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
                         AreaExperiencia = e.Area.areaExperiencia,
