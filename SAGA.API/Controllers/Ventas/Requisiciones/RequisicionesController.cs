@@ -112,7 +112,8 @@ namespace SAGA.API.Controllers
                         x.GrpUsr.ApellidoPaterno
                     }),
                     vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-                    r.VBtra
+                    r.VBtra,
+                    HorariosDamfo = db.HorariosPerfiles.Where(h => h.DAMFO290Id.Equals(r.DAMFO290Id)).ToList()
                 }).FirstOrDefault();
                 return Ok(requisicion);
             }
@@ -317,13 +318,41 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var hr = db.HorariosRequis.Find(horario.Id);
-                db.Entry(hr).State = EntityState.Modified;
-                hr.numeroVacantes = horario.numeroVacantes;
-                hr.UsuarioMod = horario.Usuario;
-                hr.fch_Modificacion = DateTime.Now;
-                db.SaveChanges();
-                return Ok(HttpStatusCode.OK);
+                if(horario.numeroVacantes == 0)
+                {
+                    var vacante = db.HorariosRequis
+                                    .Where(h => h.RequisicionId.Equals(horario.RequisicionId) && h.Id != horario.Id)
+                                    .Select(h => new
+                                    {
+                                        vacantes = h.numeroVacantes
+                                    }).ToList();
+                    var suma = vacante.Count() > 0 ? vacante.Sum(s => s.vacantes) : 0;
+
+                    if(suma == 0)
+                    {
+                        return Ok(HttpStatusCode.NoContent);
+                    }
+                    else
+                    {
+                        var hr = db.HorariosRequis.Find(horario.Id);
+                        db.Entry(hr).State = EntityState.Modified;
+                        hr.numeroVacantes = horario.numeroVacantes;
+                        hr.UsuarioMod = horario.Usuario;
+                        hr.fch_Modificacion = DateTime.Now;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    }
+
+                }else
+                {
+                    var hr = db.HorariosRequis.Find(horario.Id);
+                    db.Entry(hr).State = EntityState.Modified;
+                    hr.numeroVacantes = horario.numeroVacantes;
+                    hr.UsuarioMod = horario.Usuario;
+                    hr.fch_Modificacion = DateTime.Now;
+                    db.SaveChanges();
+                    return Ok(HttpStatusCode.OK);
+                }
             }
             catch (Exception)
             {
@@ -337,8 +366,8 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var direccion = db.HorariosRequis.Where(x => x.RequisicionId.Equals(Id)).ToList();
-                return Ok(direccion);
+                var horarios = db.HorariosRequis.Where(x => x.RequisicionId.Equals(Id)).ToList();
+                return Ok(horarios);
             }
             catch (Exception ex)
             {
