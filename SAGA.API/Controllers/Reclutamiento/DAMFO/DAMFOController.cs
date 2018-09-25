@@ -61,5 +61,30 @@ namespace SAGA.API.Controllers
                 return Ok(mssg);
             }
         }
+
+        [HttpGet]
+        [Route("getVacantesDamfo")]
+        public IHttpActionResult GetHorarios(Guid Id)
+        {
+            try
+            {
+                // Recuperamos el nombre de los hprarios y las vacantes diponibles
+                var vacantes = db.HorariosPerfiles
+                                .Where(h => h.DAMFO290Id.Equals(Id))
+                                .Where(h => h.Activo.Equals(true))
+                                .Select(h => new
+                                {
+                                    Nombre = h.Nombre,
+                                    vacantes = h.numeroVacantes
+                                })
+                                .ToList();
+                return Ok(vacantes);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
     }
 }
