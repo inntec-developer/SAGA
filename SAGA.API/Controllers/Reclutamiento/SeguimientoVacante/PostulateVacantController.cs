@@ -140,7 +140,26 @@ namespace SAGA.API.Controllers
             }
             
         }
+        public IHttpActionResult LiberarCandidatos(ProcesoDto datos)
+        {
+            try
+            {
+                var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId)).Select(x => x.Id).FirstOrDefault();
+                var c = db.ProcesoCandidatos.Find(id);
 
+                db.Entry(c).State = System.Data.Entity.EntityState.Modified;
+                c.EstatusId = datos.estatusId;
+
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
         [HttpPost]
         [Route("updateStatusBolsa")]
         public IHttpActionResult UpdateStatusBolsa(ProcesoDto datos)
@@ -316,9 +335,9 @@ namespace SAGA.API.Controllers
         [Route("sendEmailCandidato")]
         public IHttpActionResult SendEmailCandidato(ProcesoDto datos)
         {
-            var path = "~/utilerias/img/logo/logo.png";
+            var path = "~/logo/logo.png";
             string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
-            path = "~/utilerias/img/logo/boton.png";
+            path = "~/logo/boton.png";
             string fullPath2 = System.Web.Hosting.HostingEnvironment.MapPath(path);
             string body = "";
             string usuario = "";
@@ -346,7 +365,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-              // usuario = "6371237713";
+               usuario = "thothgirl@gmail.com";
 
                 if (usuario != "")
                 {
@@ -360,19 +379,19 @@ namespace SAGA.API.Controllers
                         if (usuario.Contains("@"))
                         {
                             m.To.Add(usuario);
-                            body = "<html><head><style>.box{ color: #fff; max-width:300px !important; border:1px solid #90ee90; background-color:#90ee90;} a:link, a:visited {box-shadow: 10px 5px 5px black;  padding: 25px; text-align: center; text-decoration: none; font-size:150%;} </style></head>";
-                            body = body + "<body style=\"text-align:center; font-family:'calibri'\">";
+                            body = "<html><head></head>";
+                            body = body + "<body style=\"text-align:center; font-size:14px; font-family:'calibri'\">";
                             body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
                             body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", datos.nombre);
-                            body = body + "<br/><br/><br/><h1>¡Felicidades!</h1>";
+                            body = body + "<br/><br/><h1>¡Felicidades!</h1>";
                             body = body + "<p>Eres uno(a) de los/las candidatos/as que inicia proceso para la vacante de</p>";
                             body = body + string.Format("<h1 style=\"color:#3366cc;\">{0}</h1>", datos.vacante);
                             body = body + "<p>Solo puedes estar en un proceso de seguimiento</p>";
                             body = body + "<p> Si esta vacante no es de tu inter&eacute;s puedes declinar a esta postulaci&oacute;n.</p>";
                             body = body + string.Format("<a href=\"http://btweb.damsa.com.mx/\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
-                            body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", usuario);
+                            body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font style:\"text-decoration:none\"; color=\"#5d9cec\">{0}</font></p>", usuario);
                             body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
-
+                            body = body + "</body></html>";
                             m.Body = body;
                             m.IsBodyHtml = true;
                             SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
@@ -392,18 +411,18 @@ namespace SAGA.API.Controllers
                         if (usuario.Contains("@"))
                         {
                             m.To.Add(usuario);
-                            body = "<html><head><style>.box{ color: #fff; max-width:300px !important; border:1px solid #90ee90; background-color:#90ee90;} a:link, a:visited {  padding: 25px; text-align: center; text-decoration: none; font-size:150%;} </style></head>";
-                            body = body + "<body style=\"text-align:center; font-family:'calibri'\">";
+                            body = "<html><head></head>";
+                            body = body + "<body style=\"text-align:center; font-size:14px; font-family:'calibri'\">";
                             body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
                             body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", datos.nombre);
-                            body = body + "<br/><br/><br/><h1>¡Felicidades!</h1>";
+                            body = body + "<br/><br/><h1>¡Felicidades!</h1>";
                             body = body + string.Format("<p>Eres uno(a) de los/las finalistas para la vacante de <h1 style=\"color:#3366cc;\">{0}</h1></p>", datos.vacante);
                             body = body + "<p>Solo puedes estar en un proceso de seguimiento</p>";
                             body = body + "<p> Si esta vacante no es de tu inter&eacute;s puedes declinar a esta postulaci&oacute;n.</p>";
                             body = body + string.Format("<a href=\"http://btweb.damsa.com.mx/\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
-                            body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", usuario);
+                            body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font style:\"text-decoration:none\"; color=\"#5d9cec\">{0}</font></p>", usuario);
                             body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
-
+                            body = body + "</body></html>";
                             m.Body = body;
                             m.IsBodyHtml = true;
                             SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
@@ -422,16 +441,16 @@ namespace SAGA.API.Controllers
                         if (usuario.Contains("@"))
                         {
                             m.To.Add(usuario);
-                            body = "<html><head></head><body style=\"text-align:center; font-family:'calibri'\">";
+                            body = "<html><head></head><body style=\"text-align:center; font-size:14px; font-family:'calibri'\">";
                             body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
                             body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", datos.nombre);
-                            body = body + "<br/><br/><br/>";
+                            body = body + "<br/><br/>";
                             body = body + string.Format("<p>Gracias por tu inter&eacute;s en nuestra empresa y por el tiempo que has dedicado para el proceso de <h1 style=\"color:#3366cc;\">{0}</h1></p>", datos.vacante);
                             body = body + "<p>Te escribimos para informarte que el cliente ha seleccionado un candidato, sin embargo y con tu conformidad, conservaremos tu CV en nuestra base de datos para futuras selecciones.</p>";
                             body = body + "<p>Agradecemos tu participaci&oacute;n</p>";
                             body = body + "<p>En la siguiente liga puedes encontrar vacantes similares:</p>";
                             body = body + string.Format("<a href=\"http://btweb.damsa.com.mx/\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
-                            body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", usuario);
+                            body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font style:\"text-decoration:none\"; color=\"#5d9cec\">{0}</font></p>", usuario);
                             body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                             body = body + "</body></html>";
 
@@ -452,12 +471,12 @@ namespace SAGA.API.Controllers
                         if (usuario.Contains("@"))
                         {
                             m.To.Add(usuario);
-                            body = "<html><head></head><body style=\"text-align:center; font-family:'calibri'\">";
+                            body = "<html><head></head><body style=\"text-align:center; font-size:14px; font-family:'calibri'\">";
                             body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
                             body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", datos.nombre);
-                            body = body + "<br/><br/><br/><h1>¡Felicidades!</h1>";
+                            body = body + "<br/><br/><h1>¡Felicidades!</h1>";
                             body = body + string.Format("<p>Eres uno(a) de los/las contratados para la vacante <h1 style=\"color:#3366cc;\">{0}</h1></p>", datos.vacante);
-                            body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", usuario);
+                            body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font style:\"text-decoration:none\"; color=\"#5d9cec\">{0}</font></p>", usuario);
                             body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                             body = body + "</body></html>";
 
@@ -509,6 +528,8 @@ namespace SAGA.API.Controllers
                 {
                     if (e.email.Contains("@"))
                     {
+                        var res = LiberarCandidatos(e);
+
                         m.Bcc.Add(e.email);
                         body = "<html><head></head><body style=\"text-align:center; font-family:'calibri'\">";
                         body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
@@ -553,6 +574,8 @@ namespace SAGA.API.Controllers
 
 
                         conn.Close();
+
+                        var result = LiberarCandidatos(e);
 
                         if (usuario != "")
                         {
