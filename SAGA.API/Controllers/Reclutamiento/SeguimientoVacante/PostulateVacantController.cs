@@ -253,7 +253,7 @@ namespace SAGA.API.Controllers
             }
             else if(estatusId == 21)
             {
-                string texto = "Bolsa Trabajo DAMSA, te felicita por ser Finalista a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento";
+                string texto = "Bolsa Trabajo DAMSA, te felicita por ser finalista a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento";
                 texto = texto.Normalize(NormalizationForm.FormD);
                 texto = reg.Replace(texto, " ");
 
@@ -288,6 +288,26 @@ namespace SAGA.API.Controllers
                 SMSResponse smsResponse = await smsClient.ExecuteAsync(request); // Manda el mensaje con código.
 
                 SMSResponseDetails sentMessageInfo = smsResponse.Messages[0];
+            }
+            else if(estatusId == 24)
+            {
+                string texto = string.Format("Bolsa Trabajo DAMSA, te felicita por ser contratado a la vacante {0}. http://btweb.damsa.com.mx/", vacante);
+
+                texto = texto.Normalize(NormalizationForm.FormD);
+                texto = reg.Replace(texto, " ");
+
+                SMSTextualRequest request = new SMSTextualRequest
+                {
+                    From = "DAMSA",
+                    To = Destino,
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + texto
+
+                };
+
+                SMSResponse smsResponse = await smsClient.ExecuteAsync(request); // Manda el mensaje con código.
+
+                SMSResponseDetails sentMessageInfo = smsResponse.Messages[0];
+
             }
             return Ok(HttpStatusCode.Created);
         }
@@ -326,7 +346,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-               //usuario = "6371237713";
+              // usuario = "6371237713";
 
                 if (usuario != "")
                 {
@@ -415,8 +435,32 @@ namespace SAGA.API.Controllers
                             body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                             body = body + "</body></html>";
 
-                            //body = body + "<form><input style=\"width: 300px; padding: 20px; cursor: pointer; box-shadow: 6px 6px 5px; #999; -webkit-box-shadow: 6px 6px 5px #999; -moz-box-shadow: 6px 6px 5px #999; font-weight: bold; background: #73e7c0; color: #fff; border-radius: 10px; border: 1px solid #73e7c0; font-size: 150%;\" type=\"button\" value=\"Ir a la bolsa de trabajo\" onclick=\"window.location.href='http://www.damsa.com.mx'\"/></form>";
-                            //<style>.box { color: #fff; width:400px !important; border:3px solid #90ee90; background-color:#90ee90; box-shadow: 6px 6px 5px #999; -webkit-box-shadow: 6px 6px 5px #999; -moz-box-shadow: 6px 6px 5px #999; border-radius: 10px;} a:link, a:visited {  padding: 25px; text-align: center; text-decoration: none; font-size:150%;} </style>
+                            m.Body = body;
+                            m.IsBodyHtml = true;
+                            SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                            smtp.EnableSsl = true;
+                            smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                            smtp.Send(m);
+                        }
+                        else
+                        {
+                            return Ok(EnviarSMS(usuario, datos.vacante, datos.estatusId));
+                        }
+                    }
+                    else if(datos.estatusId == 24)
+                    {
+                        if (usuario.Contains("@"))
+                        {
+                            m.To.Add(usuario);
+                            body = "<html><head></head><body style=\"text-align:center; font-family:'calibri'\">";
+                            body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
+                            body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", datos.nombre);
+                            body = body + "<br/><br/><br/><h1>¡Felicidades!</h1>";
+                            body = body + string.Format("<p>Eres uno(a) de los/las contratados para la vacante <h1 style=\"color:#3366cc;\">{0}</h1></p>", datos.vacante);
+                            body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", usuario);
+                            body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
+                            body = body + "</body></html>";
+
                             m.Body = body;
                             m.IsBodyHtml = true;
                             SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
