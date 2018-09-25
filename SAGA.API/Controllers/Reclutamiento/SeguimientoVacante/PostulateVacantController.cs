@@ -365,7 +365,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-               usuario = "thothgirl@gmail.com";
+              // usuario = "thothgirl@gmail.com";
 
                 if (usuario != "")
                 {
