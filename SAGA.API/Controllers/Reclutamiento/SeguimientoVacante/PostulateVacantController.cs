@@ -349,9 +349,9 @@ namespace SAGA.API.Controllers
         public IHttpActionResult SendEmailCandidato(ProcesoDto datos)
         {
             var path = "~/logo/logo.png";
-            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
+            string fullPath = "http://192.168.8.124:333/logo/logo.png";
             path = "~/logo/boton.png";
-            string fullPath2 = System.Web.Hosting.HostingEnvironment.MapPath(path);
+            string fullPath2 = "http://192.168.8.124:333/logo/boton.png";
             string body = "";
             string usuario = "";
             try
@@ -378,7 +378,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-              // usuario = "thothgirl@gmail.com";
+               usuario = "niij_06@hotmail.com";
 
                 if (usuario != "")
                 {
