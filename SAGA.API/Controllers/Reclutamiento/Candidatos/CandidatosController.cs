@@ -332,6 +332,8 @@ namespace SAGA.API.Controllers
             return Ok(candidatos);
          }
 
+
+
         [HttpGet]
         [Route("getMisCandidatos")]
         public IHttpActionResult GetMisCandidatos(Guid Id)
@@ -356,6 +358,43 @@ namespace SAGA.API.Controllers
                 estatusId = x.EstatusId
             }).ToList().OrderByDescending(o => o.folio);
             return Ok(candidatos);
+        }
+
+        [HttpGet]
+        [Route("getCandidatoPalabraClave")]
+        public IHttpActionResult GetCandidatoPalabraClave(string palabraClave)
+        {
+            try
+            {
+                palabraClave = palabraClave.ToLower().Trim();
+                var Aboutme = db.AcercaDeMi.Where(a => a.AcercaDeMi.ToLower().Contains(palabraClave)).Select(a => a.PerfilCandidatoId).ToList();
+                var Descripcion = db.ExperienciasProfesionales.Where(e => e.CargoAsignado.ToLower().Contains(palabraClave) || e.Descripcion.Contains(palabraClave))
+                    .Select(e => e.PerfilCandidatoId).ToList();
+                var filtros = Aboutme.Union(Descripcion).ToList().Distinct();
+
+                var encontrados = db.PerfilCandidato
+                .Where(x => filtros.Contains(x.Id))
+                 .Select(x => new
+                 {
+                     candidatoId = x.CandidatoId,
+                     nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
+                     AreaExp = x.AboutMe.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
+                     AreaInt = x.AboutMe.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
+                     edad = x.Candidato.FechaNacimiento,
+                     curp = x.Candidato.CURP,
+                     rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
+                     sueldoMinimo = x.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? x.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
+                     localidad = db.Direcciones.Where(cp => cp.EntidadId.Equals(x.CandidatoId)).Select(d => d.Estado.estado).FirstOrDefault() + " / " + db.Direcciones.Where(cp => cp.EntidadId.Equals(x.CandidatoId)).Select(d => d.Municipio.municipio).FirstOrDefault(),
+                 }).ToList();
+                
+                return Ok(encontrados);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+
+                return Ok(HttpStatusCode.NotFound);
+            }
         }
 
         [HttpGet]
