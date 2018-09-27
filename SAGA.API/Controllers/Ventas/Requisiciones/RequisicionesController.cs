@@ -192,7 +192,7 @@ namespace SAGA.API.Controllers
                         email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
                         p.StatusId
                     }),
-                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
+                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27).Count(),
                     EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27).Select(d => new
                     {
                         candidatoId = d.CandidatoId,
@@ -232,7 +232,8 @@ namespace SAGA.API.Controllers
                     .Select(a => a.RequisicionId)
                     .Distinct()
                     .ToList();
-
+                
+               
 
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                     .Where(e => asig.Contains(e.Id))
@@ -261,8 +262,9 @@ namespace SAGA.API.Controllers
                         Confidencial = e.Confidencial,
                         //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                         Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
-                        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Count(),
-                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id)).Count(),
+                        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id)).Select(cc => cc.CandidatoId)).Count(),
+                        PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id)).Select(cc => cc.CandidatoId)),
+                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27).Count(),
                         Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
                         AreaExperiencia = e.Area.areaExperiencia,
                         Aprobador = e.Aprobador != null ? e.Aprobador : "",

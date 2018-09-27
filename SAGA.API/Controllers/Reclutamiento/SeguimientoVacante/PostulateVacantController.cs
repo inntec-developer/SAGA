@@ -35,8 +35,9 @@ namespace SAGA.API.Controllers
         [Route("getPostulate")]
         public IHttpActionResult GetPostulate(Guid VacanteId)
         {
-            var postulate = db.Postulaciones.Where(x => x.RequisicionId.Equals(VacanteId)).Select(x => x.CandidatoId).ToList();
-            var candidatos = db.PerfilCandidato.Where(x => postulate.Contains(x.CandidatoId)).Select(x => new {
+            var postulate = db.Postulaciones.Where(x => x.RequisicionId.Equals(VacanteId) && x.StatusId.Equals(1)).Select(x => x.CandidatoId).ToList();
+            var aux = db.ProcesoCandidatos.Where(x => postulate.Contains(x.CandidatoId) && x.EstatusId == 27).Select(c => c.CandidatoId).ToList();
+            var candidatos = db.PerfilCandidato.Where(x => aux.Contains(x.CandidatoId)).Select(x => new {
                 CandidatoId = x.CandidatoId,
                 nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
                 AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "" ,
@@ -54,7 +55,7 @@ namespace SAGA.API.Controllers
         [Route("getProceso")]
         public IHttpActionResult GetProceso(Guid VacanteId, Guid ReclutadorId)
         {
-            var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId)).Select(c => new
+            var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27).Select(c => new
             {
                 candidatoId = c.CandidatoId,
                 estatus = c.Estatus.Descripcion,
@@ -142,9 +143,10 @@ namespace SAGA.API.Controllers
         }
         public IHttpActionResult LiberarCandidatos(ProcesoDto datos)
         {
+            Guid aux = new Guid("00000000-0000-0000-0000-000000000000");
             try
             {
-                var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId)).Select(x => x.Id).FirstOrDefault();
+                var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).FirstOrDefault();
                 var c = db.ProcesoCandidatos.Find(id);
 
                 db.Entry(c).State = System.Data.Entity.EntityState.Modified;
@@ -152,6 +154,17 @@ namespace SAGA.API.Controllers
 
                 db.SaveChanges();
 
+                var ids = db.Postulaciones.Where(x => x.RequisicionId.Equals(datos.requisicionId) && x.CandidatoId.Equals(datos.candidatoId)).Select(x => x.Id).FirstOrDefault();
+                if (ids != aux)
+                {
+                    var cc = db.Postulaciones.Find(ids);
+
+                    db.Entry(cc).State = System.Data.Entity.EntityState.Modified;
+                    cc.StatusId = 5;
+
+                    db.SaveChanges();
+                }
+                    
                 return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)
@@ -526,6 +539,7 @@ namespace SAGA.API.Controllers
             {
                 foreach (var e in datos)
                 {
+                    e.email = "thothgirl@gmail.com";
                     if (e.email.Contains("@"))
                     {
                         var res = LiberarCandidatos(e);
@@ -576,6 +590,7 @@ namespace SAGA.API.Controllers
                         conn.Close();
 
                         var result = LiberarCandidatos(e);
+                        
 
                         if (usuario != "")
                         {
