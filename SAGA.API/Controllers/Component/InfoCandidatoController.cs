@@ -115,7 +115,8 @@ namespace SAGA.API.Controllers.Component
                         fch_Cumplimiento = e.fch_Cumplimiento,
                         Estatus = e.Estatus.Descripcion,
                         EstatusId = e.EstatusId,
-                        Confidencial = e.Confidencial
+                        Confidencial = e.Confidencial,
+                        contratados = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(e.Id) && x.EstatusId == 24).Count()
                     }).ToList().OrderByDescending(x => x.Folio.ToString());
                 return Ok(vacantes);
             }
@@ -181,6 +182,7 @@ namespace SAGA.API.Controllers.Component
             try
             {
                 var candidato = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(proceso.CandidatoId)).FirstOrDefault();
+
                 if (candidato == null)
                 {
                     db.ProcesoCandidatos.Add(proceso);
