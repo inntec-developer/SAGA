@@ -35,9 +35,10 @@ namespace SAGA.API.Controllers
         [Route("getPostulate")]
         public IHttpActionResult GetPostulate(Guid VacanteId)
         {
-            var postulate = db.Postulaciones.Where(x => x.RequisicionId.Equals(VacanteId) && x.StatusId.Equals(1)).Select(x => x.CandidatoId).ToList();
-            var aux = db.ProcesoCandidatos.Where(x => postulate.Contains(x.CandidatoId) && x.EstatusId == 27).Select(c => c.CandidatoId).ToList();
-            var candidatos = db.PerfilCandidato.Where(x => aux.Contains(x.CandidatoId)).Select(x => new {
+           // var postulate = db.Postulaciones.Where(x => x.RequisicionId.Equals(VacanteId) && x.StatusId.Equals(1)).Select(x => x.CandidatoId).ToList();
+            var postulate = db.Postulaciones.Where(p => p.RequisicionId.Equals(VacanteId) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(VacanteId) && xx.EstatusId.Equals(27)).Select(cc => cc.CandidatoId)).ToList();
+
+            var candidatos = db.PerfilCandidato.Where(x => postulate.Contains(x.CandidatoId)).Select(x => new {
                 CandidatoId = x.CandidatoId,
                 nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
                 AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "" ,
@@ -46,7 +47,8 @@ namespace SAGA.API.Controllers
                 sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0 ,
                 edad = x.Candidato.FechaNacimiento,
                 rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-                curp = x.Candidato.CURP
+                curp = x.Candidato.CURP, 
+                EstatusId = db.ProcesoCandidatos.Where(c => c.CandidatoId.Equals(x.CandidatoId)).Select(cc => cc.EstatusId).FirstOrDefault()
             }).ToList();
             return Ok(candidatos);
         }
