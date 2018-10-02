@@ -63,6 +63,32 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("getDamfoRutasCamion")]
+        public IHttpActionResult GetRutasCamion(Guid Id)
+        {
+            try
+            {
+                var direccion = db.Direcciones
+                    .Where(x => x.EntidadId.Equals(Id))
+                    .Select(x => x.Id).ToList();
+                var rutas = db.RutasPerfil
+                    .Where(r => direccion.Contains(r.DireccionId))
+                    .Select(r => new
+                    {
+                        Direccion = r.Direccion.Calle,
+                        Ruta = r.Ruta,
+                        Via = r.Via
+                    }).ToList().OrderBy(r => r.Direccion);
+                return Ok(rutas);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpGet]
         [Route("getVacantesDamfo")]
         public IHttpActionResult GetHorarios(Guid Id)
         {
