@@ -197,13 +197,13 @@ namespace SAGA.API.Controllers
                     {
                         candidatoId = d.CandidatoId,
                         nombre = d.Candidato.Nombre + " " + d.Candidato.ApellidoPaterno + " " + d.Candidato.ApellidoMaterno,
-                        email = d.Candidato.emails.Select(m => m.email).FirstOrDefault(), 
+                        email = d.Candidato.emails.Select(m => m.email).FirstOrDefault(),
                         estatus = d.EstatusId
                     }),
                     Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count()
                 }).ToList().OrderByDescending(x => x.Folio);
             return Ok(requisicion);
-        } 
+        }
 
         [HttpGet]
         [Route("getRequiReclutador")]
@@ -232,8 +232,8 @@ namespace SAGA.API.Controllers
                     .Select(a => a.RequisicionId)
                     .Distinct()
                     .ToList();
-                
-               
+
+
 
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                     .Where(e => asig.Contains(e.Id))
@@ -370,6 +370,95 @@ namespace SAGA.API.Controllers
             catch (Exception ex)
             {
                 return NotFound();
+            }
+        }
+
+        [HttpGet]
+        [Route("getRutasCamion")]
+        public IHttpActionResult GetRutasCamion(Guid Id)
+        {
+            try
+            {
+                var rutasCamion = db.RutasPerfil
+                    .Where(r => r.DireccionId.Equals(Id))
+                    .Select(x => new
+                    {
+                        Id = x.Id,
+                        DireccionId = x.DireccionId,
+                        Ruta = x.Ruta,
+                        Via = x.Via
+                    }).ToList();
+                return Ok(rutasCamion);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpPost]
+        [Route("addRutaCamion")]
+        public IHttpActionResult AddRutasCamion(RutaCamionDto ruta)
+        {
+            try
+            {
+                var rutaCamion = new RutasPerfil();
+                rutaCamion.DireccionId = ruta.DireccionId;
+                rutaCamion.Ruta = ruta.Ruta;
+                rutaCamion.Via = ruta.Via;
+                rutaCamion.UsuarioAlta = ruta.Usuario;
+                db.RutasPerfil.Add(rutaCamion);
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpPost]
+        [Route("updateRutaCamion")]
+        public IHttpActionResult UpdateRutasCamion(RutaCamionDto ruta)
+        {
+            try
+            {
+                var rutaCamion = db.RutasPerfil.Find(ruta.Id);
+                db.Entry(rutaCamion).State = EntityState.Modified;
+                rutaCamion.Ruta = ruta.Ruta;
+                rutaCamion.Via = ruta.Via;
+                rutaCamion.UsuarioMod = ruta.Usuario;
+                rutaCamion.fch_Modificacion = DateTime.Now;
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpPost]
+        [Route("deleteRutaCamion")]
+        public IHttpActionResult DeleteRutasCamion(RutaCamionDto ruta)
+        {
+            try
+            {
+                RutasPerfil rutaCamion = (RutasPerfil)db.RutasPerfil.Find(ruta.Id);
+                db.RutasPerfil.Remove(rutaCamion);
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
             }
         }
 
