@@ -51,6 +51,7 @@ namespace SAGA.BOL
         public Int64 Folio { get; set; }
         public DateTime? fch_Limite { get; set; }
         public int? DiasEnvio { get; set; }
+        public Guid PropietarioId { get; set; }
 
 
         public virtual Cliente Cliente { get; set; }
