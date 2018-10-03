@@ -1110,6 +1110,7 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.Estatus).IsOptional();
 			}
 		}
 		public class PostulacionMap : EntityTypeConfiguration<Postulacion>
@@ -1326,6 +1327,7 @@ namespace SAGA.DAL
 				Property(x => x.Activo).IsRequired();
                 Property(x => x.Folio).IsRequired();
                 Property(x => x.DiasEnvio).IsOptional();
+                Property(x => x.PropietarioId).IsOptional();
 			}
 		}
 		public class EscolaridadesRequiMap : EntityTypeConfiguration<EscolaridadesRequi>
@@ -1902,6 +1904,7 @@ namespace SAGA.DAL
 				Property(x => x.Reclutador).IsRequired().HasMaxLength(100);
 				Property(x => x.EstatusId).IsRequired();
 				Property(x => x.TpContrato).IsOptional();
+                Property(x => x.HorarioId).IsRequired();
 				Property(x => x.Fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.Fch_Modificacion).IsOptional().HasColumnType("Datetime");
 			}

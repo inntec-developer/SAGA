@@ -7,6 +7,7 @@ namespace SAGA.BOL
     {
         public Guid Id { get; set; }
         public Guid CandidatoId { get; set; }
+        public int Estatus { get; set; }
         public virtual Candidato Candidato { get; set; }
         public virtual ICollection<AboutMe> AboutMe { get; set; }
         public virtual ICollection<Curso> Cursos { get; set; }
