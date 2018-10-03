@@ -189,7 +189,7 @@ namespace SAGA.API.Controllers.Component
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);
                 }
-                else if (candidato.EstatusId == 27)
+                else if (candidato.EstatusId == 27 || candidato.EstatusId == 40)
                 {
                     db.Entry(candidato).State = EntityState.Modified;
                     candidato.Reclutador = proceso.Reclutador;

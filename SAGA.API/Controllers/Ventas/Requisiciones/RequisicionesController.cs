@@ -265,10 +265,68 @@ namespace SAGA.API.Controllers
                         Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
                         EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
                         EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
+                        EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
                         contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
                         Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
                         AreaExperiencia = e.Area.areaExperiencia,
                         Aprobador = e.Aprobador != null ? e.Aprobador : "",
+                    }).ToList();
+                return Ok(vacantes);
+
+            }
+            catch (Exception ex)
+            {
+                string mensaje = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+
+        }
+        [HttpGet]
+        [Route("getConteoVacante")]
+        public IHttpActionResult GetConteoVacante(Guid IdUsuario)
+        {
+            try
+            {
+                List<Guid> grp = new List<Guid>();
+
+                var Grupos = db.GruposUsuarios
+                    .Where(g => g.EntidadId.Equals(IdUsuario) & g.Grupo.Activo)
+                           .Select(g => g.GrupoId)
+                           .ToList();
+
+
+                foreach (var grps in Grupos)
+                {
+                    grp = GetGrupo(grps, grp);
+                }
+
+                grp.Add(IdUsuario);
+
+                var asig = db.AsignacionRequis
+                    .OrderByDescending(e => e.Id)
+                    .Where(a => grp.Distinct().Contains(a.GrpUsrId))
+                    .Select(a => a.RequisicionId)
+                    .Distinct()
+                    .ToList();
+
+                var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
+                    .Where(e => asig.Contains(e.Id))
+                    .Where(e => e.Activo.Equals(true))
+                    .Select(e => new
+                    {
+                        Id = e.Id,
+                        ClienteId = e.Cliente.Id,
+                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                        Folio = e.Folio,
+                        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
+                        Abandono = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(6)).Count(),
+                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
+                        EnProcesoEnt = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 18).Count(),
+                        EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
+                        EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
+                        contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
+                        rechazados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 40).Count(),
+                        porcentaje = (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / (e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0)
                     }).ToList();
                 return Ok(vacantes);
 

@@ -57,7 +57,7 @@ namespace SAGA.API.Controllers
         [Route("getProceso")]
         public IHttpActionResult GetProceso(Guid VacanteId, Guid ReclutadorId)
         {
-            var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27).Select(c => new
+            var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
             {
                 candidatoId = c.CandidatoId,
                 estatus = c.Estatus.Descripcion,
