@@ -185,6 +185,7 @@ namespace SAGA.API.Controllers.Component
 
                 if (candidato == null)
                 {
+                    proceso.HorarioId = null;
                     db.ProcesoCandidatos.Add(proceso);
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);

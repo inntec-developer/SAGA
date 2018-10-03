@@ -18,7 +18,7 @@ namespace SAGA.BOL
         public Guid ReclutadorId { get; set; }
         public int EstatusId { get; set; }
         public int TpContrato { get; set; }
-        public Guid HorarioId { get; set; }
+        public Guid? HorarioId { get; set; }
         public DateTime Fch_Creacion { get; set; }
         public DateTime? Fch_Modificacion { get; set; }
         
