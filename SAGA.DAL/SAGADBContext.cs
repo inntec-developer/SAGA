@@ -1904,7 +1904,7 @@ namespace SAGA.DAL
 				Property(x => x.Reclutador).IsRequired().HasMaxLength(100);
 				Property(x => x.EstatusId).IsRequired();
 				Property(x => x.TpContrato).IsOptional();
-                Property(x => x.HorarioId).IsRequired();
+                Property(x => x.HorarioId).IsOptional();
 				Property(x => x.Fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.Fch_Modificacion).IsOptional().HasColumnType("Datetime");
 			}
