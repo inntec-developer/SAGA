@@ -133,10 +133,11 @@ namespace SAGA.API.Controllers
                 object[] _params = {
                     new SqlParameter("@Id", cr.IdDamfo),
                     new SqlParameter("@IdAddress", cr.IdAddress),
-                    new SqlParameter("@UserAlta", cr.Usuario)
+                    new SqlParameter("@UserAlta", cr.Usuario),
+                    new SqlParameter("@UsuarioId", cr.UsuarioId)
                 };
 
-                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @UserAlta", _params).SingleOrDefault();
+                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @UserAlta, @UsuarioId ", _params).SingleOrDefault();
 
                 Guid RequisicionId = requi.Id;
                 Int64 Folio = requi.Folio;
@@ -154,10 +155,10 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getRequisiciones")]
-        public IHttpActionResult GetRequisiciones(string propietario)
+        public IHttpActionResult GetRequisiciones(Guid propietario)
         {
             var requisicion = db.Requisiciones
-                .Where(e => e.Activo.Equals(true) && e.Propietario.Equals(propietario))
+                .Where(e => e.Activo.Equals(true) && e.PropietarioId.Equals(propietario))
                 .Select(e => new
                 {
                     Id = e.Id,
