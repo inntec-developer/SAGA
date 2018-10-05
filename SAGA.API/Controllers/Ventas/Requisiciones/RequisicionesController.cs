@@ -193,13 +193,13 @@ namespace SAGA.API.Controllers
                         email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
                         p.StatusId
                     }),
-                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27).Count(),
-                    EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27).Select(d => new
+                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
+                    EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40).Select(d => new
                     {
                         candidatoId = d.CandidatoId,
                         nombre = d.Candidato.Nombre + " " + d.Candidato.ApellidoPaterno + " " + d.Candidato.ApellidoMaterno,
                         email = d.Candidato.emails.Select(m => m.email).FirstOrDefault(),
-                        estatus = d.EstatusId
+                        estatusId = d.EstatusId
                     }),
                     Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count()
                 }).ToList().OrderByDescending(x => x.Folio);
@@ -297,6 +297,7 @@ namespace SAGA.API.Controllers
                         Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         Folio = e.Folio,
                         Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
+                        Apartados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 12).Count(),
                         Abandono = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(6)).Count(),
                         Descartados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 27).Count(),
                         EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
@@ -305,6 +306,7 @@ namespace SAGA.API.Controllers
                         EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
                         contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
                         Enviados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && e.EstatusId.Equals(30) && p.EstatusId == 21).Count(),
+                        EntCliente = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 22).Count(),
                         rechazados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 40).Count(),
                         porcentaje = (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / (e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0), 
                         horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(h => ( h.aHora.Hour - h.deHora.Hour ) == 9 ? "Completo" : h.aHora.Hour > 12 ? "Vespertino" : "Matutino").FirstOrDefault()

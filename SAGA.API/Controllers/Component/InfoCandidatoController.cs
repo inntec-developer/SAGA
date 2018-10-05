@@ -190,7 +190,7 @@ namespace SAGA.API.Controllers.Component
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);
                 }
-                else if ( (candidato.EstatusId == 27 || candidato.EstatusId == 40) && candidato.RequisicionId.Equals(proceso.RequisicionId))
+                else if ( (candidato.EstatusId == 27 || candidato.EstatusId == 40 || candidato.EstatusId == 12 ) && candidato.RequisicionId.Equals(proceso.RequisicionId))
                 {
                     db.Entry(candidato).State = EntityState.Modified;
                     candidato.Reclutador = proceso.Reclutador;
