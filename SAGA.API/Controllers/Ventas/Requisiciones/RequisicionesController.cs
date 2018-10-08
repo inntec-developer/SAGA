@@ -289,7 +289,7 @@ namespace SAGA.API.Controllers
             try
             {
                 var vacantes = db.Requisiciones
-                    .Where(e => e.Id.Equals(RequisicionId) && e.ClienteId.Equals(ClienteId))
+                    .Where(e => e.Id.Equals(RequisicionId))
                     .Select(e => new
                     {
                         Id = e.Id,
@@ -298,7 +298,7 @@ namespace SAGA.API.Controllers
                         Folio = e.Folio,
                         Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
                         Apartados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 12).Count(),
-                        Abandono = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(6)).Count(),
+                        Abandono = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 26).Count(),
                         Descartados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 27).Count(),
                         EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
                         EnProcesoEnt = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 18).Count(),

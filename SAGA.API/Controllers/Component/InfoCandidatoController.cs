@@ -48,9 +48,9 @@ namespace SAGA.API.Controllers.Component
                     Direccion = p.Candidato.direcciones.FirstOrDefault(),
                     Email = p.Candidato.emails.FirstOrDefault(),
                     Telefono = p.Candidato.telefonos.ToList(),
-                    Estatus = db.ProcesoCandidatos.Where(e => e.CandidatoId.Equals(p.CandidatoId)).FirstOrDefault(),
-                    RedSocial = db.RedesSociales.Where(r => r.EntidadId.Equals(p.CandidatoId)).Select(r => r.redSocial).ToList()
-
+                    Estatus = db.ProcesoCandidatos.Where(e => e.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(x => x.Fch_Creacion).FirstOrDefault(),
+                    RedSocial = db.RedesSociales.Where(r => r.EntidadId.Equals(p.CandidatoId)).Select(r => r.redSocial).ToList(),
+    
                 }).FirstOrDefault();
 
                 infoCanditato.Edad = DateTime.Today.AddTicks(-Convert.ToDateTime(Convert.ToDateTime(infoCanditato.FechaNacimiento)).Ticks).Year - 1;
@@ -181,7 +181,7 @@ namespace SAGA.API.Controllers.Component
         {
             try
             {
-                var candidato = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(proceso.CandidatoId)).FirstOrDefault();
+                var candidato = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(proceso.CandidatoId) && x.RequisicionId.Equals(proceso.RequisicionId)).FirstOrDefault();
 
                 if (candidato == null)
                 {
@@ -190,24 +190,24 @@ namespace SAGA.API.Controllers.Component
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);
                 }
-                else if ( (candidato.EstatusId == 27 || candidato.EstatusId == 40 || candidato.EstatusId == 12 ) && candidato.RequisicionId.Equals(proceso.RequisicionId))
+                else if (candidato.EstatusId == 27)
                 {
                     db.Entry(candidato).State = EntityState.Modified;
                     candidato.Reclutador = proceso.Reclutador;
                     candidato.ReclutadorId = proceso.ReclutadorId;
                     candidato.RequisicionId = proceso.RequisicionId;
                     candidato.Folio = proceso.Folio;
-                    candidato.EstatusId = proceso.EstatusId;
+                    candidato.EstatusId = 12;
                     candidato.Fch_Modificacion = DateTime.Now;
                     db.SaveChanges();
+
                     return Ok(HttpStatusCode.OK);
                 }
                 else
                 {
-                    db.ProcesoCandidatos.Add(proceso);
-                    db.SaveChanges();
-                    return Ok(HttpStatusCode.OK);
+                    return Ok(HttpStatusCode.NotModified);
                 }
+  
             }
             catch(Exception ex)
             {

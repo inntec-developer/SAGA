@@ -111,7 +111,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId)).Select(x => x.Id).FirstOrDefault();
+                var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).FirstOrDefault();
                 var c = db.ProcesoCandidatos.Find(id);
 
                 if (datos.estatusId == 12 && (c.EstatusId == 27 || c.EstatusId == 10))

@@ -338,25 +338,48 @@ namespace SAGA.API.Controllers
         [Route("getMisCandidatos")]
         public IHttpActionResult GetMisCandidatos(Guid Id)
         {
-            var candidatos = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id)).Select(x => new
-            {
-                candidatoId = x.CandidatoId,
-                nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
-                AreaExp = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() != null ?
-                          db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() : "",
-                AreaInt = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() != null ?
-                          db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() : "",
-                Edad = x.Candidato.FechaNacimiento,
-                curp = x.Candidato.CURP,
-                rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-                sueldoMinimo = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault()).FirstOrDefault() != null ?
-                               db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault() : 0 ,
-                localidad = x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault(),
-                folio = x.Folio,
-                vBtra = x.Requisicion.VBtra,
-                estatus = x.Estatus.Descripcion,
-                estatusId = x.EstatusId
-            }).ToList().OrderByDescending(o => o.folio);
+            var aux = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id)).Select(c => c.CandidatoId).Distinct().ToList();
+
+            //var candidatos = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id) && aux.Contains(x.CandidatoId)).OrderByDescending(f => f.Fch_Creacion)
+            //    .Select(x => new
+            //{
+            //    candidatoId = x.CandidatoId,
+            //    nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
+            //    AreaExp = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() != null ?
+            //              db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() : "",
+            //    AreaInt = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() != null ?
+            //              db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() : "",
+            //    Edad = x.Candidato.FechaNacimiento,
+            //    curp = x.Candidato.CURP,
+            //    rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
+            //    sueldoMinimo = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault()).FirstOrDefault() != null ?
+            //                   db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault() : 0,
+            //    localidad = x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault(),
+            //    folio = x.Folio,
+            //    vBtra = x.Requisicion.VBtra,
+            //    estatus = x.Estatus.Descripcion.First(),
+            //    estatusId = x.EstatusId
+            //}).ToList();
+
+            var candidatos = db.PerfilCandidato.Where(x => aux.Contains(x.CandidatoId))
+           .Select(p => new
+           {
+               candidatoId = p.CandidatoId,
+               nombre = p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno,
+               AreaExp = p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
+               AreaInt = p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() != null ? p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
+               Edad = p.Candidato.FechaNacimiento,
+               curp = p.Candidato.CURP,
+               rfc = p.Candidato.RFC != null ? p.Candidato.RFC : "",
+               sueldoMinimo = p.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
+               localidad = p.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault() + " / " + p.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault(),
+               folio = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Creacion).Select(r => r.Folio).FirstOrDefault(),
+               vBtra = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Creacion).Select(r => r.Requisicion.VBtra).FirstOrDefault(),
+               estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Creacion).Select(r => r.Estatus.Descripcion).FirstOrDefault(),
+               estatusId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Creacion).Select(r => r.EstatusId).FirstOrDefault(),
+           }).ToList();
+
+
             return Ok(candidatos);
         }
 
