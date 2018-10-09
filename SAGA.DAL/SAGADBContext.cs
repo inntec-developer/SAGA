@@ -96,6 +96,7 @@ namespace SAGA.DAL
         public DbSet<CfgRequi> CfgRequi { get; set; }
         public DbSet<ComentarioEntrevista> ComentariosEntrevistas { get; set; }
         public DbSet<ComentarioVacante> ComentariosVacantes { get; set; }
+        public DbSet<CandidatoLiberado> CandidatosLiberados { get; set; }
         #endregion
 
         #region Sist
@@ -134,6 +135,7 @@ namespace SAGA.DAL
         public DbSet<RolEntidad> RolEntidades { get; set; }
         public DbSet<ConfiguracionMovs> ConfiguracionesMov { get; set; }
         public DbSet<LogsIngresos> LogsIngresos { get; set; }
+        public DbSet<MotivoLiberacion> MotivosLiberacion { get; set; }
         #endregion
 
         #region Vtas
@@ -238,6 +240,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new RolEntidadesMap().ToTable("RolEntidades"));
             modelBuilder.Configurations.Add(new ConfiguracionMovsMap().ToTable("ConfiguracionesMovs"));
             modelBuilder.Configurations.Add(new LogsIngresosMap().ToTable("LogsIngresos"));
+            modelBuilder.Configurations.Add(new MotivoLiberacioMap().ToTable("MotivosLiberaciones"));
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
@@ -298,6 +301,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new CfgRequiMap().ToTable("CfgRequi", "Recl"));
             modelBuilder.Configurations.Add(new ComentarioEntrevistaMap().ToTable("ComentariosEntrevistas", "Recl"));
             modelBuilder.Configurations.Add(new ComentarioVacanteMap().ToTable("ComentariosVacantes", "Recl"));
+            modelBuilder.Configurations.Add(new CandidatoLiberadoMap().ToTable("CandidatosLiberados", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -916,6 +920,17 @@ namespace SAGA.DAL
                 Property(x => x.EntidadId).IsOptional();
                 Property(x => x.EstructuraId).IsRequired();
                 Property(x => x.fch_Ingreso).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+            }
+        }
+
+        public class MotivoLiberacioMap : EntityTypeConfiguration<MotivoLiberacion>
+        {
+            public MotivoLiberacioMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Descripcion).HasMaxLength(100).IsRequired();
+                Property(x => x.Activo).IsRequired();
             }
         }
 
@@ -1958,6 +1973,21 @@ namespace SAGA.DAL
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.UrlCV).IsRequired();
+            }
+        }
+
+        public class CandidatoLiberadoMap : EntityTypeConfiguration<CandidatoLiberado>
+        {
+            public CandidatoLiberadoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.ReclutadorId).IsRequired();
+                Property(x => x.MotivoLiberacionId).IsRequired();
+                Property(x => x.Comentario).HasMaxLength(500).IsRequired();
+                Property(x => x.fch_Liberacion).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
             }
         }
 
