@@ -288,6 +288,26 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                //var horarios = db.HorariosRequis.Where(x => x.RequisicionId.Equals(RequisicionId)).Select(h => new
+                //{
+                //    Vacantes = h.numeroVacantes,
+                //    Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(RequisicionId) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(RequisicionId) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
+                //    Apartados = db.ProcesoCandidatos.Where(p => p.HorarioId.Equals(h.Id) && p.EstatusId.Equals(12)).Count(),
+                //    //Abandono = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 26).Count(),
+                //    //Descartados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 27).Count(),
+                //    //EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
+                //    //EnProcesoEnt = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 18).Count(),
+                //    //EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 21).Count(),
+                //    //EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 23).Count(),
+                //    //contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 24).Count(),
+                //    //Enviados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId.Equals(30) && p.EstatusId == 21).Count(),
+                //    //EntCliente = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 22).Count(),
+                //    //rechazados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 40).Count(),
+                //    //porcentaje = (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 24).Count()) * 100 / h.numeroVacantes,
+                //    horario = h.Nombre
+                //}).ToList();
+
+
                 var vacantes = db.Requisiciones
                     .Where(e => e.Id.Equals(RequisicionId))
                     .Select(e => new
@@ -308,8 +328,8 @@ namespace SAGA.API.Controllers
                         Enviados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && e.EstatusId.Equals(30) && p.EstatusId == 21).Count(),
                         EntCliente = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 22).Count(),
                         rechazados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 40).Count(),
-                        porcentaje = (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / (e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0), 
-                        horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(h => ( h.aHora.Hour - h.deHora.Hour ) == 9 ? "Completo" : h.aHora.Hour > 12 ? "Vespertino" : "Matutino").FirstOrDefault()
+                        porcentaje = (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / (e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0),
+                        horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(h => (h.aHora.Hour - h.deHora.Hour) == 9 ? "Completo de " + h.deHora.Hour + " a " + h.aHora.Hour : h.aHora.Hour > 12 ? "Vespertino de " + h.deHora.Hour + " a " + h.aHora.Hour : "Matutino de " + h.deHora.Hour + " a " + h.aHora.Hour)
                     }).ToList();
                 return Ok(vacantes);
 
@@ -504,7 +524,28 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound();
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpGet]
+        [Route("getHorariosRequiConteo")]
+        public IHttpActionResult GetHorariosRequiConteo(Guid requisicionId)
+        {
+            try
+            {
+                var horarios = db.HorariosRequis.Where(x => x.RequisicionId.Equals(requisicionId)).Select(h => new
+                {
+                    nombre = (h.aHora.Hour - h.deHora.Hour) == 9 ? "Completo" : h.aHora.Hour > 12 ? "Vespertino" : "Matutino",
+                    deHora = h.deHora.Hour > 12 ? h.deHora.Hour + ":00 pm" : h.deHora.Hour + ":00 am",
+                    aHora = h.aHora.Hour > 12 ? h.deHora.Hour + ":00 " : h.deHora.Hour + ":00 pm",
+                }).ToList();
+
+                return Ok(horarios);
+            }
+            catch (Exception ex)
+            {
+                 return Ok(HttpStatusCode.NotFound);
             }
         }
 
