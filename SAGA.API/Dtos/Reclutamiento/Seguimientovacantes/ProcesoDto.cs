@@ -13,5 +13,7 @@ namespace SAGA.API.Dtos.Reclutamiento.Seguimientovacantes
         public string vacante { get; set; }
         public string nombre { get; set; }
         public string email { get; set; }
+        public Guid horarioId { get; set; }
+        public string horario { get; set; }
     }
 }

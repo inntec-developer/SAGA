@@ -62,6 +62,8 @@ namespace SAGA.API.Controllers
                 candidatoId = c.CandidatoId,
                 estatus = c.Estatus.Descripcion,
                 estatusId = c.EstatusId,
+                horarioId = c.HorarioId, 
+                horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.aHora.Hour - h.deHora.Hour == 9 ? "Completo de " + h.deHora.Hour + " a " + h.aHora.Hour : h.aHora.Hour > 12 ? "Vespertino de " + h.deHora.Hour + " a " + h.aHora.Hour : "Matutino de " + h.deHora.Hour + " a " + h.aHora.Hour),
                 perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
                 {
                     nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
@@ -118,6 +120,7 @@ namespace SAGA.API.Controllers
                 {
                     db.Entry(c).State = System.Data.Entity.EntityState.Modified;
                     c.EstatusId = datos.estatusId;
+                    c.HorarioId = datos.horarioId;
 
                     db.SaveChanges();
 
@@ -127,6 +130,7 @@ namespace SAGA.API.Controllers
                 {
                     db.Entry(c).State = System.Data.Entity.EntityState.Modified;
                     c.EstatusId = datos.estatusId;
+                    c.HorarioId = datos.horarioId;
 
                     db.SaveChanges();
 
