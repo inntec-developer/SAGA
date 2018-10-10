@@ -181,11 +181,12 @@ namespace SAGA.API.Controllers.Component
         {
             try
             {
+                var horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(proceso.RequisicionId)).Select(h => h.Id).FirstOrDefault();
                 var candidato = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(proceso.CandidatoId) && x.RequisicionId.Equals(proceso.RequisicionId)).FirstOrDefault();
 
                 if (candidato == null)
                 {
-                    proceso.HorarioId = null;
+                    proceso.HorarioId = horario;
                     db.ProcesoCandidatos.Add(proceso);
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);
@@ -199,6 +200,8 @@ namespace SAGA.API.Controllers.Component
                     candidato.Folio = proceso.Folio;
                     candidato.EstatusId = 12;
                     candidato.Fch_Modificacion = DateTime.Now;
+                    candidato.HorarioId = horario;
+
                     db.SaveChanges();
 
                     return Ok(HttpStatusCode.OK);
