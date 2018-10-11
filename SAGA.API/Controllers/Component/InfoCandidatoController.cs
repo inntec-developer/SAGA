@@ -48,7 +48,7 @@ namespace SAGA.API.Controllers.Component
                     Direccion = p.Candidato.direcciones.FirstOrDefault(),
                     Email = p.Candidato.emails.FirstOrDefault(),
                     Telefono = p.Candidato.telefonos.ToList(),
-                    Estatus = db.ProcesoCandidatos.Where(e => e.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(x => x.Fch_Creacion).FirstOrDefault(),
+                    Estatus = db.ProcesoCandidatos.Where(e => e.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(x => x.Fch_Modificacion).FirstOrDefault(),
                     RedSocial = db.RedesSociales.Where(r => r.EntidadId.Equals(p.CandidatoId)).Select(r => r.redSocial).ToList(),
     
                 }).FirstOrDefault();
@@ -187,6 +187,7 @@ namespace SAGA.API.Controllers.Component
                 if (candidato == null)
                 {
                     proceso.HorarioId = horario;
+                    proceso.Fch_Modificacion = DateTime.Now;
                     db.ProcesoCandidatos.Add(proceso);
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);

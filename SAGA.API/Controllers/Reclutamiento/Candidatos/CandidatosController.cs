@@ -373,10 +373,10 @@ namespace SAGA.API.Controllers
                rfc = p.Candidato.RFC != null ? p.Candidato.RFC : "",
                sueldoMinimo = p.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
                localidad = p.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault() + " / " + p.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault(),
-               folio = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Creacion).Select(r => r.Folio).FirstOrDefault(),
-               vBtra = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Creacion).Select(r => r.Requisicion.VBtra).FirstOrDefault(),
-               estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Creacion).Select(r => r.Estatus.Descripcion).FirstOrDefault(),
-               estatusId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Creacion).Select(r => r.EstatusId).FirstOrDefault(),
+               folio = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Folio).FirstOrDefault(),
+               vBtra = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Requisicion.VBtra).FirstOrDefault(),
+               estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Estatus.Descripcion).FirstOrDefault(),
+               estatusId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.EstatusId).FirstOrDefault(),
            }).ToList();
 
 
