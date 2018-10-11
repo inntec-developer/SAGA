@@ -146,5 +146,13 @@ namespace SAGA.API.Controllers
                     .ToList();
             return Ok(estatus);
         }
+
+        [HttpGet]
+        [Route("getMotivosLiberacion")]
+        public IHttpActionResult GetMotivosLiberacion()
+        {
+            var motivo = db.MotivosLiberacion.Where(m => m.Activo.Equals(true)).ToList();
+            return Ok(motivo);
+        }
     }
 }
