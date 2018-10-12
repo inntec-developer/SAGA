@@ -546,7 +546,6 @@ namespace SAGA.API.Controllers
             {
                 foreach (var e in datos)
                 {
-                    e.email = "thothgirl@gmail.com";
                     if (e.email.Contains("@"))
                     {
                         var res = LiberarCandidatos(e);
