@@ -1985,7 +1985,7 @@ namespace SAGA.DAL
                 Property(x => x.RequisicionId).IsRequired();
                 Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.ReclutadorId).IsRequired();
-                Property(x => x.MotivoLiberacionId).IsRequired();
+                Property(x => x.MotivoId).IsRequired();
                 Property(x => x.Comentario).HasMaxLength(500).IsRequired();
                 Property(x => x.fch_Liberacion).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
             }

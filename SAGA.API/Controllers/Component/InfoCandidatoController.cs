@@ -221,14 +221,24 @@ namespace SAGA.API.Controllers.Component
         }
 
         [Route("liberarCandidato")]
-        [HttpGet]
-        public IHttpActionResult LiberarCandidato(Guid Id)
+        [HttpPost]
+        public IHttpActionResult LiberarCandidato(LiberarCandidatoDto lc)
         {
             try
             {
-                ProcesoCandidato liberar = db.ProcesoCandidatos.Find(Id);
+                ProcesoCandidato liberar = db.ProcesoCandidatos.Find(lc.ProcesoCandidatoId);
                 db.Entry(liberar).State = EntityState.Modified;
                 liberar.EstatusId = 27;
+
+                CandidatoLiberado cl = new CandidatoLiberado();
+                cl.RequisicionId = lc.RequisicionId;
+                cl.CandidatoId = lc.CandidatoId;
+                cl.ReclutadorId = lc.ReclutadorId;
+                cl.MotivoId = lc.MotivoId;
+                cl.Comentario = lc.Comentario;
+
+                db.CandidatosLiberados.Add(cl);
+
                 db.SaveChanges();
                 return Ok(HttpStatusCode.OK);
             }

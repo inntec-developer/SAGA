@@ -14,11 +14,11 @@ namespace SAGA.BOL
         public Guid RequisicionId { get; set; }
         public Guid CandidatoId { get; set; }
         public Guid ReclutadorId { get; set; }
-        public Guid MotivoLiberacionId { get; set; }
+        public int MotivoId { get; set; }
         public string Comentario { get; set; }
-        public string fch_Liberacion { get; set; }
+        public DateTime fch_Liberacion { get; set; }
 
-        public virtual MotivoLiberacion MotivoLiberacion { get; set; }
+        public virtual MotivoLiberacion Motivo { get; set; }
         public virtual Candidato Candidato { get; set; }
         public virtual Requisicion Requisicion { get; set; }
         public virtual Usuarios Reclutador { get; set; }
