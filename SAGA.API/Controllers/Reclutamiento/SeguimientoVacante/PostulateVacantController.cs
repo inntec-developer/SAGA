@@ -59,6 +59,7 @@ namespace SAGA.API.Controllers
         {
             var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
             {
+                Id = c.Id,
                 candidatoId = c.CandidatoId,
                 estatus = c.Estatus.Descripcion,
                 estatusId = c.EstatusId,
