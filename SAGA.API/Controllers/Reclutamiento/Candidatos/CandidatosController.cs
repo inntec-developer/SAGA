@@ -561,6 +561,54 @@ namespace SAGA.API.Controllers
             } while (saveFailed);
         }
 
+        [HttpGet]
+        [Route("getAreasRecl")]
+        public IHttpActionResult GetAreasRecl()
+        {
+            try
+            {
+                var areas = db.Departamentos.Where(x => x.AreaId.Equals(16)).Select(a => new
+                {
+                    Id = a.Id,
+                    Nombre = a.Nombre
+                }).ToList();
+
+                return Ok(areas);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("getMediosRecl")]
+        public IHttpActionResult GetMediosRecl()
+        {
+            try
+            {
+                var medios = db.Medios.Where(x => x.Activo).Select(m => new
+                {
+                    Id = m.Id,
+                    Nombre = m.Nombre,
+                    medios = db.TiposMedios.Where(x => x.MediosId.Equals(m.Id)).Select(tm => new
+                    {
+                        TipoMediosId = tm.Id,
+                        TipoNombre = tm.Nombre
+                    }).ToList()
+
+                }).ToList();
+
+                return Ok(medios);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+
+
 
     }
 

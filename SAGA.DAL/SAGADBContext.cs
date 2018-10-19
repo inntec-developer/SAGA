@@ -97,6 +97,8 @@ namespace SAGA.DAL
         public DbSet<ComentarioEntrevista> ComentariosEntrevistas { get; set; }
         public DbSet<ComentarioVacante> ComentariosVacantes { get; set; }
         public DbSet<CandidatoLiberado> CandidatosLiberados { get; set; }
+        public DbSet<Medios> Medios { get; set; }
+        public DbSet<TiposMedios> TiposMedios { get; set; }
         #endregion
 
         #region Sist
@@ -136,6 +138,7 @@ namespace SAGA.DAL
         public DbSet<ConfiguracionMovs> ConfiguracionesMov { get; set; }
         public DbSet<LogsIngresos> LogsIngresos { get; set; }
         public DbSet<MotivoLiberacion> MotivosLiberacion { get; set; }
+
         #endregion
 
         #region Vtas
@@ -302,6 +305,8 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new ComentarioEntrevistaMap().ToTable("ComentariosEntrevistas", "Recl"));
             modelBuilder.Configurations.Add(new ComentarioVacanteMap().ToTable("ComentariosVacantes", "Recl"));
             modelBuilder.Configurations.Add(new CandidatoLiberadoMap().ToTable("CandidatosLiberados", "Recl"));
+            modelBuilder.Configurations.Add(new MediosMap().ToTable("Medios", "Recl"));
+            modelBuilder.Configurations.Add(new TiposMediosMap().ToTable("TiposMedios", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -1988,6 +1993,29 @@ namespace SAGA.DAL
                 Property(x => x.MotivoId).IsRequired();
                 Property(x => x.Comentario).HasMaxLength(500).IsRequired();
                 Property(x => x.fch_Liberacion).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+            }
+        }
+
+        public class MediosMap : EntityTypeConfiguration<Medios>
+        {
+            public MediosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).HasMaxLength(50).IsRequired();
+                Property(x => x.Activo).IsRequired();
+            }
+        }
+
+        public class TiposMediosMap : EntityTypeConfiguration<TiposMedios>
+        {
+            public TiposMediosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).HasMaxLength(100).IsRequired();
+                Property(x => x.MediosId).IsRequired();
+                Property(x => x.Activo).IsRequired();
             }
         }
 
