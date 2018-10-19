@@ -268,7 +268,7 @@ namespace SAGA.API.Controllers
                         EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
                         EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
                         contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
-                        Solicita = db.Usuarios.Where(x => x.Usuario.Equals(e.Propietario)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                        Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
                         AreaExperiencia = e.Area.areaExperiencia,
                         Aprobador = e.Aprobador != null ? e.Aprobador : "",
                     }).ToList();
