@@ -320,13 +320,16 @@ namespace SAGA.API.Controllers
             {
                 candidatoId = x.IdCandidato,
                 nombre = x.nombre + " " + x.apellidoPaterno + " " + x.apellidoMaterno,
-                AreaExp = x.Acercademi.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
-                AreaInt = x.Acercademi.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
+                AreaExp = x.Acercademi.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "S/D",
+                AreaInt = x.Acercademi.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "S/D",
                 edad = x.fechaNacimiento,
                 curp = x.curp,
-                rfc = x.rfc != null ? x.rfc : "",
+                rfc = x.rfc != null ? x.rfc : "S/D",
                 sueldoMinimo = x.Acercademi.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? x.Acercademi.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
                 localidad = x.Estado + " / " + x.Municipio,
+                estatus = db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).Count() > 0 ? 
+                          db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).OrderByDescending(p => p.Fch_Modificacion).Select(p => p.Estatus.Descripcion).FirstOrDefault() : 
+                          "DISPONIBLE"
             }).ToList();
 
             return Ok(candidatos);
