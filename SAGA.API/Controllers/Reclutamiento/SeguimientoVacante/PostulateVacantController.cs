@@ -57,28 +57,42 @@ namespace SAGA.API.Controllers
         [Route("getProceso")]
         public IHttpActionResult GetProceso(Guid VacanteId, Guid ReclutadorId)
         {
-            var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
+            try
             {
-                Id = c.Id,
-                candidatoId = c.CandidatoId,
-                estatus = c.Estatus.Descripcion,
-                estatusId = c.EstatusId,
-                horarioId = c.HorarioId, 
-                horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.aHora.Hour - h.deHora.Hour == 9 ? "Completo de " + h.deHora.Hour + " a " + h.aHora.Hour : h.deHora.Hour > 12 ? "Vespertino de " + h.deHora.Hour + " a " + h.aHora.Hour : "Matutino de " + h.deHora.Hour + " a " + h.aHora.Hour),
-                perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
+                var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
                 {
-                    nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
-                    AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
-                    AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
-                    localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
-                    sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
-                    edad = x.Candidato.FechaNacimiento,
-                    rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-                    curp = x.Candidato.CURP != null ? x.Candidato.CURP : ""
-                })
-            });
+                    Id = c.Id,
+                    folio = c.Folio,
+                    candidatoId = c.CandidatoId,
+                    estatus = c.Estatus.Descripcion,
+                    estatusId = c.EstatusId,
+                    horarioId = c.HorarioId,
+                    horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.aHora.Hour - h.deHora.Hour == 9 ? "Completo de " + h.deHora.Hour + " a " + h.aHora.Hour : h.deHora.Hour > 12 ? "Vespertino de " + h.deHora.Hour + " a " + h.aHora.Hour : "Matutino de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
+                    perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
+                    {
+                        nombre = x.Candidato.Nombre,
+                        apellidoPaterno = x.Candidato.ApellidoPaterno,
+                        apellidoMaterno = x.Candidato.ApellidoMaterno,
+                        AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
+                        AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
+                        localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
+                        sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
+                        edad = x.Candidato.FechaNacimiento,
+                        rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
+                        curp = x.Candidato.CURP != null ? x.Candidato.CURP : ""
+                    }),
+                    usuario = c.Reclutador,
+                    fecha = c.Fch_Modificacion
+                }).ToList();
 
-            return Ok(postulate);
+                return Ok(postulate);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+
 
         }
 
