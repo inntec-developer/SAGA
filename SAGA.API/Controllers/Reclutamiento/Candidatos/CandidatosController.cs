@@ -584,31 +584,7 @@ namespace SAGA.API.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("getMediosRecl")]
-        public IHttpActionResult GetMediosRecl()
-        {
-            try
-            {
-                var medios = db.Medios.Where(x => x.Activo).Select(m => new
-                {
-                    Id = m.Id,
-                    Nombre = m.Nombre,
-                    medios = db.TiposMedios.Where(x => x.MediosId.Equals(m.Id)).Select(tm => new
-                    {
-                        TipoMediosId = tm.Id,
-                        TipoNombre = tm.Nombre
-                    }).ToList()
-
-                }).ToList();
-
-                return Ok(medios);
-            }
-            catch (Exception ex)
-            {
-                return Ok(ex.Message);
-            }
-        }
+     
 
 
 

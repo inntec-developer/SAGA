@@ -1925,6 +1925,8 @@ namespace SAGA.DAL
 				Property(x => x.EstatusId).IsRequired();
 				Property(x => x.TpContrato).IsOptional();
                 Property(x => x.HorarioId).IsOptional();
+                Property(x => x.TipoMediosId).IsRequired();
+                Property(x => x.DepartamentoId).IsRequired();
 				Property(x => x.Fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.Fch_Modificacion).IsOptional().HasColumnType("Datetime");
 			}
