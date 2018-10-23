@@ -19,6 +19,8 @@ namespace SAGA.BOL
         public int EstatusId { get; set; }
         public int TpContrato { get; set; }
         public Guid HorarioId { get; set; }
+        public Guid DepartamentoId { get; set; }
+        public int TipoMediosId { get; set; }
         public DateTime Fch_Creacion { get; set; }
         public DateTime? Fch_Modificacion { get; set; }
         
@@ -26,5 +28,7 @@ namespace SAGA.BOL
         public virtual Candidato Candidato { get; set; }
         public virtual Requisicion Requisicion { get; set; }
         public virtual HorarioRequi Horario { get; set; }
+        public virtual Departamento Departamentos { get; set; }
+        public virtual TiposMedios TipoMedios { get; set; }
     }
 }
