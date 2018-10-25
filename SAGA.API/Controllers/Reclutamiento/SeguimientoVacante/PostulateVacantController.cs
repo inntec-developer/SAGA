@@ -82,7 +82,9 @@ namespace SAGA.API.Controllers
                         curp = x.Candidato.CURP != null ? x.Candidato.CURP : ""
                     }),
                     usuario = c.Reclutador,
-                    fecha = c.Fch_Modificacion
+                    fecha = c.Fch_Modificacion,
+                    areaReclutamiento = c.Departamentos.Nombre,
+                    fuenteReclutamiento = c.TipoMedios.Nombre
                 }).ToList();
 
                 return Ok(postulate);

@@ -10,6 +10,7 @@ using SAGA.API.Dtos;
 using AutoMapper;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
+using SAGA.API.Dtos.Reclutamiento.Seguimientovacantes;
 
 namespace SAGA.API.Controllers
 
@@ -584,7 +585,65 @@ namespace SAGA.API.Controllers
             }
         }
 
-     
+        [HttpPost]
+        [Route("updateFuenteRecl")]
+        public IHttpActionResult UpdateFuenteReclutamiento(ProcesoDto datos)
+        {
+            try
+            {
+                var pc = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(d => d.Id).FirstOrDefault();
+
+                var ppc = db.ProcesoCandidatos.Find(pc);
+
+                db.Entry(ppc).State = System.Data.Entity.EntityState.Modified;
+                ppc.TipoMediosId = datos.tipoMediosId;
+
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
+
+        [HttpPost]
+        [Route("updateContratados")]
+        public IHttpActionResult UpdateContratados(ProcesoDto datos)
+        {
+            try
+            {
+                var pc = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(d => d.Id).FirstOrDefault();
+
+                var ppc = db.ProcesoCandidatos.Find(pc);
+                var cc = db.Candidatos.Find(datos.candidatoId);
+
+                db.Entry(ppc).State = System.Data.Entity.EntityState.Modified;
+                ppc.TipoMediosId = datos.tipoMediosId;
+                ppc.DepartamentoId = datos.departamentoId;
+
+                db.SaveChanges();
+
+                db.Entry(cc).State = System.Data.Entity.EntityState.Modified;
+                cc.ApellidoPaterno = datos.apellidoPaterno;
+                cc.ApellidoMaterno = datos.apellidoMaterno;
+                cc.Nombre = datos.nombreCandidato;
+                cc.FechaNacimiento = datos.fechaNacimiento;
+                cc.CURP = datos.curp;
+
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
+
 
 
 
