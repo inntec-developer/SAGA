@@ -400,6 +400,16 @@ namespace SAGA.API.Controllers
             try
             {
                 var usuario = db.Usuarios.Find(listJson.EntidadId);
+                if(usuario.Usuario != listJson.Usuario)
+                {
+                    var damfo = db.DAMFO290.Where(x => x.UsuarioAlta.Equals(usuario.Usuario)).ToList();
+                    foreach (var dmf in damfo)
+                    {
+                        dmf.UsuarioAlta = listJson.Usuario;
+                    }
+                    db.SaveChanges();
+                }
+                   
                 db.Entry(usuario).State = EntityState.Modified;
                 usuario.Clave = listJson.Clave;
                 usuario.Usuario = listJson.Usuario;

@@ -188,6 +188,8 @@ namespace SAGA.API.Controllers.Component
                 {
                     proceso.HorarioId = horario;
                     proceso.Fch_Modificacion = DateTime.Now;
+                    proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
+                    proceso.TipoMediosId = 2;
                     db.ProcesoCandidatos.Add(proceso);
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);
