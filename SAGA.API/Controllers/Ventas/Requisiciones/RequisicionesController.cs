@@ -258,7 +258,7 @@ namespace SAGA.API.Controllers
                         PrioridadId = e.PrioridadId,
                         Cliente = e.Cliente.Nombrecomercial,
                         ClienteId = e.Cliente.Id,
-                        Sucursal = db.Direcciones.Where(x => x.EntidadId.Equals(e.Cliente.Id) && x.TipoDireccionId.Equals(3)).Select(d => d.Calle != null ? d.Calle : "").FirstOrDefault(),
+                        Sucursal = db.Direcciones.Where(x => x.EntidadId.Equals(e.Cliente.Id) && x.TipoDireccionId.Equals(3)).Select(d => d.Calle ).FirstOrDefault() != null ? db.Direcciones.Where(x => x.EntidadId.Equals(e.Cliente.Id) && x.TipoDireccionId.Equals(3)).Select(d => d.Calle).FirstOrDefault() : "",
                         Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         Folio = e.Folio,
                         DiasEnvio = e.DiasEnvio,
@@ -273,7 +273,7 @@ namespace SAGA.API.Controllers
                         Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
                         AreaExperiencia = e.Area.areaExperiencia,
                         Aprobador = e.Aprobador != null ? e.Aprobador : "",
-                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(IdUsuario)).Select(c => c.Comentario != null ? c.Comentario : "").FirstOrDefault()
+                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(IdUsuario)).Select( c => c.fch_Creacion + " " + c.Comentario).ToList()
                     }).ToList();
                 return Ok(vacantes);
 

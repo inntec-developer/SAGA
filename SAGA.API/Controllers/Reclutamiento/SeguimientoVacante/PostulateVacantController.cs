@@ -67,7 +67,7 @@ namespace SAGA.API.Controllers
                     estatus = c.Estatus.Descripcion,
                     estatusId = c.EstatusId,
                     horarioId = c.HorarioId,
-                    horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour),
+                    horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
                     perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
                     {
                         nombre = x.Candidato.Nombre,
@@ -79,7 +79,7 @@ namespace SAGA.API.Controllers
                         sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
                         edad = x.Candidato.FechaNacimiento,
                         rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-                        curp = x.Candidato.CURP != null ? x.Candidato.CURP : ""
+                        curp = x.Candidato.CURP != null ? x.Candidato.CURP : "",
                     }),
                     usuario = c.Reclutador,
                     fecha = c.Fch_Modificacion,
