@@ -2040,7 +2040,6 @@ namespace SAGA.DAL
                 Property(x => x.RFC).IsRequired();
                 Property(x => x.NSS).IsRequired();
                 Property(x => x.GeneroId).IsRequired();
-
                 Property(x => x.fch_Creacion).IsOptional().HasColumnType("Datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
                 Property(x => x.fch_Modificacion).IsOptional().HasColumnType("Datetime");
             }
