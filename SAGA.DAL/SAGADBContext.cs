@@ -2041,7 +2041,7 @@ namespace SAGA.DAL
                 Property(x => x.NSS).IsRequired();
                 Property(x => x.GeneroId).IsRequired();
 
-                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Creacion).IsOptional().HasColumnType("Datetime");
                 Property(x => x.fch_Modificacion).IsOptional().HasColumnType("Datetime");
             }
         }

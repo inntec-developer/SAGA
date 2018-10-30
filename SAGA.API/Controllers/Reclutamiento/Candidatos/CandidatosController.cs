@@ -625,6 +625,7 @@ namespace SAGA.API.Controllers
                     obj.CURP = datos.curp;
                     obj.RFC = datos.rfc;
                     obj.NSS = datos.nss;
+                    obj.FechaNacimiento = datos.fechaNacimiento;
                     obj.Nombre = datos.nombreCandidato;
                     obj.ApellidoPaterno = datos.apellidoPaterno;
                     obj.ApellidoMaterno = datos.apellidoMaterno;
@@ -638,6 +639,7 @@ namespace SAGA.API.Controllers
                     obj.fch_Modificacion = DateTime.Now;
                     obj.fch_Modificacion.ToUniversalTime();
 
+                    db.ContratadosInfo.Add(obj);
                     db.SaveChanges();
 
                 }

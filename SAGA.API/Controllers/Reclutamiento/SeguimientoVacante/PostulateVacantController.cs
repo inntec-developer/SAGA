@@ -87,9 +87,12 @@ namespace SAGA.API.Controllers
                         generoId = x.Candidato.GeneroId
                     }),
                     usuario = c.Reclutador,
+                    usuarioId = c.ReclutadorId,
                     fecha = c.Fch_Modificacion,
                     areaReclutamiento = c.Departamentos.Nombre,
-                    fuenteReclutamiento = c.TipoMedios.Nombre
+                    areaReclutamientoId = c.DepartamentoId,
+                    fuenteReclutamiento = c.TipoMedios.Nombre,
+                    fuenteReclutamientoId = c.TipoMediosId
                 }).ToList();
 
                 return Ok(postulate);
