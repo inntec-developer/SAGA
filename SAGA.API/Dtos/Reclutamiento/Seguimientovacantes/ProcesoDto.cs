@@ -22,6 +22,16 @@ namespace SAGA.API.Dtos.Reclutamiento.Seguimientovacantes
         public string nombreCandidato { get; set; }
         public DateTime fechaNacimiento { get; set; }
         public string curp { get; set; }
+        public string rfc { get; set; }
+        public string nss { get; set; }
+        public int paisNacimientoId { get; set; }
+        public int estadoNacimientoId { get; set; }
+        public int municipioNacimientoId { get; set; }
+        public byte generoId { get; set; }
+        public DateTime fch_Creacion { get; set; }
+        public DateTime fch_Modificacion { get; set; }
+        public Guid ReclutadorId { get; set; }
+
 
     }
 }

@@ -80,6 +80,11 @@ namespace SAGA.API.Controllers
                         edad = x.Candidato.FechaNacimiento,
                         rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
                         curp = x.Candidato.CURP != null ? x.Candidato.CURP : "",
+                        nss = x.Candidato.NSS != null ? x.Candidato.NSS : "", 
+                        paisNacimiento = x.Candidato.PaisNacimientoId,
+                        estadoNacimiento = x.Candidato.EstadoNacimientoId,
+                        municipioNacimiento = x.Candidato.MunicipioNacimientoId, 
+                        generoId = x.Candidato.GeneroId
                     }),
                     usuario = c.Reclutador,
                     fecha = c.Fch_Modificacion,

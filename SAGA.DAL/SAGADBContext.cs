@@ -99,6 +99,7 @@ namespace SAGA.DAL
         public DbSet<CandidatoLiberado> CandidatosLiberados { get; set; }
         public DbSet<Medios> Medios { get; set; }
         public DbSet<TiposMedios> TiposMedios { get; set; }
+        public DbSet<ContratadosInfo> ContratadosInfo { get; set; }
         #endregion
 
         #region Sist
@@ -307,6 +308,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new CandidatoLiberadoMap().ToTable("CandidatosLiberados", "Recl"));
             modelBuilder.Configurations.Add(new MediosMap().ToTable("Medios", "Recl"));
             modelBuilder.Configurations.Add(new TiposMediosMap().ToTable("TiposMedios", "Recl"));
+            modelBuilder.Configurations.Add(new ContratadosInfoMap().ToTable("ContratadosInfo", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -2018,6 +2020,29 @@ namespace SAGA.DAL
                 Property(x => x.Nombre).HasMaxLength(100).IsRequired();
                 Property(x => x.MediosId).IsRequired();
                 Property(x => x.Activo).IsRequired();
+            }
+        }
+
+        public class ContratadosInfoMap : EntityTypeConfiguration<ContratadosInfo>
+        {
+            public ContratadosInfoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CURP).HasMaxLength(18).IsRequired();
+                Property(x => x.Nombre).HasMaxLength(50).IsRequired();
+                Property(x => x.ApellidoMaterno).HasMaxLength(50).IsRequired();
+                Property(x => x.ApellidoPaterno).HasMaxLength(50).IsRequired();
+                Property(x => x.FechaNacimiento).HasColumnType("date").IsRequired();
+                Property(x => x.PaisNacimientoId).IsRequired();
+                Property(x => x.EstadoNacimientoId).IsRequired();
+                Property(x => x.MunicipioNacimientoId).IsRequired();
+                Property(x => x.RFC).IsRequired();
+                Property(x => x.NSS).IsRequired();
+                Property(x => x.GeneroId).IsRequired();
+
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).IsOptional().HasColumnType("Datetime");
             }
         }
 

@@ -613,25 +613,60 @@ namespace SAGA.API.Controllers
         [Route("updateContratados")]
         public IHttpActionResult UpdateContratados(ProcesoDto datos)
         {
+            var aux = new Guid("00000000-0000-0000-0000-000000000000");
+            ContratadosInfo obj = new ContratadosInfo();
             try
             {
+                var cc = db.ContratadosInfo.Where(x => x.EntidadId.Equals(datos.candidatoId)).Select(c => c.Id).FirstOrDefault();
+
+                if(cc == aux)
+                {
+                    obj.EntidadId = datos.candidatoId;
+                    obj.CURP = datos.curp;
+                    obj.RFC = datos.rfc;
+                    obj.NSS = datos.nss;
+                    obj.Nombre = datos.nombreCandidato;
+                    obj.ApellidoPaterno = datos.apellidoPaterno;
+                    obj.ApellidoMaterno = datos.apellidoMaterno;
+                    obj.PaisNacimientoId = datos.paisNacimientoId;
+                    obj.EstadoNacimientoId = datos.estadoNacimientoId;
+                    obj.MunicipioNacimientoId = datos.estadoNacimientoId;
+                    obj.GeneroId = datos.generoId;
+                    obj.ReclutadorId = datos.ReclutadorId;
+                    obj.fch_Creacion = DateTime.Now;
+                    obj.fch_Creacion.ToUniversalTime();
+                    obj.fch_Modificacion = DateTime.Now;
+                    obj.fch_Modificacion.ToUniversalTime();
+
+                    db.SaveChanges();
+
+                }
+                else
+                {
+                    var ccc = db.ContratadosInfo.Find(cc);
+
+                    db.Entry(ccc).State = System.Data.Entity.EntityState.Modified;
+                    ccc.Nombre = datos.nombreCandidato;
+                    ccc.ApellidoPaterno = datos.apellidoPaterno;
+                    ccc.ApellidoMaterno = datos.apellidoMaterno;
+                    ccc.Nombre = datos.nombreCandidato;
+                    ccc.FechaNacimiento = datos.fechaNacimiento;
+                    ccc.CURP = datos.curp;
+                    ccc.ReclutadorId = datos.ReclutadorId;
+                    ccc.fch_Modificacion = DateTime.Now;
+                    ccc.fch_Modificacion.ToUniversalTime();
+
+                    db.SaveChanges();
+
+                }
+
                 var pc = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(d => d.Id).FirstOrDefault();
 
                 var ppc = db.ProcesoCandidatos.Find(pc);
-                var cc = db.Candidatos.Find(datos.candidatoId);
 
                 db.Entry(ppc).State = System.Data.Entity.EntityState.Modified;
                 ppc.TipoMediosId = datos.tipoMediosId;
                 ppc.DepartamentoId = datos.departamentoId;
-
-                db.SaveChanges();
-
-                db.Entry(cc).State = System.Data.Entity.EntityState.Modified;
-                cc.ApellidoPaterno = datos.apellidoPaterno;
-                cc.ApellidoMaterno = datos.apellidoMaterno;
-                cc.Nombre = datos.nombreCandidato;
-                cc.FechaNacimiento = datos.fechaNacimiento;
-                cc.CURP = datos.curp;
 
                 db.SaveChanges();
 
