@@ -634,8 +634,7 @@ namespace SAGA.API.Controllers
                     obj.MunicipioNacimientoId = datos.estadoNacimientoId;
                     obj.GeneroId = datos.generoId;
                     obj.ReclutadorId = datos.ReclutadorId;
-                    obj.fch_Creacion = DateTime.Now;
-                    obj.fch_Creacion.ToUniversalTime();
+
                     obj.fch_Modificacion = DateTime.Now;
                     obj.fch_Modificacion.ToUniversalTime();
 
