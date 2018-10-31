@@ -273,7 +273,7 @@ namespace SAGA.API.Controllers
                         Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
                         AreaExperiencia = e.Area.areaExperiencia,
                         Aprobador = e.Aprobador != null ? e.Aprobador : "",
-                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(IdUsuario)).Select( c => c.fch_Creacion + " " + c.Comentario).ToList()
+                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select( c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + c.Comentario).ToList()
                     }).ToList();
                 return Ok(vacantes);
 
