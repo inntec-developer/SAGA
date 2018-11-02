@@ -938,6 +938,7 @@ namespace SAGA.DAL
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Descripcion).HasMaxLength(100).IsRequired();
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.EstatusId).IsOptional();
             }
         }
 
@@ -1958,6 +1959,7 @@ namespace SAGA.DAL
                 Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();                
                 Property(x => x.ReclutadorId).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+                Property(x => x.MotivoId).IsOptional();
             }
         }
         public class ComentarioVacanteMap : EntityTypeConfiguration<ComentarioVacante>
@@ -1972,6 +1974,7 @@ namespace SAGA.DAL
                 Property(x => x.UsuarioAlta).HasMaxLength(30).IsRequired();
                 Property(x => x.ReclutadorId).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+                Property(x => x.MotivoId).IsOptional();
             }
         }
 

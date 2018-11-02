@@ -61,10 +61,46 @@ namespace SAGA.API.Controllers.Component
                 cm.ReclutadorId = comentario.UsuarioId;
                 cm.fch_Creacion = DateTime.Now;
                 cm.fch_Creacion.ToUniversalTime();
+                cm.MotivoId = 7; //por mientras
                 //cm.ReclutadorId = comentario.UsuarioId;
 
 
                 db.ComentariosEntrevistas.Add(cm);
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpPost]
+        [Route("addComentariosNR")]
+        public IHttpActionResult AddComentariosNR(ComentariosEntrevistaDto comentario)
+        {
+            try
+            {
+                ComentarioEntrevista cm = new ComentarioEntrevista();
+                cm.Comentario = comentario.Comentario.ToUpper().Trim();
+                cm.CandidatoId = comentario.CandidatoId;
+                cm.RequisicionId = comentario.RequisicionId;
+                cm.UsuarioAlta = comentario.Usuario;
+                cm.ReclutadorId = comentario.UsuarioId;
+                cm.fch_Creacion = DateTime.Now;
+                cm.fch_Creacion.ToUniversalTime();
+                cm.MotivoId = comentario.MotivoId; //por mientras
+                //cm.ReclutadorId = comentario.UsuarioId;
+
+                db.ComentariosEntrevistas.Add(cm);
+                db.SaveChanges();
+
+                PerfilCandidato pc = new PerfilCandidato();
+                pc.CandidatoId = comentario.CandidatoId;
+                pc.Estatus = 28;
+
+                db.PerfilCandidato.Add(pc);
                 db.SaveChanges();
 
                 return Ok(HttpStatusCode.OK);

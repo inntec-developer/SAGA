@@ -59,7 +59,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
+                var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40 & x.EstatusId != 28).Select(c => new
                 {
                     Id = c.Id,
                     folio = c.Folio,
@@ -70,6 +70,7 @@ namespace SAGA.API.Controllers
                     horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
                     perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
                     {
+                        foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
                         nombre = x.Candidato.Nombre,
                         apellidoPaterno = x.Candidato.ApellidoPaterno,
                         apellidoMaterno = x.Candidato.ApellidoMaterno,

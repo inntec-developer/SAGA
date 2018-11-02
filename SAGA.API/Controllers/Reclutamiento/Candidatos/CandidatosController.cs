@@ -585,6 +585,27 @@ namespace SAGA.API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("getMotivos")]
+        public IHttpActionResult GetMotivos(int estatus)
+        {
+            try
+            {
+                var motivos = db.MotivosLiberacion.Where(x => x.EstatusId.Equals(estatus) && x.Activo).Select(a => new
+                {
+                    Id = a.Id,
+                    Descripcion = a.Descripcion
+                }).ToList();
+
+                return Ok(motivos);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+
         [HttpPost]
         [Route("updateFuenteRecl")]
         public IHttpActionResult UpdateFuenteReclutamiento(ProcesoDto datos)
@@ -679,11 +700,6 @@ namespace SAGA.API.Controllers
             }
 
         }
-
-
-
-
-
     }
 
 }

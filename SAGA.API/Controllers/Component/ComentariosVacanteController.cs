@@ -57,6 +57,8 @@ namespace SAGA.API.Controllers
                 cm.RequisicionId = comentario.RequisicionId;
                 cm.UsuarioAlta = comentario.UsuarioAlta;
                 cm.ReclutadorId = comentario.ReclutadorId;
+                cm.MotivoId = comentario.MotivoId;
+
                 db.ComentariosVacantes.Add(cm);
                 db.SaveChanges();
 
