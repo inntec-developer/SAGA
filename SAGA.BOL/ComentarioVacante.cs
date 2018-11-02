@@ -17,8 +17,9 @@ namespace SAGA.BOL
         public string UsuarioAlta { get; set; }
         public Guid ReclutadorId { get; set; }
         public DateTime fch_Creacion { get; set; }
-
+        public int MotivoId { get; set; }
         public virtual Usuarios Reclutador { get; set; }
+        public virtual MotivoLiberacion Motivo { get; set; }
 
         public ComentarioVacante()
         {
