@@ -30,6 +30,7 @@ namespace SAGA.API.Controllers
                     .Where(x => x.RequisicionId.Equals(Id))
                     .Select(x => new
                     {
+                        Motivo = x.Motivo.Descripcion,
                         Comentario = x.Comentario,
                         Usuario = x.Reclutador.Nombre + " " + x.Reclutador.ApellidoPaterno,
                         Foto = x.Reclutador.Foto,

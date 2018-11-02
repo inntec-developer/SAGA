@@ -28,6 +28,7 @@ namespace SAGA.API.Controllers.Component
                 .Where(x => x.CandidatoId.Equals(Id))
                 .Select(x => new
                 {
+                    Motivo = x.Motivo.Descripcion == "No aplica" ? "" : x.Motivo.Descripcion,
                     Comentario = x.Comentario,
                     Requisicion = db.Requisiciones
                                     .Where(r => r.Id.Equals(x.RequisicionId)).
