@@ -35,8 +35,9 @@ namespace SAGA.API.Controllers
         [Route("getPostulate")]
         public IHttpActionResult GetPostulate(Guid VacanteId)
         {
-           // var postulate = db.Postulaciones.Where(x => x.RequisicionId.Equals(VacanteId) && x.StatusId.Equals(1)).Select(x => x.CandidatoId).ToList();
-            var postulate = db.Postulaciones.Where(p => p.RequisicionId.Equals(VacanteId) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(VacanteId) && xx.EstatusId.Equals(27)).Select(cc => cc.CandidatoId)).ToList();
+            // var postulate = db.Postulaciones.Where(x => x.RequisicionId.Equals(VacanteId) && x.StatusId.Equals(1)).Select(x => x.CandidatoId).ToList();
+            var mocos = db.ProcesoCandidatos.Where(xx => xx.EstatusId.Equals(28)).Select(cc => cc.CandidatoId).ToList();
+            var postulate = db.Postulaciones.Where(p => p.RequisicionId.Equals(VacanteId) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.EstatusId.Equals(28)).Select(cc => cc.CandidatoId)).ToList();
 
             var candidatos = db.PerfilCandidato.Where(x => postulate.Contains(x.CandidatoId)).Select(x => new {
                 CandidatoId = x.CandidatoId,
@@ -48,7 +49,7 @@ namespace SAGA.API.Controllers
                 edad = x.Candidato.FechaNacimiento,
                 rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
                 curp = x.Candidato.CURP, 
-                EstatusId = db.ProcesoCandidatos.Where(c => c.CandidatoId.Equals(x.CandidatoId)).Select(cc => cc.EstatusId).FirstOrDefault()
+                EstatusId = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(c => c.CandidatoId.Equals(x.CandidatoId)).Select(cc => cc.EstatusId).FirstOrDefault()
             }).ToList();
             return Ok(candidatos);
         }
@@ -59,7 +60,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var postulate = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40 & x.EstatusId != 28).Select(c => new
+                var postulate = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40 & x.EstatusId != 28).Select(c => new
                 {
                     Id = c.Id,
                     folio = c.Folio,
@@ -81,10 +82,10 @@ namespace SAGA.API.Controllers
                         edad = x.Candidato.FechaNacimiento,
                         rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
                         curp = x.Candidato.CURP != null ? x.Candidato.CURP : "",
-                        nss = x.Candidato.NSS != null ? x.Candidato.NSS : "", 
+                        nss = x.Candidato.NSS != null ? x.Candidato.NSS : "",
                         paisNacimiento = x.Candidato.PaisNacimientoId,
                         estadoNacimiento = x.Candidato.EstadoNacimientoId,
-                        municipioNacimiento = x.Candidato.MunicipioNacimientoId, 
+                        municipioNacimiento = x.Candidato.MunicipioNacimientoId,
                         generoId = x.Candidato.GeneroId
                     }),
                     usuario = c.Reclutador,
@@ -100,7 +101,7 @@ namespace SAGA.API.Controllers
             }
             catch(Exception ex)
             {
-                return Ok(HttpStatusCode.BadRequest);
+                 return Ok(HttpStatusCode.BadRequest);
             }
 
 

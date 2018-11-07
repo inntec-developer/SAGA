@@ -28,8 +28,9 @@ namespace SAGA.API.Controllers.Component
                 .Where(x => x.CandidatoId.Equals(Id))
                 .Select(x => new
                 {
-                    Motivo = x.Motivo.Descripcion == "No aplica" ? "" : x.Motivo.Descripcion,
+                    Motivo = x.Motivo.Id == 7 ? "" : x.Motivo.Descripcion,
                     Comentario = x.Comentario,
+                    UsuarioAlta = x.UsuarioAlta,
                     Requisicion = db.Requisiciones
                                     .Where(r => r.Id.Equals(x.RequisicionId)).
                                     Select(r => new
@@ -38,10 +39,10 @@ namespace SAGA.API.Controllers.Component
                                         Folio = r.Folio
                                     }).FirstOrDefault(),
                     fchComentario = x.fch_Creacion,
-                    Usuario = db.Usuarios.Where(u => u.Usuario.Equals(x.UsuarioAlta)).Select(u => new
+                    Usuario = db.Usuarios.Where(u => u.Id.Equals(x.ReclutadorId)).Select(u => new
                     {
                         Nombre = u.Nombre + " " + u.ApellidoPaterno,
-                        Foto = u.Foto
+                        Foto = u.Foto == null ? "utilerias/img/user/default.jpg" : u.Foto
                     }).FirstOrDefault()
                 })
                 .ToList().OrderBy(c => c.fchComentario);

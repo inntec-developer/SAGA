@@ -207,6 +207,41 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("getRequisicionesEstatus")]
+        public IHttpActionResult GetRequisicionesEstatus(int estatus, Guid ReclutadorId)
+        {
+            try
+            {
+                var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
+                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus))
+                    .Select(e => new
+                    {
+                        Id = e.Id,
+                        VBtra = e.VBtra,
+                        Estatus = e.Estatus.Descripcion,
+                        EstatusId = e.EstatusId,
+                        Reclutador = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Clave + " " + s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => new {
+                            id = c.Id,
+                            folio = db.FolioIncidencia.Where(x => x.ComentarioId.Equals(c.Id)).Select(f => f.Folio).FirstOrDefault(),
+                            fecha = c.fch_Creacion,
+                            motivo = c.Motivo.Descripcion,
+                            comentario = c.Comentario,
+                            respuesta = String.IsNullOrEmpty(db.ComentariosVacantes.Where(x => x.RespuestaId.Equals(c.Id)).Select(r => r.fch_Creacion + " - " + db.Usuarios.Where(x => x.Id.Equals(r.ReclutadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() + " - " + r.Comentario).FirstOrDefault()) ? "Doble click para editar" : db.ComentariosVacantes.Where(x => x.RespuestaId.Equals(c.Id)).Select(r => r.fch_Creacion + " - " + db.Usuarios.Where(x => x.Id.Equals(r.ReclutadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() + " - " + r.Comentario).FirstOrDefault()
+                        }).FirstOrDefault()
+                    }).ToList();
+
+                return Ok(vacantes);
+
+            }
+            catch (Exception ex)
+            {
+                string mensaje = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpGet]
         [Route("getRequiReclutador")]
         public IHttpActionResult GtRequiReclutador(Guid IdUsuario)
         {
@@ -258,7 +293,7 @@ namespace SAGA.API.Controllers
                         PrioridadId = e.PrioridadId,
                         Cliente = e.Cliente.Nombrecomercial,
                         ClienteId = e.Cliente.Id,
-                        Sucursal = db.Direcciones.Where(x => x.EntidadId.Equals(e.Cliente.Id) && x.TipoDireccionId.Equals(3)).Select(d => d.Calle ).FirstOrDefault() != null ? db.Direcciones.Where(x => x.EntidadId.Equals(e.Cliente.Id) && x.TipoDireccionId.Equals(3)).Select(d => d.Calle).FirstOrDefault() : "",
+                        Sucursal = db.Direcciones.Where(x => x.Id.Equals(e.DireccionId)).Select(d => d.Calle + " " + d.NumeroExterior + " C.P: " + d.CodigoPostal + " Col: " + d.Colonia.colonia).FirstOrDefault(),
                         Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         Folio = e.Folio,
                         DiasEnvio = e.DiasEnvio,
@@ -266,14 +301,14 @@ namespace SAGA.API.Controllers
                         //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                         Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
                         Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
-                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
+                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28).Count(),
                         EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
                         EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
                         contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
                         Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
                         AreaExperiencia = e.Area.areaExperiencia,
                         Aprobador = e.Aprobador != null ? e.Aprobador : "",
-                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select( c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + c.Motivo.Descripcion + " - " + c.Comentario).ToList()
+                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select( c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
                     }).ToList();
                 return Ok(vacantes);
 

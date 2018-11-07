@@ -47,22 +47,30 @@ namespace SAGA.API.Controllers
             }
         }
 
+   
         [HttpPost]
         [Route("addComentariosVacante")]
         public IHttpActionResult AddComentarios(ComentariosRequisicionesDto comentario)
         {
             try
             {
+                FoliosIncidenciasController Ofi = new FoliosIncidenciasController();
                 ComentarioVacante cm = new ComentarioVacante();
                 cm.Comentario = comentario.Comentario.ToUpper().Trim();
                 cm.RequisicionId = comentario.RequisicionId;
                 cm.UsuarioAlta = comentario.UsuarioAlta;
                 cm.ReclutadorId = comentario.ReclutadorId;
                 cm.MotivoId = comentario.MotivoId;
+                cm.RespuestaId = comentario.RespuestaId;
 
                 db.ComentariosVacantes.Add(cm);
                 db.SaveChanges();
 
+                if(comentario.EstatusId.Equals(39)) //pausada
+                {
+                    Ofi.GenerarFolio(comentario.EstatusId, cm.Id);
+
+                }
                 return Ok(HttpStatusCode.OK);
             }
             catch (Exception ex)

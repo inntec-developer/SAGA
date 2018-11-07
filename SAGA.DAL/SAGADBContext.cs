@@ -139,6 +139,7 @@ namespace SAGA.DAL
         public DbSet<ConfiguracionMovs> ConfiguracionesMov { get; set; }
         public DbSet<LogsIngresos> LogsIngresos { get; set; }
         public DbSet<MotivoLiberacion> MotivosLiberacion { get; set; }
+        public DbSet<FolioIncidencia> FolioIncidencia { get; set; }
 
         #endregion
 
@@ -245,6 +246,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new ConfiguracionMovsMap().ToTable("ConfiguracionesMovs"));
             modelBuilder.Configurations.Add(new LogsIngresosMap().ToTable("LogsIngresos"));
             modelBuilder.Configurations.Add(new MotivoLiberacioMap().ToTable("MotivosLiberaciones"));
+            modelBuilder.Configurations.Add(new FolioIncidenciaMap().ToTable("FolioIncidencias"));
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
@@ -939,6 +941,17 @@ namespace SAGA.DAL
                 Property(x => x.Descripcion).HasMaxLength(100).IsRequired();
                 Property(x => x.Activo).IsRequired();
                 Property(x => x.EstatusId).IsOptional();
+            }
+        }
+
+        public class FolioIncidenciaMap : EntityTypeConfiguration<FolioIncidencia>
+        {
+            public FolioIncidenciaMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Folio).HasMaxLength(20).IsRequired();
+                Property(x => x.ComentarioId).IsRequired();
             }
         }
 
