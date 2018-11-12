@@ -7,11 +7,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SAGA.BOL
 {
-    public class ContratadosInfo
+    public class CandidatosInfo
     {
         [Key]
         public Guid Id { get; set; }
-        public Guid EntidadId { get; set; }
+        public Guid CandidatoId { get; set; }
+
         public string Nombre { get; set; }
         public string ApellidoPaterno { get; set; }
         public string ApellidoMaterno { get; set; }

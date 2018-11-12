@@ -93,16 +93,16 @@ namespace SAGA.API.Controllers.Component
                 cm.fch_Creacion = DateTime.Now;
                 cm.fch_Creacion.ToUniversalTime();
                 cm.MotivoId = comentario.MotivoId; //por mientras
-                //cm.ReclutadorId = comentario.UsuarioId;
 
                 db.ComentariosEntrevistas.Add(cm);
                 db.SaveChanges();
 
-                PerfilCandidato pc = new PerfilCandidato();
-                pc.CandidatoId = comentario.CandidatoId;
+                var idc = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(comentario.CandidatoId)).Select(c => c.Id);
+                var pc = db.PerfilCandidato.Find(idc);
+
+                db.Entry(pc).State = System.Data.Entity.EntityState.Modified;
                 pc.Estatus = 28;
 
-                db.PerfilCandidato.Add(pc);
                 db.SaveChanges();
 
                 return Ok(HttpStatusCode.OK);

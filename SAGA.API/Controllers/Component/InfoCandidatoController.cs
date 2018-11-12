@@ -29,14 +29,15 @@ namespace SAGA.API.Controllers.Component
             {
                 string fecha = "07/12/1990";
                 var edad = DateTime.Today.AddTicks(-Convert.ToDateTime(Convert.ToDateTime(fecha)).Ticks).Year - 1;
-
+                var mocos = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre).FirstOrDefault();
                 var infoCanditato = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(Id)).Select(p => new InfoCandidato
                 {
                     Id = p.CandidatoId,
-                    Nombre = p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno,
+                   // Nombre = p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno,
+                    Nombre = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select( pp => pp.Nombre).FirstOrDefault() == null ? p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno : db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre + " " + pp.ApellidoPaterno + " " + pp.ApellidoMaterno).FirstOrDefault(),
                     Foto = p.Candidato.ImgProfileUrl,
-                    Genero = p.Candidato.Genero.genero,
-                    FechaNacimiento = p.Candidato.FechaNacimiento,
+                    Genero = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(pp => pp.Genero.genero).FirstOrDefault(),
+                    FechaNacimiento = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(pp => pp.FechaNacimiento).FirstOrDefault(),
                     Candidato = p.Candidato,
                     AboutMe = p.AboutMe,
                     Cursos = p.Cursos,
@@ -50,13 +51,37 @@ namespace SAGA.API.Controllers.Component
                     Telefono = p.Candidato.telefonos.ToList(),
                     Estatus = db.ProcesoCandidatos.Where(e => e.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(x => x.Fch_Modificacion).FirstOrDefault(),
                     RedSocial = db.RedesSociales.Where(r => r.EntidadId.Equals(p.CandidatoId)).Select(r => r.redSocial).ToList(),
-    
+
                 }).FirstOrDefault();
+
+
+                //var infoCanditato = db.CandidatosInfo.Where(p => p.EntidadId.Equals(Id)).Select(p => new InfoCandidato
+                //{
+                //    Id = p.EntidadId,
+                //    Nombre = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
+                //    Foto = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.EntidadId)).Select(pp => pp.Candidato.ImgProfileUrl).FirstOrDefault(),
+                //    Genero = p.Genero.genero,
+                //    FechaNacimiento = p.FechaNacimiento,
+                //    Candidato = db.Candidatos.Where(x => x.Id.Equals(p.EntidadId)).FirstOrDefault(),
+                //    AboutMe = db.PerfilCandidato.Where(x => x.Id.Equals(p.EntidadId)).Select(pp => pp.AboutMe).FirstOrDefault(),
+                //    Cursos = db.PerfilCandidato.Where(x => x.Id.Equals(p.EntidadId)).Select(pp => pp.Cursos).FirstOrDefault(),
+                //    Conocimientos = db.PerfilCandidato.Where(x => x.Id.Equals(p.EntidadId)).Select(pp => pp.Conocimientos).FirstOrDefault(),
+                //    Idiomas = db.PerfilCandidato.Where(x => x.Id.Equals(p.EntidadId)).Select(pp => pp.Idiomas).FirstOrDefault(),
+                //    Formaciones = p.Formaciones,
+                //    Experiencias = p.Experiencias,
+                //    Certificaciones = p.Certificaciones,
+                //    Direccion = p.Candidato.direcciones.FirstOrDefault(),
+                //    Email = p.Candidato.emails.FirstOrDefault(),
+                //    Telefono = p.Candidato.telefonos.ToList(),
+                //    Estatus = db.ProcesoCandidatos.Where(e => e.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(x => x.Fch_Modificacion).FirstOrDefault(),
+                //    RedSocial = db.RedesSociales.Where(r => r.EntidadId.Equals(p.CandidatoId)).Select(r => r.redSocial).ToList(),
+
+                //}).FirstOrDefault();
 
                 infoCanditato.Edad = DateTime.Today.AddTicks(-Convert.ToDateTime(Convert.ToDateTime(infoCanditato.FechaNacimiento)).Ticks).Year - 1;
                 return Ok(infoCanditato);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var msg = ex.Message;
                 return Ok(StatusCode(HttpStatusCode.NotFound));
@@ -94,11 +119,11 @@ namespace SAGA.API.Controllers.Component
 
                 var vacantes = db.Requisiciones
                     .Where(e => asig.Contains(e.Id) && e.Activo.Equals(true))
-                    .Where(e => e.EstatusId.Equals(6) 
-                    || e.EstatusId.Equals(7) 
-                    || e.EstatusId.Equals(29) 
-                    || e.EstatusId.Equals(30) 
-                    || e.EstatusId.Equals(31) 
+                    .Where(e => e.EstatusId.Equals(6)
+                    || e.EstatusId.Equals(7)
+                    || e.EstatusId.Equals(29)
+                    || e.EstatusId.Equals(30)
+                    || e.EstatusId.Equals(31)
                     || e.EstatusId.Equals(32)
                     || e.EstatusId.Equals(33)
                     || e.EstatusId.Equals(38)
@@ -142,7 +167,7 @@ namespace SAGA.API.Controllers.Component
                         .Where(x => x.EntidadId.Equals(g))
                         .Select(x => x.GrupoId)
                         .ToList();
-                    foreach(Guid gr in gp)
+                    foreach (Guid gr in gp)
                     {
                         GetGrupo(gr, listaIds);
                     }
@@ -168,7 +193,7 @@ namespace SAGA.API.Controllers.Component
                     }).OrderByDescending(p => p.Folio).ToList();
                 return Ok(postulaciones);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string msd = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
@@ -213,9 +238,9 @@ namespace SAGA.API.Controllers.Component
                 {
                     return Ok(HttpStatusCode.NotModified);
                 }
-  
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
@@ -244,7 +269,7 @@ namespace SAGA.API.Controllers.Component
                 db.SaveChanges();
                 return Ok(HttpStatusCode.OK);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);

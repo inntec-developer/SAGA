@@ -197,8 +197,8 @@ namespace SAGA.API.Controllers
                     EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40).Select(d => new
                     {
                         candidatoId = d.CandidatoId,
-                        nombre = d.Candidato.Nombre + " " + d.Candidato.ApellidoPaterno + " " + d.Candidato.ApellidoMaterno,
-                        email = d.Candidato.emails.Select(m => m.email).FirstOrDefault(),
+                       // nombre = d.Candidato.Nombre + " " + d.Candidato.ApellidoPaterno + " " + d.Candidato.ApellidoMaterno,
+                        //email = d.Candidato.emails.Select(m => m.email).FirstOrDefault(),
                         estatusId = d.EstatusId
                     }),
                     Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count()
@@ -269,8 +269,6 @@ namespace SAGA.API.Controllers
                     .Distinct()
                     .ToList();
 
-
-
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                     .Where(e => asig.Contains(e.Id))
                     .Where(e => e.Activo.Equals(true))
@@ -300,8 +298,8 @@ namespace SAGA.API.Controllers
                         Confidencial = e.Confidencial,
                         //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                         Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
-                        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
-                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28).Count(),
+                        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Count(),
+                        EnProceso = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
                         EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
                         EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
                         contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),

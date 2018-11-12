@@ -157,184 +157,192 @@ namespace SAGA.API.Controllers
         {
             // Generamos el objeto que contendra los datos para el filtrado.
             List<FiltrosDto> Filtrado = new List<FiltrosDto>();
-            Filtrado = db.PerfilCandidato
-                .Where(c => c.Id != null)
-                 .Select(c => new FiltrosDto {
-                     IdCandidato = c.CandidatoId,
-                     Estado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Estado.estado).FirstOrDefault(),
-                     Municipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Municipio.municipio).FirstOrDefault(),
-                     IdPais = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.PaisId).FirstOrDefault(),
-                     IdEstado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.EstadoId).FirstOrDefault(),
-                     IdMunicipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.MunicipioId).FirstOrDefault(),
-                     nombre = c.Candidato.Nombre,
-                     apellidoPaterno = c.Candidato.ApellidoPaterno,
-                     apellidoMaterno = c.Candidato.ApellidoMaterno,
-                     cp = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.CodigoPostal).FirstOrDefault(),
-                     curp = c.Candidato.CURP,
-                     fechaNacimiento = c.Candidato.FechaNacimiento,
-                     rfc = c.Candidato.RFC,
-                     nss = c.Candidato.NSS,
-                     Formaciones = c.Formaciones,
-                     Experiencias = c.Experiencias,
-                     IdAreaExp = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault(),
-                     IdPerfil = c.AboutMe.Select(p => p.PerfilExperienciaId).FirstOrDefault(),
-                     IdGenero = c.Candidato.GeneroId,
-                     IdPDiscapacidad = c.Candidato.TipoDiscapacidadId,
-                     IdTipoLicencia = c.Candidato.TipoLicenciaId,
-                     Acercademi = c.AboutMe,
-                     Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault(),
-                     Idiomas = c.Idiomas,
-                     Reubicacion = c.Candidato.puedeRehubicarse,
-                     TpVehiculo = c.Candidato.tieneVehiculoPropio
+            try
+            {
+                Filtrado = db.PerfilCandidato
+                    .Where(c => c.Id != null)
+                     .Select(c => new FiltrosDto
+                     {
+                         IdCandidato = c.CandidatoId,
+                         Estado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Estado.estado).FirstOrDefault(),
+                         Municipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Municipio.municipio).FirstOrDefault(),
+                         IdPais = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.PaisId).FirstOrDefault(),
+                         IdEstado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.EstadoId).FirstOrDefault(),
+                         IdMunicipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.MunicipioId).FirstOrDefault(),
+                         nombre = c.Candidato.Nombre,
+                         apellidoPaterno = c.Candidato.ApellidoPaterno,
+                         apellidoMaterno = c.Candidato.ApellidoMaterno,
+                         cp = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.CodigoPostal).FirstOrDefault(),
+                         curp = c.Candidato.CURP,
+                         fechaNacimiento = c.Candidato.FechaNacimiento,
+                         rfc = c.Candidato.RFC,
+                         nss = c.Candidato.NSS,
+                         Formaciones = c.Formaciones,
+                         Experiencias = c.Experiencias,
+                         IdAreaExp = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault(),
+                         IdPerfil = c.AboutMe.Select(p => p.PerfilExperienciaId).FirstOrDefault(),
+                         IdGenero = c.Candidato.GeneroId,
+                         IdPDiscapacidad = c.Candidato.TipoDiscapacidadId,
+                         IdTipoLicencia = c.Candidato.TipoLicenciaId,
+                         Acercademi = c.AboutMe,
+                         Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault(),
+                         Idiomas = c.Idiomas,
+                         Reubicacion = c.Candidato.puedeRehubicarse,
+                         TpVehiculo = c.Candidato.tieneVehiculoPropio
 
-                 }).ToList();
+                     }).ToList();
 
-            var FiltradoExp = Filtrado.Select(c => c.Experiencias).ToList();
+                var FiltradoExp = Filtrado.Select(c => c.Experiencias).ToList();
 
-            // Revisamos cada filtro que se envio para armar de nuevo la consulta.
-            if (Filtros.IdPais > 0)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.IdPais.Equals(Filtros.IdPais))
-                    .ToList();
-            }
-            if (Filtros.IdEstado > 0)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.IdEstado.Equals(Filtros.IdEstado))
-                    .ToList();
-            }
-            if (Filtros.IdMunicipio > 0)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.IdMunicipio.Equals(Filtros.IdMunicipio))
-                    .ToList();
-            }
-            if (Filtros.cp != null)
-            {
-                List<FiltrosDto> fl = new List<FiltrosDto>();
-                foreach (FiltrosDto x in Filtrado)
+                // Revisamos cada filtro que se envio para armar de nuevo la consulta.
+                if (Filtros.IdPais > 0)
                 {
-                    if(x.cp != null)
+                    Filtrado = Filtrado
+                        .Where(c => c.IdPais.Equals(Filtros.IdPais))
+                        .ToList();
+                }
+                if (Filtros.IdEstado > 0)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.IdEstado.Equals(Filtros.IdEstado))
+                        .ToList();
+                }
+                if (Filtros.IdMunicipio > 0)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.IdMunicipio.Equals(Filtros.IdMunicipio))
+                        .ToList();
+                }
+                if (Filtros.cp != null)
+                {
+                    List<FiltrosDto> fl = new List<FiltrosDto>();
+                    foreach (FiltrosDto x in Filtrado)
                     {
-                        if (x.cp.Contains(Filtros.cp))
+                        if (x.cp != null)
+                        {
+                            if (x.cp.Contains(Filtros.cp))
+                            {
+                                fl.Add(x);
+                            }
+                        }
+                    }
+                    Filtrado = fl;
+                }
+
+                if (Filtros.IdAreaExp != null)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.IdAreaExp.Equals(Filtros.IdAreaExp))
+                        .ToList();
+                }
+
+                if (Filtros.IdPerfil != null)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.IdPerfil.Equals(Filtros.IdPerfil))
+                        .ToList();
+                }
+
+                if (Filtros.Salario != null)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.Salario.Equals(Filtros.Salario))
+                        .ToList();
+                }
+
+                if (Filtros.IdGenero != null)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.IdGenero.Equals(Filtros.IdGenero))
+                        .ToList();
+                }
+
+                if (Filtros.Reubicacion)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.Reubicacion == true)
+                        .ToList();
+                }
+
+                if (Filtros.IdPDiscapacidad != null)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.IdPDiscapacidad.Equals(Filtros.IdPDiscapacidad))
+                        .ToList();
+                }
+
+                if (Filtros.IdTipoLicencia != null)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.IdTipoLicencia.Equals(Filtros.IdTipoLicencia))
+                        .ToList();
+                }
+
+                if (Filtros.TpVehiculo)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.TpVehiculo == true)
+                        .ToList();
+                }
+
+                if (Filtros.IdNvEstudios != null)
+                {
+                    Filtrado = Filtrado
+                        .Where(c => c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault().Equals(Filtros.IdNvEstudios))
+                        .ToList();
+                }
+
+                if (Filtros.IdIdiomas != null)
+                {
+                    List<FiltrosDto> fl = new List<FiltrosDto>();
+                    foreach (FiltrosDto x in Filtrado)
+                    {
+                        var I = x.Idiomas.Where(i => i.IdiomaId.Equals(Filtros.IdIdiomas)).FirstOrDefault();
+                        if (I != null)
                         {
                             fl.Add(x);
                         }
                     }
+                    Filtrado = fl;
                 }
-                Filtrado = fl;
-            }
 
-            if (Filtros.IdAreaExp != null)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.IdAreaExp.Equals(Filtros.IdAreaExp))
-                    .ToList();
-            }
-
-            if (Filtros.IdPerfil != null)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.IdPerfil.Equals(Filtros.IdPerfil))
-                    .ToList();
-            }
-
-            if (Filtros.Salario != null)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.Salario.Equals(Filtros.Salario))
-                    .ToList();
-            }
-
-            if (Filtros.IdGenero != null)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.IdGenero.Equals(Filtros.IdGenero))
-                    .ToList();
-            }
-
-            if(Filtros.Reubicacion)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.Reubicacion == true)
-                    .ToList();
-            }
-
-            if (Filtros.IdPDiscapacidad != null)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.IdPDiscapacidad.Equals(Filtros.IdPDiscapacidad))
-                    .ToList();
-            }
-
-            if (Filtros.IdTipoLicencia != null)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.IdTipoLicencia.Equals(Filtros.IdTipoLicencia))
-                    .ToList();
-            }
-
-            if (Filtros.TpVehiculo)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.TpVehiculo == true)
-                    .ToList();
-            }
-
-            if (Filtros.IdNvEstudios != null)
-            {
-                Filtrado = Filtrado
-                    .Where(c => c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault().Equals(Filtros.IdNvEstudios))
-                    .ToList();
-            }
-
-            if (Filtros.IdIdiomas != null)
-            {
-                List<FiltrosDto> fl = new List<FiltrosDto>();
-                foreach (FiltrosDto x in Filtrado)
+                if (Filtros.Edad > 0)
                 {
-                    var I = x.Idiomas.Where(i => i.IdiomaId.Equals(Filtros.IdIdiomas)).FirstOrDefault();
-                    if (I != null)
+                    foreach (FiltrosDto x in Filtrado)
                     {
-                        fl.Add(x);
+                        int edad = DateTime.Today.AddTicks(-Convert.ToDateTime(x.fechaNacimiento).Ticks).Year - 1;
+                        if (edad == Filtros.Edad)
+                        {
+                            Filtrado = Filtrado
+                                .Where(c => c.fechaNacimiento.Equals(x.fechaNacimiento))
+                                .ToList();
+                            break;
+                        }
                     }
                 }
-                Filtrado = fl;
-            }
-
-            if(Filtros.Edad > 0)
-            {
-                foreach(FiltrosDto x in Filtrado)
+                var candidatos = Filtrado.Select(x => new
                 {
-                    int edad = DateTime.Today.AddTicks(-Convert.ToDateTime(x.fechaNacimiento).Ticks).Year - 1;
-                    if(edad == Filtros.Edad)
-                    {
-                        Filtrado = Filtrado
-                            .Where(c => c.fechaNacimiento.Equals(x.fechaNacimiento))
-                            .ToList();
-                        break;
-                    }
-                }
-            }
-            var candidatos = Filtrado.Select(x => new
-            {
-                candidatoId = x.IdCandidato,
-                nombre = x.nombre + " " + x.apellidoPaterno + " " + x.apellidoMaterno,
-                AreaExp = x.Acercademi.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "S/D",
-                AreaInt = x.Acercademi.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "S/D",
-                edad = x.fechaNacimiento,
-                curp = x.curp,
-                rfc = x.rfc != null ? x.rfc : "S/D",
-                sueldoMinimo = x.Acercademi.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? x.Acercademi.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
-                localidad = x.Estado + " / " + x.Municipio,
-                estatus = db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).Count() > 0 ? 
-                          db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).OrderByDescending(p => p.Fch_Modificacion).Select(p => p.Estatus.Descripcion).FirstOrDefault() : 
-                          "DISPONIBLE"
-            }).ToList();
+                    candidatoId = x.IdCandidato,
+                    nombre = x.nombre + " " + x.apellidoPaterno + " " + x.apellidoMaterno,
+                    AreaExp = x.Acercademi.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "S/D",
+                    AreaInt = x.Acercademi.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "S/D",
+                    edad = x.fechaNacimiento,
+                    curp = x.curp,
+                    rfc = x.rfc != null ? x.rfc : "S/D",
+                    sueldoMinimo = x.Acercademi.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? x.Acercademi.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
+                    localidad = x.Estado + " / " + x.Municipio,
+                    estatus = db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).Count() > 0 ?
+                              db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).OrderByDescending(p => p.Fch_Modificacion).Select(p => p.Estatus.Descripcion).FirstOrDefault() :
+                              "DISPONIBLE"
+                }).ToList();
 
-            return Ok(candidatos);
-         }
+                return Ok(candidatos);
+            }
+            catch(Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
 
 
 
@@ -342,49 +350,66 @@ namespace SAGA.API.Controllers
         [Route("getMisCandidatos")]
         public IHttpActionResult GetMisCandidatos(Guid Id)
         {
-            var aux = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id)).Select(c => c.CandidatoId).Distinct().ToList();
+            try
+            {
+                var aux = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id)).Select(c => c.CandidatoId).ToList();
 
-            //var candidatos = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id) && aux.Contains(x.CandidatoId)).OrderByDescending(f => f.Fch_Creacion)
-            //    .Select(x => new
-            //{
-            //    candidatoId = x.CandidatoId,
-            //    nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
-            //    AreaExp = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() != null ?
-            //              db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() : "",
-            //    AreaInt = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() != null ?
-            //              db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() : "",
-            //    Edad = x.Candidato.FechaNacimiento,
-            //    curp = x.Candidato.CURP,
-            //    rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-            //    sueldoMinimo = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault()).FirstOrDefault() != null ?
-            //                   db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault() : 0,
-            //    localidad = x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault(),
-            //    folio = x.Folio,
-            //    vBtra = x.Requisicion.VBtra,
-            //    estatus = x.Estatus.Descripcion.First(),
-            //    estatusId = x.EstatusId
-            //}).ToList();
+                //var candidatos = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id) && aux.Contains(x.CandidatoId)).OrderByDescending(f => f.Fch_Creacion)
+                //    .Select(x => new
+                //{
+                //    candidatoId = x.CandidatoId,
+                //    nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
+                //    AreaExp = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() != null ?
+                //              db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() : "",
+                //    AreaInt = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() != null ?
+                //              db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() : "",
+                //    Edad = x.Candidato.FechaNacimiento,
+                //    curp = x.Candidato.CURP,
+                //    rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
+                //    sueldoMinimo = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault()).FirstOrDefault() != null ?
+                //                   db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault() : 0,
+                //    localidad = x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault(),
+                //    folio = x.Folio,
+                //    vBtra = x.Requisicion.VBtra,
+                //    estatus = x.Estatus.Descripcion.First(),
+                //    estatusId = x.EstatusId
+                //}).ToList();
 
-            var candidatos = db.PerfilCandidato.Where(x => aux.Contains(x.CandidatoId))
-           .Select(p => new
-           {
-               candidatoId = p.CandidatoId,
-               nombre = p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno,
-               AreaExp = p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
-               AreaInt = p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() != null ? p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
-               Edad = p.Candidato.FechaNacimiento,
-               curp = p.Candidato.CURP,
-               rfc = p.Candidato.RFC != null ? p.Candidato.RFC : "",
-               sueldoMinimo = p.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
-               localidad = p.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault() + " / " + p.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault(),
-               folio = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Folio).FirstOrDefault(),
-               vBtra = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Requisicion.VBtra).FirstOrDefault(),
-               estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Estatus.Descripcion).FirstOrDefault(),
-               estatusId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.EstatusId).FirstOrDefault(),
-           }).ToList();
+                if (aux.Count() > 0)
+                {
+                    var candidatos = db.CandidatosInfo.Where(x => aux.Contains(x.CandidatoId))
+                   .Select(p => new
+                   {
+                       candidatoId = p.CandidatoId,
+                       nombre = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
+                       AreaExp = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() != null ?
+                                 db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() : "",
+                       AreaInt = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() != null ?
+                                 db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() : "",
+                       Edad = p.FechaNacimiento,
+                       curp = p.CURP,
+                       rfc = p.RFC != null ? p.RFC : "",
+                       sueldoMinimo = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault()).FirstOrDefault() != null ?
+                                      db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault() : 0,
+                       localidad = p.estadoNacimiento + " / " + p.municipioNacimiento,
+                       folio = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Folio).FirstOrDefault(),
+                       vBtra = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Requisicion.VBtra).FirstOrDefault(),
+                       estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Estatus.Descripcion).FirstOrDefault(),
+                       estatusId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.EstatusId).FirstOrDefault(),
+                   }).ToList();
 
-
-            return Ok(candidatos);
+                    return Ok(candidatos);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.BadRequest);
+                }
+                
+            }
+            catch(Exception ex )
+            {
+                return Ok(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -413,10 +438,10 @@ namespace SAGA.API.Controllers
                      sueldoMinimo = x.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? x.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
                      localidad = db.Direcciones.Where(cp => cp.EntidadId.Equals(x.CandidatoId)).Select(d => d.Estado.estado).FirstOrDefault() + " / " + db.Direcciones.Where(cp => cp.EntidadId.Equals(x.CandidatoId)).Select(d => d.Municipio.municipio).FirstOrDefault(),
                  }).ToList();
-                
+
                 return Ok(encontrados);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string msg = ex.Message;
 
@@ -512,7 +537,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                if(db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(cdto.CandidatoId)).Count() == 0)
+                if (db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(cdto.CandidatoId)).Count() == 0)
                 {
                     cdto.Fch_Creacion = DateTime.Now;
                     cdto.Fch_Creacion.ToUniversalTime();
@@ -524,7 +549,7 @@ namespace SAGA.API.Controllers
             {
 
             }
-             return Ok(cdto);
+            return Ok(cdto);
         }
 
         [HttpGet]
@@ -605,6 +630,21 @@ namespace SAGA.API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("getContratados")]
+        public IHttpActionResult GetContratados(List<Guid> candidatos)
+        {
+            try
+            {
+                var contratados = db.CandidatosInfo.Where(x => candidatos.Contains(x.CandidatoId)).ToList();
+                return Ok(contratados);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+
+        }
 
         [HttpPost]
         [Route("updateFuenteRecl")]
@@ -635,14 +675,14 @@ namespace SAGA.API.Controllers
         public IHttpActionResult UpdateContratados(ProcesoDto datos)
         {
             var aux = new Guid("00000000-0000-0000-0000-000000000000");
-            ContratadosInfo obj = new ContratadosInfo();
+            CandidatosInfo obj = new CandidatosInfo();
             try
             {
-                var cc = db.ContratadosInfo.Where(x => x.EntidadId.Equals(datos.candidatoId)).Select(c => c.Id).FirstOrDefault();
+                var cc = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(datos.candidatoId)).Select(c => c.Id).FirstOrDefault();
 
-                if(cc == aux)
+                if (cc == aux)
                 {
-                    obj.EntidadId = datos.candidatoId;
+                    obj.CandidatoId = datos.candidatoId;
                     obj.CURP = datos.curp;
                     obj.RFC = datos.rfc;
                     obj.NSS = datos.nss;
@@ -659,13 +699,13 @@ namespace SAGA.API.Controllers
                     obj.fch_Modificacion = DateTime.Now;
                     obj.fch_Modificacion.ToUniversalTime();
 
-                    db.ContratadosInfo.Add(obj);
+                    db.CandidatosInfo.Add(obj);
                     db.SaveChanges();
 
                 }
                 else
                 {
-                    var ccc = db.ContratadosInfo.Find(cc);
+                    var ccc = db.CandidatosInfo.Find(cc);
 
                     db.Entry(ccc).State = System.Data.Entity.EntityState.Modified;
                     ccc.Nombre = datos.nombreCandidato;
@@ -674,6 +714,8 @@ namespace SAGA.API.Controllers
                     ccc.Nombre = datos.nombreCandidato;
                     ccc.FechaNacimiento = datos.fechaNacimiento;
                     ccc.CURP = datos.curp;
+                    //ccc.RFC = datos.rfc;
+                    //ccc.NSS = datos.nss;
                     ccc.ReclutadorId = datos.ReclutadorId;
                     ccc.fch_Modificacion = DateTime.Now;
                     ccc.fch_Modificacion.ToUniversalTime();

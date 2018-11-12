@@ -99,7 +99,7 @@ namespace SAGA.DAL
         public DbSet<CandidatoLiberado> CandidatosLiberados { get; set; }
         public DbSet<Medios> Medios { get; set; }
         public DbSet<TiposMedios> TiposMedios { get; set; }
-        public DbSet<ContratadosInfo> ContratadosInfo { get; set; }
+        public DbSet<CandidatosInfo> CandidatosInfo { get; set; }
         #endregion
 
         #region Sist
@@ -310,7 +310,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new CandidatoLiberadoMap().ToTable("CandidatosLiberados", "Recl"));
             modelBuilder.Configurations.Add(new MediosMap().ToTable("Medios", "Recl"));
             modelBuilder.Configurations.Add(new TiposMediosMap().ToTable("TiposMedios", "Recl"));
-            modelBuilder.Configurations.Add(new ContratadosInfoMap().ToTable("ContratadosInfo", "Recl"));
+            modelBuilder.Configurations.Add(new CandidatosInfoMap().ToTable("CandidatosInfo", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -2039,12 +2039,13 @@ namespace SAGA.DAL
             }
         }
 
-        public class ContratadosInfoMap : EntityTypeConfiguration<ContratadosInfo>
+        public class CandidatosInfoMap : EntityTypeConfiguration<CandidatosInfo>
         {
-            public ContratadosInfoMap()
+            public CandidatosInfoMap()
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.CURP).HasMaxLength(18).IsRequired();
                 Property(x => x.Nombre).HasMaxLength(50).IsRequired();
                 Property(x => x.ApellidoMaterno).HasMaxLength(50).IsRequired();

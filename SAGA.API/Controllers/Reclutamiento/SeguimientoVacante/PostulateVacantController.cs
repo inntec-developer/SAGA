@@ -35,9 +35,10 @@ namespace SAGA.API.Controllers
         [Route("getPostulate")]
         public IHttpActionResult GetPostulate(Guid VacanteId)
         {
-            // var postulate = db.Postulaciones.Where(x => x.RequisicionId.Equals(VacanteId) && x.StatusId.Equals(1)).Select(x => x.CandidatoId).ToList();
-            var mocos = db.ProcesoCandidatos.Where(xx => xx.EstatusId.Equals(28)).Select(cc => cc.CandidatoId).ToList();
-            var postulate = db.Postulaciones.Where(p => p.RequisicionId.Equals(VacanteId) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.EstatusId.Equals(28)).Select(cc => cc.CandidatoId)).ToList();
+            // Si el candidato es NR se queda atorado en proceso candidato ???
+            //por lo pronto se queda así
+
+            var postulate = db.Postulaciones.Where(p => p.RequisicionId.Equals(VacanteId) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).ToList();
 
             var candidatos = db.PerfilCandidato.Where(x => postulate.Contains(x.CandidatoId)).Select(x => new {
                 CandidatoId = x.CandidatoId,
@@ -49,7 +50,7 @@ namespace SAGA.API.Controllers
                 edad = x.Candidato.FechaNacimiento,
                 rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
                 curp = x.Candidato.CURP, 
-                EstatusId = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(c => c.CandidatoId.Equals(x.CandidatoId)).Select(cc => cc.EstatusId).FirstOrDefault()
+                EstatusId = x.Estatus == 28 ? x.Estatus : db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(c => c.CandidatoId.Equals(x.CandidatoId)).Select(cc => cc.EstatusId).FirstOrDefault()
             }).ToList();
             return Ok(candidatos);
         }
@@ -60,7 +61,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var postulate = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40 & x.EstatusId != 28).Select(c => new
+                var postulate = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
                 {
                     Id = c.Id,
                     folio = c.Folio,
@@ -69,16 +70,28 @@ namespace SAGA.API.Controllers
                     estatusId = c.EstatusId,
                     horarioId = c.HorarioId,
                     horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
-                    perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
+                    //personal = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
+                    //{
+                    //    nombre = p.Nombre == null ? "" : p.Nombre,
+                    //    apellidoPaterno = p.ApellidoPaterno,
+                    //    apellidoMaterno = p.ApellidoMaterno,
+                    //    edad = p.FechaNacimiento,
+                    //    rfc = p.RFC != null ? p.RFC : "",
+                    //    curp = p.CURP != null ? p.CURP : "",
+                    //    nss = p.NSS != null ? p.NSS : "",
+                    //    paisNacimiento = p.PaisNacimientoId,
+                    //    estadoNacimiento = p.EstadoNacimientoId,
+                    //    municipioNacimiento = p.MunicipioNacimientoId,
+                    //    localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado, 
+                    //    generoId = p.GeneroId
+                    //}).ToList(),
+                    personal = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
                     {
-                        foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
+                   
                         nombre = x.Candidato.Nombre,
                         apellidoPaterno = x.Candidato.ApellidoPaterno,
                         apellidoMaterno = x.Candidato.ApellidoMaterno,
-                        AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
-                        AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
                         localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
-                        sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
                         edad = x.Candidato.FechaNacimiento,
                         rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
                         curp = x.Candidato.CURP != null ? x.Candidato.CURP : "",
@@ -88,6 +101,13 @@ namespace SAGA.API.Controllers
                         municipioNacimiento = x.Candidato.MunicipioNacimientoId,
                         generoId = x.Candidato.GeneroId
                     }),
+                    perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
+                    {
+                        foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
+                        AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
+                        AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
+                        sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
+                    }),
                     usuario = c.Reclutador,
                     usuarioId = c.ReclutadorId,
                     fecha = c.Fch_Modificacion,
@@ -96,6 +116,42 @@ namespace SAGA.API.Controllers
                     fuenteReclutamiento = c.TipoMedios.Nombre,
                     fuenteReclutamientoId = c.TipoMediosId
                 }).ToList();
+                //var postulate = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
+                //{
+                //    Id = c.Id,
+                //    folio = c.Folio,
+                //    candidatoId = c.CandidatoId,
+                //    estatus = c.Estatus.Descripcion,
+                //    estatusId = c.EstatusId,
+                //    horarioId = c.HorarioId,
+                //    horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
+                //    perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
+                //    {
+                //        foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
+
+                //        apellidoPaterno = x.Candidato.ApellidoPaterno,
+                //        apellidoMaterno = x.Candidato.ApellidoMaterno,
+                //        AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
+                //        AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
+                //        localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
+                //        sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
+                //        edad = x.Candidato.FechaNacimiento,
+                //        rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
+                //        curp = x.Candidato.CURP != null ? x.Candidato.CURP : "",
+                //        nss = x.Candidato.NSS != null ? x.Candidato.NSS : "",
+                //        paisNacimiento = x.Candidato.PaisNacimientoId,
+                //        estadoNacimiento = x.Candidato.EstadoNacimientoId,
+                //        municipioNacimiento = x.Candidato.MunicipioNacimientoId,
+                //        generoId = x.Candidato.GeneroId
+                //    }),
+                //    usuario = c.Reclutador,
+                //    usuarioId = c.ReclutadorId,
+                //    fecha = c.Fch_Modificacion,
+                //    areaReclutamiento = c.Departamentos.Nombre,
+                //    areaReclutamientoId = c.DepartamentoId,
+                //    fuenteReclutamiento = c.TipoMedios.Nombre,
+                //    fuenteReclutamientoId = c.TipoMediosId
+                //}).ToList();
 
                 return Ok(postulate);
             }
