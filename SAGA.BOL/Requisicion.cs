@@ -52,6 +52,7 @@ namespace SAGA.BOL
         public DateTime? fch_Limite { get; set; }
         public int? DiasEnvio { get; set; }
         public Guid PropietarioId { get; set; }
+        public Nullable<Guid> AprobadorId { get; set; }
 
 
         public virtual Cliente Cliente { get; set; }

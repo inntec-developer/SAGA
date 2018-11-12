@@ -760,6 +760,7 @@ namespace SAGA.API.Controllers
                 requisicion.EstatusId = 8;
                 requisicion.Aprobada = false;
                 requisicion.Aprobador = string.Empty;
+                requisicion.AprobadorId = null;
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
 
@@ -831,8 +832,10 @@ namespace SAGA.API.Controllers
                     {
                         requisicion.EstatusId = 6;
                         requisicion.Aprobador = requi.Usuario;
+                        requisicion.AprobadorId = requi.AprobadorId;
                         requisicion.Aprobada = true;
                         requisicion.fch_Aprobacion = DateTime.Now;
+                        
                     }
                     requisicion.DiasEnvio = requi.DiasEnvio;
                     requisicion.fch_Modificacion = DateTime.Now;

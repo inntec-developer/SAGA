@@ -11,6 +11,7 @@ namespace SAGA.API.Dtos
         public Guid Id { get; set; }
         public DateTime fch_Cumplimiento { get; set; }
         public string Aprobador { get; set; }
+        public Guid AprobadorId { get; set; }
         public int? DiasEnvio { get; set; }
         public string Usuario { get; set; }
         public virtual List<AsignacionRequi> AsignacionRequi { get; set; }
