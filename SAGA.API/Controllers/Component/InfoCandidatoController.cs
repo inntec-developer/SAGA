@@ -29,15 +29,17 @@ namespace SAGA.API.Controllers.Component
             {
                 string fecha = "07/12/1990";
                 var edad = DateTime.Today.AddTicks(-Convert.ToDateTime(Convert.ToDateTime(fecha)).Ticks).Year - 1;
-                var mocos = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre).FirstOrDefault();
+                //var mocos = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre).FirstOrDefault();
                 var infoCanditato = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(Id)).Select(p => new InfoCandidato
                 {
                     Id = p.CandidatoId,
-                   // Nombre = p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno,
-                    Nombre = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select( pp => pp.Nombre).FirstOrDefault() == null ? p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno : db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre + " " + pp.ApellidoPaterno + " " + pp.ApellidoMaterno).FirstOrDefault(),
+                    Nombre = p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno,
+                    //Nombre = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre).FirstOrDefault() == null ? p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno : db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre + " " + pp.ApellidoPaterno + " " + pp.ApellidoMaterno).FirstOrDefault(),
                     Foto = p.Candidato.ImgProfileUrl,
-                    Genero = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(pp => pp.Genero.genero).FirstOrDefault(),
-                    FechaNacimiento = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(pp => pp.FechaNacimiento).FirstOrDefault(),
+                    //Genero = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(pp => pp.Genero.genero).FirstOrDefault(),
+                    Genero = p.Candidato.Genero.genero,
+                    //FechaNacimiento = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(pp => pp.FechaNacimiento).FirstOrDefault(),
+                    FechaNacimiento = p.Candidato.FechaNacimiento,
                     Candidato = p.Candidato,
                     AboutMe = p.AboutMe,
                     Cursos = p.Cursos,

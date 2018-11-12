@@ -97,7 +97,7 @@ namespace SAGA.API.Controllers.Component
                 db.ComentariosEntrevistas.Add(cm);
                 db.SaveChanges();
 
-                var idc = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(comentario.CandidatoId)).Select(c => c.Id);
+                var idc = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(comentario.CandidatoId)).Select(c => c.Id).FirstOrDefault();
                 var pc = db.PerfilCandidato.Find(idc);
 
                 db.Entry(pc).State = System.Data.Entity.EntityState.Modified;

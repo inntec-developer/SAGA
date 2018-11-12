@@ -70,37 +70,37 @@ namespace SAGA.API.Controllers
                     estatusId = c.EstatusId,
                     horarioId = c.HorarioId,
                     horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
-                    //personal = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
-                    //{
-                    //    nombre = p.Nombre == null ? "" : p.Nombre,
-                    //    apellidoPaterno = p.ApellidoPaterno,
-                    //    apellidoMaterno = p.ApellidoMaterno,
-                    //    edad = p.FechaNacimiento,
-                    //    rfc = p.RFC != null ? p.RFC : "",
-                    //    curp = p.CURP != null ? p.CURP : "",
-                    //    nss = p.NSS != null ? p.NSS : "",
-                    //    paisNacimiento = p.PaisNacimientoId,
-                    //    estadoNacimiento = p.EstadoNacimientoId,
-                    //    municipioNacimiento = p.MunicipioNacimientoId,
-                    //    localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado, 
-                    //    generoId = p.GeneroId
-                    //}).ToList(),
-                    personal = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
+                    personal = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
                     {
+                        nombre = p.Nombre == null ? "" : p.Nombre,
+                        apellidoPaterno = p.ApellidoPaterno,
+                        apellidoMaterno = p.ApellidoMaterno,
+                        edad = p.FechaNacimiento,
+                        rfc = p.RFC != null ? p.RFC : "",
+                        curp = p.CURP != null ? p.CURP : "",
+                        nss = p.NSS != null ? p.NSS : "",
+                        paisNacimiento = p.PaisNacimientoId,
+                        estadoNacimiento = p.EstadoNacimientoId,
+                        municipioNacimiento = p.MunicipioNacimientoId,
+                        localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
+                        generoId = p.GeneroId
+                    }).ToList(),
+                    //personal = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
+                    //{
                    
-                        nombre = x.Candidato.Nombre,
-                        apellidoPaterno = x.Candidato.ApellidoPaterno,
-                        apellidoMaterno = x.Candidato.ApellidoMaterno,
-                        localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
-                        edad = x.Candidato.FechaNacimiento,
-                        rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-                        curp = x.Candidato.CURP != null ? x.Candidato.CURP : "",
-                        nss = x.Candidato.NSS != null ? x.Candidato.NSS : "",
-                        paisNacimiento = x.Candidato.PaisNacimientoId,
-                        estadoNacimiento = x.Candidato.EstadoNacimientoId,
-                        municipioNacimiento = x.Candidato.MunicipioNacimientoId,
-                        generoId = x.Candidato.GeneroId
-                    }),
+                    //    nombre = x.Candidato.Nombre,
+                    //    apellidoPaterno = x.Candidato.ApellidoPaterno,
+                    //    apellidoMaterno = x.Candidato.ApellidoMaterno,
+                    //    localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
+                    //    edad = x.Candidato.FechaNacimiento,
+                    //    rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
+                    //    curp = x.Candidato.CURP != null ? x.Candidato.CURP : "",
+                    //    nss = x.Candidato.NSS != null ? x.Candidato.NSS : "",
+                    //    paisNacimiento = x.Candidato.PaisNacimientoId,
+                    //    estadoNacimiento = x.Candidato.EstadoNacimientoId,
+                    //    municipioNacimiento = x.Candidato.MunicipioNacimientoId,
+                    //    generoId = x.Candidato.GeneroId
+                    //}),
                     perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
                     {
                         foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
@@ -173,7 +173,8 @@ namespace SAGA.API.Controllers
                 var R = db.Requisiciones.Find(datos.requisicionId);
                 db.Entry(R).State = System.Data.Entity.EntityState.Modified;
                 R.EstatusId = datos.estatusId;
-
+                R.fch_Modificacion = DateTime.Now;
+                R.AprobadorId = datos.ReclutadorId;
                 db.SaveChanges();
 
                 if(datos.estatusId >= 34 && datos.estatusId <= 37)
@@ -204,6 +205,8 @@ namespace SAGA.API.Controllers
                     db.Entry(c).State = System.Data.Entity.EntityState.Modified;
                     c.EstatusId = datos.estatusId;
                     c.HorarioId = datos.horarioId;
+                    c.Fch_Modificacion = DateTime.Now;
+                    c.ReclutadorId = datos.ReclutadorId;
 
                     db.SaveChanges();
 

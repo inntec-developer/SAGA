@@ -69,6 +69,7 @@ namespace SAGA.API.Controllers
                 if(comentario.EstatusId.Equals(39)) //pausada
                 {
                     Ofi.GenerarFolio(comentario.EstatusId, cm.Id);
+                    Ofi.EnviarEmail(comentario.EstatusId, comentario.RequisicionId, comentario.ReclutadorId);
 
                 }
                 return Ok(HttpStatusCode.OK);

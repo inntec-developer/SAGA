@@ -760,7 +760,7 @@ namespace SAGA.API.Controllers
                 requisicion.EstatusId = 8;
                 requisicion.Aprobada = false;
                 requisicion.Aprobador = string.Empty;
-                requisicion.AprobadorId = null;
+                requisicion.AprobadorId = new Guid("00000000-0000-0000-0000-000000000000");
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
 
