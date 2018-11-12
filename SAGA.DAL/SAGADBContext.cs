@@ -140,6 +140,7 @@ namespace SAGA.DAL
         public DbSet<LogsIngresos> LogsIngresos { get; set; }
         public DbSet<MotivoLiberacion> MotivosLiberacion { get; set; }
         public DbSet<FolioIncidencia> FolioIncidencia { get; set; }
+        public DbSet<Puesto> Puestos { get; set; }
 
         #endregion
 
@@ -247,6 +248,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new LogsIngresosMap().ToTable("LogsIngresos"));
             modelBuilder.Configurations.Add(new MotivoLiberacioMap().ToTable("MotivosLiberaciones"));
             modelBuilder.Configurations.Add(new FolioIncidenciaMap().ToTable("FolioIncidencias"));
+            modelBuilder.Configurations.Add(new PuestoMap().ToTable("Puestos"));
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
@@ -952,6 +954,21 @@ namespace SAGA.DAL
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Folio).HasMaxLength(20).IsRequired();
                 Property(x => x.ComentarioId).IsRequired();
+            }
+        }
+
+        public class PuestoMap: EntityTypeConfiguration<Puesto>
+        {
+            public PuestoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Clave).HasMaxLength(15).IsRequired();
+                Property(x => x.Nombre).HasMaxLength(100).IsRequired();
+                Property(x => x.CoordinacionId).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.BTRA).IsRequired();
+                Property(x => x.ERP).IsRequired();
             }
         }
 
