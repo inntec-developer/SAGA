@@ -100,6 +100,7 @@ namespace SAGA.DAL
         public DbSet<Medios> Medios { get; set; }
         public DbSet<TiposMedios> TiposMedios { get; set; }
         public DbSet<CandidatosInfo> CandidatosInfo { get; set; }
+        public DbSet<FolioIncidenciasCandidatos> FoliosIncidendiasCandidatos { get; set; }
         #endregion
 
         #region Sist
@@ -313,6 +314,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new MediosMap().ToTable("Medios", "Recl"));
             modelBuilder.Configurations.Add(new TiposMediosMap().ToTable("TiposMedios", "Recl"));
             modelBuilder.Configurations.Add(new CandidatosInfoMap().ToTable("CandidatosInfo", "Recl"));
+            modelBuilder.Configurations.Add(new FoliosIncidenciasCandidatosMap().ToTable("FoliosIncidenciasCandidatos", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -2064,7 +2066,7 @@ namespace SAGA.DAL
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.CandidatoId).IsRequired();
-                Property(x => x.CURP).HasMaxLength(18).IsRequired();
+                Property(x => x.CURP).HasMaxLength(30).IsRequired();
                 Property(x => x.Nombre).HasMaxLength(50).IsRequired();
                 Property(x => x.ApellidoMaterno).HasMaxLength(50).IsRequired();
                 Property(x => x.ApellidoPaterno).HasMaxLength(50).IsRequired();
@@ -2077,6 +2079,18 @@ namespace SAGA.DAL
                 Property(x => x.GeneroId).IsRequired();
                 Property(x => x.fch_Creacion).IsOptional().HasColumnType("Datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
                 Property(x => x.fch_Modificacion).IsOptional().HasColumnType("Datetime");
+            }
+        }
+
+        public class FoliosIncidenciasCandidatosMap : EntityTypeConfiguration<FolioIncidenciasCandidatos>
+        {
+            public FoliosIncidenciasCandidatosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.ComentarioId).IsRequired();
+                Property(x => x.Folio).IsRequired();
+                Property(x => x.EstatusId).IsRequired();
             }
         }
 

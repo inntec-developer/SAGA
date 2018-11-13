@@ -195,6 +195,7 @@ namespace SAGA.API.Controllers
         [Route("updateStatus")]
         public IHttpActionResult UpdateStatus(ProcesoDto datos)
         {
+            FoliosIncidenciasController obj = new FoliosIncidenciasController();
             try
             {
                 var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).FirstOrDefault();
@@ -217,9 +218,15 @@ namespace SAGA.API.Controllers
                     db.Entry(c).State = System.Data.Entity.EntityState.Modified;
                     c.EstatusId = datos.estatusId;
                     c.HorarioId = datos.horarioId;
+                    c.Fch_Modificacion = DateTime.Now;
+                    c.ReclutadorId = datos.ReclutadorId;
 
                     db.SaveChanges();
 
+                    if(datos.estatusId == 28)
+                    {
+                        obj.EnviarEmailNR(datos.candidatoId, datos.requisicionId, datos.ReclutadorId);
+                    }
                     return Ok(HttpStatusCode.Created);
                 }
                 else

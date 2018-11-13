@@ -82,6 +82,7 @@ namespace SAGA.API.Controllers.Component
         [Route("addComentariosNR")]
         public IHttpActionResult AddComentariosNR(ComentariosEntrevistaDto comentario)
         {
+            FoliosIncidenciasController obj = new FoliosIncidenciasController();
             try
             {
                 ComentarioEntrevista cm = new ComentarioEntrevista();
@@ -105,6 +106,8 @@ namespace SAGA.API.Controllers.Component
 
                 db.SaveChanges();
 
+                obj.GenerarFolioNR(28, cm.Id);
+
                 return Ok(HttpStatusCode.OK);
             }
             catch (Exception ex)
@@ -112,5 +115,36 @@ namespace SAGA.API.Controllers.Component
                 return Ok(HttpStatusCode.NotFound);
             }
         }
+
+        [HttpGet]
+        [Route("getFoliosIncidencias")]
+        public IHttpActionResult GetFoliosIncidencias(int estatus)
+        {
+            try
+            {
+                var folio = db.ComentariosEntrevistas.Where(x => x.Motivo.EstatusId.Equals(estatus)).Select(inf => new
+                {
+                    candidatoId = inf.CandidatoId,
+                    folio = db.FoliosIncidendiasCandidatos.Where(x => x.ComentarioId.Equals(inf.Id)).Select(d => d.Folio),
+                    reclutador = db.Usuarios.Where(x => x.Id.Equals(inf.ReclutadorId)).Select(p => p.Clave + " " + p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno),
+                    motivo = inf.Motivo.Descripcion,
+                    fecha = inf.fch_Creacion,
+                    candidato = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(inf.CandidatoId)).Select(p => p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno),
+                    direccion = inf.Candidato.direcciones,
+                    estatus = inf.Motivo.Estatus.Descripcion, 
+                    comentario = inf.Comentario,
+                    respuesta = db.ComentariosEntrevistas.Where(x => x.RespuestaId.Equals(inf.Id)).Select( c => c.Comentario )
+                });
+
+                return Ok(folio);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+            
+        }
+
+
     }
 }
