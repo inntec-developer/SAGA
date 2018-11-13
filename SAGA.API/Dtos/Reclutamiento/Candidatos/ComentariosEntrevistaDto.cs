@@ -14,5 +14,8 @@ namespace SAGA.API.Dtos
         public string Usuario { get; set; }
         public Guid UsuarioId { get; set; }
         public int MotivoId { get; set; }
+        public Guid RespuestaId { get; set; }
+        public int estatusId { get; set; }
+       
     }
 }
