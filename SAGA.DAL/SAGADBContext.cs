@@ -1021,6 +1021,7 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.areaInteres).HasMaxLength(200);
+                Property(x => x.AreaExperienciaId).IsRequired();
 			}
 		}
 		public class CarreraMap : EntityTypeConfiguration<Carrera>

@@ -9,5 +9,6 @@ namespace SAGA.BOL
     {
         public int Id { get; set; }
         public string areaExperiencia { get; set; }
+        public bool Activo { get; set; }
     }
 }
