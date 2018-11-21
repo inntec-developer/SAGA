@@ -197,8 +197,8 @@ namespace SAGA.API.Controllers
                     EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40).Select(d => new
                     {
                         candidatoId = d.CandidatoId,
-                       // nombre = d.Candidato.Nombre + " " + d.Candidato.ApellidoPaterno + " " + d.Candidato.ApellidoMaterno,
-                        //email = d.Candidato.emails.Select(m => m.email).FirstOrDefault(),
+                        nombre = db.Candidatos.Where(x => x.Id.Equals(d.CandidatoId)).Select( cc => cc.Nombre + " " + cc.ApellidoPaterno + " " + cc.ApellidoMaterno).FirstOrDefault(),
+                        email = db.Emails.Where(x => x.EntidadId.Equals(d.CandidatoId)).Select(m => m.email).FirstOrDefault(),
                         estatusId = d.EstatusId
                     }),
                     Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count()
@@ -217,11 +217,12 @@ namespace SAGA.API.Controllers
                     .Select(e => new
                     {
                         Id = e.Id,
+                        Folio = e.Folio,
                         VBtra = e.VBtra,
                         Estatus = e.Estatus.Descripcion,
                         EstatusId = e.EstatusId,
                         Reclutador = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Clave + " " + s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
-                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => new {
+                        ComentarioReclutador = db.ComentariosVacantes.OrderByDescending(f => f.fch_Creacion).Where(x => x.RequisicionId.Equals(e.Id)).Select(c => new {
                             id = c.Id,
                             folio = db.FolioIncidencia.Where(x => x.ComentarioId.Equals(c.Id)).Select(f => f.Folio).FirstOrDefault(),
                             fecha = c.fch_Creacion,

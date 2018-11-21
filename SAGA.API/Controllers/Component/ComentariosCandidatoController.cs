@@ -145,14 +145,34 @@ namespace SAGA.API.Controllers.Component
                     db.Entry(pc).State = System.Data.Entity.EntityState.Modified;
                     pc.Estatus = 41;
 
+                    db.SaveChanges();
+
                     var idcc = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(comentario.CandidatoId) && x.RequisicionId.Equals(comentario.RequisicionId)).Select(c => c.Id).FirstOrDefault();
                     var cc = db.ProcesoCandidatos.Find(idcc);
 
                     db.Entry(cc).State = System.Data.Entity.EntityState.Modified;
-                    pc.Estatus = 27;
+                    cc.EstatusId = 27;
 
                     db.SaveChanges();
 
+                }
+                else if(comentario.estatusId == 28)
+                {
+                    var idc = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(comentario.CandidatoId)).Select(c => c.Id).FirstOrDefault();
+                    var pc = db.PerfilCandidato.Find(idc);
+
+                    db.Entry(pc).State = System.Data.Entity.EntityState.Modified;
+                    pc.Estatus = 28;
+
+                    db.SaveChanges();
+
+                    var idcc = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(comentario.CandidatoId) && x.RequisicionId.Equals(comentario.RequisicionId)).Select(c => c.Id).FirstOrDefault();
+                    var cc = db.ProcesoCandidatos.Find(idcc);
+
+                    db.Entry(cc).State = System.Data.Entity.EntityState.Modified;
+                    cc.EstatusId = 28;
+
+                    db.SaveChanges();
                 }
 
                 return Ok(HttpStatusCode.OK);
@@ -166,35 +186,38 @@ namespace SAGA.API.Controllers.Component
         [Route("getFoliosIncidencias")]
         public IHttpActionResult GetFoliosIncidencias(int estatus)
         {
+            Guid aux = new Guid("00000000-0000-0000-0000-000000000000");
             try
             {
-                //var folio = db.FoliosIncidendiasCandidatos.Where(x => x.EstatusId.Equals(28)).Select(inf => new
+                //var folio = db.FoliosIncidendiasCandidatos.Where(x => x.EstatusId.Equals(estatus) && db.ProcesoCandidatos.Where(xx => xx.CandidatoId.Equals(x.Comentario.CandidatoId) && xx.RequisicionId.Equals(x.Comentario.RequisicionId)).Select(cc => cc.EstatusId).FirstOrDefault() == 42).Select(inf => new
                 //{
-                //    comentarioId = inf.Id,
-                //    candidatoId = inf.CandidatoId,
-                //    requisicionId = inf.RequisicionId,
-                //    folio = db.FoliosIncidendiasCandidatos.Where(x => x.ComentarioId.Equals(inf.Id)).Select(d => d.Folio).FirstOrDefault() == null ? "" : db.FoliosIncidendiasCandidatos.Where(x => x.ComentarioId.Equals(inf.Id)).Select(d => d.Folio).FirstOrDefault(),
-                //    reclutador = db.Usuarios.Where(x => x.Id.Equals(inf.ReclutadorId)).Select(p => p.Clave + " " + p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno).FirstOrDefault(),
-                //    motivo = inf.Motivo.Descripcion,
-                //    motivoId = inf.Motivo.Id,
-                //    fecha = inf.fch_Creacion,
-                //    candidato = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(inf.CandidatoId)).Select(p => p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno).FirstOrDefault(),
-                //    direccion = inf.Candidato.direcciones.FirstOrDefault().Calle + " " + inf.Candidato.direcciones.FirstOrDefault().NumeroExterior + " col. " + inf.Candidato.direcciones.FirstOrDefault().Colonia.colonia + " CP." + inf.Candidato.direcciones.FirstOrDefault().Colonia.CP + " Tel. " + inf.Candidato.telefonos.FirstOrDefault().telefono,
-                //    estatus = inf.Motivo.Estatus.Descripcion,
-                //    comentario = db.ComentariosEntrevistas.OrderByDescending(f => f.fch_Creacion).Where(x => x.Id.Equals(inf.Id)).Select(c => new
+                //    respuesta = inf.Comentario.RespuestaId,
+                //    comentarioId = inf.ComentarioId,
+                //    candidatoId = inf.Comentario.CandidatoId,
+                //    requisicionId = inf.Comentario.RequisicionId,
+                //    folio = db.Requisiciones.Where(r => r.Id.Equals(inf.Comentario.RequisicionId)).Select(rr => rr.Folio).FirstOrDefault(),
+                //    reclutador = db.Usuarios.Where(x => x.Id.Equals(inf.Comentario.ReclutadorId)).Select(p => p.Clave + " " + p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno).FirstOrDefault(),
+                //    motivo = inf.Comentario.Motivo.Descripcion,
+                //    motivoId = inf.Comentario.MotivoId,
+                //    fecha = inf.Comentario.fch_Creacion,
+                //    candidato = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(inf.Comentario.CandidatoId)).Select(p => p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno).FirstOrDefault(),
+                //    direccion = inf.Comentario.Candidato.direcciones.FirstOrDefault().Calle + " " + inf.Comentario.Candidato.direcciones.FirstOrDefault().NumeroExterior + " col. " + inf.Comentario.Candidato.direcciones.FirstOrDefault().Colonia.colonia + " CP." + inf.Comentario.Candidato.direcciones.FirstOrDefault().Colonia.CP + " Tel. " + inf.Comentario.Candidato.telefonos.FirstOrDefault().telefono,
+                //    estatus = inf.Comentario.Motivo.Estatus.Descripcion,
+                //    comentario = db.ComentariosEntrevistas.OrderByDescending(f => f.fch_Creacion).Where(x => x.Id.Equals(inf.ComentarioId) && x.RespuestaId.Equals(aux)).Select(c => new
                 //    {
+                //        resp = c.RespuestaId,
                 //        comentario = c.Comentario,
-                //        respuesta = db.ComentariosEntrevistas.Where(x => x.RespuestaId.Equals(c.Id)).Select(cc => cc.Comentario)
+                //        //respuesta = db.ComentariosEntrevistas.Where(x => x.RespuestaId.Equals(inf.ComentarioId)).Select(cc => cc.Comentario).ToString()
                 //    }).FirstOrDefault()
 
-                //}).ToList();
+                //}).OrderByDescending(f => f.fecha).ToList();
 
-                var folio = db.ComentariosEntrevistas.Where(x => x.Motivo.EstatusId.Equals(estatus) && x.RespuestaId != x.Id).Select(inf => new
+                var folio = db.ComentariosEntrevistas.Where(x => x.Motivo.EstatusId.Equals(estatus) && db.ProcesoCandidatos.Where(xx => xx.CandidatoId.Equals(x.CandidatoId) && xx.RequisicionId.Equals(x.RequisicionId)).Select(cc => cc.EstatusId).FirstOrDefault() == 42).Select(inf => new
                 {
                     comentarioId = inf.Id,
                     candidatoId = inf.CandidatoId,
                     requisicionId = inf.RequisicionId,
-                    folio = db.FoliosIncidendiasCandidatos.Where(x => x.ComentarioId.Equals(inf.Id)).Select(d => d.Folio).FirstOrDefault() == null ? "" : db.FoliosIncidendiasCandidatos.Where(x => x.ComentarioId.Equals(inf.Id)).Select(d => d.Folio).FirstOrDefault(),
+                    folio = db.Requisiciones.Where(x => x.Id.Equals(inf.RequisicionId)).Select(r => r.Folio).FirstOrDefault(),
                     reclutador = db.Usuarios.Where(x => x.Id.Equals(inf.ReclutadorId)).Select(p => p.Clave + " " + p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno).FirstOrDefault(),
                     motivo = inf.Motivo.Descripcion,
                     motivoId = inf.Motivo.Id,
@@ -202,18 +225,15 @@ namespace SAGA.API.Controllers.Component
                     candidato = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(inf.CandidatoId)).Select(p => p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno).FirstOrDefault(),
                     direccion = inf.Candidato.direcciones.FirstOrDefault().Calle + " " + inf.Candidato.direcciones.FirstOrDefault().NumeroExterior + " col. " + inf.Candidato.direcciones.FirstOrDefault().Colonia.colonia + " CP." + inf.Candidato.direcciones.FirstOrDefault().Colonia.CP + " Tel. " + inf.Candidato.telefonos.FirstOrDefault().telefono,
                     estatus = inf.Motivo.Estatus.Descripcion,
-                    comentario = db.ComentariosEntrevistas.OrderByDescending(f => f.fch_Creacion).Where(x => x.Id.Equals(inf.Id)).Select(c => new
-                    {
-                        comentario = c.Comentario,
-                        respuesta = db.ComentariosEntrevistas.Where(x => x.RespuestaId.Equals(c.Id)).Select(cc => cc.Comentario)
-                    }).FirstOrDefault()
-
-                }).ToList();
+                    comentario = inf.Comentario,
+                    respuesta = ""
+                }).OrderByDescending(f => f.fecha).ToList();
 
                 return Ok(folio);
             }
             catch(Exception ex)
             {
+
                 return Ok(HttpStatusCode.BadRequest);
             }
             

@@ -89,11 +89,11 @@ namespace SAGA.API.Controllers
         {
 
             FolioIncidencia obj = new FolioIncidencia();
-
+            //revisar para sacar solo la de pausa
             try
             {
-                var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi) & x.AprobadorId.Equals(reclutador)).Select(p => new {
-                    propietario = p.PropietarioId, 
+                var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
+                    propietario = p.AprobadorId, 
                     folio = p.Folio, 
                     vbtra = p.VBtra
                 }).FirstOrDefault();
@@ -101,7 +101,7 @@ namespace SAGA.API.Controllers
                 var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
                 //email = "bmorales@damsa.com.mx";
                 string body = "";
-               
+                email = "idelatorre@damsa.com.mx";
                 if (email != "")
                 {
                     string from = "noreply@damsa.com.mx";
@@ -141,30 +141,40 @@ namespace SAGA.API.Controllers
 
             try
             {
+                var email = "idelatorre@damsa.com.mx";
+                var folio = "Prueba";
+                var vbtra = "Prueba";
+
                 var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi) & x.AprobadorId.Equals(reclutador)).Select(p => new {
                     propietario = p.PropietarioId,
-                    folio = p.Folio,
+                    folio = p.Folio.ToString(),
                     vbtra = p.VBtra
                 }).FirstOrDefault();
-                var email = db.Emails.Where(x => x.EntidadId.Equals(propietario.propietario)).Select(e => e.email).FirstOrDefault();
+                
+                if(propietario != null)
+                {
+                    email = db.Emails.Where(x => x.EntidadId.Equals(propietario.propietario)).Select(e => e.email).FirstOrDefault();
+                    folio = propietario.folio;
+                    vbtra = propietario.vbtra;
+                }
                 var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
                 var candidato = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(candidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
                 var motivo = db.ComentariosEntrevistas.Where(x => x.CandidatoId.Equals(candidatoId) & x.RequisicionId.Equals(requi) & x.ReclutadorId.Equals(reclutador) & x.Motivo.EstatusId == 28).Select(m => m.Motivo.Descripcion).FirstOrDefault();
                 //tengo que sacar el que le corresponde por estatus
                 string body = "";
-
+                
                 if (email != "")
                 {
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
-                    m.Subject = "Reporte incidencia Requisición, " + propietario.folio;
+                    m.Subject = "Reporte incidencia Requisición, " + folio;
 
                     m.To.Add(email);
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
-                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, report&oacute; una incidencia sobre el candidato <strong>{1}</strong> motivo: <strong>{2}</strong>, vacante <strong>{3}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{4}</strong>.</p>", usuario, candidato, motivo, propietario.vbtra, propietario.folio);
-                    body = body + "<p>Para validar la incidencia reportada ser&aacute; necesario ingresar a Reclutamiento, seguido de entidades de reclutamiento, selecciona la opci&oacute;n Vacantes, doble clic Folio Vacante , dar clic en el bot&oacute;n Incidencias, para dar el seguimiento correspondiente.</p>";
+                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, report&oacute; una incidencia sobre el candidato <strong>{1}</strong> motivo: <strong>{2}</strong>, vacante <strong>{3}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{4}</strong>.</p>", usuario, candidato, motivo, vbtra, folio);
+                    body = body + "<p>Para validar la incidencia reportada ser&aacute; necesario ingresar a Reclutamiento, seguido de entidades de reclutamiento, selecciona la opci&oacute;n Vacantes, dar clic en el bot&oacute;n Incidencias, para dar el seguimiento correspondiente.</p>";
                     body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                     body = body + "</body></html>";
 

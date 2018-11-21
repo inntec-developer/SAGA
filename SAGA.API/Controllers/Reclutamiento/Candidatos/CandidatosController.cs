@@ -658,7 +658,23 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var contratados = db.CandidatosInfo.Where(x => candidatos.Contains(x.CandidatoId)).ToList();
+                var contratados = db.CandidatosInfo.Where(x => candidatos.Contains(x.CandidatoId)).Select(p => new {
+                    candidatoId = p.CandidatoId,
+                    nombre = p.Nombre == null ? "" : p.Nombre,
+                    apellidoPaterno = p.ApellidoPaterno,
+                    apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
+                    edad = p.FechaNacimiento,
+                    rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
+                    curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
+                    nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
+                    paisNacimiento = p.PaisNacimientoId,
+                    estadoNacimiento = p.EstadoNacimientoId,
+                    municipioNacimiento = p.MunicipioNacimientoId,
+                    localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
+                    generoId = p.GeneroId,
+                    fch_Creacion = p.fch_Creacion,
+                    fch_Modificacion = p.fch_Modificacion
+                }).ToList();
                 return Ok(contratados);
             }
             catch (Exception ex)
@@ -736,8 +752,8 @@ namespace SAGA.API.Controllers
                     ccc.Nombre = datos.nombreCandidato;
                     ccc.FechaNacimiento = datos.fechaNacimiento;
                     ccc.CURP = datos.curp;
-                    //ccc.RFC = datos.rfc;
-                    //ccc.NSS = datos.nss;
+                    ccc.RFC = datos.rfc;
+                    ccc.NSS = datos.nss;
                     ccc.ReclutadorId = datos.ReclutadorId;
                     ccc.fch_Modificacion = DateTime.Now;
                     ccc.fch_Modificacion.ToUniversalTime();

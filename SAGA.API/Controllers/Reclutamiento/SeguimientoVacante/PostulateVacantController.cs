@@ -70,44 +70,41 @@ namespace SAGA.API.Controllers
                     estatusId = c.EstatusId,
                     horarioId = c.HorarioId,
                     horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
-                    personal = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
+                    contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
                     {
                         nombre = p.Nombre == null ? "" : p.Nombre,
                         apellidoPaterno = p.ApellidoPaterno,
-                        apellidoMaterno = p.ApellidoMaterno,
+                        apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
                         edad = p.FechaNacimiento,
-                        rfc = p.RFC != null ? p.RFC : "",
-                        curp = p.CURP != null ? p.CURP : "",
-                        nss = p.NSS != null ? p.NSS : "",
+                        rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
+                        curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
+                        nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
                         paisNacimiento = p.PaisNacimientoId,
                         estadoNacimiento = p.EstadoNacimientoId,
                         municipioNacimiento = p.MunicipioNacimientoId,
                         localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
                         generoId = p.GeneroId
                     }).ToList(),
-                    //personal = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
-                    //{
-                   
-                    //    nombre = x.Candidato.Nombre,
-                    //    apellidoPaterno = x.Candidato.ApellidoPaterno,
-                    //    apellidoMaterno = x.Candidato.ApellidoMaterno,
-                    //    localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
-                    //    edad = x.Candidato.FechaNacimiento,
-                    //    rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-                    //    curp = x.Candidato.CURP != null ? x.Candidato.CURP : "",
-                    //    nss = x.Candidato.NSS != null ? x.Candidato.NSS : "",
-                    //    paisNacimiento = x.Candidato.PaisNacimientoId,
-                    //    estadoNacimiento = x.Candidato.EstadoNacimientoId,
-                    //    municipioNacimiento = x.Candidato.MunicipioNacimientoId,
-                    //    generoId = x.Candidato.GeneroId
-                    //}),
+                
                     perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
                     {
                         foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
                         AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
                         AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
                         sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
-                    }),
+                        nombre = x.Candidato.Nombre,
+                        apellidoPaterno = x.Candidato.ApellidoPaterno,
+                        apellidoMaterno = x.Candidato.ApellidoMaterno,
+                        localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
+                        edad = x.Candidato.FechaNacimiento,
+                        rfc = String.IsNullOrEmpty(x.Candidato.RFC) ? "Sin registro" : x.Candidato.RFC,
+                        curp = String.IsNullOrEmpty(x.Candidato.CURP) ? "Sin registro" : x.Candidato.CURP,
+                        nss = String.IsNullOrEmpty( x.Candidato.NSS) ?  "Sin registro" : x.Candidato.NSS,
+                        paisNacimiento = x.Candidato.PaisNacimientoId,
+                        estadoNacimiento = x.Candidato.EstadoNacimientoId,
+                        municipioNacimiento = x.Candidato.MunicipioNacimientoId,
+                        generoId = x.Candidato.GeneroId
+                    }).ToList(),
                     usuario = c.Reclutador,
                     usuarioId = c.ReclutadorId,
                     fecha = c.Fch_Modificacion,
@@ -174,7 +171,7 @@ namespace SAGA.API.Controllers
                 db.Entry(R).State = System.Data.Entity.EntityState.Modified;
                 R.EstatusId = datos.estatusId;
                 R.fch_Modificacion = DateTime.Now;
-                R.AprobadorId = datos.ReclutadorId;
+                //R.AprobadorId = datos.ReclutadorId;
                 db.SaveChanges();
 
                 if(datos.estatusId >= 34 && datos.estatusId <= 37)
@@ -223,7 +220,7 @@ namespace SAGA.API.Controllers
 
                     db.SaveChanges();
 
-                    if(datos.estatusId == 28)
+                    if(datos.estatusId == 42)
                     {
                         obj.EnviarEmailNR(datos.candidatoId, datos.requisicionId, datos.ReclutadorId);
                     }
@@ -364,7 +361,7 @@ namespace SAGA.API.Controllers
 
             if (estatusId == 17)
             {
-                string texto = "Bolsa Trabajo DAMSA te felicita por Iniciar proceso a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento";
+                string texto = "Bolsa Trabajo DAMSA te felicita por Iniciar proceso a la vacante " + vacante + ". Da click https://www.damsa.com.mx/bt para dar seguimiento";
                 texto = texto.Normalize(NormalizationForm.FormD);
                 texto = reg.Replace(texto, " ");
 
@@ -384,7 +381,7 @@ namespace SAGA.API.Controllers
             }
             else if(estatusId == 21)
             {
-                string texto = "Bolsa Trabajo DAMSA, te felicita por ser finalista a la vacante " + vacante + ". Da click http://btweb.damsa.com.mx/ para dar seguimiento";
+                string texto = "Bolsa Trabajo DAMSA, te felicita por ser finalista a la vacante " + vacante + ". Da click https://www.damsa.com.mx/bt para dar seguimiento";
                 texto = texto.Normalize(NormalizationForm.FormD);
                 texto = reg.Replace(texto, " ");
 
@@ -403,7 +400,7 @@ namespace SAGA.API.Controllers
             }
             else if (estatusId == 27)
             {
-                string texto = string.Format("Bolsa Trabajo DAMSA, informa que el cliente cubrió la vacante {0}. http://btweb.damsa.com.mx/", vacante);
+                string texto = string.Format("Bolsa Trabajo DAMSA, informa que el cliente cubrió la vacante {0}. https://www.damsa.com.mx/bt ", vacante);
 
                 texto = texto.Normalize(NormalizationForm.FormD);
                 texto = reg.Replace(texto, " ");
@@ -422,7 +419,7 @@ namespace SAGA.API.Controllers
             }
             else if(estatusId == 24)
             {
-                string texto = string.Format("Bolsa Trabajo DAMSA, te felicita por ser contratado a la vacante {0}. http://btweb.damsa.com.mx/", vacante);
+                string texto = string.Format("Bolsa Trabajo DAMSA, te felicita por ser contratado a la vacante {0}. https://www.damsa.com.mx/bt", vacante);
 
                 texto = texto.Normalize(NormalizationForm.FormD);
                 texto = reg.Replace(texto, " ");
@@ -500,7 +497,7 @@ namespace SAGA.API.Controllers
                             body = body + string.Format("<h1 style=\"color:#3366cc;\">{0}</h1>", datos.vacante);
                             body = body + "<p>Solo puedes estar en un proceso de seguimiento</p>";
                             body = body + "<p> Si esta vacante no es de tu inter&eacute;s puedes declinar a esta postulaci&oacute;n.</p>";
-                            body = body + string.Format("<a href=\"http://btweb.damsa.com.mx/\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
+                            body = body + string.Format("<a href=\"https://www.damsa.com.mx/bt\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
                             body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font style:\"text-decoration:none\"; color=\"#5d9cec\">{0}</font></p>", usuario);
                             body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                             body = body + "</body></html>";
@@ -531,7 +528,7 @@ namespace SAGA.API.Controllers
                             body = body + string.Format("<p>Eres uno(a) de los/las finalistas para la vacante de <h1 style=\"color:#3366cc;\">{0}</h1></p>", datos.vacante);
                             body = body + "<p>Solo puedes estar en un proceso de seguimiento</p>";
                             body = body + "<p> Si esta vacante no es de tu inter&eacute;s puedes declinar a esta postulaci&oacute;n.</p>";
-                            body = body + string.Format("<a href=\"http://btweb.damsa.com.mx/\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
+                            body = body + string.Format("<a href=\"https://www.damsa.com.mx/bt\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
                             body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font style:\"text-decoration:none\"; color=\"#5d9cec\">{0}</font></p>", usuario);
                             body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                             body = body + "</body></html>";
@@ -561,7 +558,7 @@ namespace SAGA.API.Controllers
                             body = body + "<p>Te escribimos para informarte que el cliente ha seleccionado un candidato, sin embargo y con tu conformidad, conservaremos tu CV en nuestra base de datos para futuras selecciones.</p>";
                             body = body + "<p>Agradecemos tu participaci&oacute;n</p>";
                             body = body + "<p>En la siguiente liga puedes encontrar vacantes similares:</p>";
-                            body = body + string.Format("<a href=\"http://btweb.damsa.com.mx/\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
+                            body = body + string.Format("<a href=\"https://www.damsa.com.mx/bt\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
                             body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font style:\"text-decoration:none\"; color=\"#5d9cec\">{0}</font></p>", usuario);
                             body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                             body = body + "</body></html>";
@@ -651,7 +648,7 @@ namespace SAGA.API.Controllers
                         body = body + "<p>Te escribimos para informarte que el cliente ha seleccionado un candidato, sin embargo y con tu conformidad, conservaremos tu CV en nuestra base de datos para futuras selecciones.</p>";
                         body = body + "<p>Agradecemos tu participaci&oacute;n</p>";
                         body = body + "<p>En la siguiente liga puedes encontrar vacantes similares:</p>";
-                        body = body + string.Format("<a href=\"http://btweb.damsa.com.mx/\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
+                        body = body + string.Format("<a href=\"https://www.damsa.com.mx/bt\" target =\"_blank\"><img src=\"{0}\"></a>", fullPath2);
                         body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font color=\"#5d9cec\">{0}</font></p>", e.email);
                         body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                         body = body + "</body></html>";
