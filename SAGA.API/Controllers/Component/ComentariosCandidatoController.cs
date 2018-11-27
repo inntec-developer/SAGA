@@ -82,39 +82,79 @@ namespace SAGA.API.Controllers.Component
         [Route("addComentariosNR")]
         public IHttpActionResult AddComentariosNR(ComentariosEntrevistaDto comentario)
         {
-            FoliosIncidenciasController obj = new FoliosIncidenciasController();
-            try
-            {
-                ComentarioEntrevista cm = new ComentarioEntrevista();
-                cm.Comentario = comentario.Comentario.ToUpper().Trim();
-                cm.CandidatoId = comentario.CandidatoId;
-                cm.RequisicionId = comentario.RequisicionId;
-                cm.UsuarioAlta = comentario.Usuario;
-                cm.ReclutadorId = comentario.UsuarioId;
-                cm.fch_Creacion = DateTime.Now;
-                cm.fch_Creacion.ToUniversalTime();
-                cm.MotivoId = comentario.MotivoId; //por mientras
+            //FoliosIncidenciasController obj = new FoliosIncidenciasController();
+            FolioIncidenciasCandidatos obj = new FolioIncidenciasCandidatos();
+            var aux = new Guid("00000000-0000-0000-0000-000000000000");
 
-                db.ComentariosEntrevistas.Add(cm);
-                db.SaveChanges();
+            var dbTrans = db.Database.BeginTransaction();
+            
+                try
+                {
+                    ComentarioEntrevista cm = new ComentarioEntrevista();
+                    cm.Comentario = comentario.Comentario.ToUpper().Trim();
+                    cm.CandidatoId = comentario.CandidatoId;
+                    cm.RequisicionId = comentario.RequisicionId;
+                    cm.UsuarioAlta = comentario.Usuario;
+                    cm.ReclutadorId = comentario.UsuarioId;
+                    cm.fch_Creacion = DateTime.Now;
+                    cm.fch_Creacion.ToUniversalTime();
+                    cm.MotivoId = comentario.MotivoId; //por mientras
 
+                    db.ComentariosEntrevistas.Add(cm);
+                    db.SaveChanges();
 
-                var idc = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(comentario.CandidatoId)).Select(c => c.Id).FirstOrDefault();
-                var pc = db.PerfilCandidato.Find(idc);
+                  //fecha = db.ComentariosEntrevistas.Where(x => x.Id.Equals(comentarioId)).Select(f => f.fch_Creacion).FirstOrDefault();
 
-                db.Entry(pc).State = System.Data.Entity.EntityState.Modified;
-                pc.Estatus = 28;
+                    var c = db.FoliosIncidendiasCandidatos.Where(x => x.EstatusId.Equals(28)).Count();
 
-                db.SaveChanges();
+                    string folio = cm.fch_Creacion.Year.ToString() + cm.fch_Creacion.Month.ToString() + cm.fch_Creacion.Day.ToString().PadLeft(2, '0') + (c + 1).ToString().PadLeft(4, '0');
 
-                obj.GenerarFolioNR(28, cm.Id);
+                    obj.EstatusId = 28;
+                    obj.Folio = folio;
+                    obj.ComentarioId = cm.Id;
 
-                return Ok(HttpStatusCode.OK);
-            }
-            catch (Exception ex)
-            {
-                return Ok(HttpStatusCode.NotFound);
-            }
+                    db.FoliosIncidendiasCandidatos.Add(obj);
+
+                    db.SaveChanges();
+
+                    //if (obj.GenerarFolioNR(28, cm.Id, cm.fch_Creacion))
+                    //{
+                    //    //var idC = db.Postulaciones.Where(x => x.CandidatoId.Equals(comentario.CandidatoId)).Select(id => id.Id).FirstOrDefault();
+
+                        //if(idC != aux )
+                        //{
+                        //    var postulado = db.Postulaciones.Find(idC);
+                        //    db.Entry(postulado).State = System.Data.Entity.EntityState.Modified;
+                        //    postulado.StatusId = 5; //proceso finalizado
+
+                        //    db.SaveChanges();
+                        //}
+
+                        //var idproceso = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(comentario.CandidatoId)).Select(idp => idp.Id).FirstOrDefault();
+                        //var proceso = db.ProcesoCandidatos.Find(idproceso);
+                        //db.Entry(proceso).State = System.Data.Entity.EntityState.Modified;
+                        //proceso.EstatusId = 42;
+
+                        //db.SaveChanges();
+
+                        dbTrans.Commit();
+                        return Ok(HttpStatusCode.OK);
+
+                    //}
+                    //else
+                    //{
+                    //    dbTrans.Rollback();
+                    //    return Ok(HttpStatusCode.NotFound);
+                    //}
+
+                    
+                }
+                catch (Exception ex)
+                {
+                    dbTrans.Rollback();
+                    return Ok(HttpStatusCode.NotFound);
+                }
+            
         }
 
         [HttpPost]
@@ -212,6 +252,7 @@ namespace SAGA.API.Controllers.Component
 
                 //}).OrderByDescending(f => f.fecha).ToList();
 
+          
                 var folio = db.ComentariosEntrevistas.Where(x => x.Motivo.EstatusId.Equals(estatus) && db.ProcesoCandidatos.Where(xx => xx.CandidatoId.Equals(x.CandidatoId) && xx.RequisicionId.Equals(x.RequisicionId)).Select(cc => cc.EstatusId).FirstOrDefault() == 42).Select(inf => new
                 {
                     comentarioId = inf.Id,
@@ -227,8 +268,9 @@ namespace SAGA.API.Controllers.Component
                     estatus = inf.Motivo.Estatus.Descripcion,
                     comentario = inf.Comentario,
                     respuesta = ""
-                }).OrderByDescending(f => f.fecha).ToList();
+                }).OrderByDescending(f => f.fecha).GroupBy(g => g.candidatoId).Select(result => result.FirstOrDefault()).ToList();
 
+               
                 return Ok(folio);
             }
             catch(Exception ex)

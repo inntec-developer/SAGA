@@ -54,15 +54,15 @@ namespace SAGA.API.Controllers
             }
         }
 
-        public IHttpActionResult GenerarFolioNR(int estatus, Guid comentarioId)
+        public bool GenerarFolioNR(int estatus, Guid comentarioId, DateTime fecha)
         {
-            DateTime fecha = new DateTime();
+            //DateTime fecha = new DateTime();
 
             FolioIncidenciasCandidatos obj = new FolioIncidenciasCandidatos();
-
+            
             try
             {
-                fecha = db.ComentariosEntrevistas.Where(x => x.Id.Equals(comentarioId)).Select(f => f.fch_Creacion).FirstOrDefault();
+                //fecha = db.ComentariosEntrevistas.Where(x => x.Id.Equals(comentarioId)).Select(f => f.fch_Creacion).FirstOrDefault();
 
                 var c = db.FoliosIncidendiasCandidatos.Where(x => x.EstatusId.Equals(estatus)).Count();
 
@@ -73,13 +73,14 @@ namespace SAGA.API.Controllers
                 obj.ComentarioId = comentarioId;
 
                 db.FoliosIncidendiasCandidatos.Add(obj);
-                db.SaveChanges();
 
-                return Ok(HttpStatusCode.Created);
+               db.SaveChanges();
+
+                return true;
             }
             catch (Exception ex)
             {
-                return Ok(HttpStatusCode.ExpectationFailed);
+                return false;
             }
         }
 

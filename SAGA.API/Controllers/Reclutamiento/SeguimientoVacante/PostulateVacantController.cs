@@ -474,7 +474,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-              // usuario = "niij_06@hotmail.com";
+                //usuario = "bmorales@damsa.com.mx";
 
                 if (usuario != "")
                 {
@@ -620,9 +620,9 @@ namespace SAGA.API.Controllers
         public IHttpActionResult SendEmailsNoContratados(List<ProcesoDto> datos)
         {
             var path = "~/utilerias/img/logo/logo.png";
-            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
+            string fullPath = "http://192.168.8.124:333/logo/logo.png"; // System.Web.Hosting.HostingEnvironment.MapPath(path);
             path = "~/utilerias/img/logo/boton.png";
-            string fullPath2 = System.Web.Hosting.HostingEnvironment.MapPath(path);
+            string fullPath2 = "http://192.168.8.124:333/logo/boton.png";
             string body = "";
             string usuario = "bmorales@damsa.com.mx";
 
