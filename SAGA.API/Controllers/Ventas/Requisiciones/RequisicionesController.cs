@@ -191,10 +191,11 @@ namespace SAGA.API.Controllers
                         p.Candidato.ApellidoMaterno,
                         p.Candidato.CURP,
                         email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
-                        p.StatusId
+                        p.StatusId,
+                        estatusId = db.ProcesoCandidatos.Where(pp => pp.RequisicionId.Equals(e.Id) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
                     }),
-                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
-                    EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40).Select(d => new
+                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
+                    EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Select(d => new
                     {
                         candidatoId = d.CandidatoId,
                         nombre = db.Candidatos.Where(x => x.Id.Equals(d.CandidatoId)).Select( cc => cc.Nombre + " " + cc.ApellidoPaterno + " " + cc.ApellidoMaterno).FirstOrDefault(),

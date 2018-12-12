@@ -46,7 +46,33 @@ namespace SAGA.API.Controllers.Component
                     }).FirstOrDefault()
                 })
                 .ToList().OrderBy(c => c.fchComentario);
-            return Ok(comentarios);
+
+            var mocos = db.CandidatosLiberados
+                 .Where(x => x.CandidatoId.Equals(Id))
+                 .Select(x => new
+                 {
+                     Motivo = x.Motivo.Id == 7 ? "" : x.Motivo.Descripcion,
+                     Comentario = x.Comentario,
+                     UsuarioAlta = db.Usuarios.Where(u => u.Id.Equals(x.ReclutadorId)).Select(u => u.UsuarioAlta ).FirstOrDefault(),
+                     Requisicion = db.Requisiciones
+                                     .Where(r => r.Id.Equals(x.RequisicionId)).
+                                     Select(r => new
+                                     {
+                                         VBtra = r.VBtra,
+                                         Folio = r.Folio
+                                     }).FirstOrDefault(),
+                     fchComentario = x.fch_Liberacion,
+                     Usuario = db.Usuarios.Where(u => u.Id.Equals(x.ReclutadorId)).Select(u => new
+                     {
+                         Nombre = u.Nombre + " " + u.ApellidoPaterno,
+                         Foto = u.Foto == null ? "utilerias/img/user/default.jpg" : u.Foto
+                     }).FirstOrDefault()
+                 })
+                 .ToList().OrderBy(c => c.fchComentario);
+
+
+            var aux = comentarios.Concat(mocos).OrderBy(x => x.fchComentario);
+            return Ok(aux);
         }
 
         [HttpPost]
