@@ -850,7 +850,7 @@ namespace SAGA.API.Controllers
                     requisicion.DiasEnvio = requi.DiasEnvio;
                     requisicion.fch_Modificacion = DateTime.Now;
                     requisicion.UsuarioMod = requi.Usuario;
-                    if (requi.AsignacionRequi.Count() > 1)
+                    if (requi.AsignacionRequi.ToList().Count() > 1)
                         requisicion.Asignada = true;
                     else
                         requisicion.Asignada = false;
