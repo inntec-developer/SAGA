@@ -142,6 +142,7 @@ namespace SAGA.DAL
         public DbSet<MotivoLiberacion> MotivosLiberacion { get; set; }
         public DbSet<FolioIncidencia> FolioIncidencia { get; set; }
         public DbSet<Puesto> Puestos { get; set; }
+        public DbSet<CalendarioEvent> CalendarioEvent { get; set; }
 
         #endregion
 
@@ -250,6 +251,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new MotivoLiberacioMap().ToTable("MotivosLiberaciones"));
             modelBuilder.Configurations.Add(new FolioIncidenciaMap().ToTable("FolioIncidencias"));
             modelBuilder.Configurations.Add(new PuestoMap().ToTable("Puestos"));
+            modelBuilder.Configurations.Add(new CalendarioEventMap().ToTable("CalendarioEvent"));
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
@@ -971,6 +973,24 @@ namespace SAGA.DAL
                 Property(x => x.Activo).IsRequired();
                 Property(x => x.BTRA).IsRequired();
                 Property(x => x.ERP).IsRequired();
+            }
+        }
+
+        public class CalendarioEventMap : EntityTypeConfiguration<CalendarioEvent>
+        {
+            public CalendarioEventMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.EntidadId).IsRequired();
+                Property(x => x.Title).HasMaxLength(100).IsRequired();
+                Property(x => x.Message).HasMaxLength(500).IsOptional();
+                Property(x => x.Start).IsRequired();
+                Property(x => x.End).IsOptional();
+                Property(x => x.AllDay).IsOptional();
+                Property(x => x.backgroundColor).HasMaxLength(50).IsRequired();
+                Property(x => x.borderColor).HasMaxLength(50).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
             }
         }
 
