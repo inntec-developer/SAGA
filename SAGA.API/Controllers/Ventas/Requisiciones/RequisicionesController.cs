@@ -849,6 +849,10 @@ namespace SAGA.API.Controllers
                     requisicion.DiasEnvio = requi.DiasEnvio;
                     requisicion.fch_Modificacion = DateTime.Now;
                     requisicion.UsuarioMod = requi.Usuario;
+                    if (requi.AsignacionRequi.Count() > 1)
+                        requisicion.Asignada = true;
+                    else
+                        requisicion.Asignada = false;
                     db.SaveChanges();
                     AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra);
                     db.SaveChanges();
