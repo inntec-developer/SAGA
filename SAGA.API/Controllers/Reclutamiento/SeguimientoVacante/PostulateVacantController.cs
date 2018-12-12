@@ -50,7 +50,7 @@ namespace SAGA.API.Controllers
                 edad = x.Candidato.FechaNacimiento,
                 rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
                 curp = x.Candidato.CURP, 
-                EstatusId = x.Estatus == 28 ? x.Estatus : db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(c => c.CandidatoId.Equals(x.CandidatoId)).Select(cc => cc.EstatusId).FirstOrDefault()
+                EstatusId = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(c => c.CandidatoId.Equals(x.CandidatoId)).Select(cc => cc.EstatusId).FirstOrDefault()
             }).ToList();
             return Ok(candidatos);
         }

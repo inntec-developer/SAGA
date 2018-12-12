@@ -102,7 +102,7 @@ namespace SAGA.API.Controllers
                 var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
                 //email = "bmorales@damsa.com.mx";
                 string body = "";
-                email = "idelatorre@damsa.com.mx";
+               // email = "idelatorre@damsa.com.mx";
                 if (email != "")
                 {
                     string from = "noreply@damsa.com.mx";
