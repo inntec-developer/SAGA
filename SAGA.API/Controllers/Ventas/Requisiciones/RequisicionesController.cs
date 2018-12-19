@@ -192,7 +192,7 @@ namespace SAGA.API.Controllers
                         p.Candidato.CURP,
                         email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
                         p.StatusId,
-                        estatusId = db.ProcesoCandidatos.OrderBy(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
+                        estatusId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
                     }),
                     EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
                     EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Select(d => new
@@ -426,7 +426,7 @@ namespace SAGA.API.Controllers
                     rechazados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 40).Count(),
                     porcentaje = h.numeroVacantes > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 24).Count()) * 100 / h.numeroVacantes : 0,
                     horario = h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour,
-                    totalVacantes = db.HorariosRequis.Where(x => x.RequisicionId.Equals(RequisicionId) && x.numeroVacantes > 0).Count()
+                    totalVacantes = db.HorariosRequis.Where(x => x.RequisicionId.Equals(RequisicionId) && x.numeroVacantes > 0).Sum(v => v.numeroVacantes)
                 }).ToList();
 
 
@@ -466,56 +466,58 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getInformeVacantes")]
-        public IHttpActionResult GetInformeVacantes(Guid RequisicionId)
+        public IHttpActionResult GetInformeVacantes(Guid reclutadorId)
         {
             try
             {
-                var horarios = db.InformeRequisiciones.Where(x => x.RequisicionId.Equals(RequisicionId)).Select(h => new
+                List<Guid> grp = new List<Guid>();
+
+                var Grupos = db.GruposUsuarios
+                    .Where(g => g.EntidadId.Equals(reclutadorId) & g.Grupo.Activo)
+                           .Select(g => g.GrupoId)
+                           .ToList();
+
+
+                foreach (var grps in Grupos)
                 {
-                    Id = h.Id,
-                    //Vacantes = db.HorariosRequis.Where(x => x.RequisicionId.Equals(h.RequisicionId)).Count() > 0 ? db.HorariosRequis.Where(x => x.RequisicionId.Equals(h.RequisicionId)).Select( v => v.numeroVacantes),
-                    Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(RequisicionId) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(RequisicionId) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
-                    Apartados = db.ProcesoCandidatos.Where(p => p.HorarioId.Equals(h.Id) && p.EstatusId.Equals(12)).Count(),
-                    Abandono = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 26).Count(),
-                    Descartados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 27).Count(),
-                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
-                    EnProcesoEnt = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 18).Count(),
-                    EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 21).Count(),
-                    EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 23).Count(),
-                    contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 24).Count(),
-                    Enviados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId.Equals(30) && p.EstatusId == 21).Count(),
-                    EntCliente = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 22).Count(),
-                    rechazados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 40).Count(),
-                    //porcentaje = h.numeroVacantes > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 24).Count()) * 100 / h.numeroVacantes : 0,
-                    //horario = h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour,
-                    totalVacantes = db.HorariosRequis.Where(x => x.RequisicionId.Equals(RequisicionId) && x.numeroVacantes > 0).Count()
-                }).ToList();
+                    grp = GetGrupo(grps, grp);
+                }
 
+                grp.Add(reclutadorId);
 
-                //var vacantes = db.Requisiciones   horario = h.aHora.Hour - h.deHora.Hour == 9 ? "Completo de " + h.deHora.Hour + " a " + h.aHora.Hour : h.deHora.Hour > 12 ? "Vespertino de " + h.deHora.Hour + " a " + h.aHora.Hour : "Matutino de " + h.deHora.Hour + " a " + h.aHora.Hour
-                //    .Where(e => e.Id.Equals(RequisicionId))
-                //    .Select(e => new
-                //    {
-                //        Id = e.Id,
-                //        ClienteId = e.Cliente.Id,
-                //        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-                //        Folio = e.Folio,
-                //        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
-                //        Apartados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 12).Count(),
-                //        Abandono = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 26).Count(),
-                //        Descartados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 27).Count(),
-                //        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
-                //        EnProcesoEnt = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 18).Count(),
-                //        EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
-                //        EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
-                //        contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
-                //        Enviados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && e.EstatusId.Equals(30) && p.EstatusId == 21).Count(),
-                //        EntCliente = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 22).Count(),
-                //        rechazados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 40).Count(),
-                //        porcentaje = (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / (e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0),
-                //        horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(h => (h.aHora.Hour - h.deHora.Hour) == 9 ? "Completo de " + h.deHora.Hour + " a " + h.aHora.Hour : h.aHora.Hour > 12 ? "Vespertino de " + h.deHora.Hour + " a " + h.aHora.Hour : "Matutino de " + h.deHora.Hour + " a " + h.aHora.Hour)
-                //    }).ToList();
-                return Ok(horarios);
+                var asig = db.AsignacionRequis
+                    .OrderByDescending(e => e.Id)
+                    .Where(a => grp.Distinct().Contains(a.GrpUsrId))
+                    .Select(a => a.RequisicionId)
+                    .Distinct()
+                    .ToList();
+
+                var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => asig.Contains(e.Id))
+                    .Where(e => e.Activo.Equals(true)).Select(h => new
+                    {
+                        Id = h.Id,
+                        Folio = h.Folio,
+                        vBtra = h.VBtra,
+                        Estatus = h.Estatus.Descripcion,
+                        EstatusId = h.EstatusId,
+                        cliente = h.Cliente.Nombrecomercial,
+                        Vacantes = h.horariosRequi.Count() > 0 ? h.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        Fch_limite = h.fch_Cumplimiento,
+                        Postulados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(10)).Select(c => c.CandidatoId).Distinct().Count(),
+                        Abandono = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 26).Count(),
+                        Descartados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 27).Count(),
+                        EnProceso = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28).Count(),
+                        entrevista = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 18).Count(),
+                        //EnProcesoFR = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 21).Count(),
+                        //EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 23).Count(),
+                        contratados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count(),
+                        Enviados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(22)).Count(),
+                        //EntCliente = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 22).Count(),
+                        rechazados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 40).Count(),
+                        porcentaje = h.horariosRequi.Count > 0 ? (db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count()) * 100 / h.horariosRequi.Sum(s => s.numeroVacantes) : 0,
+                    }).ToList();
+
+                return Ok(informe);
 
             }
             catch (Exception ex)
