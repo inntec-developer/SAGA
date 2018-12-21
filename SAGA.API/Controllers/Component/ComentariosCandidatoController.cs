@@ -289,7 +289,7 @@ namespace SAGA.API.Controllers.Component
                     motivo = inf.Motivo.Descripcion,
                     motivoId = inf.Motivo.Id,
                     fecha = inf.fch_Creacion,
-                    candidato = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(inf.CandidatoId)).Select(p => p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno).FirstOrDefault(),
+                    candidato = inf.Candidato.Nombre + " " + inf.Candidato.ApellidoPaterno + " " + inf.Candidato.ApellidoMaterno, //  db.Candidatos.Where(x => x.Id.Equals(inf.CandidatoId)).Select(p => p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno).FirstOrDefault(),
                     direccion = inf.Candidato.direcciones.FirstOrDefault().Calle + " " + inf.Candidato.direcciones.FirstOrDefault().NumeroExterior + " col. " + inf.Candidato.direcciones.FirstOrDefault().Colonia.colonia + " CP." + inf.Candidato.direcciones.FirstOrDefault().Colonia.CP + " Tel. " + inf.Candidato.telefonos.FirstOrDefault().telefono,
                     estatus = inf.Motivo.Estatus.Descripcion,
                     comentario = inf.Comentario,

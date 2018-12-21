@@ -143,10 +143,10 @@ namespace SAGA.API.Controllers
             try
             {
                 var email = "idelatorre@damsa.com.mx";
-                var folio = "Prueba";
-                var vbtra = "Prueba";
+                var folio = "000000000000";
+                var vbtra = "No se encontró vacante";
 
-                var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi) & x.AprobadorId.Equals(reclutador)).Select(p => new {
+                var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
                     propietario = p.PropietarioId,
                     folio = p.Folio.ToString(),
                     vbtra = p.VBtra

@@ -192,7 +192,7 @@ namespace SAGA.API.Controllers
                         p.Candidato.CURP,
                         email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
                         p.StatusId,
-                        estatusId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
+                        //estatusId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.CandidatoId.Equals(p.CandidatoId) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
                     }),
                     EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
                     EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Select(d => new
@@ -493,7 +493,7 @@ namespace SAGA.API.Controllers
                     .ToList();
 
                 var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => asig.Contains(e.Id))
-                    .Where(e => e.Activo.Equals(true)).Select(h => new
+                    .Where(e => e.Activo.Equals(true) && e.EstatusId != 9).Select(h => new
                     {
                         Id = h.Id,
                         Folio = h.Folio,

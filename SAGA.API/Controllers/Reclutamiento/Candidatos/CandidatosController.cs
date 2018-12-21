@@ -766,7 +766,9 @@ namespace SAGA.API.Controllers
 
                 var ppc = db.ProcesoCandidatos.Find(pc);
 
-                db.Entry(ppc).State = System.Data.Entity.EntityState.Modified;
+                db.Entry(ppc).Property(x => x.TipoMediosId).IsModified = true;
+                db.Entry(ppc).Property(x => x.DepartamentoId).IsModified = true;
+
                 ppc.TipoMediosId = datos.tipoMediosId;
                 ppc.DepartamentoId = datos.departamentoId;
 

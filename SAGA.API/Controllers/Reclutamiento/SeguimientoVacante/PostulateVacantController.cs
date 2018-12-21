@@ -94,7 +94,7 @@ namespace SAGA.API.Controllers
                         sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
                         nombre = x.Candidato.Nombre,
                         apellidoPaterno = x.Candidato.ApellidoPaterno,
-                        apellidoMaterno = x.Candidato.ApellidoMaterno,
+                        apellidoMaterno = String.IsNullOrEmpty(x.Candidato.ApellidoMaterno) ? "SIN REGISTRO" : x.Candidato.ApellidoMaterno,
                         localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
                         edad = x.Candidato.FechaNacimiento,
                         rfc = String.IsNullOrEmpty(x.Candidato.RFC) ? "Sin registro" : x.Candidato.RFC,
