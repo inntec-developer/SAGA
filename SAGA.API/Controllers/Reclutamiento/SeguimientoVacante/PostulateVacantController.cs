@@ -480,7 +480,7 @@ namespace SAGA.API.Controllers
                 {
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
-                    m.From = new MailAddress(from, "SAGA Inn");
+                    m.From = new MailAddress(from, "DAMSA");
                     m.Subject = "Bolsa de Trabajo DAMSA";
 
                     if (datos.estatusId == 17)
@@ -628,7 +628,7 @@ namespace SAGA.API.Controllers
 
             string from = "noreply@damsa.com.mx";
             MailMessage m = new MailMessage();
-            m.From = new MailAddress(from, "SAGA Inn");
+            m.From = new MailAddress(from, "DAMSA");
             m.Subject = "Bolsa de Trabajo DAMSA";
 
             try
