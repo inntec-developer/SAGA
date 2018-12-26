@@ -143,6 +143,7 @@ namespace SAGA.DAL
         public DbSet<FolioIncidencia> FolioIncidencia { get; set; }
         public DbSet<Puesto> Puestos { get; set; }
         public DbSet<CalendarioEvent> CalendarioEvent { get; set; }
+        public DbSet<TipoActividadReclutador> TipoActividadReclutador { get; set; }
 
         #endregion
 
@@ -253,6 +254,8 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new FolioIncidenciaMap().ToTable("FolioIncidencias"));
             modelBuilder.Configurations.Add(new PuestoMap().ToTable("Puestos"));
             modelBuilder.Configurations.Add(new CalendarioEventMap().ToTable("CalendarioEvent"));
+            modelBuilder.Configurations.Add(new TipoActividadReclutadorMap().ToTable("TipoActividadReclutador"));
+
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
@@ -992,7 +995,19 @@ namespace SAGA.DAL
                 Property(x => x.AllDay).IsOptional();
                 Property(x => x.backgroundColor).HasMaxLength(50).IsRequired();
                 Property(x => x.borderColor).HasMaxLength(50).IsRequired();
+                Property(x => x.TipoActividadId).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+            }
+        }
+
+        public class TipoActividadReclutadorMap : EntityTypeConfiguration<TipoActividadReclutador>
+        {
+            public TipoActividadReclutadorMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Actividad).HasMaxLength(100).IsRequired();
+                Property(x => x.Activo).IsRequired();
             }
         }
 

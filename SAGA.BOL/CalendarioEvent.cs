@@ -20,7 +20,9 @@ namespace SAGA.BOL
         public string backgroundColor { get; set; } 
         public string borderColor { get; set; }
         public DateTime fch_Creacion { get; set; }
+        public int TipoActividadId { get; set; }
 
         public Entidad Entidad { get; set; }
+        public TipoActividadReclutador TipoActividad { get; set; }
     }
 }
