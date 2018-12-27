@@ -21,24 +21,28 @@ namespace SAGA.API.Controllers.Component
         }
 
         [HttpGet]
-        [Route("getEvent")]
+        [Route("GetEvent")]
         public IHttpActionResult GetEvent(Guid userId)
         {
             try
             {
                 var _event = db.CalendarioEvent
-                    .Where(x => x.Id.Equals(userId))
+                    .Where(x => x.EntidadId.Equals(userId))
                     .Select(x => new {
                         x.Id,
                         x.EntidadId,
+                        x.TipoActividadId,
+                        x.TipoActividad.Actividad,
                         x.Title, 
                         x.Message,
                         x.Start,
                         x.End,
                         x.AllDay, 
                         x.backgroundColor,
-                        x.borderColor
+                        x.borderColor,
+                        x.Activo
                     })
+                    .ToList()
                     .OrderBy(x => x.Start);
 
                 return Ok(_event);
@@ -61,11 +65,13 @@ namespace SAGA.API.Controllers.Component
                 ce.EntidadId = _event.EntidadId;
                 ce.Title = _event.Title;
                 ce.Message = _event.Message;
-                ce.Start = _event.Start;
-                ce.End = _event.End;
+                ce.Start = _event.Start.AddHours(-6);
+                ce.End = _event.End.AddHours(-6);
                 ce.AllDay = _event.AllDay;
                 ce.backgroundColor = _event.backgroundColor;
                 ce.borderColor = _event.borderColor;
+                ce.TipoActividadId = _event.TipoActividadId;
+                ce.Activo = true;
                 db.CalendarioEvent.Add(ce);
                 db.SaveChanges();
                 return Ok(HttpStatusCode.OK);
@@ -89,12 +95,13 @@ namespace SAGA.API.Controllers.Component
                 _event.EntidadId = _Event.EntidadId;
                 _event.Title = _Event.Title;
                 _event.Message = _event.Message;
-                _event.Start = _Event.Start;
-                _event.End = _Event.End;
+                _event.Start = _Event.Start.AddHours(-6);
+                _event.End = _Event.End.AddHours(-6);
                 _event.AllDay = _Event.AllDay;
                 _event.backgroundColor = _Event.backgroundColor;
                 _event.borderColor = _Event.borderColor;
-                db.CalendarioEvent.Add(_event);
+                _event.TipoActividadId = _Event.TipoActividadId;
+                //db.CalendarioEvent.Add(_event);
                 db.SaveChanges();
 
 
@@ -118,6 +125,26 @@ namespace SAGA.API.Controllers.Component
                 db.Entry(r).State = EntityState.Deleted;
                 db.SaveChanges();
                 return Ok(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpGet]
+        [Route("CulminarEvent")]
+        public IHttpActionResult CulminarEvent(Guid Id)
+        {
+            try
+            {
+                var _event = db.CalendarioEvent.Find(Id);
+                db.Entry(_event).State = EntityState.Modified;
+                _event.Activo = false;
+                db.SaveChanges();
+                return Ok(HttpStatusCode.OK);
+                
             }
             catch(Exception ex)
             {
