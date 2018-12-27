@@ -154,5 +154,15 @@ namespace SAGA.API.Controllers
             var motivo = db.MotivosLiberacion.Where(m => m.Activo.Equals(true)).ToList();
             return Ok(motivo);
         }
+
+        [HttpGet]
+        [Route("getTiposActividadesRecl")]
+        public IHttpActionResult GetTiposActividadesRecl()
+        {
+            var actividad = db.TipoActividadReclutador
+                                .Where(x => x.Activo.Equals(true))
+                                .ToList();
+            return Ok(actividad);
+        }
     }
 }

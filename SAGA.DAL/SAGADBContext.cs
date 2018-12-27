@@ -996,6 +996,7 @@ namespace SAGA.DAL
                 Property(x => x.backgroundColor).HasMaxLength(50).IsRequired();
                 Property(x => x.borderColor).HasMaxLength(50).IsRequired();
                 Property(x => x.TipoActividadId).IsRequired();
+                Property(x => x.Activo).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
             }
         }
