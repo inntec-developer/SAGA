@@ -530,7 +530,20 @@ namespace SAGA.API.Controllers
         [Route("getUltimoEstatus")]
         public IHttpActionResult GetUltimoEstatus(Guid RequisicionId)
         {
-            return Ok();
+            try
+            {
+                var estatus = db.EstatusRequisiciones.OrderByDescending(x => x.fch_Modificacion).Where(x => x.RequisicionId.Equals(RequisicionId) && x.EstatusId != 39).Select(e => new
+                {
+                    e.EstatusId,
+                    e.Estatus.Descripcion
+                }).FirstOrDefault();
+
+                return Ok(estatus);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.NotFound);
+            }
         }
 
         [HttpGet]
