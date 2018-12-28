@@ -167,6 +167,7 @@ namespace SAGA.DAL
         public DbSet<TipoUsuario> TiposUsuarios { get; set; }
         public DbSet<HorariosDireccionesRequi> HorariosDireccionesRequi { get; set; }
         public DbSet<InformeRequisicion> InformeRequisiciones { get; set; }
+        public DbSet<EstatusRequisiciones> EstatusRequisiciones { get; set; }
 
         public DbSet<Agencia> Agencias { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
@@ -344,6 +345,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new PsicometriasClienteRequiMap().ToTable("PsicometriasClienteRequi", "Vtas"));
             modelBuilder.Configurations.Add(new RequisicionMap().ToTable("Requisiciones", "Vtas"));
             modelBuilder.Configurations.Add(new InformeRequisicionesMap().ToTable("InformeRequisicion", "Vtas"));
+            modelBuilder.Configurations.Add(new EstatusRequisicionesMap().ToTable("EstatusRequisiciones", "Vtas"));
             #endregion
 
             #region ServicioCliente_SCte
@@ -1664,6 +1666,18 @@ namespace SAGA.DAL
                 Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.EstatusId).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
+            }
+        }
+        public class EstatusRequisicionesMap : EntityTypeConfiguration<EstatusRequisiciones>
+        {
+            public EstatusRequisicionesMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.PropietarioId).IsRequired();
+                Property(x => x.EstatusId).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
             }
         }

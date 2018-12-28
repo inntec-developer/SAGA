@@ -353,8 +353,6 @@ namespace SAGA.API.Controllers
                     .Distinct()
                     .ToList();
 
-
-
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                     .Where(e => asig.Contains(e.Id))
                     .Where(e => e.Activo.Equals(true))
@@ -526,6 +524,13 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.NotFound);
             }
 
+        }
+
+        [HttpGet]
+        [Route("getUltimoEstatus")]
+        public IHttpActionResult GetUltimoEstatus(Guid RequisicionId)
+        {
+            return Ok();
         }
 
         [HttpGet]

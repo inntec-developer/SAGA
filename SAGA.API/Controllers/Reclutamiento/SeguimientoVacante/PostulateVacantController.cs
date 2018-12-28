@@ -168,7 +168,9 @@ namespace SAGA.API.Controllers
             try
             {
                 var R = db.Requisiciones.Find(datos.requisicionId);
-                db.Entry(R).State = System.Data.Entity.EntityState.Modified;
+                db.Entry(R).Property(u => u.EstatusId).IsModified = true;
+                db.Entry(R).Property(u => u.fch_Modificacion).IsModified = true;
+
                 R.EstatusId = datos.estatusId;
                 R.fch_Modificacion = DateTime.Now;
                 //R.AprobadorId = datos.ReclutadorId;
@@ -245,7 +247,7 @@ namespace SAGA.API.Controllers
                 var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).FirstOrDefault();
                 var c = db.ProcesoCandidatos.Find(id);
 
-                db.Entry(c).State = System.Data.Entity.EntityState.Modified;
+                db.Entry(c).Property(x => x.EstatusId).IsModified = true;
                 c.EstatusId = datos.estatusId;
 
                 db.SaveChanges();
@@ -255,7 +257,7 @@ namespace SAGA.API.Controllers
                 {
                     var cc = db.Postulaciones.Find(ids);
 
-                    db.Entry(cc).State = System.Data.Entity.EntityState.Modified;
+                    db.Entry(cc).Property(x => x.StatusId).IsModified = true;
                     cc.StatusId = 5;
 
                     db.SaveChanges();
@@ -295,7 +297,7 @@ namespace SAGA.API.Controllers
                 {
 
                     var c = db.Postulaciones.Find(id);
-                    db.Entry(c).State = System.Data.Entity.EntityState.Modified;
+                    db.Entry(c).Property(x => x.StatusId).IsModified = true;
                     c.StatusId = datos.estatusId;
 
                     db.SaveChanges();
@@ -333,7 +335,7 @@ namespace SAGA.API.Controllers
                     else
                     {
                         var c = db.Postulaciones.Find(id);
-                        db.Entry(c).State = System.Data.Entity.EntityState.Modified;
+                        db.Entry(c).Property(x => x.StatusId).IsModified = true;
                         c.StatusId = 5;
 
                         db.SaveChanges();
