@@ -766,13 +766,20 @@ namespace SAGA.API.Controllers
                 {
                     var requisicion = db.Requisiciones.Find(requi.Id);
                     db.Entry(requisicion).State = EntityState.Modified;
+
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
                     requisicion.PrioridadId = requi.PrioridadId;
                     requisicion.Confidencial = requi.Confidencial;
                     if (requi.Confidencial && requisicion.EstatusId == 7)
+                    {
                         requisicion.EstatusId = 6;
+                    }
                     else
-                        requisicion.EstatusId = requi.EstatusId;
+                    {
+                        db.Entry(requisicion).Property(x => x.EstatusId).IsModified = false;
+                        //requisicion.EstatusId = requi.EstatusId;
+                    }
+
                     requisicion.fch_Modificacion = DateTime.Now;
                     requisicion.UsuarioMod = requi.Usuario;
                     if(requi.AsignacionRequi.Count() > 1)
