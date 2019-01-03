@@ -637,11 +637,13 @@ namespace SAGA.API.Controllers
             {
                 foreach (var e in datos)
                 {
+                    m.To.Clear();
+                    
                     if (e.email.Contains("@"))
                     {
                         var res = LiberarCandidatos(e);
 
-                        m.Bcc.Add(e.email);
+                        m.To.Add(e.email);
                         body = "<html><head></head><body style=\"text-align:center; font-family:'calibri'\">";
                         body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
                         body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", e.nombre);
