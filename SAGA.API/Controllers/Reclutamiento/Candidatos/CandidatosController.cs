@@ -684,6 +684,40 @@ namespace SAGA.API.Controllers
 
         }
 
+        [HttpGet]
+        [Route("getInfoContratados")]
+        public IHttpActionResult GetInfoContratados()
+        {
+            try
+            {
+                var contratados = db.CandidatosInfo.Select(p => new {
+                    candidatoId = p.CandidatoId,
+                    nombre = p.Nombre == null ? "" : p.Nombre,
+                    apellidoPaterno = p.ApellidoPaterno,
+                    apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
+                    edad = p.FechaNacimiento,
+                    rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
+                    curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
+                    nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
+                    paisNacimiento = p.PaisNacimientoId,
+                    estadoNacimiento = p.EstadoNacimientoId,
+                    municipioNacimiento = p.MunicipioNacimientoId,
+                    localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
+                    generoId = p.GeneroId,
+                    fch_Creacion = p.fch_Creacion,
+                    fch_Modificacion = p.fch_Modificacion, 
+                    folio = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Select( v => v.Requisicion.Folio).FirstOrDefault(),
+                    vbtra = String.IsNullOrEmpty(db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Select(v => v.Requisicion.VBtra).FirstOrDefault()) ? "Sin registro" : db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Select(v => v.Requisicion.VBtra).FirstOrDefault()
+                }).ToList();
+                return Ok(contratados);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+
+        }
+
         [HttpPost]
         [Route("updateFuenteRecl")]
         public IHttpActionResult UpdateFuenteReclutamiento(ProcesoDto datos)
