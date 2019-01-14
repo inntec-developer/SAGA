@@ -59,35 +59,44 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getFiles")]
-        public IHttpActionResult GetFiles(string entidadId)
+        public IHttpActionResult GetFiles(Guid entidadId)
         {
-            var path = "~/utilerias/Files/users/" + entidadId;
+            var path = "~/utilerias/Files/users/" + entidadId.ToString();
             string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
-            DirectoryInfo folderInfo = new DirectoryInfo(fullPath);
-            List<string> extensions = folderInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly).Select(x => x.FullName).ToList();
+
+            if (!Directory.Exists(fullPath))
+            {
+                Directory.CreateDirectory(fullPath);
+                return Ok(0);
+            }
+            else
+            {
+                DirectoryInfo folderInfo = new DirectoryInfo(fullPath);
+                List<string> extensions = folderInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly).Select(x => x.FullName).ToList();
 
 
-            var files = folderInfo.GetFiles(
-                    "*.*",
-                    SearchOption.AllDirectories).Select(x => new
-                    {
-                        fullPath = x.FullName,
-                        nom = x.Name,
-                        ext = x.Extension,
-                        size = (long)x.Length / 1024,
-                        fc = x.LastWriteTime.ToShortDateString()
-                    });
+                var files = folderInfo.GetFiles(
+                        "*.*",
+                        SearchOption.AllDirectories).Select(x => new
+                        {
+                            fullPath = x.FullName,
+                            nom = x.Name,
+                            ext = x.Extension,
+                            size = (long)x.Length / 1024,
+                            fc = x.LastWriteTime.ToShortDateString()
+                        });
 
 
 
-            var egrp = extensions.Select(file => Path.GetExtension(file).TrimStart('.').ToLower())
-                     .GroupBy(x => x, (ext, extCnt) => new
-                     {
-                         Extension = ext,
-                         Count = extCnt.Count()
-                     });
-
-            return Ok(files);
+                var egrp = extensions.Select(file => Path.GetExtension(file).TrimStart('.').ToLower())
+                         .GroupBy(x => x, (ext, extCnt) => new
+                         {
+                             Extension = ext,
+                             Count = extCnt.Count()
+                         });
+                return Ok(files);
+            }
+      
         }
 
         [HttpGet]
@@ -151,8 +160,19 @@ namespace SAGA.API.Controllers
                 var postedFile = httpRequest.Files["file"];
 
                 fileName = Path.GetFileName(postedFile.FileName);
+                var idx = fileName.LastIndexOf('_') + 1;
+                var lon = fileName.Length - idx;
+                var id = fileName.Substring(idx, lon);
 
-                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/users/83569bac-0d68-e811-80e1-9e274155325e/" + fileName);
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/users/");
+                if (!Directory.Exists(fullPath + '/' + id ))
+                {
+                    Directory.CreateDirectory(fullPath + '/' + id);
+                }
+
+                fileName = fileName.Substring(0, idx - 1);
+
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/users/" + id + '/' + fileName);
 
                 if (File.Exists(fullPath))
                     File.Delete(fullPath);
