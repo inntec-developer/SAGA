@@ -452,13 +452,16 @@ namespace SAGA.API.Controllers
                  {
                      candidatoId = x.CandidatoId,
                      nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
-                     AreaExp = x.AboutMe.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
-                     AreaInt = x.AboutMe.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
+                     AreaExp = x.AboutMe.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "S/D",
+                     AreaInt = x.AboutMe.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "S/D",
                      edad = x.Candidato.FechaNacimiento,
                      curp = x.Candidato.CURP,
-                     rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
+                     rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "S/D",
                      sueldoMinimo = x.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? x.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
                      localidad = db.Direcciones.Where(cp => cp.EntidadId.Equals(x.CandidatoId)).Select(d => d.Estado.estado).FirstOrDefault() + " / " + db.Direcciones.Where(cp => cp.EntidadId.Equals(x.CandidatoId)).Select(d => d.Municipio.municipio).FirstOrDefault(),
+                     estatus = db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Count() > 0 ?
+                              db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.CandidatoId)).OrderByDescending(p => p.Fch_Modificacion).Select(p => p.Estatus.Descripcion).FirstOrDefault() :
+                              "DISPONIBLE"
                  }).ToList();
 
                 return Ok(encontrados);

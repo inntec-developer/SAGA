@@ -144,6 +144,8 @@ namespace SAGA.DAL
         public DbSet<Puesto> Puestos { get; set; }
         public DbSet<CalendarioEvent> CalendarioEvent { get; set; }
         public DbSet<TipoActividadReclutador> TipoActividadReclutador { get; set; }
+        public DbSet<AlertasStm> AlertasStm { get; set; }
+        public DbSet<TipoAlerta> TiposAlertas { get; set; }
 
         #endregion
 
@@ -256,6 +258,8 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new PuestoMap().ToTable("Puestos"));
             modelBuilder.Configurations.Add(new CalendarioEventMap().ToTable("CalendarioEvent"));
             modelBuilder.Configurations.Add(new TipoActividadReclutadorMap().ToTable("TipoActividadReclutador"));
+            modelBuilder.Configurations.Add(new AlertasStmMap().ToTable("AlertasStm"));
+            modelBuilder.Configurations.Add(new TipoAlertaMap().ToTable("TiposAlertas"));
 
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
@@ -1010,6 +1014,31 @@ namespace SAGA.DAL
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Actividad).HasMaxLength(100).IsRequired();
+                Property(x => x.Activo).IsRequired();
+            }
+        }
+
+        public class AlertasStmMap : EntityTypeConfiguration<AlertasStm>
+        {
+            public AlertasStmMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.EntidadId).IsRequired();
+                Property(x => x.Alert).HasMaxLength(500).IsRequired();
+                Property(x => x.Icon).HasMaxLength(30).IsRequired();
+                Property(x => x.Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.Activo).IsRequired();
+            }
+        }
+
+        public class TipoAlertaMap : EntityTypeConfiguration<TipoAlerta>
+        {
+            public TipoAlertaMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Tipo).HasMaxLength(50).IsRequired();
                 Property(x => x.Activo).IsRequired();
             }
         }
