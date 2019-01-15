@@ -147,6 +147,14 @@ namespace SAGA.DAL
         public DbSet<AlertasStm> AlertasStm { get; set; }
         public DbSet<TipoAlerta> TiposAlertas { get; set; }
 
+ 
+        /// modulo para examenes
+        public DbSet<Examenes> Examenes { get; set; }
+        public DbSet<TipoExamen> TipoExamen { get; set; }
+        public DbSet<Preguntas> Preguntas { get; set; }
+        public DbSet<Respuestas> Respuestas { get; set; }
+
+
         #endregion
 
         #region Vtas
@@ -260,6 +268,12 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TipoActividadReclutadorMap().ToTable("TipoActividadReclutador"));
             modelBuilder.Configurations.Add(new AlertasStmMap().ToTable("AlertasStm"));
             modelBuilder.Configurations.Add(new TipoAlertaMap().ToTable("TiposAlertas"));
+
+            //Modulo para examenes
+            modelBuilder.Configurations.Add(new ExamenesMap().ToTable("Examenes"));
+            modelBuilder.Configurations.Add(new TipoExamenesMap().ToTable("TipoExamen"));
+            modelBuilder.Configurations.Add(new PreguntasMap().ToTable("Preguntas"));
+            modelBuilder.Configurations.Add(new RespuestasMap().ToTable("Respuestas"));
 
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
@@ -1040,6 +1054,56 @@ namespace SAGA.DAL
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Tipo).HasMaxLength(50).IsRequired();
                 Property(x => x.Activo).IsRequired();
+            }
+        }
+
+        //Modulo para examenes
+
+        public class ExamenesMap : EntityTypeConfiguration<Examenes>
+        {
+            public ExamenesMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).HasMaxLength(100).IsRequired();
+                Property(x => x.Descripcion).HasMaxLength(200).IsOptional();
+                Property(x => x.Activo).IsRequired();
+            }
+        }
+        public class TipoExamenesMap : EntityTypeConfiguration<TipoExamen>
+        {
+            public TipoExamenesMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).HasMaxLength(100).IsRequired();
+                Property(x => x.Descripcion).HasMaxLength(200).IsOptional();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.ExamenId).IsRequired();
+            }
+        }
+        public class PreguntasMap : EntityTypeConfiguration<Preguntas>
+        {
+            public PreguntasMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Pregunta).HasMaxLength(200).IsRequired();
+                Property(x => x.Tipo).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.TipoExamenId).IsRequired();
+            }
+        }
+
+        public class RespuestasMap : EntityTypeConfiguration<Respuestas>
+        {
+            public RespuestasMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Respuesta).HasMaxLength(200).IsRequired();
+                Property(x => x.Validacion).IsRequired();
+                Property(x => x.PreguntaId).IsRequired();
             }
         }
 

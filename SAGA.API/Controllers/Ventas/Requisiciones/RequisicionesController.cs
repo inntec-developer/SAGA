@@ -527,6 +527,55 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("getInformeClientes")]
+        public IHttpActionResult GetInformeClientes(Guid clienteId)
+        {
+            try
+            {
+                var asig = db.Requisiciones
+                    .OrderByDescending(e => e.Id)
+                    .Where(a => a.ClienteId.Equals(clienteId))
+                    .Select(a => a.Id)
+                    .Distinct()
+                    .ToList();
+
+                var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => asig.Contains(e.Id))
+                    .Where(e => e.Activo.Equals(true) && e.EstatusId != 9).Select(h => new
+                    {
+                        Id = h.Id,
+                        Folio = h.Folio,
+                        vBtra = h.VBtra,
+                        Estatus = h.Estatus.Descripcion,
+                        EstatusId = h.EstatusId,
+                        cliente = h.Cliente.Nombrecomercial,
+                        Vacantes = h.horariosRequi.Count() > 0 ? h.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        Fch_limite = h.fch_Cumplimiento,
+                        Postulados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(10)).Select(c => c.CandidatoId).Distinct().Count(),
+                        Abandono = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 26).Count(),
+                        Descartados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 27).Count(),
+                        EnProceso = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28).Count(),
+                        entrevista = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 18).Count(),
+                        //EnProcesoFR = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 21).Count(),
+                        //EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 23).Count(),
+                        contratados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count(),
+                        Enviados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(22)).Count(),
+                        //EntCliente = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 22).Count(),
+                        rechazados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 40).Count(),
+                        porcentaje = h.horariosRequi.Count > 0 ? (db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count()) * 100 / h.horariosRequi.Sum(s => s.numeroVacantes) : 0,
+                    }).ToList();
+
+                return Ok(informe);
+
+            }
+            catch (Exception ex)
+            {
+                string mensaje = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+
+        }
+
+        [HttpGet]
         [Route("getUltimoEstatus")]
         public IHttpActionResult GetUltimoEstatus(Guid RequisicionId)
         {
