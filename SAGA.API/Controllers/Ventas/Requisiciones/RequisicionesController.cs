@@ -937,6 +937,14 @@ namespace SAGA.API.Controllers
                         requisicion.fch_Aprobacion = DateTime.Now;
                         
                     }
+                    else
+                    {
+                        db.Entry(requisicion).Property(x => x.EstatusId).IsModified = false;
+                        db.Entry(requisicion).Property(x => x.Aprobador).IsModified = false;
+                        db.Entry(requisicion).Property(x => x.AprobadorId).IsModified = false;
+                        db.Entry(requisicion).Property(x => x.Aprobada).IsModified = false;
+                        db.Entry(requisicion).Property(x => x.fch_Aprobacion).IsModified = false;
+                    }
                     requisicion.DiasEnvio = requi.DiasEnvio;
                     requisicion.fch_Modificacion = DateTime.Now;
                     requisicion.UsuarioMod = requi.Usuario;

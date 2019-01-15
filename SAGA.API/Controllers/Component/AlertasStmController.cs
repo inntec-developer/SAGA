@@ -34,7 +34,7 @@ namespace SAGA.API.Controllers.Component
                         x.Activo,
                         x.Creacion
                     })
-                    .ToList().OrderByDescending(x => x.Creacion).Take(15);
+                    .ToList().OrderByDescending(x => x.Creacion).Take(10);
                 return Ok(alert);
             }
             catch(Exception ex)
@@ -60,7 +60,7 @@ namespace SAGA.API.Controllers.Component
                 else
                 {
                     var delete = _db.AlertasStm
-                        .Where(x => x.EntidadId.Equals(Id))
+                        .Where(x => x.EntidadId.Equals(Id) && x.Activo.Equals(true))
                         .ToList();
                     foreach (AlertasStm a  in delete)
                     {
