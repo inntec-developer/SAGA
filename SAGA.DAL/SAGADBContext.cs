@@ -104,6 +104,7 @@ namespace SAGA.DAL
         #endregion
 
         #region Sist
+        public DbSet<RelacionClientesSistemas> RelacionClientesSistemas { get; set; }
         public DbSet<Ambito> Ambitos { get; set; }
         public DbSet<Area> Areas { get; set; }
         public DbSet<Cargo> Cargos { get; set; }
@@ -206,6 +207,7 @@ namespace SAGA.DAL
             //modelBuilder.Entity<IdentityUserRole>().HasKey(r => new { r.RoleId, r.UserId });
 
             #region Administracion_Sistema_Sist
+            modelBuilder.Configurations.Add(new RelacionClientesSistemasMap().ToTable("RelacionClientesSistemas", "dbo"));
             modelBuilder.Configurations.Add(new EstructuraMap().ToTable("Estructuras"));
             modelBuilder.Configurations.Add(new TipoEstructuraMap().ToTable("TiposEstructuras"));
             modelBuilder.Configurations.Add(new AmbitoMap().ToTable("Ambitos"));
@@ -1104,6 +1106,19 @@ namespace SAGA.DAL
                 Property(x => x.Respuesta).HasMaxLength(200).IsRequired();
                 Property(x => x.Validacion).IsRequired();
                 Property(x => x.PreguntaId).IsRequired();
+            }
+        }
+
+        public class RelacionClientesSistemasMap : EntityTypeConfiguration<RelacionClientesSistemas>
+        {
+            public RelacionClientesSistemasMap()
+            {
+                Property(x => x.Id).IsRequired();
+                Property(x => x.Clave_Empresa).HasMaxLength(8).IsRequired();
+                Property(x => x.Clave_Razon).HasMaxLength(8).IsOptional();
+                Property(x => x.Clave_Unica).HasMaxLength(50).IsOptional();
+                Property(x => x.Usuario).HasMaxLength(30).IsOptional();
+
             }
         }
 
