@@ -14,6 +14,9 @@ namespace SAGA.BOL
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public int Activo { get; set; }
-      
+
+        public int TipoExamenId { get; set; }
+
+        public TipoExamen TipoExamen { get; set; }
     }
 }

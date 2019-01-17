@@ -220,8 +220,12 @@ namespace SAGA.API.Controllers
                         Id = e.Id,
                         Folio = e.Folio,
                         VBtra = e.VBtra,
+                        Cliente = e.Cliente.Nombrecomercial,
+                        Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                        fch_Creacion = e.fch_Creacion,
                         Estatus = e.Estatus.Descripcion,
                         EstatusId = e.EstatusId,
+                        Examen = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? true : false,
                         Reclutador = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Clave + " " + s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
                         EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 42).Count(),
                         EnProcesoEC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 22).Count(),
@@ -528,13 +532,14 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getInformeClientes")]
-        public IHttpActionResult GetInformeClientes(Guid clienteId)
+        public IHttpActionResult GetInformeClientes(string cc)
         {
             try
             {
+                var clave = db.RelacionClientesSistemas.Where(x => x.Clave_Empresa.Equals(cc)).Select(CC => CC.Id).FirstOrDefault();
                 var asig = db.Requisiciones
                     .OrderByDescending(e => e.Id)
-                    .Where(a => a.ClienteId.Equals(clienteId))
+                    .Where(a => a.ClienteId.Equals(clave))
                     .Select(a => a.Id)
                     .Distinct()
                     .ToList();
@@ -561,7 +566,7 @@ namespace SAGA.API.Controllers
                         Enviados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(22)).Count(),
                         //EntCliente = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 22).Count(),
                         rechazados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 40).Count(),
-                        porcentaje = h.horariosRequi.Count > 0 ? (db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count()) * 100 / h.horariosRequi.Sum(s => s.numeroVacantes) : 0,
+                        porcentaje = (db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count()) > 0 ? (db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count()) * 100 / h.horariosRequi.Sum(s => s.numeroVacantes) : 0,
                     }).ToList();
 
                 return Ok(informe);

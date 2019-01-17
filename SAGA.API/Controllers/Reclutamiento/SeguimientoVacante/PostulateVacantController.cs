@@ -547,7 +547,7 @@ namespace SAGA.API.Controllers
 
                             var msj = new SqlParameter("@msj", body);
                             var email = new SqlParameter("@email", usuario);
-                            var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", msj, email);
+                            var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", "body", "usuario");
                         }
                         else
                         {

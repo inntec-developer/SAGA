@@ -7,17 +7,15 @@ using System.Threading.Tasks;
 
 namespace SAGA.BOL
 {
-    public class Preguntas
+    public class RequiExamen
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
+        public Guid RequisicionId { get; set; }
         public int ExamenId { get; set; }
-        public string Pregunta { get; set; }
-        public int Tipo { get; set; }
-        public int Activo { get; set; }
 
+        public Requisicion Requisicion { get; set; }
         public Examenes Examen { get; set; }
-
 
     }
 }

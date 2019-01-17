@@ -154,6 +154,7 @@ namespace SAGA.DAL
         public DbSet<TipoExamen> TipoExamen { get; set; }
         public DbSet<Preguntas> Preguntas { get; set; }
         public DbSet<Respuestas> Respuestas { get; set; }
+        public DbSet<RequiExamen> RequiExamen { get; set; }
 
 
         #endregion
@@ -276,6 +277,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TipoExamenesMap().ToTable("TipoExamen"));
             modelBuilder.Configurations.Add(new PreguntasMap().ToTable("Preguntas"));
             modelBuilder.Configurations.Add(new RespuestasMap().ToTable("Respuestas"));
+            modelBuilder.Configurations.Add(new RequiExamenMap().ToTable("RequiExamen"));
 
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
@@ -1068,8 +1070,9 @@ namespace SAGA.DAL
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Nombre).HasMaxLength(100).IsRequired();
-                Property(x => x.Descripcion).HasMaxLength(200).IsOptional();
+                Property(x => x.Descripcion).HasMaxLength(200).IsRequired();
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.TipoExamenId).IsRequired();
             }
         }
         public class TipoExamenesMap : EntityTypeConfiguration<TipoExamen>
@@ -1079,9 +1082,8 @@ namespace SAGA.DAL
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Nombre).HasMaxLength(100).IsRequired();
-                Property(x => x.Descripcion).HasMaxLength(200).IsOptional();
+                Property(x => x.Descripcion).HasMaxLength(200).IsRequired();
                 Property(x => x.Activo).IsRequired();
-                Property(x => x.ExamenId).IsRequired();
             }
         }
         public class PreguntasMap : EntityTypeConfiguration<Preguntas>
@@ -1093,7 +1095,7 @@ namespace SAGA.DAL
                 Property(x => x.Pregunta).HasMaxLength(200).IsRequired();
                 Property(x => x.Tipo).IsRequired();
                 Property(x => x.Activo).IsRequired();
-                Property(x => x.TipoExamenId).IsRequired();
+                Property(x => x.ExamenId).IsRequired();
             }
         }
 
@@ -1109,6 +1111,17 @@ namespace SAGA.DAL
             }
         }
 
+        public class RequiExamenMap : EntityTypeConfiguration<RequiExamen>
+        {
+            public RequiExamenMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.ExamenId).IsRequired();
+            }
+        }
+
         public class RelacionClientesSistemasMap : EntityTypeConfiguration<RelacionClientesSistemas>
         {
             public RelacionClientesSistemasMap()
@@ -1121,6 +1134,8 @@ namespace SAGA.DAL
 
             }
         }
+
+       
 
         #endregion
 
