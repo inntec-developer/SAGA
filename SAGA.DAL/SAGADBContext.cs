@@ -1136,6 +1136,8 @@ namespace SAGA.DAL
                 Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.RequisicionId).IsRequired();
                 Property(x => x.Resultado).IsOptional();
+                Property(x => x.fch_Creacion).IsRequired();
+                Property(x => x.fch_Modificacion).IsRequired();
             }
         }
 

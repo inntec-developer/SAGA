@@ -15,6 +15,8 @@ namespace SAGA.BOL
         public Guid CandidatoId { get; set; }
         public Guid RequisicionId { get; set; }
         public int Resultado { get; set; }
+        public DateTime fch_Creacion { get; set; }
+        public DateTime fch_Modificacion { get; set; }
 
         public Examenes Examen { get; set; }
         public Candidato Candidato { get; set; }

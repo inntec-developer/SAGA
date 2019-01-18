@@ -10,6 +10,7 @@ using SAGA.BOL;
 using SAGA.API.Dtos.Examenes;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Data.Entity;
 
 namespace SAGA.API.Controllers
 {
@@ -115,7 +116,28 @@ namespace SAGA.API.Controllers
 
             }
         }
+        [HttpPost]
+        [Route("actualizarResultado")]
+        public IHttpActionResult ActualizarResultado(ExamenCandidato resultado)
+        {
+            try
+            {
+                var id = db.ExamenCandidato.Where(x => x.CandidatoId.Equals(resultado.CandidatoId) & x.RequisicionId.Equals(resultado.RequisicionId) & x.ExamenId.Equals(resultado.ExamenId)).Select(R => R.Id).FirstOrDefault();
 
+                var candidato = db.ExamenCandidato.Find(id);
+                db.Entry(candidato).State = EntityState.Modified;
+                candidato.Resultado = resultado.Resultado;
+
+                db.SaveChanges();
+                return Ok(HttpStatusCode.OK);
+
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
         [HttpGet]
         [Route("getCatalogo")]
         public IHttpActionResult CatalogoExamenes()
@@ -204,10 +226,34 @@ namespace SAGA.API.Controllers
                 rfc = C.Candidato.RFC,
                 nombre = C.Candidato.Nombre + " " + C.Candidato.ApellidoPaterno + " " + C.Candidato.ApellidoMaterno,
                 usuario = db.Usuarios.Where(x => x.Id.Equals(C.Requisicion.PropietarioId)).Select(s => s.Clave + " " + s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
-                fecha = db.Postulaciones.Where(x => x.CandidatoId.Equals(C.CandidatoId)).Select(F => F.fch_Postulacion)
+                fecha = C.fch_Creacion,
+                folio = C.Requisicion.Folio,
+                cliente = C.Requisicion.Cliente.Nombrecomercial,
+                vBtra = C.Requisicion.VBtra,
+                fch_Aprobacion = C.Requisicion.fch_Aprobacion,
+                resultado = C.Resultado
+            });
+            return Ok(candidatos);
+        }
+
+        [HttpGet]
+        [Route("getRespCandidatos")]
+        public IHttpActionResult GetRespCandidatos(Guid CandidatoId, Guid RequisicionId)
+        {
+            var resultado = db.ExamenCandidato.Where(x => x.CandidatoId.Equals(CandidatoId) & x.RequisicionId.Equals(RequisicionId)).Select(E => new
+            {
+
+                ExamenId = E.ExamenId,
+                Tipo = E.Examen.TipoExamen.Nombre,
+                Nombre = E.Examen.Nombre,
+                Resultado = db.Preguntas.Where(x => x.ExamenId.Equals(E.ExamenId)).Select(R => new
+                {
+                    pregunta = R.Pregunta,
+                    respuesta = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id)).Select(rr => rr.Value).FirstOrDefault()
+                }).ToList()
 
             });
-            return Ok();
+            return Ok(resultado);
         }
     }
 }
