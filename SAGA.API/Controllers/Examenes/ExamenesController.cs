@@ -177,7 +177,7 @@ namespace SAGA.API.Controllers
                     RC.PreguntaId = rc.PreguntaId;
                     RC.Value = rc.Value;
 
-                    db.ResultadoCandidato.Add(RC);
+                    db.resultadocandidato.Add(RC);
                     db.SaveChanges();
 
                     RC = new ResultadosCandidato();
@@ -190,6 +190,24 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         
+        }
+
+        [HttpGet]
+        [Route("getCandidatos")]
+        public IHttpActionResult GetCandidatos()
+        {
+            var candidatos = db.ExamenCandidato.Select(C => new
+            {
+                C.CandidatoId,
+                C.RequisicionId,
+                curp = C.Candidato.CURP,
+                rfc = C.Candidato.RFC,
+                nombre = C.Candidato.Nombre + " " + C.Candidato.ApellidoPaterno + " " + C.Candidato.ApellidoMaterno,
+                usuario = db.Usuarios.Where(x => x.Id.Equals(C.Requisicion.PropietarioId)).Select(s => s.Clave + " " + s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                fecha = db.Postulaciones.Where(x => x.CandidatoId.Equals(C.CandidatoId)).Select(F => F.fch_Postulacion)
+
+            });
+            return Ok();
         }
     }
 }

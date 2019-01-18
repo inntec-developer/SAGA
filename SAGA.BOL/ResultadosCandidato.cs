@@ -16,7 +16,7 @@ namespace SAGA.BOL
         public string Value { get; set; }
 
         public Candidato Candidato { get; set; }
-        public Preguntas Preguntas { get; set; }
+        public Preguntas Pregunta { get; set; }
 
     }
 }

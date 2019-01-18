@@ -156,7 +156,7 @@ namespace SAGA.DAL
         public DbSet<Respuestas> Respuestas { get; set; }
         public DbSet<RequiExamen> RequiExamen { get; set; }
         public DbSet<ExamenCandidato> ExamenCandidato { get; set;}
-        public DbSet<ResultadosCandidato> ResultadoCandidato { get; set; }
+        public DbSet<ResultadosCandidato> resultadocandidato { get; set; }
 
 
         #endregion
