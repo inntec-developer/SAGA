@@ -155,6 +155,8 @@ namespace SAGA.DAL
         public DbSet<Preguntas> Preguntas { get; set; }
         public DbSet<Respuestas> Respuestas { get; set; }
         public DbSet<RequiExamen> RequiExamen { get; set; }
+        public DbSet<ExamenCandidato> ExamenCandidato { get; set;}
+        public DbSet<ResultadosCandidato> ResultadoCandidato { get; set; }
 
 
         #endregion
@@ -278,6 +280,8 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new PreguntasMap().ToTable("Preguntas"));
             modelBuilder.Configurations.Add(new RespuestasMap().ToTable("Respuestas"));
             modelBuilder.Configurations.Add(new RequiExamenMap().ToTable("RequiExamen"));
+            modelBuilder.Configurations.Add(new ExamenCandidatoMap().ToTable("ExamenCandidato"));
+            modelBuilder.Configurations.Add(new ResultadosCandidatoMap().ToTable("ResultadosCandidato"));
 
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
@@ -1119,6 +1123,31 @@ namespace SAGA.DAL
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.RequisicionId).IsRequired();
                 Property(x => x.ExamenId).IsRequired();
+            }
+        }
+
+        public class ExamenCandidatoMap : EntityTypeConfiguration<ExamenCandidato>
+        {
+            public ExamenCandidatoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.ExamenId).IsRequired();
+                Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.Resultado).IsOptional();
+            }
+        }
+
+        public class ResultadosCandidatoMap : EntityTypeConfiguration<ResultadosCandidato>
+        {
+            public ResultadosCandidatoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.PreguntaId).IsRequired();
+                Property(x => x.Value).IsRequired();
             }
         }
 

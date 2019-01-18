@@ -29,4 +29,10 @@ namespace SAGA.API.Dtos.Examenes
         public int value { get; set; }
 
     }
+
+    public class RequiExamenDto
+    {
+        public Guid RequisicionId { get; set; }
+        public int ExamenId { get; set; }
+    }
 }

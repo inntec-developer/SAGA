@@ -90,13 +90,13 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("insertRelacion")]
-        public IHttpActionResult InsertRelacion(List<RequiExamen> requiexamen)
+        public IHttpActionResult InsertRelacion(List<RequiExamenDto> relacion)
         {
             try
             {
                 RequiExamen RE = new RequiExamen();
 
-                foreach (RequiExamen re in requiexamen)
+                foreach (var re in relacion)
                 {
                     RE.ExamenId = re.ExamenId;
                     RE.RequisicionId = re.RequisicionId;
@@ -136,18 +136,60 @@ namespace SAGA.API.Controllers
         [Route("getExamen")]
         public IHttpActionResult GetExamen(int examenId)
         {
-            var examenes = db.Preguntas.Where(x => x.ExamenId.Equals(examenId) && x.Activo.Equals(1)).Select(E => new {
-                pregunta = E.Pregunta,
-                respuestas = db.Respuestas.Where(x => x.PreguntaId.Equals(E.Id)).Select(R => new
+            Random rnd = new Random();
+            try
+            {
+                var mocsrank = rnd.Next(db.Preguntas.Where(x => x.ExamenId.Equals(examenId) && x.Activo.Equals(1)).Count());
+
+                var examenes = db.Preguntas.Where(x => x.ExamenId.Equals(examenId) && x.Activo.Equals(1)).Select(E => new
                 {
-                    resp = string.IsNullOrEmpty(R.Respuesta) ? "Pregunta Abierta" : R.Respuesta,
-                    value = R.Validacion
+                    preguntaId = E.Id,
+                    pregunta = E.Pregunta,
+                    respuestas = db.Respuestas.Where(x => x.PreguntaId.Equals(E.Id)).Select(R => new
+                    {
+                        resp = string.IsNullOrEmpty(R.Respuesta) ? "Pregunta Abierta" : R.Respuesta,
+                        value = R.Validacion,
+                    }).OrderBy(o => Guid.NewGuid()).ToList(),
+                    tipo = E.Tipo,
+                   
+                }).ToList();
 
-                }), 
-                tipo = E.Tipo
-            }).ToList();
+                return Ok(examenes);
+            }
+            catch(Exception ex)
+            {
+                return Ok();
+            }
+            
+        }
 
-            return Ok(examenes);
+        [HttpPost]
+        [Route("insertRespCandidato")]
+        public IHttpActionResult InsertRespCandidato(List<ResultadosCandidato> resultado)
+        {
+            try
+            {
+                ResultadosCandidato RC = new ResultadosCandidato();
+
+                foreach(var rc in resultado)
+                {
+                    RC.CandidatoId = rc.CandidatoId;
+                    RC.PreguntaId = rc.PreguntaId;
+                    RC.Value = rc.Value;
+
+                    db.ResultadoCandidato.Add(RC);
+                    db.SaveChanges();
+
+                    RC = new ResultadosCandidato();
+                }
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        
         }
     }
 }
