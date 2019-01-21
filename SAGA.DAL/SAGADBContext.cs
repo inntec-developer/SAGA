@@ -54,6 +54,8 @@ namespace SAGA.DAL
         public DbSet<Alertasdtl> Alertasdtl { get; set; }
         public DbSet<DpTpDiscapacidad> DpTpDiscapacidad { get; set; }
         public DbSet<MiCVUpload> MiCVUpload { get; set; }
+        public DbSet<HorariosCalendario> HorariosCalendario { get; set; }
+        public DbSet<CalendarioCandidato> CalendarioCandidato { get; set; }
         #endregion
 
         #region Recl
@@ -312,6 +314,8 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new AlertasdtlMap().ToTable("Alertasdtl", "BTra"));
             modelBuilder.Configurations.Add(new DpTpDiscapacidadMap().ToTable("DpTpDiscapacidad", "BTra"));
             modelBuilder.Configurations.Add(new MiCVUploadMap().ToTable("MiCVUpload", "BTra"));
+            modelBuilder.Configurations.Add(new HorariosCalendarioMap().ToTable("HorariosCalendario", "BTra"));
+            modelBuilder.Configurations.Add(new CalendarioCandidatoMap().ToTable("CalendarioCandidato", "BTra"));
             #endregion
 
             #region Reclutamiento_Recl
@@ -1464,6 +1468,34 @@ namespace SAGA.DAL
                 Property(x => x.areaexperiencia).IsRequired();
             }
         }
+
+        public class HorariosCalendarioMap : EntityTypeConfiguration<HorariosCalendario>
+        {
+            public HorariosCalendarioMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Horario).HasColumnType("datetime").IsRequired();
+                Property(x => x.Descripcion).IsOptional();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.Orden).HasColumnType("int").IsRequired();
+            }
+        }
+
+        public class CalendarioCandidatoMap : EntityTypeConfiguration<CalendarioCandidato>
+        {
+            public CalendarioCandidatoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.UbicacionId).IsRequired();
+                Property(x => x.Fecha).HasColumnType("datetime");
+                Property(x => x.Estatus).HasColumnType("int").IsRequired();
+                Property(x => x.Folio).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            }
+        }
+
+
         #endregion
 
         #region "Mapeo Vtas"

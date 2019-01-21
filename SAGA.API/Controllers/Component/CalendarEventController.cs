@@ -66,8 +66,8 @@ namespace SAGA.API.Controllers.Component
                 ce.EntidadId = _event.EntidadId;
                 ce.Title = _event.Title;
                 ce.Message = _event.Message;
-                ce.Start = _event.Start.AddHours(-6);
-                ce.End = _event.End.AddHours(-6);
+                ce.Start = _event.Start;
+                ce.End = _event.End;
                 ce.AllDay = _event.AllDay;
                 ce.backgroundColor = _event.backgroundColor;
                 ce.borderColor = _event.borderColor;
@@ -96,8 +96,9 @@ namespace SAGA.API.Controllers.Component
                 _event.EntidadId = _Event.EntidadId;
                 _event.Title = _Event.Title;
                 _event.Message = _event.Message;
-                _event.Start = _Event.Start.AddHours(-6);
-                _event.End = _Event.End.AddHours(-6);
+                _event.Start = TimeZoneInfo.ConvertTimeToUtc(_Event.Start);
+                _event.Start = _Event.Start;
+                _event.End = _Event.End;
                 _event.AllDay = _Event.AllDay;
                 _event.backgroundColor = _Event.backgroundColor;
                 _event.borderColor = _Event.borderColor;
