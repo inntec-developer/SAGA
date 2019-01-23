@@ -33,7 +33,7 @@ namespace SAGA.API.Controllers
                     folio = R.Folio,
                     vBtra = R.VBtra,
                     psicometricos = db.PsicometriasDamsaRequis.Where(x => x.RequisicionId.Equals(R.Id)).Select(C => new { nombre = C.Psicometria.tipoPsicometria }).ToList(),
-                    claves = 0
+                    claves = db.RequiClaves.Where(x => x.RequisicionId.Equals(R.Id)).Count()
                 }).ToList();
 
                 return Ok(psico);
