@@ -27,7 +27,8 @@ namespace SAGA.API.Controllers
         [Route("insertExamen")]
         public IHttpActionResult InsertExamen(List<ExamenDto> Objeto)
         {
-            Examenes E = new Examenes();
+         
+            SAGA.BOL.Examenes E = new SAGA.BOL.Examenes();
             Preguntas P = new Preguntas();
             Respuestas R = new Respuestas();
          
@@ -161,8 +162,6 @@ namespace SAGA.API.Controllers
             Random rnd = new Random();
             try
             {
-                var mocsrank = rnd.Next(db.Preguntas.Where(x => x.ExamenId.Equals(examenId) && x.Activo.Equals(1)).Count());
-
                 var examenes = db.Preguntas.Where(x => x.ExamenId.Equals(examenId) && x.Activo.Equals(1)).Select(E => new
                 {
                     preguntaId = E.Id,
@@ -184,6 +183,76 @@ namespace SAGA.API.Controllers
             }
             
         }
+
+        [HttpGet]
+        [Route("getExamenRequi")]
+        public IHttpActionResult GetExamenRequi(Guid requisicionId)
+        {
+            try
+            {
+                var examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(requisicionId)).Select(id => id.ExamenId).FirstOrDefault();
+
+                var examenes = db.Preguntas.Where(x => x.ExamenId.Equals(examenId) && x.Activo.Equals(1)).Select(E => new
+                {
+                    nombre = E.Examen.Nombre,
+                    preguntaId = E.Id,
+                    pregunta = E.Pregunta,
+                    respuestas = db.Respuestas.Where(x => x.PreguntaId.Equals(E.Id)).Select(R => new
+                    {
+                        resp = string.IsNullOrEmpty(R.Respuesta) ? "Pregunta Abierta" : R.Respuesta,
+                        value = R.Validacion,
+                    }).OrderBy(o => Guid.NewGuid()).ToList(),
+                    tipo = E.Tipo,
+
+                }).ToList();
+
+                return Ok(examenes);
+            }
+            catch (Exception ex)
+            {
+                return Ok();
+            }
+
+        }
+        [HttpGet]
+        [Route("getRequiEstatus")]
+        public IHttpActionResult GetRequiEstatus(int estatus)
+        {
+            try
+            {
+                var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
+                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus))
+                    .Select(e => new
+                    {
+                        Id = e.Id,
+                        Folio = e.Folio,
+                        VBtra = e.VBtra,
+                        Cliente = e.Cliente.Nombrecomercial,
+                        Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                        fch_Creacion = e.fch_Creacion,
+                        Estatus = e.Estatus.Descripcion,
+                        EstatusId = e.EstatusId,
+                        Examen = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? true : false,
+                        Reclutador = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Clave + " " + s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                        postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => new {
+                            candidatoId = c.CandidatoId,
+                            curp = c.Candidato.CURP,
+                            nombre = c.Candidato.Nombre, 
+                            apellidoPaterno = c.Candidato.ApellidoPaterno,
+                            apellidoMaterno = c.Candidato.ApellidoMaterno
+                        }).ToList()
+            }).ToList();
+
+                return Ok(vacantes);
+
+            }
+            catch (Exception ex)
+            {
+                string mensaje = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
 
         [HttpPost]
         [Route("insertRespCandidato")]
@@ -218,24 +287,44 @@ namespace SAGA.API.Controllers
         [Route("getCandidatos")]
         public IHttpActionResult GetCandidatos()
         {
-            var candidatos = db.ExamenCandidato.Select(C => new
+            var resultados = db.RequiExamen.Select( R => new
             {
-                C.CandidatoId,
-                C.RequisicionId,
-                curp = C.Candidato.CURP,
-                rfc = C.Candidato.RFC,
-                nombre = C.Candidato.Nombre + " " + C.Candidato.ApellidoPaterno + " " + C.Candidato.ApellidoMaterno,
-                usuario = db.Usuarios.Where(x => x.Id.Equals(C.Requisicion.PropietarioId)).Select(s => s.Clave + " " + s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
-                fecha = C.fch_Creacion,
-                folio = C.Requisicion.Folio,
-                cliente = C.Requisicion.Cliente.Nombrecomercial,
-                vBtra = C.Requisicion.VBtra,
-                fch_Aprobacion = C.Requisicion.fch_Aprobacion,
-                resultado = C.Resultado
+                requisicionId = R.Id,
+                folio = R.Requisicion.Folio,
+                cliente = R.Requisicion.Cliente.Nombrecomercial, 
+                vBtra = R.Requisicion.VBtra, 
+                candidatos = db.ExamenCandidato.Where(x => x.RequisicionId.Equals(R.RequisicionId)).Select(C => new
+                {
+                    C.CandidatoId,
+                    C.RequisicionId,
+                    curp = C.Candidato.CURP,
+                    rfc = C.Candidato.RFC,
+                    nombre = C.Candidato.Nombre + " " + C.Candidato.ApellidoPaterno + " " + C.Candidato.ApellidoMaterno,
+                    usuario = db.Usuarios.Where(x => x.Id.Equals(C.Requisicion.PropietarioId)).Select(s => s.Clave + " " + s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                    fecha = C.fch_Creacion,
+                    resultado = C.Resultado
+                }).ToList()
             });
-            return Ok(candidatos);
+            return Ok(resultados);
         }
 
+      
+        [HttpGet]
+        [Route("getExamenCandidato")]
+        public IHttpActionResult GetExamenCandidato(Guid candidatoId)
+        {
+            var resultados = db.ExamenCandidato.Where(x => x.CandidatoId.Equals(candidatoId)).Select(R => new
+            {
+                requisicionId = R.Id,
+                folio = R.Requisicion.Folio,
+                cliente = R.Requisicion.Cliente.Nombrecomercial,
+                vBtra = R.Requisicion.VBtra,
+                candidatoId = R.CandidatoId,
+                examen = R.Examen.Nombre,
+                resultado = R.Resultado
+            }).ToList();
+            return Ok(resultados);
+        }
         [HttpGet]
         [Route("getRespCandidatos")]
         public IHttpActionResult GetRespCandidatos(Guid CandidatoId, Guid RequisicionId)

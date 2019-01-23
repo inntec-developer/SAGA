@@ -251,6 +251,7 @@ namespace SAGA.API.Controllers
             }
         }
 
+     
         [HttpGet]
         [Route("getRequiReclutador")]
         public IHttpActionResult GtRequiReclutador(Guid IdUsuario)
