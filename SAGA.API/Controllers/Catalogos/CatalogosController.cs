@@ -97,7 +97,7 @@ namespace SAGA.API.Controllers
                 TipoGrupo = db.TiposUsuarios.Where(x => x.Id.Equals(g.TipoGrupoId)).Select(n => n.Tipo).FirstOrDefault()
             }).OrderBy(g => g.Nombre).ToList();
 
-            foreach(var g in grupos)
+            foreach (var g in grupos)
             {
                 var aux = obj.GetImage(g.Foto);
                 data.Add(new GruposDtos
@@ -164,5 +164,133 @@ namespace SAGA.API.Controllers
                                 .ToList();
             return Ok(actividad);
         }
+
+        [HttpGet]
+        [Route("getTipoTelefono")]
+        public IHttpActionResult GetTipoTelefono()
+        {
+            var tipo = db.TiposTelefonos.ToList();
+            return Ok(tipo);
+        }
+
+        [HttpGet]
+        [Route("getTipoDireccion")]
+        public IHttpActionResult GetTipoDireccion()
+        {
+            var tipo = db.TiposDirecciones.ToList();
+            return Ok(tipo);
+        }
+
+        #region Catalogos para Prospectos Clientes
+
+        [HttpGet]
+        [Route("getGiroEmp")]
+        public IHttpActionResult GetGiroEmpresa()
+        {
+            var giro = db.GirosEmpresas.ToList();
+            return Ok(giro);
+        }
+
+        [HttpGet]
+        [Route("getActividadEmp")]
+        public IHttpActionResult GetActivadadEmpresa(int GiroId)
+        {
+            var Actividad = db.ActividadesEmpresas
+                .Select(x => new
+                {
+                    x.Id,
+                    x.GiroEmpresaId,
+                    x.actividadEmpresa
+                })
+                .Where(x => x.GiroEmpresaId.Equals(GiroId)).ToList();
+            return Ok(Actividad);
+        }
+
+        [HttpGet]
+        [Route("getTamanioEmp")]
+        public IHttpActionResult GetTamanioEmpresa()
+        {
+            var tamanio = db.TamanoEmpresas.ToList();
+            return Ok(tamanio);
+        }
+
+        [HttpGet]
+        [Route("getTipoEmp")]
+        public IHttpActionResult GetTipoempresa()
+        {
+            var tipo = db.TiposEmpresas.ToList();
+            return Ok(tipo);
+        }
+
+        [HttpGet]
+        [Route("getTipoBase")]
+        public IHttpActionResult GetTipoBase()
+        {
+            var tipo = db.TiposBases.ToList();
+            return Ok(tipo);
+        }
+        #endregion
+
+        #region Localidades
+        [HttpGet]
+        [Route("getPais")]
+        public IHttpActionResult GetPais()
+        {
+            var pais = db.Paises.Where(x => x.Id.Equals(42)).ToList();
+            return Ok(pais);
+        }
+
+        [HttpGet]
+        [Route("getEstado")]
+        public IHttpActionResult GetEstado(int PaisId)
+        {
+            var estado = db.Estados
+                .OrderBy(x => x.estado)
+                .Where(x => x.PaisId.Equals(PaisId))
+                .Select(x => new
+                {
+                    x.Id,
+                    x.estado
+                })
+                .ToList();
+            return Ok(estado);
+        }
+
+        [HttpGet]
+        [Route("getMunicipio")]
+        public IHttpActionResult GetMunicipo(int EstadoId)
+        {
+            var municipio = db.Municipios
+                .OrderBy(x => x.municipio)
+                .Where(x => x.EstadoId.Equals(EstadoId))
+                .Select(x => new
+                {
+                    x.Id,
+                    x.municipio
+                })
+                .ToList();
+            return Ok(municipio);
+        }
+
+        [HttpGet]
+        [Route("getColonia")]
+        public IHttpActionResult GetColonias(int MunicipioId)
+        {
+            var municipio = db.Colonias
+                .OrderBy(x => x.colonia)
+                .Where(x => x.MunicipioId.Equals(MunicipioId))
+                .Select(x => new
+                {
+                    x.Id,
+                    x.colonia,
+                    x.CP
+                })
+                .ToList();
+            return Ok(municipio);
+        }
+
+
+
+        #endregion
     }
 }
