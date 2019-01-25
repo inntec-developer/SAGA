@@ -1104,7 +1104,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Pregunta).HasMaxLength(200).IsRequired();
+                Property(x => x.Pregunta).HasMaxLength(500).IsRequired();
                 Property(x => x.Tipo).IsRequired();
                 Property(x => x.Activo).IsRequired();
                 Property(x => x.ExamenId).IsRequired();
@@ -1117,7 +1117,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Respuesta).HasMaxLength(200).IsRequired();
+                Property(x => x.Respuesta).HasMaxLength(500).IsRequired();
                 Property(x => x.Validacion).IsRequired();
                 Property(x => x.PreguntaId).IsRequired();
             }
@@ -1168,7 +1168,7 @@ namespace SAGA.DAL
                 HasKey(x => x.Id);
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.RequisicionId).IsRequired();
-                Property(x => x.Clave).IsRequired();
+                Property(x => x.Clave).IsRequired().IsUnicode();
                 Property(x => x.Activo).IsRequired();
                 Property(x => x.UsuarioId).IsOptional();
             }
@@ -1183,7 +1183,7 @@ namespace SAGA.DAL
                 Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.RequiClaveId).IsRequired();
                 Property(x => x.RequisicionId).IsRequired();
-                Property(x => x.Resultado).IsRequired();
+                Property(x => x.Resultado).IsRequired().HasMaxLength(100);
                 Property(x => x.fch_Creacion).IsRequired();
                 Property(x => x.fch_Resultado).IsRequired();
                 Property(x => x.UsuarioId).IsOptional();
