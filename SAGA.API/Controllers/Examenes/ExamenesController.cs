@@ -168,6 +168,7 @@ namespace SAGA.API.Controllers
                     pregunta = E.Pregunta,
                     respuestas = db.Respuestas.Where(x => x.PreguntaId.Equals(E.Id)).Select(R => new
                     {
+                        respuestaId = R.Id,
                         resp = string.IsNullOrEmpty(R.Respuesta) ? "Pregunta Abierta" : R.Respuesta,
                         value = R.Validacion,
                     }).OrderBy(o => Guid.NewGuid()).ToList(),
@@ -266,6 +267,7 @@ namespace SAGA.API.Controllers
                 {
                     RC.CandidatoId = rc.CandidatoId;
                     RC.PreguntaId = rc.PreguntaId;
+                    RC.RespuestaId = rc.RespuestaId;
                     RC.Value = rc.Value;
 
                     db.resultadocandidato.Add(RC);
@@ -287,25 +289,32 @@ namespace SAGA.API.Controllers
         [Route("getCandidatos")]
         public IHttpActionResult GetCandidatos()
         {
-            var resultados = db.RequiExamen.Select( R => new
+            try
             {
-                requisicionId = R.Id,
-                folio = R.Requisicion.Folio,
-                cliente = R.Requisicion.Cliente.Nombrecomercial, 
-                vBtra = R.Requisicion.VBtra, 
-                candidatos = db.ExamenCandidato.Where(x => x.RequisicionId.Equals(R.RequisicionId)).Select(C => new
+                var resultados = db.RequiExamen.Select(R => new
                 {
-                    C.CandidatoId,
-                    C.RequisicionId,
-                    curp = C.Candidato.CURP,
-                    rfc = C.Candidato.RFC,
-                    nombre = C.Candidato.Nombre + " " + C.Candidato.ApellidoPaterno + " " + C.Candidato.ApellidoMaterno,
-                    usuario = db.Usuarios.Where(x => x.Id.Equals(C.Requisicion.PropietarioId)).Select(s => s.Clave + " " + s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
-                    fecha = C.fch_Creacion,
-                    resultado = C.Resultado
-                }).ToList()
-            });
-            return Ok(resultados);
+                    requisicionId = R.Id,
+                    folio = R.Requisicion.Folio,
+                    cliente = R.Requisicion.Cliente.Nombrecomercial,
+                    vBtra = R.Requisicion.VBtra,
+                    candidatos = db.ExamenCandidato.Where(x => x.RequisicionId.Equals(R.RequisicionId)).Select(C => new
+                    {
+                        C.CandidatoId,
+                        C.RequisicionId,
+                        curp = C.Candidato.CURP,
+                        rfc = C.Candidato.RFC,
+                        nombre = C.Candidato.Nombre + " " + C.Candidato.ApellidoPaterno + " " + C.Candidato.ApellidoMaterno,
+                        usuario = db.Usuarios.Where(x => x.Id.Equals(C.Requisicion.PropietarioId)).Select(s => s.Clave + " " + s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                        fecha = C.fch_Creacion,
+                        resultado = C.Resultado
+                    }).ToList()
+                });
+                return Ok(resultados);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
         }
 
       
@@ -338,7 +347,21 @@ namespace SAGA.API.Controllers
                 Resultado = db.Preguntas.Where(x => x.ExamenId.Equals(E.ExamenId)).Select(R => new
                 {
                     pregunta = R.Pregunta,
-                    respuesta = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id)).Select(rr => rr.Value).FirstOrDefault()
+
+                    respuesta = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id)).Select(res => res.Respuesta.Respuesta).FirstOrDefault(),
+                    value = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id)).Select(res => res.Value).FirstOrDefault(),
+                    respCorrecta = db.Respuestas.Where(x => x.PreguntaId.Equals(R.Id) && x.Validacion.Equals(1)).Select(rc => rc.Respuesta)
+
+                    //{
+                    //    id = new Guid(res.Value),
+                    //    resp = db.Respuestas.Where(x => x.Id.Equals(new Guid(res.Value))).Select(rrr => rrr.Respuesta)
+
+                    //})
+                    //respuesta = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id)).Select(rr => new
+                    //{
+                    //    resp = db.Respuestas.Where(x => x.Id.Equals(rr.Value) && x.PreguntaId.Equals(R.Id)).Select(rrr => rrr.Respuesta),
+                    //    value = db.Respuestas.Where(x => x.Id.Equals(rr.Value)).Select(rrr => rrr.Validacion)
+                    //}).ToList()
                 }).ToList()
 
             });

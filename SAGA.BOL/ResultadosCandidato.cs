@@ -14,9 +14,11 @@ namespace SAGA.BOL
         public Guid CandidatoId { get; set; }
         public int PreguntaId { get; set; }
         public string Value { get; set; }
+        public Guid RespuestaId { get; set; }
 
         public Candidato Candidato { get; set; }
         public Preguntas Pregunta { get; set; }
+        public Respuestas Respuesta { get; set; }
 
     }
 }
