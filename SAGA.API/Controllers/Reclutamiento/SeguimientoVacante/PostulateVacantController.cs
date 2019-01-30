@@ -202,7 +202,11 @@ namespace SAGA.API.Controllers
 
                 if (datos.estatusId == 12 && (c.EstatusId == 27 || c.EstatusId == 10))
                 {
-                    db.Entry(c).State = System.Data.Entity.EntityState.Modified;
+                    db.Entry(c).Property(x => x.EstatusId).IsModified = true;
+                    db.Entry(c).Property(x => x.HorarioId).IsModified = true;
+                    db.Entry(c).Property(x => x.Fch_Modificacion).IsModified = true;
+                    db.Entry(c).Property(x => x.ReclutadorId).IsModified = true;
+
                     c.EstatusId = datos.estatusId;
                     c.HorarioId = datos.horarioId;
                     c.Fch_Modificacion = DateTime.Now;
@@ -214,7 +218,11 @@ namespace SAGA.API.Controllers
                 }
                 else if(datos.estatusId != 12)
                 {
-                    db.Entry(c).State = System.Data.Entity.EntityState.Modified;
+                    db.Entry(c).Property(x => x.EstatusId).IsModified = true;
+                    db.Entry(c).Property(x => x.HorarioId).IsModified = true;
+                    db.Entry(c).Property(x => x.Fch_Modificacion).IsModified = true;
+                    db.Entry(c).Property(x => x.ReclutadorId).IsModified = true;
+
                     c.EstatusId = datos.estatusId;
                     c.HorarioId = datos.horarioId;
                     c.Fch_Modificacion = DateTime.Now;
