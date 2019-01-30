@@ -27,6 +27,7 @@ namespace SAGA.API.Controllers.Component
             {
                 var alert = _db.AlertasStm
                     .Where(x => x.EntidadId.Equals(Id))
+                    .Where(x => x.Activo.Equals(true))
                     .Select(x => new {
                         x.Id,
                         x.Icon,
@@ -36,6 +37,31 @@ namespace SAGA.API.Controllers.Component
                     })
                     .ToList().OrderByDescending(x => x.Creacion).Take(10);
                 return Ok(alert);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpGet]
+        [Route("getAllAlert")]
+        public IHttpActionResult GetAllAlert(Guid Id)
+        {
+            try
+            {
+                var alertAll = _db.AlertasStm
+                    .Where(x => x.EntidadId.Equals(Id))
+                    .Select(x => new {
+                        x.Id,
+                        x.Icon,
+                        x.Alert,
+                        x.Activo,
+                        x.Creacion
+                    })
+                    .ToList().OrderByDescending(x => x.Creacion);
+                return Ok(alertAll);
             }
             catch(Exception ex)
             {

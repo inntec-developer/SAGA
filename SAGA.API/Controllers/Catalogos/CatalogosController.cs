@@ -289,8 +289,23 @@ namespace SAGA.API.Controllers
             return Ok(municipio);
         }
 
-
-
+        [HttpGet]
+        [Route("getInfoCP")]
+        public IHttpActionResult GetInfoCP(string CP)
+        {
+            var info = db.Colonias
+                .Where(x => x.CP.Equals(CP))
+                .Select(x => new
+                {
+                    x.Id,
+                    x.colonia,
+                    x.CP,
+                    x.PaisId,
+                    x.EstadoId,
+                    x.MunicipioId,
+                }).ToList().OrderBy(x => x.colonia);
+            return Ok(info);
+        }
         #endregion
     }
 }
