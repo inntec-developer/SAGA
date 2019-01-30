@@ -130,7 +130,34 @@ namespace SAGA.API.Controllers
 
             return Ok(candidatos);
         }
-       
+        [HttpGet]
+        [Route("getClavesCandidatos")]
+        public IHttpActionResult GetClavesCandidatos()
+        {
+            var candidatos = db.PsicometriaCandidato.Select(c => c.CandidatoId).Distinct().ToList();
+
+            var resultado = db.Candidatos.Where(x => candidatos.Contains(x.Id)).Select(C => new
+            {
+                candidatoId = C.Id,
+                nombre = C.Nombre.ToString() + " " + C.ApellidoPaterno.ToString() + " " + C.ApellidoMaterno.ToString(),
+                claves = db.PsicometriaCandidato.Where(x => x.CandidatoId.Equals(C.Id)).Select(CC => new
+                {
+                    requisicionId = CC.RequisicionId,
+                    folio = CC.Requisicion.Folio,
+                    vBtra = CC.Requisicion.VBtra,
+                    requiClaveId = CC.RequiClaveId,
+                    clave = CC.RequiClave.Clave,
+                    psicometricos = db.PsicometriasDamsaRequis.Where(x => x.RequisicionId.Equals(CC.RequisicionId)).Select(P => new { nombre = P.Psicometria.tipoPsicometria }).ToList(),
+                    resultado = CC.Resultado.ToUpper(),
+                    fecha = CC.fch_Creacion
+                }).ToList()
+
+            }).ToList();
+            
+
+            return Ok(resultado);
+        }
+
 
     }
 

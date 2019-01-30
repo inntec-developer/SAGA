@@ -92,7 +92,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("insertRelacion")]
-        public IHttpActionResult InsertRelacion(List<RequiExamenDto> relacion)
+        public IHttpActionResult InsertRelacion(List<RequiExamen> relacion)
         {
             try
             {
@@ -164,6 +164,7 @@ namespace SAGA.API.Controllers
             {
                 var examenes = db.Preguntas.Where(x => x.ExamenId.Equals(examenId) && x.Activo.Equals(1)).Select(E => new
                 {
+                    nombre = E.Examen.Nombre,
                     preguntaId = E.Id,
                     pregunta = E.Pregunta,
                     respuestas = db.Respuestas.Where(x => x.PreguntaId.Equals(E.Id)).Select(R => new
@@ -317,12 +318,12 @@ namespace SAGA.API.Controllers
             }
         }
 
-      
+
         [HttpGet]
         [Route("getExamenCandidato")]
         public IHttpActionResult GetExamenCandidato(Guid candidatoId)
         {
-            var resultados = db.ExamenCandidato.Where(x => x.CandidatoId.Equals(candidatoId)).Select(R => new
+            var tecnicos = db.ExamenCandidato.Where(x => x.CandidatoId.Equals(candidatoId)).Select(R => new
             {
                 requisicionId = R.Id,
                 folio = R.Requisicion.Folio,
@@ -332,7 +333,20 @@ namespace SAGA.API.Controllers
                 examen = R.Examen.Nombre,
                 resultado = R.Resultado
             }).ToList();
-            return Ok(resultados);
+
+            var psicometricos = db.PsicometriaCandidato.Where(x => x.CandidatoId.Equals(candidatoId)).Select(P => new
+            {
+                requisicionId = P.RequisicionId,
+                folio = P.Requisicion.Folio,
+                vBtra = P.Requisicion.VBtra,
+                clave = P.RequiClave.Clave,
+                resultado = P.Resultado
+
+            }).ToList();
+
+            var resultado = new List<object> { tecnicos.ToList(), psicometricos.ToList() };
+          
+            return Ok(resultado);
         }
         [HttpGet]
         [Route("getRespCandidatos")]
@@ -344,7 +358,8 @@ namespace SAGA.API.Controllers
                 ExamenId = E.ExamenId,
                 Tipo = E.Examen.TipoExamen.Nombre,
                 Nombre = E.Examen.Nombre,
-                Resultado = db.Preguntas.Where(x => x.ExamenId.Equals(E.ExamenId)).Select(R => new
+                Resultado = E.Resultado,
+                Respuestas = db.Preguntas.Where(x => x.ExamenId.Equals(E.ExamenId)).Select(R => new
                 {
                     pregunta = R.Pregunta,
 

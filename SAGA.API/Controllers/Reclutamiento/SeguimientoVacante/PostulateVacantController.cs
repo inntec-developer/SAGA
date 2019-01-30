@@ -476,7 +476,7 @@ namespace SAGA.API.Controllers
             
                 conn.Close();
 
-                usuario = "bmorales@damsa.com.mx";
+                //usuario = "bmorales@damsa.com.mx";
 
                 if (usuario != "")
                 {
@@ -508,11 +508,11 @@ namespace SAGA.API.Controllers
                             SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
                             smtp.EnableSsl = true;
                             smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-                            // smtp.Send(m);
+                            smtp.Send(m);
 
-                            var msj = new SqlParameter("@msj", body);
-                            var email = new SqlParameter("@email", usuario);
-                            var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", msj, email);
+                            //var msj = new SqlParameter("@msj", body);
+                            //var email = new SqlParameter("@email", usuario);
+                            //var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", msj, email);
 
                         }
                         else
@@ -543,11 +543,11 @@ namespace SAGA.API.Controllers
                             SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
                             smtp.EnableSsl = true;
                             smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-                            //smtp.Send(m);
+                            smtp.Send(m);
 
-                            var msj = new SqlParameter("@msj", body);
-                            var email = new SqlParameter("@email", usuario);
-                            var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", "body", "usuario");
+                            //var msj = new SqlParameter("@msj", body);
+                            //var email = new SqlParameter("@email", usuario);
+                            //var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", "body", "usuario");
                         }
                         else
                         {
@@ -578,11 +578,11 @@ namespace SAGA.API.Controllers
                             SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
                             smtp.EnableSsl = true;
                             smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-                            //smtp.Send(m);
+                            smtp.Send(m);
 
-                            var msj = new SqlParameter("@msj", body);
-                            var email = new SqlParameter("@email", usuario);
-                            var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", msj, email);
+                            //var msj = new SqlParameter("@msj", body);
+                            //var email = new SqlParameter("@email", usuario);
+                            //var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", msj, email);
                         }
                         else
                         {
@@ -608,10 +608,11 @@ namespace SAGA.API.Controllers
                             SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
                             smtp.EnableSsl = true;
                             smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-                            //smtp.Send(m);
-                            var msj = new SqlParameter("@msj", body);
-                            var email = new SqlParameter("@email", usuario);
-                            var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", "body", "usuario");
+                            smtp.Send(m);
+
+                            //var msj = new SqlParameter("@msj", body);
+                            //var email = new SqlParameter("@email", usuario);
+                            //var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", "body", "usuario");
                         }
                         else
                         {

@@ -81,7 +81,7 @@ namespace SAGA.API.Controllers
 
             roles.Distinct();
 
-            var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId) & x.Rol.Activo)
+            var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId) & x.Rol.Activo & x.Estructura.Activo)
                    .Select(P => new
                    {
                        RolId = P.RolId,
@@ -173,7 +173,7 @@ namespace SAGA.API.Controllers
 
             roles.Distinct();
 
-            var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId) && x.Rol.Activo)
+            var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId) && x.Rol.Activo && x.Estructura.Activo)
                    .Select(P => new
                    {
                        RolId = P.RolId,
