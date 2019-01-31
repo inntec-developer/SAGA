@@ -12,6 +12,8 @@ using AutoMapper;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Data.Entity;
+using System.Net.Mail;
+using System.Configuration;
 
 namespace SAGA.API.Controllers
 {
@@ -1133,6 +1135,74 @@ namespace SAGA.API.Controllers
                 }
             }
             return listaIds;
+        }
+
+        [HttpGet]
+        [Route("execProcedurePause")]
+        public IHttpActionResult ExecProcedurePause()
+        {
+            int[] estatus = { 8, 9, 34, 35, 36, 37 };
+            try
+            {
+                string from = "noreply@damsa.com.mx";
+                MailMessage m = new MailMessage();
+                m.From = new MailAddress(from, "SAGA INN");
+                m.Subject = "Vacantes en Pausa";
+
+                var datos = db.Requisiciones.Where(x => !estatus.Contains(x.EstatusId) && x.fch_Modificacion != null).Select( R => new {
+                    requisicionId = R.Id,
+                    folio = R.Folio, 
+                    vBtra = R.VBtra, 
+                    cliente = R.Cliente.Nombrecomercial,
+                    fch_Aprobacion = R.fch_Aprobacion,
+                    fch_Modificacion = R.fch_Modificacion,
+                    estatus = R.Estatus.Descripcion,
+                    vacantes = R.horariosRequi.Count() > 0 ? R.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                    solicita = db.Usuarios.Where(x => x.Id.Equals(R.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                    aprobador = db.Usuarios.Where(x => x.Id.Equals(R.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                    aprobadorId = R.AprobadorId,
+                    email = db.Emails.Where(x => x.EntidadId.Equals(R.AprobadorId)).Select(e => e.email).FirstOrDefault(),
+                    dias = R.fch_Modificacion.Value.Day
+                }).ToList();
+
+                var requis = datos.Where(x => DateTime.Now.Day - x.dias >= 3).ToList();
+                var aprobadores = requis.Select(x => x.aprobadorId).Distinct().ToList();
+
+                var inicio  = "<html><head><style>td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:9pt;color:Black;} " +
+                             "</style></head><body><table><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>CLIENTE</th><th align=center>RECLUTADOR</th><th align=center>SOLICITA</th><th align=center>No POSICIONES</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th></tr>";
+
+                foreach (var a in aprobadores)
+                {
+                    foreach (var r in requis.Where(x => x.aprobadorId.Equals(a)))
+                    {
+                        m.To.Add("idelatorre@damsa.com.mx");
+
+                        var body = inicio + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
+                                                   "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td></tr>",
+                                                   r.dias, r.folio, r.vBtra, r.fch_Aprobacion, r.cliente, r.solicita, r.aprobador, r.vacantes, r.estatus, r.fch_Modificacion) + "</table></body></html><br/><p>El correo deberia de llegar a " + r.email + "</p>";
+
+                        
+                        m.Body = body;
+                        m.IsBodyHtml = true;
+                        SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                        smtp.Send(m);
+
+                        body = "";
+
+                    }
+                }
+
+                return Ok(HttpStatusCode.OK);
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+
+            }
+
         }
     }
 }
