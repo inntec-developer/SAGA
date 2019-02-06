@@ -342,7 +342,9 @@ namespace SAGA.API.Controllers
                 usuario.Foto = listJson.Foto;
 
                 db.Usuarios.Add(usuario);
+                SendEmaiNewRegistro(listJson);
                 db.SaveChanges();
+                
 
                 return Ok(HttpStatusCode.Created);
             }
@@ -351,6 +353,19 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
 
+        }
+
+        public void SendEmaiNewRegistro(PersonasDtos Dtos)
+        {
+            try
+            {
+                SendEmails obj = new SendEmails();
+                obj.SendEmaiNewRegistro(Dtos);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+            }
         }
 
         [HttpPost]

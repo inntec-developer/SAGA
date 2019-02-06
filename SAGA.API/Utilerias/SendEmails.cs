@@ -222,55 +222,116 @@ namespace SAGA.API.Utilerias
 
         public void SendEmailRegistro(PersonasDtos dtos)
         {
-            string body = "";
-            string email = dtos.Email.Select(x => x.email).FirstOrDefault().ToString();
-
-            var aux = db.Usuarios.Where(x => x.Id.Equals(dtos.EntidadId)).Select(f => new
+            try
             {
-                fecha = f.fch_Creacion,
-                pass = f.Password
+                string body = "";
+                string email = dtos.Email.Select(x => x.email).FirstOrDefault().ToString();
+                string webERP = ConfigurationManager.AppSettings["WEBERP"].ToString();
 
-            }).FirstOrDefault();
+                var aux = db.Usuarios.Where(x => x.Id.Equals(dtos.EntidadId)).Select(f => new
+                {
+                    fecha = f.fch_Creacion,
+                    pass = f.Password
 
-            var emails = db.Usuarios.Where(x => x.TipoUsuarioId.Equals(1)).Select(e => new
-            {
-                email = db.Emails.Where(x => x.EntidadId.Equals(e.Id)).Select(em => em.email).FirstOrDefault()
+                }).FirstOrDefault();
 
-            }).ToList();
+                var emails = db.Usuarios.Where(x => x.TipoUsuarioId.Equals(1) && x.Activo.Equals(true)).Select(e => new
+                {
+                    email = db.Emails.Where(x => x.EntidadId.Equals(e.Id)).Select(em => em.email).FirstOrDefault()
 
-            string from = "noreply@damsa.com.mx";
-            MailMessage m = new MailMessage();
-            m.From = new MailAddress(from, "SAGA Inn");
-            m.To.Add(email);
-            foreach (var e in emails)
-            {
-                m.Bcc.Add(e.email.ToString());
+                }).ToList();
+
+                string from = "noreply@damsa.com.mx";
+                MailMessage m = new MailMessage();
+                m.From = new MailAddress(from, "SAGA Inn");
+                m.To.Add(email);
+                foreach (var e in emails)
+                {
+                    m.Bcc.Add(e.email.ToString());
+                }
+
+                m.Subject = "Tu acceso al sistema SAGA ERP de DAMSA está listo!";
+                body = "<html><body><table width=\"80%\" style=\"font-family:'calibri'\">";
+                body = body + "<tr><th bgcolor=\"#044464\" style=\"color:white; text-align:left;\">Se creó una nueva cuenta para SAGA ERP </th></ tr>";
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Clave / Usuario de Empleado :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} / {1} </td></tr>", dtos.Clave, dtos.Usuario);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Nombre :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} {1} {2} </td></tr>", dtos.nombre, dtos.apellidoPaterno, dtos.apellidoMaterno);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Correo :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", email);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Contraseña :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", aux.pass);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Registrado :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#FDC613\"><td>{0}<br/>", aux.fecha);
+                body = body + string.Format("<p> Podrás acceder mediante la siguiente dirección: {0} <br/>", webERP);
+                body = body + "Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx </p></td></tr></table></body></html>";
+
+                m.Body = body;
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                smtp.EnableSsl = true;
+                smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                smtp.Send(m);
             }
-
-            m.Subject = "Tu acceso al sistema SAGA ERP de DAMSA está listo!";
-            body = "<html><body><table width=\"80%\" style=\"font-family:'calibri'\">";
-            body = body + "<tr><th bgcolor=\"#044464\" style=\"color:white; text-align:left;\">Se creó una nueva cuenta para SAGA ERP </th></ tr>";
-            body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Clave / Usuario de Empleado :</font></td></tr>";
-            body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} / {1} </td></tr>", dtos.Clave, dtos.Usuario);
-            body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Nombre :</font></td></tr>";
-            body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} {1} {2} </td></tr>", dtos.nombre, dtos.apellidoPaterno, dtos.apellidoMaterno);
-            body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Correo :</font></td></tr>";
-            body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", email);
-            body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Contraseña :</font></td></tr>";
-            body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", aux.pass);
-            body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Registrado :</font></td></tr>";
-            body = body + string.Format("<tr bgcolor=\"#FDC613\"><td>{0}<br/>", aux.fecha);
-            body = body + "<p> Podrás acceder mediante la siguiente dirección: https://www.damsa.com.mx/bt <br/>";
-            body = body + "Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx </p></td></tr></table></body></html>";
-
-            m.Body = body;
-            m.IsBodyHtml = true;
-            SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
-            smtp.EnableSsl = true;
-            smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-            smtp.Send(m);
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+            }
         }
 
+        public void SendEmaiNewRegistro(PersonasDtos dtos)
+        {
+            try
+            {
+                string body = "";
+                string email = dtos.Email.Select(x => x.email).FirstOrDefault().ToString();
+                string webERP = ConfigurationManager.AppSettings["WEBERP"].ToString();
+                DateTime fechaCreacion = DateTime.Now;
 
+                
+
+                var emails = db.Usuarios.Where(x => x.TipoUsuarioId.Equals(1) && x.Activo.Equals(true)).Select(e => new
+                {
+                    email = db.Emails.Where(x => x.EntidadId.Equals(e.Id)).Select(em => em.email).FirstOrDefault()
+
+                }).ToList();
+
+                string from = "noreply@damsa.com.mx";
+                MailMessage m = new MailMessage();
+                m.From = new MailAddress(from, "SAGA Inn");
+                m.To.Add(email);
+                foreach (var e in emails)
+                {
+                    m.Bcc.Add(e.email.ToString());
+                }
+
+                m.Subject = "Tu acceso al sistema SAGA ERP de DAMSA está listo!";
+                body = "<html><body><table width=\"80%\" style=\"font-family:'calibri'\">";
+                body = body + "<tr><th bgcolor=\"#044464\" style=\"color:white; text-align:left;\">Se creó una nueva cuenta para SAGA ERP </th></ tr>";
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Clave / Usuario de Empleado :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} / {1} </td></tr>", dtos.Clave, dtos.Usuario);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Nombre :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} {1} {2} </td></tr>", dtos.nombre, dtos.apellidoPaterno, dtos.apellidoMaterno);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Correo :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", email);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Contraseña :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", dtos.Password);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Registrado :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#FDC613\"><td>{0}<br/>",fechaCreacion);
+                body = body + string.Format("<p> Podrás acceder mediante la siguiente dirección: {0} <br/>", webERP);
+                body = body + "Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx </p></td></tr></table></body></html>";
+
+                m.Body = body;
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                smtp.EnableSsl = true;
+                smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                smtp.Send(m);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+            }
+        }
     }
 }
