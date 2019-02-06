@@ -15,11 +15,7 @@ namespace SAGA.DAL
             this.Configuration.ProxyCreationEnabled = true;
         }
 
-        public DbSet<Usuarios> Usuarios { get; set; }
-        public DbSet<Roles> Roles { get; set; }
-        public DbSet<Grupos> Grupos { get; set; }
-        public DbSet<Estatus> Estatus { get; set; }
-        public DbSet<Prioridad> Prioridades { get; set; }
+       
 
         #region Btra
         public DbSet<AboutMe> AcercaDeMi { get; set; }
@@ -150,7 +146,15 @@ namespace SAGA.DAL
         public DbSet<AlertasStm> AlertasStm { get; set; }
         public DbSet<TipoAlerta> TiposAlertas { get; set; }
 
- 
+
+        ///modulo admin 
+        public DbSet<Usuarios> Usuarios { get; set; }
+        public DbSet<Roles> Roles { get; set; }
+        public DbSet<Grupos> Grupos { get; set; }
+        public DbSet<Estatus> Estatus { get; set; }
+        public DbSet<Prioridad> Prioridades { get; set; }
+        public DbSet<Subordinados> Subordinados { get; set; }
+
         /// modulo para examenes
         public DbSet<Examenes> Examenes { get; set; }
         public DbSet<TipoExamen> TipoExamen { get; set; }
@@ -277,6 +281,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TipoActividadReclutadorMap().ToTable("TipoActividadReclutador"));
             modelBuilder.Configurations.Add(new AlertasStmMap().ToTable("AlertasStm"));
             modelBuilder.Configurations.Add(new TipoAlertaMap().ToTable("TiposAlertas"));
+            modelBuilder.Configurations.Add(new SubordinadosMap().ToTable("Subordinados"));
 
             //Modulo para examenes
             modelBuilder.Configurations.Add(new ExamenesMap().ToTable("Examenes"));
@@ -590,6 +595,18 @@ namespace SAGA.DAL
                 Property(x => x.TipoGrupoId).IsOptional();
             }
         }
+
+        public class SubordinadosMap : EntityTypeConfiguration<Subordinados>
+        {
+            public SubordinadosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.LiderId).IsRequired();
+                Property(x => x.UsuarioId).IsRequired();
+            }
+        }
+
         public class JornadaLaboralMap : EntityTypeConfiguration<JornadaLaboral>
         {
             public JornadaLaboralMap()
