@@ -159,7 +159,6 @@ namespace SAGA.API.Controllers
         [Route("getExamen")]
         public IHttpActionResult GetExamen(int examenId)
         {
-            Random rnd = new Random();
             try
             {
                 var examenes = db.Preguntas.Where(x => x.ExamenId.Equals(examenId) && x.Activo.Equals(1)).Select(E => new

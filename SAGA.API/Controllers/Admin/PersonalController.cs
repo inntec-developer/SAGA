@@ -68,7 +68,8 @@ namespace SAGA.API.Controllers
                     Id = g.GrupoId,
                     Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre)
                 }),
-              
+                liderId = db.Subordinados.Where(x => x.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault(),
+                nombreLider = String.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(db.Subordinados.Where(xx => xx.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault())).Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(db.Subordinados.Where(xx => xx.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault())).Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault(),
                 activo = u.Activo
 
             }).OrderBy(o => o.nombre).ToList();
@@ -318,6 +319,28 @@ namespace SAGA.API.Controllers
 
         }
 
+        [HttpGet]
+        [Route("getLideres")]
+        public IHttpActionResult GetLideres()
+        {
+            List<int> idsLider = new List<int>() { 3, 4, 5 };
+            try
+            {
+                var lideres = db.Usuarios.Where(x => x.Activo && idsLider.Contains(x.TipoUsuarioId)).Select(L => new
+                {
+                    liderId = L.Id,
+                    nombreLider = L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno
+                }).OrderBy(o => o.nombreLider).ToList();
+
+                return Ok(lideres);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+        }
+
 
         [HttpPost]
         [Route("addUsuario")]
@@ -414,6 +437,8 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                Subordinados sub = new Subordinados();
+
                 var usuario = db.Usuarios.Find(listJson.EntidadId);
                 if(usuario.Usuario != listJson.Usuario)
                 {
@@ -436,6 +461,32 @@ namespace SAGA.API.Controllers
                 usuario.TipoUsuarioId = listJson.TipoUsuarioId;
                 usuario.Foto = listJson.Foto;
                 db.SaveChanges();
+
+                if(!db.Subordinados.Any(x => x.UsuarioId.Equals(listJson.EntidadId)))
+                {
+                    sub.LiderId = listJson.liderId;
+                    sub.UsuarioId = listJson.EntidadId;
+
+                    db.Subordinados.Add(sub);
+                    db.SaveChanges();
+
+                    sub = null;
+                }
+                else
+                {
+                    var id = db.Subordinados.Where(x => x.UsuarioId.Equals(listJson.EntidadId)).Select(U => U.Id).FirstOrDefault();
+
+                    var lider = db.Subordinados.Find(id);
+
+                    db.Entry(lider).State = EntityState.Modified;
+
+                    lider.LiderId = listJson.liderId;
+                    lider.UsuarioId = listJson.EntidadId;
+
+                    db.SaveChanges();
+                }
+                
+
 
                 return Ok(HttpStatusCode.Created);
             }

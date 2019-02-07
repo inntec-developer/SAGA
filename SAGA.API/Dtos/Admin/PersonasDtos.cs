@@ -30,6 +30,7 @@ namespace SAGA.API.Dtos
         public String FotoAux { get; set; }
         public string Descripcion { get; set; }
         public ICollection<Grupos> Grupos { get; set; }
+        public Guid liderId { get; set; }
 
     }
 }
