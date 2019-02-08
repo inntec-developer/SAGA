@@ -373,8 +373,8 @@ namespace SAGA.API.Controllers
                 {
                     pregunta = R.Pregunta,
                     tipop = R.Tipo,
-                    respuesta = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id)).Select(res => res.Pregunta.Tipo == 1 ? res.Value : res.Respuesta.Respuesta).FirstOrDefault(),
-                    value = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id)).Select(res => res.Value).FirstOrDefault(),
+                    respuesta = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id) && x.CandidatoId.Equals(CandidatoId)).Select(res => res.Pregunta.Tipo == 1 ? res.Value : res.Respuesta.Respuesta).FirstOrDefault(),
+                    value = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id) && x.CandidatoId.Equals(CandidatoId)).Select(res => res.Value).FirstOrDefault(),
                     respCorrecta = db.Respuestas.Where(x => x.PreguntaId.Equals(R.Id) && x.Validacion.Equals(1)).Select(rc => rc.Respuesta)
 
                     //{

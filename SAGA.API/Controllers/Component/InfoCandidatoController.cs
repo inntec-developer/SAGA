@@ -210,7 +210,7 @@ namespace SAGA.API.Controllers.Component
             {
                 var horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(proceso.RequisicionId)).Select(h => h.Id).FirstOrDefault();
                 var candidato = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(proceso.CandidatoId) && x.RequisicionId.Equals(proceso.RequisicionId)).FirstOrDefault();
-
+                var estatus = 12;
                 if (candidato == null)
                 {
                     proceso.HorarioId = horario;
@@ -221,14 +221,18 @@ namespace SAGA.API.Controllers.Component
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);
                 }
-                else if (candidato.EstatusId == 27)
+                else if (candidato.EstatusId == 27 || candidato.EstatusId == 40)
                 {
+                    if(candidato.EstatusId == 40)
+                    {
+                        estatus = db.InformeRequisiciones.OrderByDescending(f => f.fch_Modificacion).Where(x => x.CandidatoId.Equals(proceso.CandidatoId) && !x.EstatusId.Equals(40)).Select(e => e.EstatusId).FirstOrDefault();
+                    }
                     db.Entry(candidato).State = EntityState.Modified;
                     candidato.Reclutador = proceso.Reclutador;
                     candidato.ReclutadorId = proceso.ReclutadorId;
                     candidato.RequisicionId = proceso.RequisicionId;
                     candidato.Folio = proceso.Folio;
-                    candidato.EstatusId = 12;
+                    candidato.EstatusId = estatus;
                     candidato.Fch_Modificacion = DateTime.Now;
                     candidato.HorarioId = horario;
 
