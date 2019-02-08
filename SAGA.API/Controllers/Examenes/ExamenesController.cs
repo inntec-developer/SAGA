@@ -72,6 +72,17 @@ namespace SAGA.API.Controllers
                                 R = new Respuestas();
                             }
                         }
+                        else if(obj.Tipo == 1)
+                        {
+                            R.PreguntaId = idP;
+                            R.Respuesta = "Es pregunta abierta";
+                            R.Validacion = 0;
+
+                            db.Respuestas.Add(R);
+                            db.SaveChanges();
+
+                            R = new Respuestas();
+                        }
 
                         P = new Preguntas();
                     }
@@ -361,8 +372,8 @@ namespace SAGA.API.Controllers
                 Respuestas = db.Preguntas.Where(x => x.ExamenId.Equals(E.ExamenId)).Select(R => new
                 {
                     pregunta = R.Pregunta,
-
-                    respuesta = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id)).Select(res => res.Respuesta.Respuesta).FirstOrDefault(),
+                    tipop = R.Tipo,
+                    respuesta = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id)).Select(res => res.Pregunta.Tipo == 1 ? res.Value : res.Respuesta.Respuesta).FirstOrDefault(),
                     value = db.resultadocandidato.Where(x => x.PreguntaId.Equals(R.Id)).Select(res => res.Value).FirstOrDefault(),
                     respCorrecta = db.Respuestas.Where(x => x.PreguntaId.Equals(R.Id) && x.Validacion.Equals(1)).Select(rc => rc.Respuesta)
 
@@ -378,7 +389,7 @@ namespace SAGA.API.Controllers
                     //}).ToList()
                 }).ToList()
 
-            });
+            }).ToList();
             return Ok(resultado);
         }
     }

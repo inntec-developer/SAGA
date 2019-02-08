@@ -462,7 +462,7 @@ namespace SAGA.API.Controllers
                 usuario.Foto = listJson.Foto;
                 db.SaveChanges();
 
-                if(!db.Subordinados.Any(x => x.UsuarioId.Equals(listJson.EntidadId)))
+                if(db.Subordinados.Count(x => x.UsuarioId.Equals(listJson.EntidadId)) == 0 && !listJson.liderId.Equals(Guid.Empty))
                 {
                     sub.LiderId = listJson.liderId;
                     sub.UsuarioId = listJson.EntidadId;
@@ -472,7 +472,7 @@ namespace SAGA.API.Controllers
 
                     sub = null;
                 }
-                else
+                else if(!listJson.liderId.Equals(Guid.Empty))
                 {
                     var id = db.Subordinados.Where(x => x.UsuarioId.Equals(listJson.EntidadId)).Select(U => U.Id).FirstOrDefault();
 
