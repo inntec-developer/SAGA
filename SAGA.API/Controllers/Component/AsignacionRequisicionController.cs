@@ -28,7 +28,9 @@ namespace SAGA.API.Controllers.Component
             var entidad = db.RolEntidades.Where(x => rol.Contains(x.RolId)).Select(x => x.EntidadId).ToList();
 
             var asignacion = db.Grupos.OrderBy(x => x.Nombre)
-                .Where(g => g.Activo.Equals(true) && g.TipoGrupoId <= 5 && g.TipoGrupoId > 0 && entidad.Contains(g.Id))
+                .Where(g => g.Activo.Equals(true) && entidad.Contains(g.Id))
+                .Where(g => g.TipoGrupoId <= 5)
+                .Where(g => g.TipoGrupoId > 0)
                 .Select(g => new
                 {
                     id = g.Id,
@@ -38,10 +40,10 @@ namespace SAGA.API.Controllers.Component
                                             .Where(x => x.GrupoId.Equals(g.Id))
                                             .Where(x => x.Entidad.TipoEntidadId.Equals(1))
                                             .Select(x => x.EntidadId)
-                                            .ToList()).Contains(u.Id) 
-                                                && u.Activo.Equals(true)
-                                                && u.TipoUsuarioId <= 5 && u.TipoUsuarioId > 0
-                                            )
+                                            .ToList()).Contains(u.Id) )
+                                .Where(u =>  u.Activo.Equals(true))
+                                .Where(u => u.TipoUsuarioId <= 5)
+                                .Where(u => u.TipoUsuarioId > 2)
                                 .Select(u => new UsuariosDto
                                 {
                                     Id = u.Id,
@@ -97,10 +99,10 @@ namespace SAGA.API.Controllers.Component
                                            .Where(x => x.GrupoId.Equals(g.Id))
                                            .Where(x => x.Entidad.TipoEntidadId.Equals(1))
                                            .Select(x => x.EntidadId)
-                                           .ToList()).Contains(u.Id)
-                                               && u.Activo.Equals(true)
-                                               && u.TipoUsuarioId <= 6 && u.TipoUsuarioId > 0
-                                           )
+                                           .ToList()).Contains(u.Id))
+                                           .Where(u => u.Activo.Equals(true))
+                                .Where(u => u.TipoUsuarioId <= 6)
+                                .Where(u => u.TipoUsuarioId > 3)
                                .Select(u => new UsuariosDto
                                {
                                    Id = u.Id,
