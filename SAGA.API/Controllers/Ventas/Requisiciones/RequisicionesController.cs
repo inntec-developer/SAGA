@@ -159,66 +159,144 @@ namespace SAGA.API.Controllers
         [Route("getRequisiciones")]
         public IHttpActionResult GetRequisiciones(Guid propietario)
         {
-
-      
             List<Guid> uids = new List<Guid>();
-
-            if (db.Subordinados.Any(x => x.LiderId.Equals(propietario)))
+            try
             {
-                uids = db.Subordinados.Where(x => x.LiderId.Equals(propietario)).Select(u => u.UsuarioId).ToList();
-            }
-
-            uids.Add(propietario);
-
-            var requisicion = db.Requisiciones
-                .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId))
-                .Select(e => new
+                 var tipo = db.Usuarios.Where(x => x.Id.Equals(propietario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
+                if (tipo == 8)
                 {
-                    Id = e.Id,
-                    VBtra = e.VBtra,
-                    TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
-                    tipoReclutamientoId = e.TipoReclutamientoId,
-                    ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
-                    ClaseReclutamientoId = e.ClaseReclutamientoId,
-                    SueldoMinimo = e.SueldoMinimo,
-                    SueldoMaximo = e.SueldoMaximo,
-                    fch_Creacion = e.fch_Creacion,
-                    fch_Cumplimiento = e.fch_Cumplimiento,
-                    Estatus = e.Estatus.Descripcion,
-                    EstatusId = e.EstatusId,
-                    Prioridad = e.Prioridad.Descripcion,
-                    PrioridadId = e.PrioridadId,
-                    Cliente = e.Cliente.Nombrecomercial,
-                    GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
-                    ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
-                    Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-                    Folio = e.Folio,
-                    DiasEnvio = e.DiasEnvio,
-                    Confidencial = e.Confidencial,
-                    Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Count(),
-                    PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Select(p => new
+                    var requisicion = db.Requisiciones
+                   .Where(e => e.Activo.Equals(true))
+                   .Select(e => new
+                   {
+                       Id = e.Id,
+                       VBtra = e.VBtra,
+                       TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                       tipoReclutamientoId = e.TipoReclutamientoId,
+                       ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
+                       ClaseReclutamientoId = e.ClaseReclutamientoId,
+                       SueldoMinimo = e.SueldoMinimo,
+                       SueldoMaximo = e.SueldoMaximo,
+                       fch_Creacion = e.fch_Creacion,
+                       fch_Modificacion = e.fch_Modificacion,
+                       fch_Cumplimiento = e.fch_Cumplimiento,
+                       Estatus = e.Estatus.Descripcion,
+                       EstatusId = e.EstatusId,
+                       Prioridad = e.Prioridad.Descripcion,
+                       PrioridadId = e.PrioridadId,
+                       Cliente = e.Cliente.Nombrecomercial,
+                       GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
+                       ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
+                       Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                       Folio = e.Folio,
+                       DiasEnvio = e.DiasEnvio,
+                       Confidencial = e.Confidencial,
+                       Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Count(),
+                       PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Select(p => new
+                       {
+                           p.CandidatoId,
+                           p.Candidato.Nombre,
+                           p.Candidato.ApellidoPaterno,
+                           p.Candidato.ApellidoMaterno,
+                           p.Candidato.CURP,
+                           email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
+                           p.StatusId,
+                           //estatusId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.CandidatoId.Equals(p.CandidatoId) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
+                       }),
+                       EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
+                       EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Select(d => new
+                       {
+                           candidatoId = d.CandidatoId,
+                           nombre = db.Candidatos.Where(x => x.Id.Equals(d.CandidatoId)).Select(cc => cc.Nombre + " " + cc.ApellidoPaterno + " " + cc.ApellidoMaterno).FirstOrDefault(),
+                           email = db.Emails.Where(x => x.EntidadId.Equals(d.CandidatoId)).Select(m => m.email).FirstOrDefault(),
+                           estatusId = d.EstatusId
+                       }),
+                       Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
+                       Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
+                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a => new
+                       {
+                           reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Clave + " " + r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
+                       }).Distinct().ToList(),
+                       ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
+
+                   }).OrderByDescending(x => x.Folio).ToList();
+
+                    return Ok(requisicion);
+
+                }
+                else
+                {
+                    if (db.Subordinados.Count(x => x.LiderId.Equals(propietario)) > 0)
                     {
-                        p.CandidatoId,
-                        p.Candidato.Nombre,
-                        p.Candidato.ApellidoPaterno,
-                        p.Candidato.ApellidoMaterno,
-                        p.Candidato.CURP,
-                        email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
-                        p.StatusId,
-                        //estatusId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.CandidatoId.Equals(p.CandidatoId) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
-                    }),
-                    EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
-                    EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Select(d => new
-                    {
-                        candidatoId = d.CandidatoId,
-                        nombre = db.Candidatos.Where(x => x.Id.Equals(d.CandidatoId)).Select(cc => cc.Nombre + " " + cc.ApellidoPaterno + " " + cc.ApellidoMaterno).FirstOrDefault(),
-                        email = db.Emails.Where(x => x.EntidadId.Equals(d.CandidatoId)).Select(m => m.email).FirstOrDefault(),
-                        estatusId = d.EstatusId
-                    }),
-                    Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
-                    Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault()
-                }).OrderByDescending(x => x.Folio).ToList();
-            return Ok(requisicion);
+                        uids = db.Subordinados.Where(x => x.LiderId.Equals(propietario)).Select(u => u.UsuarioId).ToList();
+                    }
+
+                    uids.Add(propietario);
+
+                    var requisicion = db.Requisiciones
+                        .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId))
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            VBtra = e.VBtra,
+                            TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                            tipoReclutamientoId = e.TipoReclutamientoId,
+                            ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
+                            ClaseReclutamientoId = e.ClaseReclutamientoId,
+                            SueldoMinimo = e.SueldoMinimo,
+                            SueldoMaximo = e.SueldoMaximo,
+                            fch_Creacion = e.fch_Creacion,
+                            fch_Modificacion = e.fch_Modificacion,
+                            fch_Cumplimiento = e.fch_Cumplimiento,
+                            Estatus = e.Estatus.Descripcion,
+                            EstatusId = e.EstatusId,
+                            Prioridad = e.Prioridad.Descripcion,
+                            PrioridadId = e.PrioridadId,
+                            Cliente = e.Cliente.Nombrecomercial,
+                            GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
+                            ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
+                            Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                            Folio = e.Folio,
+                            DiasEnvio = e.DiasEnvio,
+                            Confidencial = e.Confidencial,
+                            Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Count(),
+                            PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Select(p => new
+                            {
+                                p.CandidatoId,
+                                p.Candidato.Nombre,
+                                p.Candidato.ApellidoPaterno,
+                                p.Candidato.ApellidoMaterno,
+                                p.Candidato.CURP,
+                                email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
+                                p.StatusId,
+                            //estatusId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.CandidatoId.Equals(p.CandidatoId) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
+                        }),
+                            EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
+                            EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Select(d => new
+                            {
+                                candidatoId = d.CandidatoId,
+                                nombre = db.Candidatos.Where(x => x.Id.Equals(d.CandidatoId)).Select(cc => cc.Nombre + " " + cc.ApellidoPaterno + " " + cc.ApellidoMaterno).FirstOrDefault(),
+                                email = db.Emails.Where(x => x.EntidadId.Equals(d.CandidatoId)).Select(m => m.email).FirstOrDefault(),
+                                estatusId = d.EstatusId
+                            }),
+                            Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
+                            Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
+                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a => new
+                             {
+                                 reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Clave + " " + r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
+                             }).Distinct().ToList(),
+                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
+                        }).OrderByDescending(x => x.Folio).ToList();
+
+                    return Ok(requisicion);
+                }
+
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+            
         }
 
         [HttpGet]
@@ -347,79 +425,6 @@ namespace SAGA.API.Controllers
 
         }
 
-        //[HttpGet]
-        //[Route("getRequisLider")]
-        //public IHttpActionResult GtRequisLider(Guid IdUsuario)
-        //{
-        //    try
-        //    {
-        //        List<Guid> grp = new List<Guid>();
-
-        //        var Grupos = db.GruposUsuarios
-        //            .Where(g => g.EntidadId.Equals(IdUsuario) & g.Grupo.Activo)
-        //                   .Select(g => g.GrupoId)
-        //                   .ToList();
-
-        //        grp = db.GruposUsuarios.Where(x => Grupos.Contains(x.GrupoId)).Select(uid => uid.EntidadId).ToList();
-
-        //        grp.Add(IdUsuario);
-
-        //        var asig = db.AsignacionRequis
-        //            .OrderByDescending(e => e.Id)
-        //            .Where(a => grp.Distinct().Contains(a.GrpUsrId))
-        //            .Select(a => a.RequisicionId)
-        //            .Distinct()
-        //            .ToList();
-
-        //        var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-        //            .Where(e => asig.Contains(e.Id))
-        //            .Where(e => e.Activo.Equals(true))
-        //            .Select(e => new
-        //            {
-        //                Id = e.Id,
-        //                VBtra = e.VBtra,
-        //                TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
-        //                tipoReclutamientoId = e.TipoReclutamientoId,
-        //                ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
-        //                ClaseReclutamientoId = e.ClaseReclutamientoId,
-        //                SueldoMinimo = e.SueldoMinimo,
-        //                SueldoMaximo = e.SueldoMaximo,
-        //                fch_Creacion = e.fch_Creacion,
-        //                fch_Modificacion = e.fch_Modificacion,
-        //                fch_Cumplimiento = e.fch_Cumplimiento,
-        //                Estatus = e.Estatus.Descripcion,
-        //                EstatusId = e.EstatusId,
-        //                Prioridad = e.Prioridad.Descripcion,
-        //                PrioridadId = e.PrioridadId,
-        //                Cliente = e.Cliente.Nombrecomercial,
-        //                ClienteId = e.Cliente.Id,
-        //                Sucursal = db.Direcciones.Where(x => x.Id.Equals(e.DireccionId)).Select(d => d.Calle + " " + d.NumeroExterior + " C.P: " + d.CodigoPostal + " Col: " + d.Colonia.colonia).FirstOrDefault(),
-        //                Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-        //                Folio = e.Folio,
-        //                DiasEnvio = e.DiasEnvio,
-        //                Confidencial = e.Confidencial,
-        //                //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
-        //                Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
-        //                Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Count(),
-        //                EnProceso = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
-        //                EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
-        //                EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
-        //                contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
-        //                Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
-        //                AreaExperiencia = e.Area.areaExperiencia,
-        //                Aprobador = e.Aprobador != null ? e.Aprobador : "",
-        //                ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
-        //            }).ToList();
-        //        return Ok(vacantes);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        string mensaje = ex.Message;
-        //        return Ok(HttpStatusCode.NotFound);
-        //    }
-
-        //}
         [HttpGet]
         [Route("getRequiEstadisticos")]
         public IHttpActionResult GetRequiEstadisticos(Guid IdUsuario)
