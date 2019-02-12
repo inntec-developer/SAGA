@@ -166,6 +166,8 @@ namespace SAGA.DAL
         public DbSet<RequiClaves> RequiClaves { get; set; }
         public DbSet<PsicometriaCandidato> PsicometriaCandidato { get; set; }
 
+        // Preguntas Frecuentes
+        public DbSet<PreguntasFrecuente> PreguntasFrecuentes { get; set; }
 
         #endregion
 
@@ -293,6 +295,9 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new ResultadosCandidatoMap().ToTable("ResultadosCandidato"));
             modelBuilder.Configurations.Add(new RequiClavesMap().ToTable("RequiClaves"));
             modelBuilder.Configurations.Add(new PsicometriaCandidatosMap().ToTable("PsicometriaCandidatos"));
+
+            //Preguntas Frecuentes 
+            modelBuilder.Configurations.Add(new PreguntasFrecuentesMap().ToTable("PreguntasFrecuentes"));
 
             //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
@@ -1221,7 +1226,21 @@ namespace SAGA.DAL
             }
         }
 
-       
+
+        //Modulo de preguntas frecuentes
+        public class PreguntasFrecuentesMap : EntityTypeConfiguration<PreguntasFrecuente>
+        {
+            public PreguntasFrecuentesMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Pregunta).HasMaxLength(500).IsRequired();
+                Property(x => x.Respuesta).HasMaxLength(500).IsRequired();
+                Property(x => x.Activo).IsOptional();
+             //   Property(x => x.).IsOptional();
+            }
+        }
+
 
         #endregion
 
