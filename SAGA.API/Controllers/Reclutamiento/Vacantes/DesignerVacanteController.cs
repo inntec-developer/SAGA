@@ -88,10 +88,14 @@ namespace SAGA.API.Controllers
                 catch (Exception)
                 {
                 }
-                if (ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).Count() > 0)
+                if (ConfiguracionesMov.Count > 0)
                 {
-                    pieza.Publica = ConfiguracionesMov.Where(e => e.EstructuraId == item.Id).FirstOrDefault().esPublicable;
+                    if (ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).Count() > 0)
+                    {
+                        pieza.Publica = ConfiguracionesMov.Where(e => e.EstructuraId == item.Id).FirstOrDefault().esPublicable;
+                    }
                 }
+               
                
                 if (configura.Count > 0)
                 {
