@@ -140,7 +140,7 @@ namespace SAGA.API.Controllers
                     new SqlParameter("@UsuarioId", cr.UsuarioId)
                 };
 
-                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @UserAlta, @UsuarioId , @IdEstatus", _params).SingleOrDefault();
+                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @IdEstatus, @UserAlta, @UsuarioId  ", _params).SingleOrDefault();
 
                 Guid RequisicionId = requi.Id;
                 Int64 Folio = requi.Folio;
