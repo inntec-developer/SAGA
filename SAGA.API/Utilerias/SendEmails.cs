@@ -11,6 +11,7 @@ using System.Web.Http;
 using SAGA.API.Dtos;
 using SAGA.API.Dtos.Reclutamiento.Seguimientovacantes;
 using System.Net;
+using System.Globalization;
 
 namespace SAGA.API.Utilerias
 {
@@ -338,12 +339,18 @@ namespace SAGA.API.Utilerias
         {
             try
             {
+                double minimo;
+                double maximo;
                 string body = "";
                 var email = db.Usuarios
                     .Where(x => x.Activo.Equals(true))
                     .Where(x => x.TipoUsuarioId.Equals(3))
                     .Where(x => x.Departamento.Clave.Equals("VTAS"))
-                    .Select(x => x.emails.Where(e => e.EntidadId.Equals(x.Id)).Select(e => e.email).FirstOrDefault());
+                    .Select(x =>  x.emails
+                                    .Where(e => e.EntidadId.Equals(x.Id))
+                                    .Select(e => e.email)
+                                    .FirstOrDefault())
+                    .FirstOrDefault();
 
                 var requi = db.Requisiciones
                     .Where(r => r.Id.Equals(RequisicionId))
@@ -360,7 +367,8 @@ namespace SAGA.API.Utilerias
                         empresa = x.Cliente.RazonSocial,
                         noVacantes = x.horariosRequi.Sum(h => h.numeroVacantes),
                         puesto = x.VBtra,
-                        sueldo = x.SueldoMinimo + " a " + x.SueldoMaximo,
+                        sueldoMinimo = x.SueldoMinimo,
+                        sueldoMaximo = x.SueldoMaximo,
                         estaus = x.Estatus.Descripcion,
                         estado = x.Direccion.Estado.estado
                     }).FirstOrDefault();
@@ -368,17 +376,17 @@ namespace SAGA.API.Utilerias
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA Inn");
-                m.To.Add(email.ToString());
-                m.Subject = string.Format("Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa);
-                body = string.Format("<p>Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio {0}:</p>", requi.folio);
-                body = body + string.Format("<p><strong> FECHA SOLICITUD: </strong>{0}<p>", requi.fch_Creacion);
-                body = body + string.Format("<p><strong> SOLICITANTE: </strong>{0}<p>",requi.solicita);
-                body = body + string.Format("<p><strong> EMPRESA: </strong>{0}<p>",requi.empresa);
-                body = body + string.Format("<p><strong> ESTADO: </strong>{0}<p>",requi.estado);
-                body = body + string.Format("<p><strong> NUMERO VACANTES: </strong>{0}<p>",requi.noVacantes);
-                body = body + string.Format("<p><strong> PUESTO: </strong>{0}<p>",requi.puesto);
-                body = body + string.Format("<p><strong> SUELDO: </strong>{0}<p>",requi.sueldo);
-                body = body + string.Format("<p><strong> ESTATUS VACANTE: </strong>{0}<p>", requi.estaus);
+                m.To.Add(email);
+                m.Subject = string.Format("Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                body = string.Format("<p>Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong> FECHA SOLICITUD: </strong>{0}<p>", requi.fch_Creacion);
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong> SOLICITANTE: </strong>{0}<p>", requi.solicita.nombre.ToUpper());
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong> EMPRESA: </strong>{0}<p>", requi.empresa.ToUpper());
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong> ESTADO: </strong>{0}<p>", requi.estado.ToUpper());
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong> NUMERO VACANTES: </strong>{0}<p>", requi.noVacantes);
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong> PUESTO: </strong>{0}<p>", requi.puesto.ToUpper());
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong> SUELDO: </strong>{0} a {1}<p>", String.Format("{0:C}", requi.sueldoMinimo), String.Format("{0:C}", requi.sueldoMaximo));
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong> ESTATUS VACANTE: </strong>{0}<p>", requi.estaus);
                 body = body + string.Format("<p><strong> Favor de corroborar esta información y dar el seguimiento correspondiente. </strong><p>");
                 body = body + string.Format("<p>Me despido de usted agradeciendo su atención y enviandole un cordial saludo.<p>");
                 m.Body = body;
