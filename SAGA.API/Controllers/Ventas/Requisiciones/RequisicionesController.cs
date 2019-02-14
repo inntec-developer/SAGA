@@ -135,17 +135,27 @@ namespace SAGA.API.Controllers
                 object[] _params = {
                     new SqlParameter("@Id", cr.IdDamfo),
                     new SqlParameter("@IdAddress", cr.IdAddress),
+                    new SqlParameter("@IdEstatus", cr.IdEstatus),
                     new SqlParameter("@UserAlta", cr.Usuario),
                     new SqlParameter("@UsuarioId", cr.UsuarioId)
                 };
 
-                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @UserAlta, @UsuarioId ", _params).SingleOrDefault();
+                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @UserAlta, @UsuarioId , @IdEstatus", _params).SingleOrDefault();
 
                 Guid RequisicionId = requi.Id;
                 Int64 Folio = requi.Folio;
 
+                var infoRequi = db.Requisiciones
+                    .Where(x => x.Id.Equals(RequisicionId))
+                    .Select(x => new
+                    {
+                        x.Id,
+                        x.Folio,
+                        x.EstatusId,
+                        x.horariosRequi
+                    }).FirstOrDefault();
 
-                return Ok(requi);
+                return Ok(infoRequi);
             }
             catch (Exception ex)
             {

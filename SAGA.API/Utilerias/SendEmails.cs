@@ -333,5 +333,69 @@ namespace SAGA.API.Utilerias
                 string msg = ex.Message;
             }
         }
+
+        public bool SendEmailRequisPuras(Guid RequisicionId)
+        {
+            try
+            {
+                string body = "";
+                var email = db.Usuarios
+                    .Where(x => x.Activo.Equals(true))
+                    .Where(x => x.TipoUsuarioId.Equals(3))
+                    .Where(x => x.Departamento.Clave.Equals("VTAS"))
+                    .Select(x => x.emails.Where(e => e.EntidadId.Equals(x.Id)).Select(e => e.email).FirstOrDefault());
+
+                var requi = db.Requisiciones
+                    .Where(r => r.Id.Equals(RequisicionId))
+                    .Select(x => new
+                    {
+                        folio = x.Folio,
+                        fch_Creacion = x.fch_Creacion,
+                        solicita = db.Entidad
+                                    .Where(en => en.Id.Equals(x.PropietarioId))
+                                    .Select(em => new
+                                    {
+                                        nombre = em.Nombre + " " + em.ApellidoMaterno + " " + (em.ApellidoMaterno != null ? em.ApellidoMaterno : "")
+                                    }).FirstOrDefault(),
+                        empresa = x.Cliente.RazonSocial,
+                        noVacantes = x.horariosRequi.Sum(h => h.numeroVacantes),
+                        puesto = x.VBtra,
+                        sueldo = x.SueldoMinimo + " a " + x.SueldoMaximo,
+                        estaus = x.Estatus.Descripcion,
+                        estado = x.Direccion.Estado.estado
+                    }).FirstOrDefault();
+
+                string from = "noreply@damsa.com.mx";
+                MailMessage m = new MailMessage();
+                m.From = new MailAddress(from, "SAGA Inn");
+                m.To.Add(email.ToString());
+                m.Subject = string.Format("Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa);
+                body = string.Format("<p>Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio {0}:</p>", requi.folio);
+                body = body + string.Format("<p><strong> FECHA SOLICITUD: </strong>{0}<p>", requi.fch_Creacion);
+                body = body + string.Format("<p><strong> SOLICITANTE: </strong>{0}<p>",requi.solicita);
+                body = body + string.Format("<p><strong> EMPRESA: </strong>{0}<p>",requi.empresa);
+                body = body + string.Format("<p><strong> ESTADO: </strong>{0}<p>",requi.estado);
+                body = body + string.Format("<p><strong> NUMERO VACANTES: </strong>{0}<p>",requi.noVacantes);
+                body = body + string.Format("<p><strong> PUESTO: </strong>{0}<p>",requi.puesto);
+                body = body + string.Format("<p><strong> SUELDO: </strong>{0}<p>",requi.sueldo);
+                body = body + string.Format("<p><strong> ESTATUS VACANTE: </strong>{0}<p>", requi.estaus);
+                body = body + string.Format("<p><strong> Favor de corroborar esta información y dar el seguimiento correspondiente. </strong><p>");
+                body = body + string.Format("<p>Me despido de usted agradeciendo su atención y enviandole un cordial saludo.<p>");
+                m.Body = body;
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                smtp.EnableSsl = true;
+                smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                smtp.Send(m);
+
+                return true;
+
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return false;
+            }
+        }
     }
 }
