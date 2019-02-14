@@ -1310,5 +1310,19 @@ namespace SAGA.API.Controllers
             }
 
         }
+
+        [HttpGet]
+        [Route("sendEmailRequiPura")]
+        public IHttpActionResult SendEmailREquiPura(Guid IdRequisicion)
+        {
+            if (SendEmail.SendEmailRequisPuras(IdRequisicion))
+            {
+                return Ok(HttpStatusCode.OK);
+            }
+            else
+            {
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
     }
 }
