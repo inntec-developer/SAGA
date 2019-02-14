@@ -150,7 +150,7 @@ namespace SAGA.API.Controllers
             catch (Exception ex)
             {
                 string messg = ex.Message;
-                return Ok(messg);
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
 
         }
@@ -329,6 +329,8 @@ namespace SAGA.API.Controllers
                        Prioridad = e.Prioridad.Descripcion,
                        PrioridadId = e.PrioridadId,
                        Cliente = e.Cliente.Nombrecomercial,
+                       razon = e.Cliente.RazonSocial,
+                       factura = e.Cliente.RazonSocial,
                        GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
                        ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
@@ -397,6 +399,8 @@ namespace SAGA.API.Controllers
                             Prioridad = e.Prioridad.Descripcion,
                             PrioridadId = e.PrioridadId,
                             Cliente = e.Cliente.Nombrecomercial,
+                            razon = e.Cliente.RazonSocial,
+                            factura = e.Cliente.RazonSocial,
                             GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
                             ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,

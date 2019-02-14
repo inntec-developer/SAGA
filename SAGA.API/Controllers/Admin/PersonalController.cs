@@ -707,7 +707,7 @@ namespace SAGA.API.Controllers
                     userData.Email = Data.Select(x => x.email).FirstOrDefault();
                     userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
                     userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
-
+                    userData.TipoUsuarioId = Data.Select(x => x.tipousuario).FirstOrDefault();
                     return Ok(userData);
                 }
                 else if(Data.Select(x => x.activo).FirstOrDefault() == false && db.Roles.ToList().Count() == 0)
@@ -719,6 +719,7 @@ namespace SAGA.API.Controllers
                     userData.Email = Data.Select(x => x.email).FirstOrDefault();
                     userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
                     userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
+                    userData.TipoUsuarioId = Data.Select(x => x.tipousuario).FirstOrDefault();
 
                     return Ok(userData);
                 }
