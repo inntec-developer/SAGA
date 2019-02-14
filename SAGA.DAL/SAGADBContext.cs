@@ -192,6 +192,7 @@ namespace SAGA.DAL
         public DbSet<HorariosDireccionesRequi> HorariosDireccionesRequi { get; set; }
         public DbSet<InformeRequisicion> InformeRequisiciones { get; set; }
         public DbSet<EstatusRequisiciones> EstatusRequisiciones { get; set; }
+        public DbSet<FacturacionPuro> FacturacionPuro { get; set; }
 
         public DbSet<Agencia> Agencias { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
@@ -390,6 +391,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new RequisicionMap().ToTable("Requisiciones", "Vtas"));
             modelBuilder.Configurations.Add(new InformeRequisicionesMap().ToTable("InformeRequisicion", "Vtas"));
             modelBuilder.Configurations.Add(new EstatusRequisicionesMap().ToTable("EstatusRequisiciones", "Vtas"));
+            modelBuilder.Configurations.Add(new FacturacionPuroMap().ToTable("FacturacionPuro", "Vtas"));
             #endregion
 
             #region ServicioCliente_SCte
@@ -1629,6 +1631,22 @@ namespace SAGA.DAL
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.tipoDiscapacidadId).IsRequired();
+            }
+        }
+
+        public class FacturacionPuroMap : EntityTypeConfiguration<FacturacionPuro>
+        {
+            public FacturacionPuroMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.Porcentaje).IsRequired();
+                Property(x => x.Monto).HasPrecision(18, 4).IsRequired();
+                Property(x => x.PerContratado).IsRequired();
+                Property(x => x.MontoContratado).HasPrecision(18, 4).IsRequired();
+                Property(x => x.fch_Creacion).IsRequired();
+                Property(x => x.fch_Modificacion).IsRequired();
             }
         }
 
