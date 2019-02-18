@@ -320,6 +320,7 @@ namespace SAGA.API.Controllers
             List<Guid> uids = new List<Guid>();
             try
             {
+                
                 //if (db.Subordinados.Count(x => x.LiderId.Equals(propietario)) > 0)
                 //{
                 //    var ids = db.Subordinados.Where(x => x.LiderId.Equals(propietario)).Select(u => u.UsuarioId).ToList();

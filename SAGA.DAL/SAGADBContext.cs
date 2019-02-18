@@ -15,7 +15,7 @@ namespace SAGA.DAL
             this.Configuration.ProxyCreationEnabled = true;
         }
 
-       
+
 
         #region Btra
         public DbSet<AboutMe> AcercaDeMi { get; set; }
@@ -161,7 +161,7 @@ namespace SAGA.DAL
         public DbSet<Preguntas> Preguntas { get; set; }
         public DbSet<Respuestas> Respuestas { get; set; }
         public DbSet<RequiExamen> RequiExamen { get; set; }
-        public DbSet<ExamenCandidato> ExamenCandidato { get; set;}
+        public DbSet<ExamenCandidato> ExamenCandidato { get; set; }
         public DbSet<ResultadosCandidato> resultadocandidato { get; set; }
         public DbSet<RequiClaves> RequiClaves { get; set; }
         public DbSet<PsicometriaCandidato> PsicometriaCandidato { get; set; }
@@ -202,6 +202,12 @@ namespace SAGA.DAL
         public DbSet<Referenciado> Referenciados { get; set; }
         public DbSet<TamanoEmpresa> TamanoEmpresas { get; set; }
         public DbSet<TipoBase> TiposBases { get; set; }
+        #endregion
+
+        #region Banco
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<TicketReclutador> TicketsReclutador { get; set; }
+
         #endregion
 
         /*
@@ -392,6 +398,12 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new InformeRequisicionesMap().ToTable("InformeRequisicion", "Vtas"));
             modelBuilder.Configurations.Add(new EstatusRequisicionesMap().ToTable("EstatusRequisiciones", "Vtas"));
             modelBuilder.Configurations.Add(new FacturacionPuroMap().ToTable("FacturacionPuro", "Vtas"));
+            #endregion
+
+            #region Banco_sist
+            modelBuilder.Configurations.Add(new TicketsMap().ToTable("Tickets", "Sist"));
+            modelBuilder.Configurations.Add(new TicketsReclutadorMap().ToTable("TicketsReclutador", "Sist"));
+
             #endregion
 
             #region ServicioCliente_SCte
@@ -1956,6 +1968,35 @@ namespace SAGA.DAL
             }
         }
         #endregion
+        #endregion
+
+        #region Mapeo Banco
+
+        public class TicketsMap : EntityTypeConfiguration<Ticket>
+        {
+            public TicketsMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.SucursalId).IsRequired();
+                Property(x => x.Numero).HasMaxLength(50).IsRequired();
+                Property(x => x.MovimientoId).IsRequired();
+                Property(x => x.Estatus).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+            }
+        }
+
+        public class TicketsReclutadorMap : EntityTypeConfiguration<TicketReclutador>
+        {
+            public TicketsReclutadorMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.ReclutadorId).IsRequired();
+                Property(x => x.TicketId).IsRequired();
+                Property(x => x.fch_Atencion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Final).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+            }
+        }
         #endregion
 
         #region "Mapeo Recl"
