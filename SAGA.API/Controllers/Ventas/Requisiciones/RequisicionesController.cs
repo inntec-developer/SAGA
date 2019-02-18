@@ -320,19 +320,18 @@ namespace SAGA.API.Controllers
             List<Guid> uids = new List<Guid>();
             try
             {
+                //if (db.Subordinados.Count(x => x.LiderId.Equals(propietario)) > 0)
+                //{
+                //    var ids = db.Subordinados.Where(x => x.LiderId.Equals(propietario)).Select(u => u.UsuarioId).ToList();
 
-                if (db.Subordinados.Count(x => x.LiderId.Equals(propietario)) > 0)
-                {
-                    var ids = db.Subordinados.Where(x => x.LiderId.Equals(propietario)).Select(u => u.UsuarioId).ToList();
+                //    uids = GetSub(ids, uids);
 
-                    uids = GetSub(ids, uids);
-
-                }
-                uids.Add(propietario);
+                //}
+                //uids.Add(propietario);
 
 
                     var requisicion = db.Requisiciones
-                        .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId) && e.TipoReclutamientoId.Equals(tipo))
+                        .Where(e => e.Activo.Equals(true) && e.TipoReclutamientoId.Equals(tipo))
                         .Select(e => new
                         {
                             Id = e.Id,
