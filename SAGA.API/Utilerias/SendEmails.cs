@@ -339,18 +339,16 @@ namespace SAGA.API.Utilerias
         {
             try
             {
-                double minimo;
-                double maximo;
                 string body = "";
                 var email = db.Usuarios
                     .Where(x => x.Activo.Equals(true))
                     .Where(x => x.TipoUsuarioId.Equals(3))
                     .Where(x => x.Departamento.Clave.Equals("VTAS"))
-                    .Select(x =>  x.emails
+                    .Select(x => new { email = x.emails
                                     .Where(e => e.EntidadId.Equals(x.Id))
                                     .Select(e => e.email)
-                                    .FirstOrDefault())
-                    .FirstOrDefault();
+                                    .FirstOrDefault() })
+                    .ToList();
 
                 var requi = db.Requisiciones
                     .Where(r => r.Id.Equals(RequisicionId))
@@ -369,16 +367,35 @@ namespace SAGA.API.Utilerias
                         puesto = x.VBtra,
                         sueldoMinimo = x.SueldoMinimo,
                         sueldoMaximo = x.SueldoMaximo,
+                        estatusId = x.EstatusId,
                         estaus = x.Estatus.Descripcion,
-                        estado = x.Direccion.Estado.estado
+                        estado = x.Direccion.Estado.estado,
+                        propietarioid = x.PropietarioId
                     }).FirstOrDefault();
+
+                var emailProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid)).Select(x => x.email).FirstOrDefault();
 
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA Inn");
-                m.To.Add(email);
-                m.Subject = string.Format("Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                body = string.Format("<p>Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
+                //m.To.Add(email);
+                foreach (var e in email)
+                {
+                    m.To.Add(e.email.ToString());
+                }
+
+                m.Bcc.Add(emailProp);
+
+                if (requi.estatusId == 43)
+                {
+                    m.Subject = string.Format("Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                    body = string.Format("<p>Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
+                }
+                else if(requi.estatusId == 46)
+                {
+                    m.Subject = string.Format("Seguimiento del Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                }
+                
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong> FECHA SOLICITUD: </strong>{0}<p>", requi.fch_Creacion);
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong> SOLICITANTE: </strong>{0}<p>", requi.solicita.nombre.ToUpper());
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong> EMPRESA: </strong>{0}<p>", requi.empresa.ToUpper());
