@@ -70,6 +70,8 @@ namespace SAGA.API.Controllers
                 }),
                 liderId = db.Subordinados.Where(x => x.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault(),
                 nombreLider = String.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(db.Subordinados.Where(xx => xx.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault())).Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(db.Subordinados.Where(xx => xx.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault())).Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault(),
+                oficinaId = u.SucursalId,
+                oficina = u.Sucursal.Nombre,
                 activo = u.Activo
 
             }).OrderBy(o => o.nombre).ToList();
@@ -341,6 +343,19 @@ namespace SAGA.API.Controllers
 
         }
 
+        [HttpGet]
+        [Route("getOficinas")]
+        public IHttpActionResult GetOficinasReclutamiento()
+        {
+            var oficinas = db.OficinasReclutamiento.Select(x => new
+            {
+                id = x.Id,
+                nombre = x.Nombre,
+
+            }).ToList();
+            return Ok(oficinas);
+        }
+
 
         [HttpPost]
         [Route("addUsuario")]
@@ -358,6 +373,7 @@ namespace SAGA.API.Controllers
                 usuario.ApellidoMaterno = listJson.apellidoMaterno;
                 usuario.emails = listJson.Email;
                 usuario.DepartamentoId = listJson.DepartamentoId;
+                usuario.SucursalId = listJson.OficinaId;
                 usuario.UsuarioAlta = "INNTEC";
                 usuario.TipoUsuarioId = 0;
                 usuario.Password = listJson.Password;
@@ -457,6 +473,7 @@ namespace SAGA.API.Controllers
                 usuario.ApellidoPaterno = listJson.apellidoPaterno;
                 usuario.ApellidoMaterno = listJson.apellidoMaterno;
                 usuario.DepartamentoId = listJson.DepartamentoId;
+                usuario.SucursalId = listJson.OficinaId;
                 usuario.UsuarioAlta = "INNTEC";
                 usuario.TipoUsuarioId = listJson.TipoUsuarioId;
                 usuario.Foto = listJson.Foto;
