@@ -145,6 +145,7 @@ namespace SAGA.DAL
         public DbSet<TipoActividadReclutador> TipoActividadReclutador { get; set; }
         public DbSet<AlertasStm> AlertasStm { get; set; }
         public DbSet<TipoAlerta> TiposAlertas { get; set; }
+        public DbSet<OficinaReclutamiento> OficinasReclutamiento { get; set; }
 
 
         ///modulo admin 
@@ -778,6 +779,7 @@ namespace SAGA.DAL
                 Property(x => x.Foto).HasMaxLength(200);
                 Property(x => x.Clave).HasMaxLength(50);
                 Property(x => x.DepartamentoId).IsOptional();
+                Property(x => x.SucursalId).IsRequired();
 
                 //HasMany(x => x.Grupos)
                 //    .WithMany(x => x.Usuarios)
