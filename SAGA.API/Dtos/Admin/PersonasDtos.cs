@@ -19,6 +19,7 @@ namespace SAGA.API.Dtos
         public string Usuario { get; set; } //alias
         public List<Email> Email { get; set; }
         public Guid DepartamentoId { get; set; }
+        public Guid OficinaId { get; set; }
         public string Clave { get; set; }
         public string UsuarioAlta { get; set; }
         public string Password { get; set; }
