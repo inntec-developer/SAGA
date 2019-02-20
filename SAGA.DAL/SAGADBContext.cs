@@ -1994,7 +1994,7 @@ namespace SAGA.DAL
                 Property(x => x.ReclutadorId).IsRequired();
                 Property(x => x.TicketId).IsRequired();
                 Property(x => x.fch_Atencion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Final).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Final).HasColumnType("datetime").IsRequired();
             }
         }
         #endregion
