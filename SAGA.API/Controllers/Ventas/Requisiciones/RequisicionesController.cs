@@ -1115,7 +1115,7 @@ namespace SAGA.API.Controllers
                     var requisicion = db.Requisiciones.Find(requi.Id);
                     db.Entry(requisicion).State = EntityState.Modified;
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
-                    if (requisicion.EstatusId == 4)
+                    if (requisicion.EstatusId == 4 || requisicion.EstatusId == 46)
                     {
                         requisicion.EstatusId = 6;
                         requisicion.Aprobador = requi.Usuario;
