@@ -349,7 +349,7 @@ namespace SAGA.API.Utilerias
                                     .Select(e => e.email)
                                     .FirstOrDefault() })
                     .ToList();
-
+                
                 var requi = db.Requisiciones
                     .Where(r => r.Id.Equals(RequisicionId))
                     .Select(x => new
@@ -374,26 +374,42 @@ namespace SAGA.API.Utilerias
                     }).FirstOrDefault();
 
                 var emailProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid)).Select(x => x.email).FirstOrDefault();
+                
 
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA Inn");
                 //m.To.Add(email);
-                foreach (var e in email)
-                {
-                    m.To.Add(e.email.ToString());
-                }
 
+                if (requi.estatusId == 44)
+                {
+                    m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                    foreach (var e in email)
+                    {
+                        m.Bcc.Add(e.email.ToString());
+                    }
+                }
+                else
+                {
+                    foreach (var e in email)
+                    {
+                        m.To.Add(e.email.ToString());
+                    }
+                }
                 m.Bcc.Add(emailProp);
-
-                if (requi.estatusId == 43)
+                switch (requi.estatusId)
                 {
-                    m.Subject = string.Format("Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                    body = string.Format("<p>Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
-                }
-                else if(requi.estatusId == 46)
-                {
-                    m.Subject = string.Format("Seguimiento del Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                    case 43:
+                        m.Subject = string.Format("Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        body = string.Format("<p>Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
+                        break;
+                    case 44:
+                        m.Subject = string.Format("Solicitud de Facturación de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        body = string.Format("<p>Por este medio se les informa, que se requiere factura para el nuevo Reclutamiento Puro con el número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
+                        break;
+                    case 46:
+                        m.Subject = string.Format("Seguimiento de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        break;
                 }
                 
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong> FECHA SOLICITUD: </strong>{0}<p>", requi.fch_Creacion);
