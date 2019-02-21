@@ -207,7 +207,7 @@ namespace SAGA.DAL
 
         #region Banco
         public DbSet<Ticket> Tickets { get; set; }
-        public DbSet<TicketReclutador> TicketsReclutador { get; set; }
+       // public DbSet<TicketReclutador> TicketsReclutador { get; set; }
 
         #endregion
 
@@ -403,7 +403,7 @@ namespace SAGA.DAL
 
             #region Banco_sist
             modelBuilder.Configurations.Add(new TicketsMap().ToTable("Tickets", "Sist"));
-            modelBuilder.Configurations.Add(new TicketsReclutadorMap().ToTable("TicketsReclutador", "Sist"));
+         //   modelBuilder.Configurations.Add(new TicketsReclutadorMap().ToTable("TicketsReclutador", "Sist"));
 
             #endregion
 
@@ -1988,17 +1988,17 @@ namespace SAGA.DAL
             }
         }
 
-        public class TicketsReclutadorMap : EntityTypeConfiguration<TicketReclutador>
-        {
-            public TicketsReclutadorMap()
-            {
-                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.ReclutadorId).IsRequired();
-                Property(x => x.TicketId).IsRequired();
-                Property(x => x.fch_Atencion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Final).HasColumnType("datetime").IsRequired();
-            }
-        }
+        //public class TicketsReclutadorMap : EntityTypeConfiguration<TicketReclutador>
+        //{
+        //    public TicketsReclutadorMap()
+        //    {
+        //        HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+        //        Property(x => x.ReclutadorId).IsRequired();
+        //        Property(x => x.TicketId).IsRequired();
+        //        Property(x => x.fch_Atencion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+        //        Property(x => x.fch_Final).HasColumnType("datetime").IsRequired();
+        //    }
+        //}
         #endregion
 
         #region "Mapeo Recl"
