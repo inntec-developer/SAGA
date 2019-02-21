@@ -146,6 +146,7 @@ namespace SAGA.DAL
         public DbSet<AlertasStm> AlertasStm { get; set; }
         public DbSet<TipoAlerta> TiposAlertas { get; set; }
         public DbSet<OficinaReclutamiento> OficinasReclutamiento { get; set; }
+        public DbSet<UnidadNegocio> UnidadesNegocios { get; set; }
 
 
         ///modulo admin 
@@ -292,6 +293,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new AlertasStmMap().ToTable("AlertasStm"));
             modelBuilder.Configurations.Add(new TipoAlertaMap().ToTable("TiposAlertas"));
             modelBuilder.Configurations.Add(new SubordinadosMap().ToTable("Subordinados"));
+            modelBuilder.Configurations.Add(new UnidadesNegociosMap().ToTable("UnidadesNegocios"));
 
             //Modulo para examenes
             modelBuilder.Configurations.Add(new ExamenesMap().ToTable("Examenes"));
@@ -964,6 +966,7 @@ namespace SAGA.DAL
                 Property(x => x.UsuarioMod).IsOptional().HasMaxLength(30);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
+                Property(x => x.UnidadNegocioId).IsRequired();
             }
         }
 
@@ -1254,6 +1257,17 @@ namespace SAGA.DAL
                 Property(x => x.Respuesta).HasMaxLength(500).IsRequired();
                 Property(x => x.Activo).IsOptional();
              //   Property(x => x.).IsOptional();
+            }
+        }
+
+        public class UnidadesNegociosMap : EntityTypeConfiguration<UnidadNegocio>
+        {
+            public UnidadesNegociosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Descripcion).IsRequired().HasMaxLength(100);
+                Property(x => x.Activo).IsRequired();
             }
         }
 
