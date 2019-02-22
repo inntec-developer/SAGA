@@ -360,7 +360,7 @@ namespace SAGA.API.Utilerias
                                     .Where(en => en.Id.Equals(x.PropietarioId))
                                     .Select(em => new
                                     {
-                                        nombre = em.Nombre + " " + em.ApellidoMaterno + " " + (em.ApellidoMaterno != null ? em.ApellidoMaterno : "")
+                                        nombre = em.Nombre + " " + em.ApellidoPaterno + " " + (em.ApellidoMaterno != null ? em.ApellidoMaterno : "")
                                     }).FirstOrDefault(),
                         empresa = x.Cliente.RazonSocial,
                         noVacantes = x.horariosRequi.Sum(h => h.numeroVacantes),

@@ -60,21 +60,34 @@ namespace SAGA.API.Controllers
                 Usuario = u.Usuario,
                 Departamento = u.Departamento.Nombre,
                 DepartamentoId = u.Departamento.Id,
-                Email = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
-                    email = e.email
-                }),
+                Email = u.emails.Select(e => e.email).FirstOrDefault(),
                 grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
                 {
                     Id = g.GrupoId,
                     Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre)
                 }),
                 liderId = db.Subordinados.Where(x => x.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault(),
-                nombreLider = String.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(db.Subordinados.Where(xx => xx.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault())).Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(db.Subordinados.Where(xx => xx.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault())).Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault(),
+                nombreLider = String.IsNullOrEmpty(
+                    db.Usuarios
+                    .Where(x => x.Id.Equals(
+                        db.Subordinados
+                        .Where(xx => xx.UsuarioId.Equals(u.Id))
+                        .Select(L => L.LiderId).FirstOrDefault()))
+                    .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault()) ?
+                    "SIN ASIGNAR" : 
+                    db.Usuarios
+                    .Where(x => x.Id.Equals(
+                        db.Subordinados
+                        .Where(xx => xx.UsuarioId.Equals(u.Id))
+                        .Select(L => L.LiderId).FirstOrDefault()))
+                    .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault(),
                 oficinaId = u.SucursalId,
                 oficina = u.Sucursal.Nombre,
                 activo = u.Activo
 
             }).OrderBy(o => o.nombre).ToList();
+
+
 
             return Ok(persona);
 
