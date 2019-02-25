@@ -1022,7 +1022,7 @@ namespace SAGA.API.Controllers
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
                     requisicion.PrioridadId = requi.PrioridadId;
                     requisicion.Confidencial = requi.Confidencial;
-                    if (requi.EstatusId ==  46)
+                    if (requi.EstatusId ==  46 && requi.AsignacionRequi.Count() > 1)
                     {
                         requisicion.EstatusId = 4;
                     }

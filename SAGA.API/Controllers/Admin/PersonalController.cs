@@ -61,19 +61,19 @@ namespace SAGA.API.Controllers
                 Departamento = u.Departamento.Nombre,
                 DepartamentoId = u.Departamento.Id,
                 Email = u.emails.Select(e => e.email).FirstOrDefault(),
-                grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
-                {
-                    Id = g.GrupoId,
-                    Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre)
-                }),
+                //grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
+                //{
+                //    Id = g.GrupoId,
+                //    Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre)
+                //}),
                 liderId = db.Subordinados.Where(x => x.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault(),
-                nombreLider = String.IsNullOrEmpty(
+                nombreLider = 
                     db.Usuarios
                     .Where(x => x.Id.Equals(
                         db.Subordinados
                         .Where(xx => xx.UsuarioId.Equals(u.Id))
                         .Select(L => L.LiderId).FirstOrDefault()))
-                    .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault()) ?
+                    .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault() == null ?
                     "SIN ASIGNAR" : 
                     db.Usuarios
                     .Where(x => x.Id.Equals(
