@@ -333,7 +333,8 @@ namespace SAGA.API.Controllers
                     localidad = x.Estado + " / " + x.Municipio,
                     estatus = db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).Count() > 0 ?
                               db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).OrderByDescending(p => p.Fch_Modificacion).Select(p => p.Estatus.Descripcion).FirstOrDefault() :
-                              "DISPONIBLE"
+                              "DISPONIBLE",
+                  
                 }).ToList();
 
                 return Ok(candidatos);
@@ -342,6 +343,9 @@ namespace SAGA.API.Controllers
             {
                 return Ok(ex.Message);
             }
+
+            //procesoCandidatoId = db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).Count() > 0 ? db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).OrderByDescending(o => o.Fch_Modificacion).Select(id => id.Id).FirstOrDefault() : new Guid("00000000-0000-0000-0000-000000000000"),
+            //        requisicionId = db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).Count() > 0 ? db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).OrderByDescending(o => o.Fch_Modificacion).Select(id => id.RequisicionId).FirstOrDefault() : new Guid("00000000-0000-0000-0000-000000000000"),
         }
 
 
