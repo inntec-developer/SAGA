@@ -247,6 +247,8 @@ namespace SAGA.API.Controllers
             }
             
         }
+        
+   
         public IHttpActionResult LiberarCandidatos(ProcesoDto datos)
         {
             Guid aux = new Guid("00000000-0000-0000-0000-000000000000");
