@@ -1673,8 +1673,8 @@ namespace SAGA.DAL
                 Property(x => x.Monto).HasPrecision(18, 4).IsRequired();
                 Property(x => x.PerContratado).IsRequired();
                 Property(x => x.MontoContratado).HasPrecision(18, 4).IsRequired();
-                Property(x => x.fch_Creacion).IsRequired();
-                Property(x => x.fch_Modificacion).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
             }
         }
 

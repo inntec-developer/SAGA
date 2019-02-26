@@ -339,16 +339,7 @@ namespace SAGA.API.Utilerias
         {
             try
             {
-                string body = "";
-                var email = db.Usuarios
-                    .Where(x => x.Activo.Equals(true))
-                    .Where(x => x.TipoUsuarioId.Equals(3))
-                    .Where(x => x.Departamento.Clave.Equals("VTAS"))
-                    .Select(x => new { email = x.emails
-                                    .Where(e => e.EntidadId.Equals(x.Id))
-                                    .Select(e => e.email)
-                                    .FirstOrDefault() })
-                    .ToList();
+               
                 
                 var requi = db.Requisiciones
                     .Where(r => r.Id.Equals(RequisicionId))
@@ -356,12 +347,14 @@ namespace SAGA.API.Utilerias
                     {
                         folio = x.Folio,
                         fch_Creacion = x.fch_Creacion,
-                        solicita = db.Entidad
-                                    .Where(en => en.Id.Equals(x.PropietarioId))
-                                    .Select(em => new
-                                    {
-                                        nombre = em.Nombre + " " + em.ApellidoPaterno + " " + (em.ApellidoMaterno != null ? em.ApellidoMaterno : "")
-                                    }).FirstOrDefault(),
+                        solicita = 
+                            db.Entidad
+                            .Where(en => en.Id.Equals(x.PropietarioId))
+                            .Select(em => new
+                            {
+                                nombre = em.Nombre + " " + em.ApellidoPaterno + " " + (em.ApellidoMaterno != null ? em.ApellidoMaterno : "")
+                            })
+                        .FirstOrDefault(),
                         empresa = x.Cliente.RazonSocial,
                         noVacantes = x.horariosRequi.Sum(h => h.numeroVacantes),
                         puesto = x.VBtra,
@@ -373,32 +366,75 @@ namespace SAGA.API.Utilerias
                         propietarioid = x.PropietarioId
                     }).FirstOrDefault();
 
-                var emailProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid)).Select(x => x.email).FirstOrDefault();
-                
+                var unidadDeNegocio = db.Usuarios
+                    .Where(u => u.Id.Equals(requi.propietarioid))
+                    .Select(u => u.Sucursal.UnidadNegocioId)
+                    .FirstOrDefault();
 
+                var email = new List<string>();
+                var sucursalesMTY = new List<Guid>();
+                var sucursales = db.OficinasReclutamiento
+                    .Where(U => U.UnidadNegocioId.Equals(unidadDeNegocio))
+                    .Select(u => u.Id).ToList();
+                
+                if(unidadDeNegocio != 3)
+                {
+                    sucursalesMTY = db.OficinasReclutamiento
+                            .Where(U => U.UnidadNegocioId.Equals(3))
+                            .Select(u => u.Id).ToList();
+                    foreach (var s in sucursalesMTY)
+                    {
+                        sucursales.Add(s);
+                    }
+                }
+
+                email = db.Usuarios
+                        .Where(x => x.Activo.Equals(true))
+                        .Where(x => x.TipoUsuarioId.Equals(3))
+                        .Where(x => x.Departamento.Clave.Equals("VTAS"))
+                        .Where(x => sucursales.Contains(x.SucursalId))
+                        .Select(x =>
+                               x.emails
+                                .Where(e => e.EntidadId.Equals(x.Id))
+                                .Select(e => e.email)
+                                .FirstOrDefault()
+                            )
+                        .ToList();
+                
+                var emailProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid)).Select(x => x.email).FirstOrDefault();
+
+                string body = "";
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA Inn");
                 //m.To.Add(email);
 
-                if (requi.estatusId == 44)
+                if (requi.estatusId == 44 || requi.estatusId == 8 || requi.estatusId == 9)
                 {
                     m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
                     foreach (var e in email)
                     {
-                        m.Bcc.Add(e.email.ToString());
+                        m.CC.Add(e.ToString());
                     }
                 }
                 else
                 {
                     foreach (var e in email)
                     {
-                        m.To.Add(e.email.ToString());
+                        m.To.Add(e.ToString());
                     }
                 }
-                m.Bcc.Add(emailProp);
+                m.CC.Add(emailProp);
                 switch (requi.estatusId)
                 {
+                    case 8:
+                        m.Subject = string.Format("Cancelación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        body = string.Format("<p>Por este medio se les informa que se ha cancelado el Reclutamiento Puro con el número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
+                        break;
+                    case 9:
+                        m.Subject = string.Format("Eliminación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        body = string.Format("<p>Por este medio se les informa que se ha Eliminado el Reclutamiento Puro con el número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
+                        break;
                     case 43:
                         m.Subject = string.Format("Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = string.Format("<p>Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
