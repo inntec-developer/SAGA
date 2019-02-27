@@ -602,6 +602,59 @@ namespace SAGA.API.Controllers
 
         }
 
+
+        [HttpGet]
+        [Route("getReporte70")]
+        public IHttpActionResult GetReporte70()
+        {
+            try
+            {
+             
+                var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
+                    .Where(e => e.Activo)
+                    .Select(e => new
+                    {
+                        Id = e.Id,
+                        Folio = e.Folio,
+                        fch_Solicitud = e.fch_Creacion,
+                        reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a => new
+                        {
+                            reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
+                        }).Distinct().ToList(),
+                        sucursal = e.Cliente.RazonSocial,
+                        Cliente = e.Cliente.Nombrecomercial,
+                        ClienteId = e.Cliente.Id,
+                        estado = e.Cliente.direcciones.Select(x => x.Municipio.municipio + " " + x.Estado.estado + " " + x.Estado.Pais.pais).FirstOrDefault(),
+                        domicilio_trabajo = e.Direccion.Calle + " " + e.Direccion.NumeroExterior + " " + e.Direccion.Colonia.colonia + " " + e.Direccion.Municipio.municipio + " " + e.Direccion.Estado.estado,
+                        Solicita = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                        porcentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
+                        EnProcesoEC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 30).Count(),
+                        EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
+                        contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
+                        VBtra = e.VBtra,
+                        SueldoMaximo = e.SueldoMaximo,
+                        Estatus = e.Estatus.Descripcion,
+                        estatusId = e.EstatusId,
+                        fch_Modificacion = e.fch_Modificacion,
+                        TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                        tipoReclutamientoId = e.TipoReclutamientoId,
+                        ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
+                        ClaseReclutamientoId = e.ClaseReclutamientoId,
+                        comentarios_solicitante  = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.AprobadorId)).Select(c => c.Comentario).ToList(),
+                        comentarios_reclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && !x.ReclutadorId.Equals(e.AprobadorId)).Select(c => c.Comentario).ToList()
+                    }).ToList();
+                return Ok(vacantes);
+
+            }
+            catch (Exception ex)
+            {
+                string mensaje = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+
+        }
+
         [HttpGet]
         [Route("getConteoVacante")]
         public IHttpActionResult GetConteoVacante(Guid RequisicionId, Guid ClienteId)
