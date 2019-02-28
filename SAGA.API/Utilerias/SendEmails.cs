@@ -339,8 +339,21 @@ namespace SAGA.API.Utilerias
         {
             try
             {
-               
-                
+                bool facturada = false;
+                int[] estatus = { 44,45,46 };
+                var estatusRequi = db.EstatusRequisiciones
+                    .Where(e => e.RequisicionId.Equals(RequisicionId))
+                    .Select(e => e.EstatusId ).ToList();
+                foreach(var e in estatusRequi)
+                {
+                    if (estatus.Contains(e))
+                    {
+                        facturada = true;
+                        break;
+                    }
+                }
+
+
                 var requi = db.Requisiciones
                     .Where(r => r.Id.Equals(RequisicionId))
                     .Select(x => new
@@ -408,8 +421,9 @@ namespace SAGA.API.Utilerias
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA Inn");
                 //m.To.Add(email);
+                
 
-                if (requi.estatusId == 44 || requi.estatusId == 8 || requi.estatusId == 9)
+                if (facturada)
                 {
                     m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
                     foreach (var e in email)
