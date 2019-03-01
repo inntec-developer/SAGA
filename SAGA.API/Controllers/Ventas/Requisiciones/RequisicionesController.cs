@@ -236,7 +236,7 @@ namespace SAGA.API.Controllers
                 {
                     if (db.Subordinados.Count(x => x.LiderId.Equals(propietario)) > 0)
                     {
-                        var ids = db.Subordinados.Where(x => x.LiderId.Equals(propietario)).Select(u => u.UsuarioId).ToList();
+                        var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(propietario) && x.LiderId.Equals(propietario)).Select(u => u.UsuarioId).ToList();
 
                         uids = GetSub(ids, uids);
 
@@ -560,26 +560,37 @@ namespace SAGA.API.Controllers
                 }
                 else
                 {
-                    List<Guid> grp = new List<Guid>();
-
-                    var Grupos = db.GruposUsuarios
-                        .Where(g => g.EntidadId.Equals(IdUsuario) & g.Grupo.Activo)
-                               .Select(g => g.GrupoId)
-                               .ToList();
-
-
-
-                    foreach (var grps in Grupos)
+                    List<Guid> uids = new List<Guid>();
+                    if (db.Subordinados.Count(x => x.LiderId.Equals(IdUsuario)) > 0)
                     {
-                        grp = GetGrupo(grps, grp);
+                        var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(IdUsuario) && x.LiderId.Equals(IdUsuario)).Select(u => u.UsuarioId).ToList();
+
+                        uids = GetSub(ids, uids);
+
                     }
+                    uids.Add(IdUsuario);
+
+                    //List<Guid> grp = new List<Guid>();
+
+                    //var Grupos = db.GruposUsuarios
+                    //    .Where(g => g.EntidadId.Equals(IdUsuario) & g.Grupo.Activo)
+                    //           .Select(g => g.GrupoId)
+                    //           .ToList();
 
 
-                    grp.Add(IdUsuario);
+
+                    //foreach (var grps in Grupos)
+                    //{
+                    //    grp = GetGrupo(grps, grp);
+                    //}
+
+
+                    //grp.Add(IdUsuario);
+
 
                     var asig = db.AsignacionRequis
                         .OrderByDescending(e => e.Id)
-                        .Where(a => grp.Distinct().Contains(a.GrpUsrId))
+                        .Where(a => uids.Distinct().Contains(a.GrpUsrId))
                         .Select(a => a.RequisicionId)
                         .Distinct()
                         .ToList();
