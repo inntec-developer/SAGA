@@ -152,7 +152,8 @@ namespace SAGA.API.Controllers
                         x.Id,
                         x.Folio,
                         x.EstatusId,
-                        x.horariosRequi
+                        x.horariosRequi,
+                        x.TipoReclutamientoId
                     }).FirstOrDefault();
 
                 return Ok(infoRequi);
@@ -1279,7 +1280,7 @@ namespace SAGA.API.Controllers
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
                     requisicion.PrioridadId = requi.PrioridadId;
                     requisicion.Confidencial = requi.Confidencial;
-                    if (requi.EstatusId ==  46 && requi.AsignacionRequi.Count() > 1)
+                    if (requi.EstatusId ==  46 && requi.AsignacionRequi.Count() > 0)
                     {
                         requisicion.EstatusId = 4;
                     }
