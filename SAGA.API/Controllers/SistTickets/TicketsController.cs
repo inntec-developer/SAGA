@@ -88,7 +88,7 @@ namespace SAGA.API.Controllers
         }
         [HttpGet]
         [Route("getFilaTickets")]
-        public IHttpActionResult GetFilaTickets()
+        public IHttpActionResult GetFilaTickets(int cita)
         {
             try
             {
@@ -96,7 +96,7 @@ namespace SAGA.API.Controllers
                               select new { TR.fch_Creacion, DateTime.Now }).ToArray().Select(x => (DateTime.Now - x.fch_Creacion).TotalMinutes);
 
 
-                var fila = db.Tickets.OrderByDescending(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1)).Select(t => new
+                var fila = db.Tickets.OrderByDescending(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && x.MovimientoId.Equals(cita)).Select(t => new
                 {
                     ticketId = t.Id,
                     ticket = t.Numero,
@@ -110,6 +110,31 @@ namespace SAGA.API.Controllers
 
             }
             catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
+
+        [HttpGet]
+        [Route("getTicketEnAtencion")]
+        public IHttpActionResult GetTicketEnAtencion()
+        {
+
+            try
+            {
+                var ticket = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(2)).Select(t => new
+                {
+                    ticketId = t.Id,
+                    ticket = t.Numero,
+                    candidatoId = t.CandidatoId,
+                    movimientoId = t.MovimientoId,
+                }).ToList();
+
+                return Ok(ticket);
+
+            }
+            catch (Exception ex)
             {
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
@@ -283,6 +308,42 @@ namespace SAGA.API.Controllers
             catch (Exception ex)
             {
                 return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
+
+        [HttpGet]
+        [Route("getVacantes")]
+        public IHttpActionResult GetVacantes()
+        {
+            try
+            {
+                List<int> estatus = new List<int> { 34, 35, 36, 36 };
+                var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
+                    .Where(e => e.Activo && !estatus.Contains(e.EstatusId))
+                    .Select(e => new
+                    {
+                        Id = e.Id,
+                        Folio = e.Folio,
+                        Cliente = e.Cliente.Nombrecomercial,
+                        ClienteId = e.Cliente.Id,
+                        estado = e.Cliente.direcciones.Select(x => x.Municipio.municipio + " " + x.Estado.estado + " " + x.Estado.Pais.pais).FirstOrDefault(),
+                        domicilio_trabajo = e.Direccion.Calle + " " + e.Direccion.NumeroExterior + " " + e.Direccion.Colonia.colonia + " " + e.Direccion.Municipio.municipio + " " + e.Direccion.Estado.estado,
+                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                        VBtra = e.VBtra,
+                        SueldoMinimo = e.SueldoMinimo,
+                        SueldoMaximo = e.SueldoMaximo,
+                        Actividades = e.DAMFO290.actividadesPerfil.Select(a => a.Actividades),
+                        aptitudes = e.DAMFO290.aptitudesPerfil.Select(ap => ap.Aptitud.aptitud),
+                        experiencia = e.Experiencia
+                    }).ToList();
+                return Ok(vacantes);
+
+            }
+            catch (Exception ex)
+            {
+                string mensaje = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
             }
 
         }
