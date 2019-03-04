@@ -92,21 +92,34 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var tiempo = (from TR in db.Tickets
-                              select new { TR.fch_Creacion, DateTime.Now }).ToArray().Select(x => (DateTime.Now - x.fch_Creacion).TotalMinutes);
-
-
-                var fila = db.Tickets.OrderByDescending(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && x.MovimientoId.Equals(cita)).Select(t => new
+                if (cita == 0)
                 {
-                    ticketId = t.Id,
-                    ticket = t.Numero,
-                    candidatoId = t.CandidatoId,
-                    movimientoId = t.MovimientoId,
-                    fch_Creacion = t.fch_Creacion,
-                    tiempo = (DateTime.Now.Hour - t.fch_Creacion.Hour) * 60
-                }).ToList();
+                    var fila = db.Tickets.OrderByDescending(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1)).Select(t => new
+                    {
+                        ticketId = t.Id,
+                        ticket = t.Numero,
+                        candidatoId = t.CandidatoId,
+                        movimientoId = t.MovimientoId,
+                        fch_Creacion = t.fch_Creacion,
+                        tiempo = (DateTime.Now.Hour - t.fch_Creacion.Hour) * 60
+                    }).ToList();
 
-                return Ok(fila);
+                    return Ok(fila);
+                }
+                else
+                {
+                    var fila = db.Tickets.OrderByDescending(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && x.MovimientoId.Equals(cita)).Select(t => new
+                    {
+                        ticketId = t.Id,
+                        ticket = t.Numero,
+                        candidatoId = t.CandidatoId,
+                        movimientoId = t.MovimientoId,
+                        fch_Creacion = t.fch_Creacion,
+                        tiempo = (DateTime.Now.Hour - t.fch_Creacion.Hour) * 60
+                    }).ToList();
+
+                    return Ok(fila);
+                }
 
             }
             catch(Exception ex)
@@ -148,20 +161,42 @@ namespace SAGA.API.Controllers
 
             try
             {
+                var candidatos = db.CalendarioCandidato.OrderByDescending(f => f.Fecha).Where(x => (x.Fecha.Minute - DateTime.Now.Minute) >= -15 && (x.Fecha.Minute - DateTime.Now.Minute) <= 15).Select(c => c.CandidatoId).ToList();
 
-                var ticket = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1)).Select(t => new
+                var concita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && candidatos.Contains(x.CandidatoId))
+                .Select(t => new
                 {
                     ticketId = t.Id,
                     ticket = t.Numero,
                     candidatoId = t.CandidatoId,
                     movimientoId = t.MovimientoId,
+                    tiempoCita = t.fch_Creacion.Minute - DateTime.Now.Minute
                 }).FirstOrDefault();
 
-                this.InsertTicketRecl(ticket.ticketId, reclutadorId);
+                if(concita == null)
+                {
+                    var sincita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1)).Select(t => new
+                    {
+                        ticketId = t.Id,
+                        ticket = t.Numero,
+                        candidatoId = t.CandidatoId,
+                        movimientoId = t.MovimientoId,
+                        tiempoCita = t.fch_Creacion.Minute - DateTime.Now.Minute
+                    }).FirstOrDefault();
+
+                    this.InsertTicketRecl(sincita.ticketId, reclutadorId);
+                    return Ok(sincita.ticketId);
+                }
+                else
+                {
+                    this.InsertTicketRecl(concita.ticketId, reclutadorId);
+                    return Ok(concita.ticketId);
+                }
+               
 
             //    var result = this.GetTicketsReclutador(ticket.ticketId, reclutadorId);
 
-                return Ok(ticket.ticketId);
+                
 
             }
             catch (Exception ex)
