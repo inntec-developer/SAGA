@@ -193,6 +193,7 @@ namespace SAGA.API.Controllers
                        fch_Cumplimiento = e.fch_Cumplimiento,
                        Estatus = e.Estatus.Descripcion,
                        EstatusId = e.EstatusId,
+                       EstatusOrden = e.Estatus.Orden,
                        Prioridad = e.Prioridad.Descripcion,
                        PrioridadId = e.PrioridadId,
                        Cliente = e.Cliente.Nombrecomercial,
@@ -229,7 +230,7 @@ namespace SAGA.API.Controllers
                            reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
                        }).Distinct().ToList(),
                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
-                   }).OrderByDescending(x => x.Folio).ToList();
+                   }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
                     return Ok(requisicion);
                 }
@@ -262,6 +263,7 @@ namespace SAGA.API.Controllers
                        fch_Cumplimiento = e.fch_Cumplimiento,
                        Estatus = e.Estatus.Descripcion,
                        EstatusId = e.EstatusId,
+                       EstatusOrden = e.Estatus.Orden,
                        Prioridad = e.Prioridad.Descripcion,
                        PrioridadId = e.PrioridadId,
                        Cliente = e.Cliente.Nombrecomercial,
@@ -298,7 +300,7 @@ namespace SAGA.API.Controllers
                            reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
                        }).Distinct().ToList(),
                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
-                   }).OrderByDescending(x => x.Folio).ToList();
+                   }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
                     return Ok(requisicion);
 
@@ -352,6 +354,7 @@ namespace SAGA.API.Controllers
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion,
                             EstatusId = e.EstatusId,
+                            EstatusOrden = e.Estatus.Orden,
                             Prioridad = e.Prioridad.Descripcion,
                             PrioridadId = e.PrioridadId,
                             Cliente = e.Cliente.Nombrecomercial,
@@ -390,7 +393,7 @@ namespace SAGA.API.Controllers
                                 reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
                             }).Distinct().ToList(),
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
-                        }).OrderByDescending(x => x.Folio).ToList();
+                        }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
                     return Ok(requisicion);
                 }else
@@ -412,6 +415,7 @@ namespace SAGA.API.Controllers
                            fch_Cumplimiento = e.fch_Cumplimiento,
                            Estatus = e.Estatus.Descripcion,
                            EstatusId = e.EstatusId,
+                           EstatusOrden = e.Estatus.Orden,
                            Prioridad = e.Prioridad.Descripcion,
                            PrioridadId = e.PrioridadId,
                            Cliente = e.Cliente.Nombrecomercial,
@@ -450,7 +454,7 @@ namespace SAGA.API.Controllers
                                reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
                            }).Distinct().ToList(),
                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
-                       }).OrderByDescending(x => x.Folio).ToList();
+                       }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
                     return Ok(requisicionMTY);
                 }
@@ -535,6 +539,7 @@ namespace SAGA.API.Controllers
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion,
                             EstatusId = e.EstatusId,
+                            EstatusOrden = e.Estatus.Orden,
                             Prioridad = e.Prioridad.Descripcion,
                             PrioridadId = e.PrioridadId,
                             Cliente = e.Cliente.Nombrecomercial,
@@ -556,7 +561,7 @@ namespace SAGA.API.Controllers
                             AreaExperiencia = e.Area.areaExperiencia,
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
-                        }).ToList();
+                        }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
                     return Ok(vacantes);
                 }
                 else
@@ -614,6 +619,7 @@ namespace SAGA.API.Controllers
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion,
                             EstatusId = e.EstatusId,
+                            EstatusOrden = e.Estatus.Orden,
                             Prioridad = e.Prioridad.Descripcion,
                             PrioridadId = e.PrioridadId,
                             Cliente = e.Cliente.Nombrecomercial,
@@ -635,7 +641,7 @@ namespace SAGA.API.Controllers
                             AreaExperiencia = e.Area.areaExperiencia,
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
-                        }).ToList();
+                        }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
                     return Ok(vacantes);
                 }
 
@@ -1296,8 +1302,8 @@ namespace SAGA.API.Controllers
                         requisicion.Asignada = true;
                     else
                         requisicion.Asignada = false;
-                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requi.Folio, requi.Usuario, requisicion.VBtra);
                     db.SaveChanges();
+                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requi.Folio, requi.Usuario, requisicion.VBtra);
 
                     Int64 Folio = requisicion.Folio;
                     //Creacion de Trazabalidad par ala requisición.
@@ -1563,6 +1569,7 @@ namespace SAGA.API.Controllers
                 db.AsignacionRequis.AddRange(asignaciones);
                 SendEmail.ConstructEmail(asignaciones, NotChange, "C", Folio, user, VBra);
             }
+            db.SaveChanges();
 
         }
 
