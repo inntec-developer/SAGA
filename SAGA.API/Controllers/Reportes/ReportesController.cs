@@ -47,6 +47,7 @@ namespace SAGA.API.Controllers.Reportes
                 e.Id,
                 e.Folio,
                 e.VBtra,
+                porcentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
                 e.fch_Creacion,
                 e.fch_Limite,
                 empresa = e.Cliente.Nombrecomercial,
@@ -98,8 +99,8 @@ namespace SAGA.API.Controllers.Reportes
 
             if (ofc != "0")
             {
-               
-                var negocio = db.OficinasReclutamiento.Where(e => e.UnidadNegocioId == Convert.ToInt32(ofc)).Select(e=>e.Id).ToList();
+                int unidad = Convert.ToInt32(ofc);
+                var negocio = db.OficinasReclutamiento.Where(e => e.UnidadNegocioId == unidad).Select(e=>e.Id).ToList();
                 var lista = db.Usuarios.Where(e => negocio.Contains(e.SucursalId)).Select(e=>e.Usuario).ToList();
                 datos.Where(e => lista.Contains(e.Usuario)).ToList();
             }
