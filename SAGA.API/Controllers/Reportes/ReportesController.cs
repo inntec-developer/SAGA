@@ -96,8 +96,16 @@ namespace SAGA.API.Controllers.Reportes
                 datos = datos.Where(e => asigna.Contains(e.Id)).ToList();
             }
 
-            
-           
+            if (ofc != "0")
+            {
+               
+                var negocio = db.OficinasReclutamiento.Where(e => e.UnidadNegocioId == Convert.ToInt32(ofc)).Select(e=>e.Id).ToList();
+                var lista = db.Usuarios.Where(e => negocio.Contains(e.SucursalId)).Select(e=>e.Usuario).ToList();
+                datos.Where(e => lista.Contains(e.Usuario)).ToList();
+            }
+
+
+
             return Ok(datos);
         }
 
