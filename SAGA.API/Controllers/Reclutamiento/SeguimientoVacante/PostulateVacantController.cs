@@ -61,96 +61,121 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var postulate = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
+                var tipo = db.Usuarios.Where(x => x.Id.Equals(ReclutadorId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
+                if (tipo == 4)
                 {
-                    Id = c.Id,
-                    folio = c.Folio,
-                    candidatoId = c.CandidatoId,
-                    estatus = c.Estatus.Descripcion,
-                    estatusId = c.EstatusId,
-                    horarioId = c.HorarioId,
-                    horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
-                    contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
+                    var postulate = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(VacanteId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
                     {
-                        nombre = p.Nombre == null ? "" : p.Nombre,
-                        apellidoPaterno = p.ApellidoPaterno,
-                        apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
-                        edad = p.FechaNacimiento,
-                        rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
-                        curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
-                        nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
-                        paisNacimiento = p.PaisNacimientoId,
-                        estadoNacimiento = p.EstadoNacimientoId,
-                        municipioNacimiento = p.MunicipioNacimientoId,
-                        localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
-                        generoId = p.GeneroId
-                    }).ToList(),
-                
-                    perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
+                        Id = c.Id,
+                        folio = c.Folio,
+                        candidatoId = c.CandidatoId,
+                        estatus = c.Estatus.Descripcion,
+                        estatusId = c.EstatusId,
+                        horarioId = c.HorarioId,
+                        horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
+                        contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
+                        {
+                            nombre = p.Nombre == null ? "" : p.Nombre,
+                            apellidoPaterno = p.ApellidoPaterno,
+                            apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
+                            edad = p.FechaNacimiento,
+                            rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
+                            curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
+                            nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
+                            paisNacimiento = p.PaisNacimientoId,
+                            estadoNacimiento = p.EstadoNacimientoId,
+                            municipioNacimiento = p.MunicipioNacimientoId,
+                            localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
+                            generoId = p.GeneroId
+                        }).ToList(),
+
+                        perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
+                        {
+                            foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
+                            AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
+                            AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
+                            sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
+                            nombre = x.Candidato.Nombre,
+                            apellidoPaterno = x.Candidato.ApellidoPaterno,
+                            apellidoMaterno = String.IsNullOrEmpty(x.Candidato.ApellidoMaterno) ? "SIN REGISTRO" : x.Candidato.ApellidoMaterno,
+                            localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
+                            edad = x.Candidato.FechaNacimiento,
+                            rfc = String.IsNullOrEmpty(x.Candidato.RFC) ? "Sin registro" : x.Candidato.RFC,
+                            curp = String.IsNullOrEmpty(x.Candidato.CURP) ? "Sin registro" : x.Candidato.CURP,
+                            nss = String.IsNullOrEmpty(x.Candidato.NSS) ? "Sin registro" : x.Candidato.NSS,
+                            paisNacimiento = x.Candidato.PaisNacimientoId,
+                            estadoNacimiento = x.Candidato.EstadoNacimientoId,
+                            municipioNacimiento = x.Candidato.MunicipioNacimientoId,
+                            generoId = x.Candidato.GeneroId
+                        }).ToList(),
+                        usuario = c.Reclutador,
+                        usuarioId = c.ReclutadorId,
+                        fecha = c.Fch_Modificacion,
+                        areaReclutamiento = c.Departamentos.Nombre,
+                        areaReclutamientoId = c.DepartamentoId,
+                        fuenteReclutamiento = c.TipoMedios.Nombre,
+                        fuenteReclutamientoId = c.TipoMediosId
+                    }).ToList();
+
+                    return Ok(postulate);
+                }
+                else
+                {
+                    var postulate = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
                     {
-                        foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
-                        AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
-                        AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
-                        sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
-                        nombre = x.Candidato.Nombre,
-                        apellidoPaterno = x.Candidato.ApellidoPaterno,
-                        apellidoMaterno = String.IsNullOrEmpty(x.Candidato.ApellidoMaterno) ? "SIN REGISTRO" : x.Candidato.ApellidoMaterno,
-                        localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
-                        edad = x.Candidato.FechaNacimiento,
-                        rfc = String.IsNullOrEmpty(x.Candidato.RFC) ? "Sin registro" : x.Candidato.RFC,
-                        curp = String.IsNullOrEmpty(x.Candidato.CURP) ? "Sin registro" : x.Candidato.CURP,
-                        nss = String.IsNullOrEmpty( x.Candidato.NSS) ?  "Sin registro" : x.Candidato.NSS,
-                        paisNacimiento = x.Candidato.PaisNacimientoId,
-                        estadoNacimiento = x.Candidato.EstadoNacimientoId,
-                        municipioNacimiento = x.Candidato.MunicipioNacimientoId,
-                        generoId = x.Candidato.GeneroId
-                    }).ToList(),
-                    usuario = c.Reclutador,
-                    usuarioId = c.ReclutadorId,
-                    fecha = c.Fch_Modificacion,
-                    areaReclutamiento = c.Departamentos.Nombre,
-                    areaReclutamientoId = c.DepartamentoId,
-                    fuenteReclutamiento = c.TipoMedios.Nombre,
-                    fuenteReclutamientoId = c.TipoMediosId
-                }).ToList();
-                //var postulate = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(VacanteId) & x.ReclutadorId.Equals(ReclutadorId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
-                //{
-                //    Id = c.Id,
-                //    folio = c.Folio,
-                //    candidatoId = c.CandidatoId,
-                //    estatus = c.Estatus.Descripcion,
-                //    estatusId = c.EstatusId,
-                //    horarioId = c.HorarioId,
-                //    horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
-                //    perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
-                //    {
-                //        foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
+                        Id = c.Id,
+                        folio = c.Folio,
+                        candidatoId = c.CandidatoId,
+                        estatus = c.Estatus.Descripcion,
+                        estatusId = c.EstatusId,
+                        horarioId = c.HorarioId,
+                        horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
+                        contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
+                        {
+                            nombre = p.Nombre == null ? "" : p.Nombre,
+                            apellidoPaterno = p.ApellidoPaterno,
+                            apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
+                            edad = p.FechaNacimiento,
+                            rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
+                            curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
+                            nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
+                            paisNacimiento = p.PaisNacimientoId,
+                            estadoNacimiento = p.EstadoNacimientoId,
+                            municipioNacimiento = p.MunicipioNacimientoId,
+                            localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
+                            generoId = p.GeneroId
+                        }).ToList(),
 
-                //        apellidoPaterno = x.Candidato.ApellidoPaterno,
-                //        apellidoMaterno = x.Candidato.ApellidoMaterno,
-                //        AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
-                //        AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
-                //        localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
-                //        sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
-                //        edad = x.Candidato.FechaNacimiento,
-                //        rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-                //        curp = x.Candidato.CURP != null ? x.Candidato.CURP : "",
-                //        nss = x.Candidato.NSS != null ? x.Candidato.NSS : "",
-                //        paisNacimiento = x.Candidato.PaisNacimientoId,
-                //        estadoNacimiento = x.Candidato.EstadoNacimientoId,
-                //        municipioNacimiento = x.Candidato.MunicipioNacimientoId,
-                //        generoId = x.Candidato.GeneroId
-                //    }),
-                //    usuario = c.Reclutador,
-                //    usuarioId = c.ReclutadorId,
-                //    fecha = c.Fch_Modificacion,
-                //    areaReclutamiento = c.Departamentos.Nombre,
-                //    areaReclutamientoId = c.DepartamentoId,
-                //    fuenteReclutamiento = c.TipoMedios.Nombre,
-                //    fuenteReclutamientoId = c.TipoMediosId
-                //}).ToList();
+                        perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
+                        {
+                            foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
+                            AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
+                            AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
+                            sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
+                            nombre = x.Candidato.Nombre,
+                            apellidoPaterno = x.Candidato.ApellidoPaterno,
+                            apellidoMaterno = String.IsNullOrEmpty(x.Candidato.ApellidoMaterno) ? "SIN REGISTRO" : x.Candidato.ApellidoMaterno,
+                            localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
+                            edad = x.Candidato.FechaNacimiento,
+                            rfc = String.IsNullOrEmpty(x.Candidato.RFC) ? "Sin registro" : x.Candidato.RFC,
+                            curp = String.IsNullOrEmpty(x.Candidato.CURP) ? "Sin registro" : x.Candidato.CURP,
+                            nss = String.IsNullOrEmpty(x.Candidato.NSS) ? "Sin registro" : x.Candidato.NSS,
+                            paisNacimiento = x.Candidato.PaisNacimientoId,
+                            estadoNacimiento = x.Candidato.EstadoNacimientoId,
+                            municipioNacimiento = x.Candidato.MunicipioNacimientoId,
+                            generoId = x.Candidato.GeneroId
+                        }).ToList(),
+                        usuario = c.Reclutador,
+                        usuarioId = c.ReclutadorId,
+                        fecha = c.Fch_Modificacion,
+                        areaReclutamiento = c.Departamentos.Nombre,
+                        areaReclutamientoId = c.DepartamentoId,
+                        fuenteReclutamiento = c.TipoMedios.Nombre,
+                        fuenteReclutamientoId = c.TipoMediosId
+                    }).ToList();
 
-                return Ok(postulate);
+                    return Ok(postulate);
+                }
             }
             catch(Exception ex)
             {
