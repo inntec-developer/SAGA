@@ -359,15 +359,14 @@ namespace SAGA.API.Controllers
                     .Select(e => new
                     {
                         Id = e.Id,
-                        Folio = e.Folio,
-                        Cliente = e.Cliente.Nombrecomercial,
-                        ClienteId = e.Cliente.Id,
-                        estado = e.Cliente.direcciones.Select(x => x.Municipio.municipio + " " + x.Estado.estado + " " + x.Estado.Pais.pais).FirstOrDefault(),
-                        domicilio_trabajo = e.Direccion.Calle + " " + e.Direccion.NumeroExterior + " " + e.Direccion.Colonia.colonia + " " + e.Direccion.Municipio.municipio + " " + e.Direccion.Estado.estado,
-                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                        //Folio = e.Folio,
+                        //Cliente = e.Cliente.Nombrecomercial,
+                        //ClienteId = e.Cliente.Id,
+                        //estado = e.Cliente.direcciones.Select(x => x.Municipio.municipio + " " + x.Estado.estado + " " + x.Estado.Pais.pais).FirstOrDefault(),
+                        //domicilio_trabajo = e.Direccion.Calle + " " + e.Direccion.NumeroExterior + " " + e.Direccion.Colonia.colonia + " " + e.Direccion.Municipio.municipio + " " + e.Direccion.Estado.estado,
+                        //Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         VBtra = e.VBtra,
-                        SueldoMinimo = e.SueldoMinimo,
-                        SueldoMaximo = e.SueldoMaximo,
+                        requisitos = e.DAMFO290.escolardadesPerfil.Select(esc => esc.Escolaridad.gradoEstudio),
                         Actividades = e.DAMFO290.actividadesPerfil.Select(a => a.Actividades),
                         aptitudes = e.DAMFO290.aptitudesPerfil.Select(ap => ap.Aptitud.aptitud),
                         experiencia = e.Experiencia

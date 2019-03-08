@@ -773,6 +773,16 @@ namespace SAGA.API.Controllers
 
         }
 
+        // Count days from d0 to d1 inclusive, excluding weekends
+        public static int countWeekDays(DateTime d0, DateTime d1)
+        {
+            int ndays = 1 + Convert.ToInt32((d1 - d0).TotalDays);
+            int nsaturdays = (ndays + Convert.ToInt32(d0.DayOfWeek)) / 7;
+            return ndays - 2 * nsaturdays
+                   - (d0.DayOfWeek == DayOfWeek.Sunday ? 1 : 0)
+                   + (d1.DayOfWeek == DayOfWeek.Saturday ? 1 : 0);
+        }
+
 
         [HttpGet]
         [Route("getReporte70")]
@@ -781,53 +791,188 @@ namespace SAGA.API.Controllers
             try
             {
 
-                var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                    .Where(e => e.Activo)
-                    .Select(e => new
+                List<int> estatus = new List<int> { 6, 7, 29, 30, 33, 38 };
+                var vacantes = db.Database.SqlQuery<ReporteGeneralDto>("dbo.ReporteGeneral").ToList();
+
+                var t = db.EstatusRequisiciones.GroupBy(g => g.RequisicionId)
+                    .Select(T => new
                     {
-                        Id = e.Id,
-                        Folio = e.Folio,
-                        fch_Solicitud = e.fch_Creacion,
-                        reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a =>
-                            db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
-                        ).ToList(),
-                        sucursal = e.Cliente.RazonSocial != null ? e.Cliente.RazonSocial : "Sin Registro" ,
-                        Cliente = e.Cliente.Nombrecomercial,
-                        ClienteId = e.Cliente.Id,
-                        estado = e.Cliente.direcciones.Select(x => x.Municipio.municipio + " " + x.Estado.estado + " " + x.Estado.Pais.pais).FirstOrDefault(),
-                        domicilio_trabajo = e.Direccion.Calle + " " + e.Direccion.NumeroExterior + " " + e.Direccion.Colonia.colonia + " " + e.Direccion.Municipio.municipio + " " + e.Direccion.Estado.estado,
-                        Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() : "Sin Registro",
-                        coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() : "Sin Registro",
-                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-                        porcentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
-                        EnProcesoEC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 30).Count(),
-                        EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
-                        contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
-                        faltantes = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? e.horariosRequi.Sum(s => s.numeroVacantes) - (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) : 0,
-                        diasTrans = e.fch_Aprobacion != null ? DateTime.Now.Day - e.fch_Aprobacion.Value.Day : 0,
-                        VBtra = e.VBtra,
-                        SueldoMaximo = e.SueldoMaximo,
-                        Estatus = e.Estatus.Descripcion,
-                        estatusId = e.EstatusId,
-                        fch_Modificacion = e.fch_Modificacion,
-                        TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
-                        tipoReclutamientoId = e.TipoReclutamientoId,
-                        ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
-                        ClaseReclutamientoId = e.ClaseReclutamientoId,
-                        comentarios_coord = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
-                          c.fch_Creacion + " " + c.Comentario).ToList(),
-                        comentarios_solicitante = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.PropietarioId)).Select(c =>
-                            c.fch_Creacion + " " +  c.Comentario ).ToList(),
 
-                        comentarios_reclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && !x.ReclutadorId.Equals(e.AprobadorId) && !x.ReclutadorId.Equals(e.PropietarioId)).GroupBy(g => g.ReclutadorId).Select(c => new
+                        RequisicionId = T.Key,
+
+                        Estatus = T.Select(x => new EstatusRequiDto
                         {
+                            EstatusId = x.EstatusId,
+                            Estatus = x.Estatus.Descripcion,
+                            fch_Modificacion = x.fch_Modificacion.Value,
+                            diasTrans = 0,
+                            diasTotal = 0,
+                        }).OrderBy(o => o.fch_Modificacion).ToList()
 
-                            reclutador = db.Usuarios.Where(x => x.Id.Equals(c.Key)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
-                            comentario = c.Select( cc => new { cc.fch_Creacion, cc.Comentario }).ToList()
-                            //c.Comentario
-                        }).ToList()
                     }).ToList();
-                return Ok(vacantes);
+
+
+                foreach (var r in t)
+                {
+                    if (r.Estatus.Count > 1)
+                    {
+                        for (int i = 0; i < r.Estatus.Count() - 1; i++)
+                        {
+                            int dt = countWeekDays(r.Estatus[i].fch_Modificacion, r.Estatus[i + 1].fch_Modificacion);
+                            r.Estatus[i].diasTrans = dt - 1;
+                            if (estatus.Contains(r.Estatus[i].EstatusId))
+                            {
+                                r.Estatus[i].diasTotal += (dt - 1);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int dt = countWeekDays(r.Estatus[0].fch_Modificacion, DateTime.Now);
+                        r.Estatus[0].diasTrans = dt - 1;
+                        if (estatus.Contains(r.Estatus[0].EstatusId))
+                        {
+                            r.Estatus[0].diasTotal += (dt - 1);
+                        }
+                    }
+                }
+
+                //foreach( var e in vacantes)
+                //    {
+
+                //        Id = e.Id,
+                //        Folio = e.Folio,
+                //        fch_Solicitud = e.fch_Creacion,
+                //        reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a =>
+                //            db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
+                //                ).ToList(),
+                //        sucursal = e.RazonSocial,
+                //        Cliente = e.Nombrecomercial,
+                //        estado = e.estado,
+                //        domicilio_trabajo = e.domicilio_trabajo,
+                //        Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() : "Sin Registro",
+                //        coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() : "Sin Registro",
+                //        Vacantes = e.vacantes,
+                //        porcentaje = e.porcentaje,
+                //        EnProcesoEC = e.enProcesoEC,
+                //        EnProcesoFC = e.enProcesoFC,
+                //        contratados = e.contratados,
+                //        faltantes = e.faltante,
+                //        diasTrans = e.diasTrans,
+                //        VBtra = e.VBtra,
+                //        SueldoMaximo = e.SueldoMaximo,
+                //        e.Estatus = t.Where(x => x.RequisicionId.Equals(e.Id)).Select(E => E.Estatus).FirstOrDefault();
+                //        TipoReclutamiento = e.tipoReclutamiento,
+                //        ClaseReclutamiento = e.clasesReclutamiento,
+                //        e.comentarios_coord = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
+                //          c.fch_Creacion + " " + c.Comentario).ToList();
+                //        e.comentarios_solicitante = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.PropietarioId) && !x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
+                //            c.fch_Creacion + " " + c.Comentario).ToList();
+
+                //        e.comentarios_reclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && !x.ReclutadorId.Equals(e.AprobadorId) && !x.ReclutadorId.Equals(e.PropietarioId)).GroupBy(g => g.ReclutadorId).Select(c => new CR
+                //        {
+
+                //            reclutador = db.Usuarios.Where(x => x.Id.Equals(c.Key)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                //            comentario = c.Select(cc => new comentariosRecl {
+                //                fch_Creacion = cc.fch_Creacion,
+                //                comentario = cc.Comentario }).ToList()
+                //        }).ToList();
+
+                //    }
+                var mocos = vacantes.OrderByDescending(o => o.fch_Creacion).Select(e => new
+                {
+                    Id = e.Id,
+                    Folio = e.Folio,
+                    fch_Solicitud = e.fch_Creacion,
+                    reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a =>
+                        db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
+                                       ).ToList(),
+                    sucursal = e.RazonSocial,
+                    Cliente = e.Nombrecomercial,
+                    estado = e.estado,
+                    domicilio_trabajo = e.domicilio_trabajo,
+                    Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() : "Sin Registro",
+                    coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() : "Sin Registro",
+                    Vacantes = e.vacantes,
+                    porcentaje = e.porcentaje,
+                    EnProcesoEC = e.enProcesoEC,
+                    EnProcesoFC = e.enProcesoFC,
+                    contratados = e.contratados,
+                    faltantes = e.faltante,
+                    diasTrans = e.diasTrans,
+                    VBtra = e.VBtra,
+                    SueldoMaximo = e.SueldoMaximo,
+                    Estatus = t.Where(x => x.RequisicionId.Equals(e.Id)).Select(E => E.Estatus).FirstOrDefault(),
+                    TipoReclutamiento = e.tipoReclutamiento,
+                    ClaseReclutamiento = e.clasesReclutamiento,
+                    comentarios_coord = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
+                          c.fch_Creacion + " " + c.Comentario).ToList(),
+                    comentarios_solicitante = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.PropietarioId) && !x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
+                    c.fch_Creacion + " " + c.Comentario).ToList(),
+
+                    comentarios_reclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && !x.ReclutadorId.Equals(e.AprobadorId) && !x.ReclutadorId.Equals(e.PropietarioId)).GroupBy(g => g.ReclutadorId).Select(c => new
+                    {
+
+                        reclutador = db.Usuarios.Where(x => x.Id.Equals(c.Key)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                        comentario = c.Select(cc => new
+                        {
+                            fch_Creacion = cc.fch_Creacion,
+                            comentario = cc.Comentario
+                        }).ToList()
+                    }).ToList()
+                });
+
+
+                
+
+                //        var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
+                //.Where(e => e.Activo)
+                //.Select(e => new
+                //{
+                //    Id = e.Id,
+                //    Folio = e.Folio,
+                //    fch_Solicitud = e.fch_Creacion,
+                //    reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a =>
+                //        db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
+                //    ).ToList(),
+                //    sucursal = e.Cliente.RazonSocial != null ? e.Cliente.RazonSocial : "Sin Registro",
+                //    Cliente = e.Cliente.Nombrecomercial,
+                //    ClienteId = e.Cliente.Id,
+                //    estado = e.Cliente.direcciones.Select(x => x.Municipio.municipio + " " + x.Estado.estado + " " + x.Estado.Pais.pais).FirstOrDefault(),
+                //    domicilio_trabajo = e.Direccion.Calle + " " + e.Direccion.NumeroExterior + " " + e.Direccion.Colonia.colonia + " " + e.Direccion.Municipio.municipio + " " + e.Direccion.Estado.estado,
+                //    Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() : "Sin Registro",
+                //    coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() : "Sin Registro",
+                //    Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                //    porcentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
+                //    EnProcesoEC = db.EstatusRequisiciones.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 30).Count(),
+                //    EnProcesoFC = db.EstatusRequisiciones.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
+                //    contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
+                //    faltantes = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? e.horariosRequi.Sum(s => s.numeroVacantes) - (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) : 0,
+                //    diasTrans = e.fch_Aprobacion != null ? DateTime.Now.Day - e.fch_Aprobacion.Value.Day : 0,
+                //    VBtra = e.VBtra,
+                //    SueldoMaximo = e.SueldoMaximo,
+                //    Estatus = t.Where(x => x.RequisicionId.Equals(e.Id)).Select(E => E.Estatus).FirstOrDefault(),
+                //    fch_Modificacion = e.fch_Modificacion,
+                //    TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                //    tipoReclutamientoId = e.TipoReclutamientoId,
+                //    ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
+                //    ClaseReclutamientoId = e.ClaseReclutamientoId,
+                //    comentarios_coord = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
+                //      c.fch_Creacion + " " + c.Comentario).ToList(),
+                //    comentarios_solicitante = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.PropietarioId)).Select(c =>
+                //        c.fch_Creacion + " " + c.Comentario).ToList(),
+
+                //    comentarios_reclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && !x.ReclutadorId.Equals(e.AprobadorId) && !x.ReclutadorId.Equals(e.PropietarioId)).GroupBy(g => g.ReclutadorId).Select(c => new
+                //    {
+
+                //        reclutador = db.Usuarios.Where(x => x.Id.Equals(c.Key)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                //        comentario = c.Select(cc => new { cc.fch_Creacion, cc.Comentario }).ToList()
+                //                    //c.Comentario
+                //                }).ToList()
+                //}).ToList();
+
+
+                return Ok(mocos);
 
             }
             catch (Exception ex)
