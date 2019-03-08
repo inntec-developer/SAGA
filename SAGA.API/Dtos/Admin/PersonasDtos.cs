@@ -34,4 +34,18 @@ namespace SAGA.API.Dtos
         public Guid liderId { get; set; }
 
     }
+
+    public class PersonaSendEmail
+    {
+        public Guid EntidadId { get; set; }
+        public string Clave { get; set; }
+        public string Usuario { get; set; } //alias
+        public string nombre { get; set; }
+        public string apellidoPaterno { get; set; }
+        public string apellidoMaterno { get; set; }
+        public Guid DepartamentoId { get; set; }
+        public byte TipoUsuarioId { get; set; }
+        public Guid OficinaId { get; set; }
+        public string Email { get; set; }
+    }
 }

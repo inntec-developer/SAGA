@@ -422,7 +422,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("sendEmailRegister")]
-        public IHttpActionResult SendEmailRegister(PersonasDtos Dtos)
+        public IHttpActionResult SendEmailRegister(PersonaSendEmail Dtos)
         {
             try
             {

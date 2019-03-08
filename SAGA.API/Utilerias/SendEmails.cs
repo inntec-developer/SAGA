@@ -221,12 +221,12 @@ namespace SAGA.API.Utilerias
             }
         }
 
-        public void SendEmailRegistro(PersonasDtos dtos)
+        public void SendEmailRegistro(PersonaSendEmail dtos)
         {
             try
             {
                 string body = "";
-                string email = dtos.Email.Select(x => x.email).FirstOrDefault().ToString();
+                string email = dtos.Email;
                 string webERP = ConfigurationManager.AppSettings["WEBERP"].ToString();
 
                 var aux = db.Usuarios.Where(x => x.Id.Equals(dtos.EntidadId)).Select(f => new
@@ -308,7 +308,7 @@ namespace SAGA.API.Utilerias
 
                 m.Subject = "Tu acceso al sistema SAGA ERP de DAMSA está listo!";
                 body = "<html><body><table width=\"80%\" style=\"font-family:'calibri'\">";
-                body = body + "<tr><th bgcolor=\"#044464\" style=\"color:white; text-align:left;\">Se creó una nueva cuenta para SAGA ERP </th></ tr>";
+                body = body + "<tr><th bgcolor=\"#044464\" style=\"color:white; text-align:left;\">Se creó una nueva cuenta para SAGA ERP </th></tr>";
                 body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Clave / Usuario de Empleado :</font></td></tr>";
                 body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} / {1} </td></tr>", dtos.Clave, dtos.Usuario);
                 body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Nombre :</font></td></tr>";

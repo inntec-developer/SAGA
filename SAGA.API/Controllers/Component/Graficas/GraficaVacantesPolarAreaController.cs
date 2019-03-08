@@ -80,18 +80,18 @@ namespace SAGA.API.Controllers.Component.Graficas
                         .ToList();
                 var ActivasR = db.Requisiciones
                     .Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id))
+                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                     .Where(r => r.fch_Cumplimiento > DateActivas)
                     .Where(r => estatus.Contains(r.EstatusId))
                     .Count();
                 var PorVencerR = db.Requisiciones
                     .Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id))
+                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                     .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
                     .Where(r => estatus.Contains(r.EstatusId))
                     .Count();
                 var vencidasR = db.Requisiciones.Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id))
+                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                     .Where(r => r.fch_Cumplimiento < DateTime.Now)
                     .Where(r => estatus.Contains(r.EstatusId))
                     .Count();
@@ -120,18 +120,18 @@ namespace SAGA.API.Controllers.Component.Graficas
                         .ToList();
                 var ActivasR = db.Requisiciones
                     .Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id))
+                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                     .Where(r => r.fch_Cumplimiento > DateActivas)
                     .Where(r => estatus.Contains(r.EstatusId))
                     .Count();
                 var PorVencerR = db.Requisiciones
                     .Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id))
+                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                     .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
                     .Where(r => estatus.Contains(r.EstatusId))
                     .Count();
                 var vencidasR = db.Requisiciones.Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id))
+                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                     .Where(r => r.fch_Cumplimiento < DateTime.Now)
                     .Where(r => estatus.Contains(r.EstatusId))
                     .Count();
@@ -146,14 +146,14 @@ namespace SAGA.API.Controllers.Component.Graficas
 
         [HttpGet]
         [Route("getRequisicionesGPA")]
-        public IHttpActionResult GetRequisicionesGPA(string estado, Guid usuarioId)
+        public IHttpActionResult GetRequisicionesGPA(string estado, Guid UsuarioId)
         {
             List<Guid> uids = new List<Guid>();
             int[] estatus = { 4, 5, 6, 7, 29, 39, 31, 32, 33, 38, 39, 43, 44, 46 };
             var DateActivas = DateTime.Now.AddDays(3);
             try
             {
-                var tipo = db.Usuarios.Where(x => x.Id.Equals(usuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
+                var tipo = db.Usuarios.Where(x => x.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
                 if (tipo == 8)
                 {
                     if (estado == "Activas")
@@ -258,15 +258,15 @@ namespace SAGA.API.Controllers.Component.Graficas
                 }
                 else
                 {
-                    if (db.Subordinados.Count(x => x.LiderId.Equals(usuarioId)) > 0)
+                    if (db.Subordinados.Count(x => x.LiderId.Equals(UsuarioId)) > 0)
                     {
-                        var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(usuarioId) && x.LiderId.Equals(usuarioId)).Select(u => u.UsuarioId).ToList();
+                        var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(UsuarioId) && x.LiderId.Equals(UsuarioId)).Select(u => u.UsuarioId).ToList();
 
                         uids = GetSub(ids, uids);
 
                     }
 
-                    uids.Add(usuarioId);
+                    uids.Add(UsuarioId);
 
                     var requis = db.AsignacionRequis
                             .OrderByDescending(e => e.Id)
@@ -278,7 +278,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     {
                         var requisicion = db.Requisiciones
                         .Where(e => e.Activo.Equals(true))
-                        .Where(r => requis.Contains(r.Id))
+                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                         .Where(r => r.fch_Cumplimiento > DateActivas)
                         .Where(r => estatus.Contains(r.EstatusId))
                         .Select(e => new
@@ -312,7 +312,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     {
                         var requisicion = db.Requisiciones
                         .Where(e => e.Activo.Equals(true))
-                        .Where(r => requis.Contains(r.Id))
+                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                         .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
                         .Where(r => estatus.Contains(r.EstatusId))
                         .Select(e => new
@@ -346,7 +346,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     {
                         var requisicion = db.Requisiciones
                         .Where(e => e.Activo.Equals(true))
-                        .Where(r => requis.Contains(r.Id))
+                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                         .Where(r => r.fch_Cumplimiento < DateTime.Now)
                         .Where(r => estatus.Contains(r.EstatusId))
                         .Select(e => new
