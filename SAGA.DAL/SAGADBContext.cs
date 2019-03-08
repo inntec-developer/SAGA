@@ -215,7 +215,7 @@ namespace SAGA.DAL
         /*
 		 * Loging
 		 */
-        //public DbSet<AspNetUsers> AspNetUsers { get; set; }
+        public DbSet<AspNetUsers> AspNetUsers { get; set; }
 
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -309,7 +309,7 @@ namespace SAGA.DAL
             //Preguntas Frecuentes 
             modelBuilder.Configurations.Add(new PreguntasFrecuentesMap().ToTable("PreguntasFrecuentes"));
 
-            //modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
+            modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
 
             #region BolsaTrabajo_BTra

@@ -161,6 +161,7 @@ namespace SAGA.API.Controllers
             {
                 Filtrado = db.PerfilCandidato
                     .Where(c => c.Id != null)
+                    .Where(c => c.Id.Equals(db.AspNetUsers.Where(a => a.Activo.Equals(true)).Select(a => a.IdPersona)))
                      .Select(c => new FiltrosDto
                      {
                          IdCandidato = c.CandidatoId,
