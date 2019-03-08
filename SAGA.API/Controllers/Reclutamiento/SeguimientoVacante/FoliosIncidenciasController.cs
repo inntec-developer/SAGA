@@ -160,7 +160,18 @@ namespace SAGA.API.Controllers
                 }
                 var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
                 var candidato = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(candidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
-                var motivo = db.ComentariosEntrevistas.Where(x => x.CandidatoId.Equals(candidatoId) & x.RequisicionId.Equals(requi) & x.ReclutadorId.Equals(reclutador) & x.Motivo.EstatusId == 28).Select(m => m.Motivo.Descripcion).FirstOrDefault();
+                var motivo = db.ComentariosEntrevistas.OrderByDescending(x => x.fch_Creacion)
+                    .Where(x => x.CandidatoId.Equals(candidatoId) 
+                                & x.RequisicionId.Equals(requi) 
+                                & x.ReclutadorId.Equals(reclutador) 
+                                & x.Motivo.EstatusId == 28)
+                    .Select(m => m.Motivo.Descripcion).FirstOrDefault();
+                var comentario = db.ComentariosEntrevistas.OrderByDescending(x => x.fch_Creacion)
+                    .Where(x => x.CandidatoId.Equals(candidatoId) 
+                                & x.RequisicionId.Equals(requi) 
+                                & x.ReclutadorId.Equals(reclutador) 
+                                & x.Motivo.EstatusId == 28)
+                    .Select(m => m.Comentario).FirstOrDefault();
                 //tengo que sacar el que le corresponde por estatus
                 string body = "";
                 
@@ -169,14 +180,18 @@ namespace SAGA.API.Controllers
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
-                    m.Subject = "Reporte incidencia Requisición, " + folio;
+                    m.Subject = "Reporte posible NR en Requisición, " + folio;
 
                     m.To.Add(email);
+                    //usuario, candidato, motivo, vbtra, folio
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
-                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, report&oacute; una incidencia sobre el candidato <strong>{1}</strong> motivo: <strong>{2}</strong>, vacante <strong>{3}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{4}</strong>.</p>", usuario, candidato, motivo, vbtra, folio);
-                    body = body + "<p>Para validar la incidencia reportada ser&aacute; necesario ingresar a Reclutamiento, seguido de entidades de reclutamiento, selecciona la opci&oacute;n Vacantes, dar clic en el bot&oacute;n Incidencias, para dar el seguimiento correspondiente.</p>";
-                    body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
+                    body = body + string.Format("<label>Informaci&oacute;n de candidato en Posible NR</label><p> Se comunica que el usuario / reclutador {0},reporto un incidente al siguiente candidato: </p>", usuario);
+                    body = body + "<table style=\"width: 75%; background-color: #f1f1c1; border-spacing: 10px;\"><tr><th>Folio:</th><th>Vacante</th><th>Candidato</th><th>Motivo</th><th>Comentario</th></tr>";
+                    body = body + string.Format("<tr><td style=\"color:green; text-align: center;\">{0}</td><td style=\"text-align: center;\">{1}</td><td style=\"text-align: center;\">{2}</td><td style=\"color:red; text-align: center;\">{3}</td><td style=\"text-align: center;\">{4}</td></tr></table>", folio, vbtra, candidato, motivo, comentario);
+                    body = body + "<p>Para validar y dar seguimineto a la informaci&oacute;n reportada ser&aacute; necesario ingresar a:<p/> ";
+                    body = body + "<ol><li>Ingresar a la secci&oacute;n de Reclutamiento.</li><li>Posteriormente en Vacantes.</li><li>Dar clic en bot&oacute;n Incidente, en al parte superior.</li><li>Identificar Candidato y agregar el resultado.</li><li>Aceptar o Rechazar la solicitud.</li></ol>";
+                    body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                     body = body + "</body></html>";
 
                     m.Body = body;
