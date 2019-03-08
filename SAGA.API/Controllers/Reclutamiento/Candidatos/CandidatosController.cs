@@ -157,12 +157,12 @@ namespace SAGA.API.Controllers
         {
             // Generamos el objeto que contendra los datos para el filtrado.
             List<FiltrosDto> Filtrado = new List<FiltrosDto>();
+            var activos = db.AspNetUsers.Where(a => a.Activo.Equals(0) && a.IdPersona != null).Select(a => a.IdPersona).ToList();
             try
             {
                 Filtrado = db.PerfilCandidato
-                    .Where(c => c.Id != null)
-                    .Where(c => c.Id.Equals(db.AspNetUsers.Where(a => a.Activo.Equals(true)).Select(a => a.IdPersona)))
-                     .Select(c => new FiltrosDto
+                    .Where(c => activos.Contains(c.CandidatoId))
+                    .Select(c => new FiltrosDto
                      {
                          IdCandidato = c.CandidatoId,
                          Estado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Estado.estado).FirstOrDefault(),

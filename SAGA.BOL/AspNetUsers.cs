@@ -20,7 +20,7 @@ namespace SAGA.BOL
         public bool LockoutEnabled { get; set; }
         public int AccessFailedCount { get; set; }
         public string UserName { get; set; }
-        public Guid? IdPersona { get; set; }
+        public Guid IdPersona { get; set; }
         public Guid? claveConfirmacionEmail { get; set; }
         public string Clave { get; set; }
         public DateTime? RegistroClave { get; set; }
