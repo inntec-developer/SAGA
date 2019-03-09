@@ -56,7 +56,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("updateStatus")]
-        public IHttpActionResult UpdateStatus(Guid ticketId)
+        public IHttpActionResult UpdateStatus(Guid ticketId, int estatus)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace SAGA.API.Controllers
 
                 db.Entry(t).State = EntityState.Modified;
 
-                t.Estatus = 3;
+                t.Estatus = estatus;
 
                 db.SaveChanges();
 
@@ -101,7 +101,8 @@ namespace SAGA.API.Controllers
                         candidatoId = t.CandidatoId,
                         movimientoId = t.MovimientoId,
                         fch_Creacion = t.fch_Creacion,
-                        tiempo = (DateTime.Now.Hour - t.fch_Creacion.Hour) * 60
+                        fch_cita = db.CalendarioCandidato.Where(x => x.CandidatoId.Equals(t.CandidatoId)).Count() > 0 ? db.CalendarioCandidato.Where(x => x.CandidatoId.Equals(t.CandidatoId)).Select(f => f.Fecha).FirstOrDefault() : DateTime.Now,
+                        tiempo = (DateTime.Now.Minute - t.fch_Creacion.Minute)
                     }).ToList();
 
                     return Ok(fila);
@@ -115,7 +116,8 @@ namespace SAGA.API.Controllers
                         candidatoId = t.CandidatoId,
                         movimientoId = t.MovimientoId,
                         fch_Creacion = t.fch_Creacion,
-                        tiempo = (DateTime.Now.Hour - t.fch_Creacion.Hour) * 60
+                        fch_cita = db.CalendarioCandidato.Where(x => x.CandidatoId.Equals(t.CandidatoId)).Select(f => f.Fecha),
+                        tiempo = Convert.ToInt32((DateTime.Now - t.fch_Creacion).TotalDays)
                     }).ToList();
 
                     return Ok(fila);
