@@ -24,7 +24,7 @@ namespace SAGA.API.Controllers.Reportes
         public IHttpActionResult Informe(string clave, string ofc, string tipo, string fini,
            string ffin, string emp, string sol, string trcl, string cor, string stus, string recl)
         {
-            int EstatusID = Convert.ToInt32(stus);
+            
             DateTime FechaF = DateTime.Now;
             DateTime FechaI = DateTime.Now;
             try
@@ -65,7 +65,19 @@ namespace SAGA.API.Controllers.Reportes
 
             if (stus != "0")
             {
-                datos = datos.Where(e => e.EstatusId == EstatusID).ToList();
+                var obj = stus.Split(',');
+                List<int> listaAreglo = new List<int>();
+                for (int i = 0; i < obj.Count() - 1; i++)
+                {
+                    listaAreglo.Add(Convert.ToInt32(obj[i]));
+                }
+                
+                var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
+                if (obb.Count == 0)
+                {
+                    datos = datos.Where(e => listaAreglo.Contains(e.EstatusId)).ToList();
+                }
+               
             }
 
             if (clave != null)
@@ -74,11 +86,34 @@ namespace SAGA.API.Controllers.Reportes
             }
             if (sol != "0")
             {
-                datos = datos.Where(e=>e.Usuario == sol).ToList();
+                var obj = sol.Split(',');
+                List<string> listaAreglo = new List<string>();
+                for (int i = 0; i < obj.Count() - 1; i++)
+                {
+                    listaAreglo.Add(obj[i]);
+                }
+                
+                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                if (obb.Count == 0)
+                {
+                    datos = datos.Where(e => listaAreglo.Contains(e.Usuario)).ToList();
+                }
+               
             }
-            if (emp != "0")
+            if (emp != "0" && emp != "00000000-0000-0000-0000-000000000000,")
             {
-                datos = datos.Where(e => e.ClienteId == new Guid(emp)).ToList();
+                var obj = emp.Split(',');
+                List<Guid> listaAreglo = new List<Guid>();
+                for (int i = 0; i < obj.Count() - 1; i++)
+                {
+                    listaAreglo.Add(new Guid(obj[i]));
+                }
+                var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
+                if (obb.Count == 0)
+                {
+                    datos = datos.Where(e => listaAreglo.Contains(e.ClienteId)).ToList();
+                }
+               
             }
 
             if (trcl != "0")
@@ -90,19 +125,39 @@ namespace SAGA.API.Controllers.Reportes
                 datos = datos.Where(e => e.ClaseReclutamientoId == Convert.ToInt32(cor)).ToList();
             }
 
-            if (recl != "0")
+            if (recl != "0" && recl != "00000000-0000-0000-0000-000000000000,")
             {
-                Guid idAs = new Guid(recl);
-                var asigna = db.AsignacionRequis.Where(e => e.GrpUsrId == idAs).Select(e => e.RequisicionId).ToList();
-                datos = datos.Where(e => asigna.Contains(e.Id)).ToList();
+                var obj = recl.Split(',');
+                List<Guid> listaAreglo = new List<Guid>();
+                for (int i = 0; i < obj.Count() - 1; i++)
+                {
+                    listaAreglo.Add(new Guid(obj[i]));
+                }
+                var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
+                if (obb.Count == 0)
+                {
+                    var asigna = db.AsignacionRequis.Where(e => listaAreglo.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                    datos = datos.Where(e => asigna.Contains(e.Id)).ToList();
+                }
             }
 
-            if (ofc != "0")
+            if (ofc != "0" && ofc != "0," )
             {
-                int unidad = Convert.ToInt32(ofc);
-                var negocio = db.OficinasReclutamiento.Where(e => e.UnidadNegocioId == unidad).Select(e=>e.Id).ToList();
-                var lista = db.Usuarios.Where(e => negocio.Contains(e.SucursalId)).Select(e=>e.Usuario).ToList();
-                datos.Where(e => lista.Contains(e.Usuario)).ToList();
+                var obj = ofc.Split(',');
+                List<int> listaAreglo = new List<int>();
+                for (int i = 0; i < obj.Count() -1; i++)
+                {
+                    listaAreglo.Add(Convert.ToInt32(obj[i]));
+                }
+
+                var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
+                if (obb.Count == 0)
+                {
+                    //int unidad = Convert.ToInt32(ofc);
+                    var negocio = db.OficinasReclutamiento.Where(e => listaAreglo.Contains(e.UnidadNegocioId)).Select(e => e.Id).ToList();
+                    var lista = db.Usuarios.Where(e => negocio.Contains(e.SucursalId)).Select(e => e.Usuario).ToList();
+                    datos.Where(e => lista.Contains(e.Usuario)).ToList();
+                }
             }
 
 
@@ -115,13 +170,15 @@ namespace SAGA.API.Controllers.Reportes
         [Route("empresas")]
         public IHttpActionResult Empresas()
         {
-            var datos = db.Clientes.Where(e=>e.Activo == true && e.RazonSocial != "" && e.RazonSocial != null).Select(e => new
+            var datos = db.Clientes.Where(e=>e.Activo == true && e.esCliente.Equals(true)).Select(e => new
             {
                 e.RFC,
                 e.Nombrecomercial,
                 e.Id,
                 e.RazonSocial
             }).Distinct().OrderBy(x=>x.RazonSocial).ToList();
+
+            datos.Insert(0, new { RFC = "Todos los Usuarios", Nombrecomercial = "as", Id = new Guid("00000000-0000-0000-0000-000000000000"), RazonSocial = "Todas las empresas" });
             return Ok(datos);
         }
 
@@ -134,10 +191,11 @@ namespace SAGA.API.Controllers.Reportes
            
             var datos = db.Usuarios.Where(e => e.Activo == true && Status.Contains(e.TipoUsuarioId)).Select(e => new
             {
-                e.Nombre,
+                Nombre = e.Nombre + " "+ e.ApellidoPaterno,
                 e.Id,
                 e.Usuario
             }).OrderBy(x=>x.Nombre).ToList();
+            datos.Insert(0, new { Nombre = "Todos los Usuarios", Id = new Guid("00000000-0000-0000-0000-000000000000") , Usuario = "0"});
             return Ok(datos);
         }
 
@@ -151,6 +209,9 @@ namespace SAGA.API.Controllers.Reportes
                 e.Descripcion,
                 e.Id
             }).ToList();
+           
+           
+           datos.Insert(0 ,new { Descripcion = "Todos los estatus", Id = 0 });
             return Ok(datos);
         }
 
