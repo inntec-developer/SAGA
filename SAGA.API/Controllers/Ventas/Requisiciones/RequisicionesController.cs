@@ -791,9 +791,9 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                Stopwatch stopwatch = new Stopwatch();
+                //Stopwatch stopwatch = new Stopwatch();
 
-                stopwatch.Start();
+                //stopwatch.Start();
                 List<int> estatus = new List<int> { 6, 7, 29, 30, 33, 38 };
                 var vacantes = db.Database.SqlQuery<ReporteGeneralDto>("dbo.ReporteGeneral");
 
@@ -843,8 +843,8 @@ namespace SAGA.API.Controllers
                     }
                 }
 
-                stopwatch.Stop();
-                TimeSpan ts = stopwatch.Elapsed;
+                //stopwatch.Stop();
+                //TimeSpan ts = stopwatch.Elapsed;
     
 
                 var objeto = vacantes.OrderByDescending(o => o.fch_Creacion).Select(e => new
