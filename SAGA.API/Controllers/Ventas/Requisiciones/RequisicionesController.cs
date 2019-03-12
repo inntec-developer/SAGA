@@ -561,7 +561,8 @@ namespace SAGA.API.Controllers
                             Reclutador = db.Usuarios.Where(x => x.Id.Equals(IdUsuario)).Select(r => r.Clave + " - " + r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault(),
                             AreaExperiencia = e.Area.areaExperiencia,
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
-                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
+                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
+                            examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
                     return Ok(vacantes);
                 }
@@ -641,7 +642,8 @@ namespace SAGA.API.Controllers
                             Reclutador = db.Usuarios.Where(x => x.Id.Equals(IdUsuario)).Select(r => r.Clave + " - " + r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault(),
                             AreaExperiencia = e.Area.areaExperiencia,
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
-                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
+                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
+                            examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
                     return Ok(vacantes);
                 }

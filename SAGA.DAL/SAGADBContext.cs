@@ -209,6 +209,7 @@ namespace SAGA.DAL
         #region Banco
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<TicketReclutador> TicketsReclutador { get; set; }
+        public DbSet<ModulosReclutamiento> ModulosReclutamiento { get; set; }
 
         #endregion
 
@@ -406,6 +407,7 @@ namespace SAGA.DAL
             #region Banco_sist
             modelBuilder.Configurations.Add(new TicketsMap().ToTable("Tickets", "Sist"));
             modelBuilder.Configurations.Add(new TicketsReclutadorMap().ToTable("TicketsReclutador", "Sist"));
+            modelBuilder.Configurations.Add(new ModulosReclutamientoMap().ToTable("ModulosReclutamiento", "Recl"));
 
             #endregion
 
@@ -1994,7 +1996,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.CandidatoId).IsRequired();
-                Property(x => x.SucursalId).IsRequired();
+                Property(x => x.ModuloId).IsRequired();
                 Property(x => x.Numero).HasMaxLength(50).IsRequired();
                 Property(x => x.MovimientoId).IsRequired();
                 Property(x => x.Estatus).IsRequired();
@@ -2011,6 +2013,18 @@ namespace SAGA.DAL
                 Property(x => x.TicketId).IsRequired();
                 Property(x => x.fch_Atencion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.fch_Final).HasColumnType("datetime").IsRequired();
+            }
+        }
+
+        public class ModulosReclutamientoMap : EntityTypeConfiguration<ModulosReclutamiento>
+        {
+            public ModulosReclutamientoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.SucursalId).IsRequired();
+                Property(x => x.Modulo).HasMaxLength(50).IsRequired();
+                Property(x => x.TipoModulo).IsRequired();
+                Property(x => x.Descripcion).HasMaxLength(150).IsRequired();
             }
         }
         #endregion

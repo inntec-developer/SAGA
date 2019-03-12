@@ -232,8 +232,10 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                List<int> estatusList = new List<int> { 8, 34, 35, 36, 36 };
+
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus))
+                    .Where(e => e.Activo.Equals(true) && !estatusList.Contains(e.EstatusId))
                     .Select(e => new
                     {
                         Id = e.Id,

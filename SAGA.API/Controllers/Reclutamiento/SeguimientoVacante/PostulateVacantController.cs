@@ -239,6 +239,13 @@ namespace SAGA.API.Controllers
 
                     db.SaveChanges();
 
+                    var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(datos.requisicionId) && x.EstatusId.Equals(29)).Count();
+                    if(requi == 0)
+                    {
+                        datos.estatusId = 29;
+                        UpdateStatusVacante(datos);
+
+                    }
                     return Ok(HttpStatusCode.Created);
                 }
                 else if(datos.estatusId != 12)
