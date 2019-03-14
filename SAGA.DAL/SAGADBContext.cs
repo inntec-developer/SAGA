@@ -1995,6 +1995,7 @@ namespace SAGA.DAL
             public TicketsMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.RequisicionId).IsRequired();
                 Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.ModuloId).IsRequired();
                 Property(x => x.Numero).HasMaxLength(50).IsRequired();

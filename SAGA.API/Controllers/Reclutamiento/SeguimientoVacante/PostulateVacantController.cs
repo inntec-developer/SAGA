@@ -1,4 +1,4 @@
-﻿using SAGA.API.Dtos.Reclutamiento.Seguimientovacantes;
+﻿using SAGA.API.Dtos;
 using SAGA.BOL;
 using SAGA.DAL;
 using System;

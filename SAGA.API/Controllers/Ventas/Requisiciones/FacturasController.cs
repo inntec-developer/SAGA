@@ -8,7 +8,6 @@ using SAGA.DAL;
 using SAGA.BOL;
 using SAGA.API.Dtos;
 using SAGA.API.Utilerias;
-using SAGA.API.Dtos.Reclutamiento.Seguimientovacantes;
 
 namespace SAGA.API.Controllers.Ventas.Requisiciones
 {
