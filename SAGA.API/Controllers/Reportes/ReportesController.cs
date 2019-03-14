@@ -63,7 +63,7 @@ namespace SAGA.API.Controllers.Reportes
               
             }).ToList();
 
-            if (stus != "0")
+            if (stus != "0" && stus != null)
             {
                 var obj = stus.Split(',');
                 List<int> listaAreglo = new List<int>();
@@ -84,7 +84,7 @@ namespace SAGA.API.Controllers.Reportes
             {
                 datos = datos.Where(e => e.VBtra.ToLower().Contains(clave.ToLower())).ToList();
             }
-            if (sol != "0")
+            if (sol != "0" && sol != null)
             {
                 var obj = sol.Split(',');
                 List<string> listaAreglo = new List<string>();
@@ -100,7 +100,7 @@ namespace SAGA.API.Controllers.Reportes
                 }
                
             }
-            if (emp != "0" && emp != "00000000-0000-0000-0000-000000000000,")
+            if (emp != "0" && emp != "00000000-0000-0000-0000-000000000000," && emp != null)
             {
                 var obj = emp.Split(',');
                 List<Guid> listaAreglo = new List<Guid>();
@@ -125,7 +125,7 @@ namespace SAGA.API.Controllers.Reportes
                 datos = datos.Where(e => e.ClaseReclutamientoId == Convert.ToInt32(cor)).ToList();
             }
 
-            if (recl != "0" && recl != "00000000-0000-0000-0000-000000000000,")
+            if (recl != "0" && recl != "00000000-0000-0000-0000-000000000000," && recl != null)
             {
                 var obj = recl.Split(',');
                 List<Guid> listaAreglo = new List<Guid>();
@@ -141,7 +141,7 @@ namespace SAGA.API.Controllers.Reportes
                 }
             }
 
-            if (ofc != "0" && ofc != "0," )
+            if (ofc != "0" && ofc != "0," && ofc != null)
             {
                 var obj = ofc.Split(',');
                 List<int> listaAreglo = new List<int>();
