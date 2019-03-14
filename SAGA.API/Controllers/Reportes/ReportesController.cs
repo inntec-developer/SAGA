@@ -29,10 +29,12 @@ namespace SAGA.API.Controllers.Reportes
             DateTime FechaI = DateTime.Now;
             try
             {
-                FechaI = Convert.ToDateTime("2019-02-06");
                 if (fini != null)
                 {
                     FechaI = Convert.ToDateTime(fini);
+                }
+                if (ffin != null)
+                {
                     FechaF = Convert.ToDateTime(ffin);
                 }
             }
