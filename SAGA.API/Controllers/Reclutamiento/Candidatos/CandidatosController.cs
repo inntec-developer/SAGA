@@ -831,8 +831,10 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var postulate = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(VacanteId) & x.EstatusId != 12 & x.EstatusId != 28 & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
-                {
+                var postulate = db.ProcesoCandidatos
+                    .OrderByDescending(f => f.Fch_Modificacion)
+                    .Where(x => x.RequisicionId.Equals(VacanteId) & x.EstatusId.Equals(24)).Select(c => new
+                    {
                     Id = c.Id,
                     candidatoId = c.CandidatoId,
                     estatus = c.Estatus.Descripcion,
@@ -841,7 +843,7 @@ namespace SAGA.API.Controllers
                     {
                         nombre = p.Nombre == null ? "" : p.Nombre,
                         apellidoPaterno = p.ApellidoPaterno,
-                        apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
+                        apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "" : p.ApellidoMaterno,
                         edad = p.FechaNacimiento,
                         rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
                         curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,

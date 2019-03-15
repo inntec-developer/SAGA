@@ -204,6 +204,12 @@ namespace SAGA.DAL
         public DbSet<Referenciado> Referenciados { get; set; }
         public DbSet<TamanoEmpresa> TamanoEmpresas { get; set; }
         public DbSet<TipoBase> TiposBases { get; set; }
+
+        // Relacion de Direccion - Emails - Teledonos - Contactos. Para clientes
+        public DbSet<DireccionTelefono> DireccionesTelefonos { get; set; }
+        public DbSet<DireccionEmail> DireccionesEmails { get; set; }
+        public DbSet<DireccionContacto> DireccionesContactos { get; set; }
+
         #endregion
 
         #region Banco
@@ -402,6 +408,9 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new InformeRequisicionesMap().ToTable("InformeRequisicion", "Vtas"));
             modelBuilder.Configurations.Add(new EstatusRequisicionesMap().ToTable("EstatusRequisiciones", "Vtas"));
             modelBuilder.Configurations.Add(new FacturacionPuroMap().ToTable("FacturacionPuro", "Vtas"));
+            modelBuilder.Configurations.Add(new DireccionTelefonoMap().ToTable("DireccionesTelefonos", "Vtas"));
+            modelBuilder.Configurations.Add(new DireccionEmailMap().ToTable("DireccionesEmails", "Vtas"));
+            modelBuilder.Configurations.Add(new DireccionContactoMap().ToTable("DireccionesContactos", "Vtas"));
             #endregion
 
             #region Banco_sist
@@ -1677,6 +1686,39 @@ namespace SAGA.DAL
                 Property(x => x.MontoContratado).HasPrecision(18, 4).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
+            }
+        }
+
+        public class DireccionTelefonoMap : EntityTypeConfiguration<DireccionTelefono>
+        {
+            public DireccionTelefonoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.DireccionId).IsRequired();
+                Property(x => x.TelefonoId).IsRequired();
+            }
+        }
+
+        public class DireccionEmailMap : EntityTypeConfiguration<DireccionEmail>
+        {
+            public DireccionEmailMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.DireccionId).IsRequired();
+                Property(x => x.EmailId).IsRequired();
+            }
+        }
+
+        public class DireccionContactoMap : EntityTypeConfiguration<DireccionContacto>
+        {
+            public DireccionContactoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.DireccionId).IsRequired();
+                Property(x => x.ContactoId).IsRequired();
             }
         }
 
