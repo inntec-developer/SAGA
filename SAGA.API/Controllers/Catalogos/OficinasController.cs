@@ -1,38 +1,61 @@
-﻿using SAGA.BOL;
-using SAGA.DAL;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using SAGA.BOL;
+using SAGA.DAL;
 
-namespace SAGA.API.Controllers
+namespace SAGA.API.Controllers.Catalogos
 {
-    [RoutePrefix("api/PreguntasFrecuente")]
-    public class PreguntasFrecuenteController : ApiController
+    [RoutePrefix("api/Oficina")]
+    public class OficinasController : ApiController
     {
         private SAGADBContext db = new SAGADBContext();
-        
 
         [HttpGet]
-        [Route("preguntas")]
-        public IHttpActionResult preguntas()
+        [Route("oficina")]
+        public IHttpActionResult oficina()
         {
             try
             {
-                var datos = db.PreguntasFrecuentes.OrderByDescending(e=>e.Id).ToList();
-              //  var datos = db.PreguntasFrecuentes.Select(e => new { e.Id, e.Pregunta, e.Respuesta, e.Activo }).ToList();
+                string cadena = "1,2,3,4,5";
+                var array = cadena.Split(',');
+                List<int> tipos = new List<int>();
+                for (int i = 0; i < array.Length; i++)
+                {
+                    tipos.Add(Int32.Parse(array[i]));
+                }
+
+                var datos = db.OficinasReclutamiento.Where(e => tipos.Contains(e.TipoOficinaId)).Select(
+                     caja => new
+                     {
+                        caja.Id,
+                        nombre = db.Entidad.Where(e => e.Id == caja.Id).Select(e => e.Nombre).FirstOrDefault(),
+                        caja.Latitud,
+                        caja.Longitud,
+                        caja.TipoOficina.tipoOficina,
+                        Estado = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Estado.estado,
+                        Municipio = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Municipio.municipio,
+                        Colonia = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Colonia.colonia,
+                        Calle = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Calle,
+                        NumeroExt = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().NumeroExterior,
+                        Telefono = db.Telefonos.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().telefono,
+                        Extension = db.Telefonos.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().Extension,
+                        Correo = db.Emails.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().email,
+                     }).OrderBy(e => e.nombre).ToList();
+
+              
                 return Ok(datos);
             }
             catch (Exception ex)
             {
-                var mensaje = ex;               
+                var mensaje = ex;
             }
 
             return Ok("");
         }
-
 
         [HttpGet]
         [Route("add")]
@@ -42,7 +65,7 @@ namespace SAGA.API.Controllers
             {
                 var datos = db.PreguntasFrecuentes.ToList();
                 var pren = new PreguntasFrecuente();
-           //     pren.Id = datos.Count + 1;
+                //     pren.Id = datos.Count + 1;
                 pren.Pregunta = pregunta;
                 pren.Respuesta = repuesta;
                 pren.Activo = true;
@@ -66,7 +89,7 @@ namespace SAGA.API.Controllers
             try
             {
                 int iden = Convert.ToInt32(id);
-                var datos = db.PreguntasFrecuentes.Where(e=>e.Id == iden).FirstOrDefault();
+                var datos = db.PreguntasFrecuentes.Where(e => e.Id == iden).FirstOrDefault();
                 datos.Pregunta = pregunta;
                 datos.Respuesta = repuesta;
                 datos.Activo = Convert.ToBoolean(activo);
@@ -99,5 +122,8 @@ namespace SAGA.API.Controllers
             }
             return Ok("Algo paso intentelo mas tarde");
         }
+
+
+
     }
 }

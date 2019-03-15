@@ -9,7 +9,6 @@ using System.Web;
 using System.Text;
 using System.Web.Http;
 using SAGA.API.Dtos;
-using SAGA.API.Dtos.Reclutamiento.Seguimientovacantes;
 using System.Net;
 using System.Globalization;
 

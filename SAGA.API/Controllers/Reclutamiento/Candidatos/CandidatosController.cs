@@ -10,7 +10,7 @@ using SAGA.API.Dtos;
 using AutoMapper;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
-using SAGA.API.Dtos.Reclutamiento.Seguimientovacantes;
+
 
 namespace SAGA.API.Controllers
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace SAGA.API.Dtos.Reclutamiento.Seguimientovacantes
+namespace SAGA.API.Dtos
 {
     public class ProcesoDto
     {
