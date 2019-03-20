@@ -325,7 +325,7 @@ namespace SAGA.API.Controllers
                 {
                     candidatoId = x.IdCandidato,
                     nombre = x.nombre + " " + x.apellidoPaterno + " " + x.apellidoMaterno,
-                    AreaExp = x.Acercademi.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "S/D",
+                    AreaExp = x.Acercademi.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaExperiencia.areaInteres).FirstOrDefault() : "S/D",
                     AreaInt = x.Acercademi.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "S/D",
                     edad = x.fechaNacimiento,
                     curp = x.curp,
@@ -387,10 +387,10 @@ namespace SAGA.API.Controllers
                  {
                      candidatoId = p.CandidatoId,
                      nombre = p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno,
-                     AreaExp = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() != null ?
-                               db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() : "",
+                     AreaExp = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaExperiencia.areaInteres).FirstOrDefault()).FirstOrDefault() != null ?
+                               db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaExperiencia.areaInteres).FirstOrDefault()).FirstOrDefault() : "S/D",
                      AreaInt = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() != null ?
-                               db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() : "",
+                               db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() : "S/D",
                      Edad = p.Candidato.FechaNacimiento,
                      curp = p.Candidato.CURP,
                      rfc = p.Candidato.RFC != null ? p.Candidato.RFC : "",
@@ -457,7 +457,7 @@ namespace SAGA.API.Controllers
                  {
                      candidatoId = x.CandidatoId,
                      nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
-                     AreaExp = x.AboutMe.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault() : "S/D",
+                     AreaExp = x.AboutMe.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(a => a.AreaExperiencia.areaInteres).FirstOrDefault() : "S/D",
                      AreaInt = x.AboutMe.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "S/D",
                      edad = x.Candidato.FechaNacimiento,
                      curp = x.Candidato.CURP,

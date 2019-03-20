@@ -43,7 +43,7 @@ namespace SAGA.API.Controllers
             var candidatos = db.PerfilCandidato.Where(x => postulate.Contains(x.CandidatoId)).Select(x => new {
                 CandidatoId = x.CandidatoId,
                 nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
-                AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "" ,
+                AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaInteres).FirstOrDefault() : "" ,
                 AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "" ,
                 localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
                 sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0 ,
@@ -92,7 +92,7 @@ namespace SAGA.API.Controllers
                         perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
                         {
                             foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
-                            AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
+                            AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaInteres).FirstOrDefault() : "",
                             AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
                             sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
                             nombre = x.Candidato.Nombre,
@@ -149,7 +149,7 @@ namespace SAGA.API.Controllers
                         perfil = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(x => new
                         {
                             foto = String.IsNullOrEmpty(x.Candidato.ImgProfileUrl) ? "utilerias/img/user/default.jpg" : x.Candidato.ImgProfileUrl,
-                            AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaExperiencia).FirstOrDefault() : "",
+                            AreaExp = x.AboutMe.Select(ae => ae.AreaExperiencia.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ae => ae.AreaExperiencia.areaInteres).FirstOrDefault() : "",
                             AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
                             sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
                             nombre = x.Candidato.Nombre,

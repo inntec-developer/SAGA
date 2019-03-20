@@ -10,7 +10,7 @@ namespace SAGA.BOL
         public decimal SalarioAceptable { get; set; }
         public decimal SalarioDeseado { get; set; }
         public int AreaExperienciaId { get; set; }
-        public virtual AreaExperiencia AreaExperiencia { get; set; }
+        public virtual AreaInteres AreaExperiencia { get; set; }
         public int? AreaInteresId { get; set; }
         public virtual AreaInteres AreaInteres { get; set; }
         public int? PerfilExperienciaId { get; set; }
