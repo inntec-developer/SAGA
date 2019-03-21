@@ -16,6 +16,7 @@ namespace SAGA.BOL
         public DateTime Fecha { get; set; }
         public int Estatus { get; set; }
         public int Folio { get; set; }
+        public Guid RequisicionId { get; set; }
 
     }
 }

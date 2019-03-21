@@ -1603,6 +1603,7 @@ namespace SAGA.DAL
                 Property(x => x.Fecha).HasColumnType("datetime");
                 Property(x => x.Estatus).HasColumnType("int").IsRequired();
                 Property(x => x.Folio).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.RequisicionId).IsRequired();
             }
         }
 
