@@ -28,5 +28,6 @@ namespace SAGA.API.Dtos
         public string Genero { get; set; }
         public List<string> RedSocial { get; set; }
         public Guid propietarioId { get; set; }
+        public string URLCv { get; set; }
     }
 }

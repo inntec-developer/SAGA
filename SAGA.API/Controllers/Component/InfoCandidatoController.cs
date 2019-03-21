@@ -53,7 +53,8 @@ namespace SAGA.API.Controllers.Component
                     Telefono = p.Candidato.telefonos.ToList(),
                     Estatus = db.ProcesoCandidatos.Where(e => e.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(x => x.Fch_Modificacion).FirstOrDefault(),
                     RedSocial = db.RedesSociales.Where(r => r.EntidadId.Equals(p.CandidatoId)).Select(r => r.redSocial).ToList(),
-                    propietarioId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Count() > 0 ? db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(o => o.Fch_Modificacion).Select(id => id.Requisicion.PropietarioId).FirstOrDefault() : new Guid("00000000-0000-0000-0000-000000000000")
+                    propietarioId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Count() > 0 ? db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(o => o.Fch_Modificacion).Select(id => id.Requisicion.PropietarioId).FirstOrDefault() : new Guid("00000000-0000-0000-0000-000000000000"),
+                    URLCv = db.MiCVUpload.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Count() > 0 ? db.MiCVUpload.OrderByDescending(x => x.Id).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(x => x.UrlCV).FirstOrDefault() : ""
                 }).FirstOrDefault();
 
 
