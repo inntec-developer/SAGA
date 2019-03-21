@@ -20,6 +20,9 @@ namespace SAGA.API
 
             Mapper.CreateMap<AsignacionRequi, AsignadosDto>();
             Mapper.CreateMap<AsignadosDto, AsignacionRequi>();
+
+            Mapper.CreateMap<Cliente, ProspectoDto>();
+            Mapper.CreateMap<ProspectoDto, Cliente>();
         }
     }
 }
