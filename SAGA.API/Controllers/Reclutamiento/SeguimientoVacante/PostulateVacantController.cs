@@ -25,7 +25,7 @@ namespace SAGA.API.Controllers
     public class PostulateVacantController : ApiController
     {
         public SAGADBContext db;
-
+        public Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
         public PostulateVacantController()
         {
             db = new SAGADBContext();
@@ -223,54 +223,78 @@ namespace SAGA.API.Controllers
             try
             {
                 var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).FirstOrDefault();
-                var c = db.ProcesoCandidatos.Find(id);
-
-                if (datos.estatusId == 12 && (c.EstatusId == 27 || c.EstatusId == 10))
+                if (id != auxID)
                 {
-                    db.Entry(c).Property(x => x.EstatusId).IsModified = true;
-                    db.Entry(c).Property(x => x.HorarioId).IsModified = true;
-                    db.Entry(c).Property(x => x.Fch_Modificacion).IsModified = true;
-                    db.Entry(c).Property(x => x.ReclutadorId).IsModified = true;
+                    var c = db.ProcesoCandidatos.Find(id);
 
-                    c.EstatusId = datos.estatusId;
-                    c.HorarioId = datos.horarioId;
-                    c.Fch_Modificacion = DateTime.Now;
-                    c.ReclutadorId = datos.ReclutadorId;
-
-                    db.SaveChanges();
-
-                    var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(datos.requisicionId) && x.EstatusId.Equals(29)).Count();
-                    if(requi == 0)
+                    if (datos.estatusId == 12 && (c.EstatusId == 27 || c.EstatusId == 10))
                     {
-                        datos.estatusId = 29;
-                        UpdateStatusVacante(datos);
+                        db.Entry(c).Property(x => x.EstatusId).IsModified = true;
+                        db.Entry(c).Property(x => x.HorarioId).IsModified = true;
+                        db.Entry(c).Property(x => x.Fch_Modificacion).IsModified = true;
+                        db.Entry(c).Property(x => x.ReclutadorId).IsModified = true;
 
+                        c.EstatusId = datos.estatusId;
+                        c.HorarioId = datos.horarioId;
+                        c.Fch_Modificacion = DateTime.Now;
+                        c.ReclutadorId = datos.ReclutadorId;
+
+                        db.SaveChanges();
+
+                        var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(datos.requisicionId) && x.EstatusId.Equals(29)).Count();
+                        if (requi == 0)
+                        {
+                            datos.estatusId = 29;
+                            UpdateStatusVacante(datos);
+
+                        }
+                        return Ok(HttpStatusCode.Created);
                     }
-                    return Ok(HttpStatusCode.Created);
-                }
-                else if(datos.estatusId != 12)
-                {
-                    db.Entry(c).Property(x => x.EstatusId).IsModified = true;
-                    db.Entry(c).Property(x => x.HorarioId).IsModified = true;
-                    db.Entry(c).Property(x => x.Fch_Modificacion).IsModified = true;
-                    db.Entry(c).Property(x => x.ReclutadorId).IsModified = true;
-
-                    c.EstatusId = datos.estatusId;
-                    c.HorarioId = datos.horarioId;
-                    c.Fch_Modificacion = DateTime.Now;
-                    c.ReclutadorId = datos.ReclutadorId;
-
-                    db.SaveChanges();
-
-                    if(datos.estatusId == 42)
+                    else if (datos.estatusId != 12)
                     {
-                        obj.EnviarEmailNR(datos.candidatoId, datos.requisicionId, datos.ReclutadorId);
+                        db.Entry(c).Property(x => x.EstatusId).IsModified = true;
+                        db.Entry(c).Property(x => x.HorarioId).IsModified = true;
+                        db.Entry(c).Property(x => x.Fch_Modificacion).IsModified = true;
+                        db.Entry(c).Property(x => x.ReclutadorId).IsModified = true;
+
+                        c.EstatusId = datos.estatusId;
+                        c.HorarioId = datos.horarioId;
+                        c.Fch_Modificacion = DateTime.Now;
+                        c.ReclutadorId = datos.ReclutadorId;
+
+                        db.SaveChanges();
+
+                        if (datos.estatusId == 42)
+                        {
+                            obj.EnviarEmailNR(datos.candidatoId, datos.requisicionId, datos.ReclutadorId);
+                        }
+                        return Ok(HttpStatusCode.Created);
                     }
-                    return Ok(HttpStatusCode.Created);
+                    else
+                    {
+                        return Ok(HttpStatusCode.Ambiguous);
+                    }
                 }
                 else
                 {
-                    return Ok(HttpStatusCode.Ambiguous);
+                    ProcesoCandidato proceso = new ProcesoCandidato();
+                    
+                    proceso.CandidatoId = datos.candidatoId;
+                    proceso.RequisicionId = datos.requisicionId;
+                    proceso.Folio = db.Requisiciones.Where(x => x.Id.Equals(datos.requisicionId)).Select(R => R.Folio).FirstOrDefault();
+                    proceso.Reclutador = "SIN ASIGNAR";
+                    proceso.ReclutadorId = datos.ReclutadorId;
+                    proceso.EstatusId = datos.estatusId;
+                    proceso.TpContrato = 0;
+                    proceso.HorarioId = datos.horarioId;
+                    proceso.Fch_Modificacion = DateTime.Now;
+                    proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
+                    proceso.TipoMediosId = 2;
+
+                    db.ProcesoCandidatos.Add(proceso);
+                    db.SaveChanges();
+
+                    return Ok(HttpStatusCode.OK);
                 }
             }
             catch(Exception ex)
@@ -295,7 +319,7 @@ namespace SAGA.API.Controllers
                 db.SaveChanges();
 
                 var ids = db.Postulaciones.Where(x => x.RequisicionId.Equals(datos.requisicionId) && x.CandidatoId.Equals(datos.candidatoId)).Select(x => x.Id).FirstOrDefault();
-                if (ids != aux)
+                if (ids != auxID)
                 {
                     var cc = db.Postulaciones.Find(ids);
 

@@ -26,7 +26,7 @@ namespace SAGA.API.Controllers
             try
             {
 
-                var requisiciones = db.PsicometriasDamsaRequis.Select(R => R.RequisicionId).ToList().Distinct();
+                var requisiciones = db.PsicometriasDamsaRequis.Where(x => x.PsicometriaId > 0).Select(R => R.RequisicionId).ToList().Distinct();
 
                 var psico = db.Requisiciones.Where(x => requisiciones.Contains(x.Id)).Select(R => new
                 {
@@ -100,14 +100,73 @@ namespace SAGA.API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("asignarClaveCandidato")]
+        public IHttpActionResult AsignarClave(PsicometriaCandidato clave)
+        {
+            try
+            {
+                clave.fch_Creacion = DateTime.Now;
+                clave.fch_Resultado = DateTime.Now;
+
+                db.PsicometriaCandidato.Add(clave);
+
+                db.SaveChanges();
+
+                var ind = db.RequiClaves.Find(clave.RequiClaveId);
+                db.Entry(ind).Property(x => x.Activo).IsModified = true;
+
+                ind.Activo = 1;
+
+                db.SaveChanges();
+
+                var cc = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(clave.CandidatoId) && x.RequisicionId.Equals(clave.RequisicionId)).Select(c => c.Id).FirstOrDefault();
+                var C = db.ProcesoCandidatos.Find(cc);
+
+                db.Entry(C).Property(x => x.EstatusId).IsModified = true;
+                db.Entry(C).Property(x => x.Fch_Modificacion).IsModified = true;
+
+
+                if (db.InformeRequisiciones.Where(x => x.CandidatoId.Equals(clave.CandidatoId) && x.RequisicionId.Equals(clave.RequisicionId) && x.EstatusId.Equals(18)).Count() > 0)
+                {
+                    C.EstatusId = 14;
+                    C.Fch_Modificacion = DateTime.Now;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    C.EstatusId = 18;
+                    C.Fch_Modificacion = DateTime.Now;
+
+                    db.SaveChanges();
+
+                    C.EstatusId = 14;
+                    C.Fch_Modificacion = DateTime.Now;
+
+                    db.SaveChanges();
+
+                }
+
+
+                return Ok(HttpStatusCode.OK);
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+
         [HttpGet]
         [Route("getClaves")]
         public IHttpActionResult GetClaves(Guid requisicionId)
         {
-            var claves = db.RequiClaves.Where(x => x.RequisicionId.Equals(requisicionId)).Select(C => new
+            var claves = db.Requisiciones.Where(x => x.Id.Equals(requisicionId)).Select(C => new
             {
-                activo = C.Activo,
-               clave = C.Clave
+                vBtra = C.VBtra,
+                folio = C.Folio,
+                claves = db.RequiClaves.Where(x => x.RequisicionId.Equals(requisicionId)).Select(CC => new { activo = CC.Activo, clave = CC.Clave, id = CC.Id })
             }).ToList();
             return Ok(claves);
         }
