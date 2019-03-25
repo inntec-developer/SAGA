@@ -42,7 +42,7 @@ namespace SAGA.API.Controllers.Component
                     Usuario = db.Usuarios.Where(u => u.Id.Equals(x.ReclutadorId)).Select(u => new
                     {
                         Nombre = u.Nombre + " " + u.ApellidoPaterno,
-                        Foto = u.Foto == null ? "utilerias/img/user/default.jpg" : u.Foto
+                        Clave = u.Clave
                     }).FirstOrDefault()
                 })
                 .ToList().OrderBy(c => c.fchComentario);
@@ -65,7 +65,7 @@ namespace SAGA.API.Controllers.Component
                      Usuario = db.Usuarios.Where(u => u.Id.Equals(x.ReclutadorId)).Select(u => new
                      {
                          Nombre = u.Nombre + " " + u.ApellidoPaterno,
-                         Foto = u.Foto == null ? "utilerias/img/user/default.jpg" : u.Foto
+                         Clave = u.Clave
                      }).FirstOrDefault()
                  })
                  .ToList().OrderBy(c => c.fchComentario);

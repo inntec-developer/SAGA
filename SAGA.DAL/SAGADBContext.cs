@@ -216,6 +216,7 @@ namespace SAGA.DAL
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<TicketReclutador> TicketsReclutador { get; set; }
         public DbSet<ModulosReclutamiento> ModulosReclutamiento { get; set; }
+        public DbSet<HistoricoTicket> HistoricosTickets { get; set; }
 
         #endregion
 
@@ -417,6 +418,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TicketsMap().ToTable("Tickets", "Sist"));
             modelBuilder.Configurations.Add(new TicketsReclutadorMap().ToTable("TicketsReclutador", "Sist"));
             modelBuilder.Configurations.Add(new ModulosReclutamientoMap().ToTable("ModulosReclutamiento", "Recl"));
+            modelBuilder.Configurations.Add(new HistoricoTicketMap().ToTable("HistoricosTickets", "Sist"));
 
             #endregion
 
@@ -2069,6 +2071,23 @@ namespace SAGA.DAL
                 Property(x => x.Modulo).HasMaxLength(50).IsRequired();
                 Property(x => x.TipoModulo).IsRequired();
                 Property(x => x.Descripcion).HasMaxLength(150).IsRequired();
+            }
+        }
+
+        public class HistoricoTicketMap : EntityTypeConfiguration<HistoricoTicket>
+        {
+            public HistoricoTicketMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.ReclutadorId).IsOptional();
+                Property(x => x.CandidatoId).IsOptional();
+                Property(x => x.Numero).IsRequired().HasMaxLength(20);
+                Property(x => x.MovimientoId).IsRequired();
+                Property(x => x.Estatus).IsRequired();
+                Property(x => x.ModuloId).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
             }
         }
         #endregion

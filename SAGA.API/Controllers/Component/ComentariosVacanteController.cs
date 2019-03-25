@@ -33,6 +33,7 @@ namespace SAGA.API.Controllers
                         Motivo = x.Motivo.Descripcion == "No aplica" ? "" : x.Motivo.Descripcion,
                         Comentario = x.Comentario,
                         Usuario = x.Reclutador.Nombre + " " + x.Reclutador.ApellidoPaterno,
+                        Clave = x.Reclutador.Clave,
                         Foto = x.Reclutador.Foto,
                         fchComentario = x.fch_Creacion
                     })

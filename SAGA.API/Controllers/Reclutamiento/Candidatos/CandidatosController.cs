@@ -86,7 +86,7 @@ namespace SAGA.API.Controllers
         public IHttpActionResult GetAreasExp()
         {
 
-            var areasexp = db.AreasExperiencia.ToList();
+            var areasexp = db.AreasInteres.Where(a => a.Id != 0).ToList().OrderBy(a => a.areaInteres);
 
             return Ok(areasexp);
         }
@@ -446,11 +446,23 @@ namespace SAGA.API.Controllers
             try
             {
                 palabraClave = palabraClave.ToLower().Trim();
-                var Aboutme = db.AcercaDeMi.Where(a => a.AcercaDeMi.ToLower().Contains(palabraClave)).Select(a => a.PerfilCandidatoId).ToList();
-                var Descripcion = db.ExperienciasProfesionales.Where(e => e.CargoAsignado.ToLower().Contains(palabraClave) || e.Descripcion.Contains(palabraClave))
-                    .Select(e => e.PerfilCandidatoId).ToList();
+                var activos = db.AspNetUsers.Where(a => a.Activo == 0 && a.IdPersona != null).Select(a => a.IdPersona).ToList();
+                var perfiles = db.PerfilCandidato
+                    .Where(p => activos.Contains(p.CandidatoId))
+                    .Select(p => p.Id)
+                    .ToList();
+                var Aboutme = db.AcercaDeMi
+                    .Where(a => a.AcercaDeMi.ToLower().Contains(palabraClave))
+                    .Where(a => perfiles.Contains(a.PerfilCandidatoId))
+                    .Select(a => a.PerfilCandidatoId)
+                    .ToList();
+                var Descripcion = db.ExperienciasProfesionales
+                    .Where(e => e.CargoAsignado.ToLower().Contains(palabraClave) || e.Descripcion.Contains(palabraClave))
+                    .Where(e => perfiles.Contains(e.PerfilCandidatoId))
+                    .Select(e => e.PerfilCandidatoId)
+                    .ToList();
                 var filtros = Aboutme.Union(Descripcion).ToList().Distinct();
-
+                
                 var encontrados = db.PerfilCandidato
                 .Where(x => filtros.Contains(x.Id))
                  .Select(x => new
