@@ -26,7 +26,7 @@ namespace SAGA.API.Controllers.Reportes
         {
             
             DateTime FechaF = DateTime.Now;
-            DateTime FechaI = DateTime.Now;
+            DateTime FechaI = DateTime.Now.AddDays(-1);
             try
             {
                 if (fini != null)
@@ -43,27 +43,41 @@ namespace SAGA.API.Controllers.Reportes
 
             }
 
-            var datos = db.Requisiciones.Where(e=>e.fch_Creacion >= FechaI 
-            && e.fch_Creacion <= FechaF).Select(e => new
+            var datos2 = db.Requisiciones.Where(e => e.fch_Creacion >= FechaI
+            && e.fch_Creacion <= FechaF && e.EstatusId != 9).OrderBy(e=>e.fch_Creacion).ToList();
+
+            if (tipo == "2" || tipo == "6")
+            {
+             datos2 = db.Requisiciones.Where(e => e.fch_Modificacion >= FechaI
+             && e.fch_Modificacion <= FechaF && e.EstatusId != 9).OrderBy(e => e.fch_Modificacion).ToList();
+            }
+           
+
+            var datos = datos2.Select(e => new
             {
                 e.Id,
                 e.Folio,
                 e.VBtra,
                 porcentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
                 e.fch_Creacion,
+                e.fch_Modificacion,
                 e.fch_Limite,
                 empresa = e.Cliente.Nombrecomercial,
                 e.ClienteId,
                 propietario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre,
                 Usuario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Usuario,
-                numero = e.horariosRequi.Where(x=>x.Activo == true).Count(),
+                Estado = e.Direccion.Estado.estado,
+                e.Direccion.EstadoId,
+                numero = e.horariosRequi.Sum(a => a.numeroVacantes),
                 e.EstatusId,
                 e.TipoReclutamientoId,
+                e.TipoReclutamiento.tipoReclutamiento,
                 e.ClaseReclutamientoId,
+                e.fch_Cumplimiento,
                 estatus = e.Estatus.Descripcion,
-                fch_Modificacion = db.EstatusRequisiciones.Where(x=>x.RequisicionId == e.Id).FirstOrDefault().fch_Modificacion
+             //   fch_Modificacion = db.EstatusRequisiciones.Where(x=>x.RequisicionId == e.Id).FirstOrDefault().fch_Modificacion
               
-            }).ToList();
+            }).OrderBy(e=>e.fch_Cumplimiento).ToList();
 
             if (stus != "0" && stus != null)
             {
@@ -155,10 +169,14 @@ namespace SAGA.API.Controllers.Reportes
                 var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                 if (obb.Count == 0)
                 {
+                    // Estado = db.Direcciones.Where(x => x.EntidadId == db.Usuarios.Where(a => a.Usuario == e.Propietario).FirstOrDefault().SucursalId).FirstOrDefault().Estado.estado,
                     //int unidad = Convert.ToInt32(ofc);
+
                     var negocio = db.OficinasReclutamiento.Where(e => listaAreglo.Contains(e.UnidadNegocioId)).Select(e => e.Id).ToList();
-                    var lista = db.Usuarios.Where(e => negocio.Contains(e.SucursalId)).Select(e => e.Usuario).ToList();
-                    datos.Where(e => lista.Contains(e.Usuario)).ToList();
+                    var estado = db.Direcciones.Where(e => negocio.Contains(e.EntidadId)).Select(e => e.EstadoId).Distinct().ToList();
+                    datos = datos.Where(e=>estado.Contains(e.EstadoId)).ToList();
+                    
+                    
                 }
             }
 
@@ -206,7 +224,7 @@ namespace SAGA.API.Controllers.Reportes
         [Route("estatus")]
         public IHttpActionResult Estatus()
         {
-            var datos = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 2).Select(e => new
+            var datos = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 2 && e.Id != 9).Select(e => new
             {
                 e.Descripcion,
                 e.Id
