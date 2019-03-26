@@ -174,6 +174,7 @@ namespace SAGA.API.Controllers
             {
                 var examenes = db.Preguntas.Where(x => x.ExamenId.Equals(examenId) && x.Activo.Equals(1)).Select(E => new
                 {
+                    examenId = E.ExamenId,
                     nombre = E.Examen.Nombre,
                     preguntaId = E.Id,
                     pregunta = E.Pregunta,
@@ -206,6 +207,9 @@ namespace SAGA.API.Controllers
 
                 var examenes = db.Preguntas.Where(x => x.ExamenId.Equals(examenId) && x.Activo.Equals(1)).Select(E => new
                 {
+                    examenId = E.ExamenId,
+                    vBtra = db.Requisiciones.Where(x => x.Id.Equals(requisicionId)).Select(R => R.VBtra).FirstOrDefault(),
+                    folio = db.Requisiciones.Where(x => x.Id.Equals(requisicionId)).Select(R => R.Folio).FirstOrDefault(),
                     nombre = E.Examen.Nombre,
                     preguntaId = E.Id,
                     pregunta = E.Pregunta,
@@ -335,7 +339,7 @@ namespace SAGA.API.Controllers
         [Route("getExamenCandidato")]
         public IHttpActionResult GetExamenCandidato(Guid candidatoId)
         {
-            var tecnicos = db.ExamenCandidato.Where(x => x.CandidatoId.Equals(candidatoId)).Select(R => new
+            var tecnicos = db.ExamenCandidato.OrderByDescending(o => o.fch_Modificacion).Where(x => x.CandidatoId.Equals(candidatoId)).Select(R => new
             {
                 requisicionId = R.Id,
                 folio = R.Requisicion.Folio,
@@ -346,7 +350,7 @@ namespace SAGA.API.Controllers
                 resultado = R.Resultado
             }).ToList();
 
-            var psicometricos = db.PsicometriaCandidato.Where(x => x.CandidatoId.Equals(candidatoId)).Select(P => new
+            var psicometricos = db.PsicometriaCandidato.OrderByDescending(o => o.fch_Resultado).Where(x => x.CandidatoId.Equals(candidatoId)).Select(P => new
             {
                 requisicionId = P.RequisicionId,
                 folio = P.Requisicion.Folio,
