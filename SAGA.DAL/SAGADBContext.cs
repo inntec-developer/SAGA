@@ -1324,6 +1324,7 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.areaExperiencia).HasMaxLength(200);
+                Property(x => x.Icono).HasMaxLength(50).IsOptional();
 			}
 		}
 		public class AreaInteresMap : EntityTypeConfiguration<AreaInteres>
