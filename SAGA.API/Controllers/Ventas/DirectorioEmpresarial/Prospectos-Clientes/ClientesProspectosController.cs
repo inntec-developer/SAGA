@@ -139,5 +139,126 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                 }
             }
         }
+
+        [Route("hacerCliente")]
+        [HttpPost]
+        public IHttpActionResult HacerCliente(HacerClienteDto cliente)
+        {
+            try
+            {
+                var prospecto = db.Clientes.Find(cliente.Id);
+                db.Entry(prospecto).State = EntityState.Modified;
+                prospecto.RazonSocial = cliente.Razonsocial;
+                prospecto.RFC = cliente.RFC;
+                prospecto.esCliente = true;
+                prospecto.UsuarioMod = cliente.Usuario;
+                prospecto.fch_Modificacion = DateTime.Now;
+                db.SaveChanges();
+
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotAcceptable);
+            }
+        }
+
+        [Route("getCliente")]
+        [HttpGet]
+        public IHttpActionResult GetCliente(Guid ClienteId)
+        {
+            try
+            {
+                var cliente = db.Clientes
+                    .Where(x => x.Id.Equals(ClienteId))
+                    .Select(x => new
+                    {
+                        Id = x.Id,
+                        RazonSocial = x.RazonSocial != null ? x.RazonSocial : "",
+                        RFC = x.RFC != null ? x.RFC : "",
+                        NombreComercial = x.Nombrecomercial,
+                        GiroEmpresa = x.GiroEmpresas,
+                        ActividadEmpresa = x.ActividadEmpresas,
+                        TamanoEmpresa = x.TamanoEmpresas,
+                        TipoEmpresa = x.TipoEmpresas,
+                        TipoBase = x.TipoBases,
+                        esCliente = x.esCliente,
+                        NumeroEmpleados = x.NumeroEmpleados,
+                        Direcciones = x.direcciones,
+                        Telefonos = db.Telefonos
+                                    .Where(t => t.EntidadId.Equals(ClienteId))
+                                    .Select(t => new
+                                    {
+                                        Id = t.Id,
+                                        IdDT = db.DireccionesTelefonos.Where(dt => dt.TelefonoId.Equals(t.Id)).Select(dt => dt.Id).FirstOrDefault(),
+                                        Direccion = db.DireccionesTelefonos
+                                                    .Where(dt => dt.TelefonoId.Equals(t.Id))
+                                                    .Select(dt => new {Calle =  dt.Direccion.Calle + " No. " + dt.Direccion.NumeroExterior + " C.P. " + dt.Direccion.CodigoPostal })
+                                                    .FirstOrDefault(),
+                                        DireccionId = db.DireccionesTelefonos.Where(dt => dt.TelefonoId.Equals(t.Id)).Select(dt => dt.DireccionId).FirstOrDefault(),
+                                        ClavePais = t.ClavePais,
+                                        ClaveLada = t.ClaveLada,
+                                        Extencion = t.Extension,
+                                        Telefono = t.telefono,
+                                        TipoTelefono = t.TipoTelefono,
+                                        Activo = t.Activo,
+                                        esPrincipal = t.esPrincipal
+                                    })
+                                    .ToList(),
+                        Correos = db.Emails
+                                    .Where(e => e.EntidadId.Equals(ClienteId))
+                                    .Select(e => new {
+                                       Id = e.Id,
+                                       IdDE = db.DireccionesEmails.Where(de => de.EmailId.Equals(e.Id)).Select(de => de.Id).FirstOrDefault(),
+                                       Direccion = db.DireccionesEmails
+                                                    .Where(de => de.EmailId.Equals(e.Id))
+                                                    .Select(de => new { Calle = de.Direccion.Calle + " No. " + de.Direccion.NumeroExterior + " C.P. " + de.Direccion.CodigoPostal })
+                                                    .FirstOrDefault(),
+                                       DireccionId = db.DireccionesEmails.Where(de => de.EmailId.Equals(e.Id)).Select(de => de.DireccionId).FirstOrDefault(),
+                                       Email = e.email
+                                    })
+                                    .ToList() ,
+                        Contactos = db.Contactos
+                                    .Where(c => c.ClienteId.Equals(ClienteId))
+                                    .Select(c => new
+                                    {
+                                        Id = c.Id,
+                                        IdDE = db.DireccionesContactos.Where(dc => dc.ContactoId.Equals(c.Id)).Select(de => de.Id).FirstOrDefault(),
+                                        Direccion = db.DireccionesContactos
+                                                    .Where(dc => dc.ContactoId.Equals(c.Id))
+                                                    .Select(dc => new { Calle = dc.Direccion.Calle + " No. " + dc.Direccion.NumeroExterior + " C.P. " + dc.Direccion.CodigoPostal })
+                                                    .FirstOrDefault(),
+                                        DireccionId = db.DireccionesContactos.Where(dc => dc.ContactoId.Equals(c.Id)).Select(de => de.DireccionId).FirstOrDefault(),
+                                        Nombre = c.Nombre,
+                                        ApellidoPaterno = c.ApellidoPaterno,
+                                        ApellidoMaterno = c.ApellidoMaterno != null ? c.ApellidoMaterno : "",
+                                        Puesto = c.Puesto,
+                                        Telefonos = x.telefonos.Select(ct => new
+                                        {
+                                            Id = ct.Id,
+                                            ClavePais = ct.ClavePais,
+                                            ClaveLada = ct.ClaveLada,
+                                            Extencion = ct.Extension,
+                                            Telefono = ct.telefono,
+                                            TipoTelefono = ct.TipoTelefono,
+                                        }).ToList(),
+                                        Emails = x.emails.Select(ce => new {
+                                            Id = ce.Id,
+                                            Email = ce.email,
+                                        }).ToList(),
+                                    })
+                                    .ToList()
+                    }).FirstOrDefault();
+                    
+                return Ok(cliente);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
     }
 }

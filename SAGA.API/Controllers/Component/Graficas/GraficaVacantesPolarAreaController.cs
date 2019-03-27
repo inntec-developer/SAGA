@@ -43,7 +43,7 @@ namespace SAGA.API.Controllers.Component.Graficas
         [Route("vacantesInicio")]
         public IHttpActionResult VacantesInicio(Guid UsuarioId)
         {
-            int[] estatus = {4,5,6,7,29,39,31,32,33,38,39,43,44,46 };
+            int[] estatus = {4,5,6,7,29,30,31,32,33,38,39,43,44,46 };
             var DateActivas = DateTime.Now.AddDays(3);
             
             var TipoUsuario = db.Usuarios.Where(u => u.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
