@@ -51,7 +51,11 @@ namespace SAGA.API.Controllers.Reportes
              datos2 = db.Requisiciones.Where(e => e.fch_Modificacion >= FechaI
              && e.fch_Modificacion <= FechaF && e.EstatusId != 9).OrderBy(e => e.fch_Modificacion).ToList();
             }
-           
+            var requi = datos2.Select(e => e.Id).ToList();
+            var nombreReclu = db.AsignacionRequis.Where(a => requi.Contains(a.RequisicionId)).Select(a => new { a.RequisicionId, Nombre = db.Usuarios.Where(e=>e.Id == a.GrpUsrId).FirstOrDefault().Nombre +" "+ db.Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoPaterno }).ToList();
+           // var nombreReclu = db.Usuarios.Where(x => lago.Contains(x.Id)).Select(x => new { x.Nombre,x.Id }).ToList();
+            //var cadenas = nombreReclu.Where(b => b.Id == new Guid("2217b0f2-5a6e-e811-80e1-9e274155325e")).Select(b => b.Nombre).ToList();
+            //String.Join(String.Empty, cadenas.ToArray());
 
             var datos = datos2.Select(e => new
             {
@@ -64,6 +68,7 @@ namespace SAGA.API.Controllers.Reportes
                 e.fch_Limite,
                 empresa = e.Cliente.Nombrecomercial,
                 e.ClienteId,
+                nombreApellido = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno,
                 propietario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre,
                 Usuario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Usuario,
                 Estado = e.Direccion.Estado.estado,
@@ -72,12 +77,15 @@ namespace SAGA.API.Controllers.Reportes
                 e.EstatusId,
                 e.TipoReclutamientoId,
                 e.TipoReclutamiento.tipoReclutamiento,
+                e.ClaseReclutamiento.clasesReclutamiento,
                 e.ClaseReclutamientoId,
                 e.fch_Cumplimiento,
                 estatus = e.Estatus.Descripcion,
-             //   fch_Modificacion = db.EstatusRequisiciones.Where(x=>x.RequisicionId == e.Id).FirstOrDefault().fch_Modificacion
-              
-            }).OrderBy(e=>e.fch_Cumplimiento).ToList();
+                reclutadorTotal = db.AsignacionRequis.Where(a => a.RequisicionId == e.Id).Count() == 0? "SIN ASIGNAR" : db.AsignacionRequis.Where(a => a.RequisicionId == e.Id).Count().ToString(),
+                nombreReclutado = String.Join(", ", nombreReclu.Where(b => b.RequisicionId == e.Id).Select(b => b.Nombre).ToList().ToArray())
+        }).OrderBy(e=>e.fch_Cumplimiento).ToList();
+
+            
 
             if (stus != "0" && stus != null)
             {
@@ -174,13 +182,46 @@ namespace SAGA.API.Controllers.Reportes
 
                     var negocio = db.OficinasReclutamiento.Where(e => listaAreglo.Contains(e.UnidadNegocioId)).Select(e => e.Id).ToList();
                     var estado = db.Direcciones.Where(e => negocio.Contains(e.EntidadId)).Select(e => e.EstadoId).Distinct().ToList();
+                    foreach (var item in listaAreglo)
+                    {
+                        string monterrey = "6,7,10,28,19,24";
+                        string jalisco = "1,32,3,8,10,11,14,16,18,2,25,26";
+                        string mexico = "4,5,9,13,15,22,27,30,20,12,31,23,21,29,17";
+
+                        if (item == 1)
+                        {
+                            var array = jalisco.Split(',');
+                            for (int i = 0; i < array.Length; i++)
+                            {
+                                estado.Add(Int32.Parse(array[i]));
+                            }
+                        }
+                        if (item == 2)
+                        {
+                            var array = mexico.Split(',');
+                            for (int i = 0; i < array.Length; i++)
+                            {
+                                estado.Add(Int32.Parse(array[i]));
+                            }
+                        }
+                        if (item == 3)
+                        {
+                            var array = monterrey.Split(',');
+                            for (int i = 0; i < array.Length; i++)
+                            {
+                                estado.Add(Int32.Parse(array[i]));
+                            }
+                        }
+                    }
+                    estado = estado.Distinct().ToList();
+
                     datos = datos.Where(e=>estado.Contains(e.EstadoId)).ToList();
                     
                     
                 }
             }
 
-
+            datos = datos.OrderByDescending(e => e.fch_Cumplimiento).ToList();
 
             return Ok(datos);
         }
@@ -198,7 +239,7 @@ namespace SAGA.API.Controllers.Reportes
                 e.RazonSocial
             }).Distinct().OrderBy(x=>x.RazonSocial).ToList();
 
-            datos.Insert(0, new { RFC = "Todos los Usuarios", Nombrecomercial = "as", Id = new Guid("00000000-0000-0000-0000-000000000000"), RazonSocial = "Todas las empresas" });
+            datos.Insert(0, new { RFC = "Todos", Nombrecomercial = "as", Id = new Guid("00000000-0000-0000-0000-000000000000"), RazonSocial = "Todas" });
             return Ok(datos);
         }
 
@@ -215,7 +256,7 @@ namespace SAGA.API.Controllers.Reportes
                 e.Id,
                 e.Usuario
             }).OrderBy(x=>x.Nombre).ToList();
-            datos.Insert(0, new { Nombre = "Todos los Usuarios", Id = new Guid("00000000-0000-0000-0000-000000000000") , Usuario = "0"});
+            datos.Insert(0, new { Nombre = "Todos", Id = new Guid("00000000-0000-0000-0000-000000000000") , Usuario = "0"});
             return Ok(datos);
         }
 
@@ -224,14 +265,14 @@ namespace SAGA.API.Controllers.Reportes
         [Route("estatus")]
         public IHttpActionResult Estatus()
         {
-            var datos = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 2 && e.Id != 9).Select(e => new
+            var datos = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 2 && e.Id != 9 && e.Id != 5).Select(e => new
             {
                 e.Descripcion,
                 e.Id
             }).ToList();
            
            
-           datos.Insert(0 ,new { Descripcion = "Todos los estatus", Id = 0 });
+           datos.Insert(0 ,new { Descripcion = "Todos", Id = 0 });
             return Ok(datos);
         }
 
