@@ -186,7 +186,28 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                         TipoBase = x.TipoBases,
                         esCliente = x.esCliente,
                         NumeroEmpleados = x.NumeroEmpleados,
-                        Direcciones = x.direcciones,
+                        Direcciones = x.direcciones.Select(d => new
+                        {
+                            Id = d.Id,
+                            Activo = d.Activo,
+                            Calle = d.Calle,
+                            CodigoPostal = d.CodigoPostal,
+                            Colonia = d.Colonia.colonia,
+                            ColoniaId = d.ColoniaId,
+                            esPrincipal = d.esPrincipal,
+                            Estado = d.Estado.estado,
+                            EstadoId = d.EstadoId,
+                            Municipio = d.Municipio.municipio,
+                            MunicipioId = d.MunicipioId,
+                            NumeroInterior = d.NumeroInterior,
+                            NumeroExterior = d.NumeroExterior,
+                            Pais = d.Pais.pais,
+                            PaisId = d.PaisId,
+                            Referencia = d.Referencia != null ? d.Referencia : "",
+                            TipoDireccion = d.TipoDireccion.tipoDireccion,
+                            TipoDireccionId = d.TipoDireccionId
+
+                        }).ToList(),
                         Telefonos = db.Telefonos
                                     .Where(t => t.EntidadId.Equals(ClienteId))
                                     .Select(t => new
