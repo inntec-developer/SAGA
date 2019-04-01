@@ -44,12 +44,12 @@ namespace SAGA.API.Controllers.Reportes
             }
 
             var datos2 = db.Requisiciones.Where(e => e.fch_Creacion >= FechaI
-            && e.fch_Creacion <= FechaF && e.EstatusId != 9).OrderBy(e=>e.fch_Creacion).ToList();
+            && e.fch_Creacion <= FechaF && e.EstatusId != 9 && e.Confidencial == false).OrderByDescending(e=>e.fch_Creacion).ToList();
 
             if (tipo == "2" || tipo == "6")
             {
              datos2 = db.Requisiciones.Where(e => e.fch_Modificacion >= FechaI
-             && e.fch_Modificacion <= FechaF && e.EstatusId != 9).OrderBy(e => e.fch_Modificacion).ToList();
+             && e.fch_Modificacion <= FechaF && e.EstatusId != 9 && e.Confidencial == false).OrderByDescending(e => e.fch_Modificacion).ToList();
             }
             var requi = datos2.Select(e => e.Id).ToList();
             var nombreReclu = db.AsignacionRequis.Where(a => requi.Contains(a.RequisicionId)).Select(a => new { a.RequisicionId, Nombre = db.Usuarios.Where(e=>e.Id == a.GrpUsrId).FirstOrDefault().Nombre +" "+ db.Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoPaterno }).ToList();
@@ -83,7 +83,7 @@ namespace SAGA.API.Controllers.Reportes
                 estatus = e.Estatus.Descripcion,
                 reclutadorTotal = db.AsignacionRequis.Where(a => a.RequisicionId == e.Id).Count() == 0? "SIN ASIGNAR" : db.AsignacionRequis.Where(a => a.RequisicionId == e.Id).Count().ToString(),
                 nombreReclutado = String.Join(", ", nombreReclu.Where(b => b.RequisicionId == e.Id).Select(b => b.Nombre).ToList().ToArray())
-        }).OrderBy(e=>e.fch_Cumplimiento).ToList();
+        }).ToList();
 
             
 
@@ -221,7 +221,7 @@ namespace SAGA.API.Controllers.Reportes
                 }
             }
 
-            datos = datos.OrderByDescending(e => e.fch_Cumplimiento).ToList();
+        //    datos = datos.OrderByDescending(e => e.fch_Cumplimiento).ToList();
 
             return Ok(datos);
         }

@@ -16,7 +16,7 @@ namespace SAGA.API.Controllers.Catalogos
 
         [HttpGet]
         [Route("oficina")]
-        public IHttpActionResult oficina()
+        public IHttpActionResult oficina(string filtro)
         {
             try
             {
@@ -36,7 +36,9 @@ namespace SAGA.API.Controllers.Catalogos
                         caja.Latitud,
                         caja.Longitud,
                         caja.TipoOficina.tipoOficina,
-                        Estado = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Estado.estado,
+                        caja.Activo,
+                        cp = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().CodigoPostal,
+                         Estado = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Estado.estado,
                         Municipio = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Municipio.municipio,
                         Colonia = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Colonia.colonia,
                         Calle = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Calle,
@@ -46,6 +48,11 @@ namespace SAGA.API.Controllers.Catalogos
                         Correo = db.Emails.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().email,
                      }).OrderBy(e => e.nombre).ToList();
 
+                if (filtro != "" && filtro != null )
+                {
+                    filtro = filtro.ToUpper();
+                    datos = datos.Where(e => filtro.Contains(e.nombre.ToUpper())).ToList();
+                }
               
                 return Ok(datos);
             }
@@ -59,20 +66,76 @@ namespace SAGA.API.Controllers.Catalogos
 
         [HttpGet]
         [Route("add")]
-        public IHttpActionResult agregar(string pregunta, string repuesta)
+        public IHttpActionResult agregar(string nombre, string estado, string municipio, string colonia, string cp,string calle, 
+            string numero,string telefono, string email,string latitud, string longitud,string tipoOfi)
         {
             try
             {
-                var datos = db.PreguntasFrecuentes.ToList();
-                var pren = new PreguntasFrecuente();
-                //     pren.Id = datos.Count + 1;
-                pren.Pregunta = pregunta;
-                pren.Respuesta = repuesta;
-                pren.Activo = true;
-                db.PreguntasFrecuentes.Add(pren);
+
+                var ofi = new OficinaReclutamiento();
+                ofi.Nombre = nombre;
+                ofi.ApellidoPaterno = "";
+                ofi.ApellidoMaterno = "";
+                ofi.Activo = true;
+                ofi.fch_Creacion = DateTime.Now;
+                ofi.TipoOficinaId = Convert.ToInt32(tipoOfi);
+                ofi.UnidadNegocioId = 1;
+                ofi.Orden = 11;
+                ofi.Latitud = latitud;
+                ofi.Longitud = longitud;
+                ofi.TipoEntidadId = 5;
+                ofi.Foto = "";
+                db.OficinasReclutamiento.Add(ofi);
                 db.SaveChanges();
 
-                return Ok("Éxito al agregar la pregunta");
+                var enti = db.Entidad.Where(e => e.Nombre == nombre && e.TipoEntidadId == 5).FirstOrDefault();
+
+                var dire = new Direccion();
+                dire.EntidadId = enti.Id;
+                dire.Activo = true;
+                dire.esMoral = true;
+                dire.Calle = calle;
+                dire.CodigoPostal = cp;
+                dire.ColoniaId = Convert.ToInt32(colonia);
+                dire.esPrincipal = true;
+                dire.EstadoId = Convert.ToInt32(estado);
+                dire.MunicipioId = Convert.ToInt32(municipio);
+                dire.NumeroExterior = numero;
+                dire.NumeroInterior = "S/N";
+                dire.PaisId = 42;
+                dire.TipoDireccionId = 3;
+                dire.UsuarioAlta = "INNTEC";
+                db.Direcciones.Add(dire);
+                db.SaveChanges();
+
+               
+
+                var ema = new Email();
+                ema.esPrincipal = true;
+                ema.EntidadId = enti.Id;
+                ema.fch_Creacion = DateTime.Now;
+                ema.email = email;
+                ema.UsuarioAlta = "INNTEC";
+                db.Emails.Add(ema);
+                db.SaveChanges();
+
+                var tel = new Telefono();
+                tel.esPrincipal = true;
+                tel.EntidadId = enti.Id;
+                tel.fch_Creacion = DateTime.Now;
+                tel.Activo = true;
+                tel.UsuarioAlta = "INNTEC";
+                tel.ClaveLada = "33";
+                tel.ClavePais = "52";
+                tel.telefono = telefono;
+                tel.TipoTelefonoId = 4;
+                db.Telefonos.Add(tel);
+
+
+               db.SaveChanges();
+              
+
+                return Ok("Éxito al agregar la oficina");
             }
             catch (Exception ex)
             {
@@ -82,20 +145,38 @@ namespace SAGA.API.Controllers.Catalogos
         }
 
         [HttpGet]
-        [Route("alter")]
-        public IHttpActionResult editar(string id, string pregunta, string repuesta, string activo)
+        [Route("editar")]
+        public IHttpActionResult editar(string nombre, string estado, string municipio, string colonia, string cp, string calle,
+              string numero, string telefono, string email, string latitud, string longitud, string tipoOfi, string activo, string id)
         {
-
             try
             {
-                int iden = Convert.ToInt32(id);
-                var datos = db.PreguntasFrecuentes.Where(e => e.Id == iden).FirstOrDefault();
-                datos.Pregunta = pregunta;
-                datos.Respuesta = repuesta;
-                datos.Activo = Convert.ToBoolean(activo);
+                Guid ide = new Guid(id);
+                var ofi = db.OficinasReclutamiento.Where(e=>e.Id == ide).FirstOrDefault();
+                ofi.Nombre = nombre;
+                ofi.Activo = Convert.ToBoolean(activo);
+                ofi.TipoOficinaId = Convert.ToInt32(tipoOfi);
+                ofi.Latitud = latitud;
+                ofi.Longitud = longitud;
+
+                var dire = db.Direcciones.Where(e=>e.EntidadId == ide).FirstOrDefault();
+               
+                dire.Calle = calle;
+                dire.CodigoPostal = cp;
+                dire.ColoniaId = Convert.ToInt32(colonia);
+                dire.EstadoId = Convert.ToInt32(estado);
+                dire.MunicipioId = Convert.ToInt32(municipio);
+                dire.NumeroExterior = numero;
+
+                var ema = db.Emails.Where(e => e.EntidadId == ide).FirstOrDefault();
+                ema.email = email;
+
+                var tel = db.Telefonos.Where(e => e.EntidadId == ide).FirstOrDefault();
+                tel.telefono = telefono;
                 db.SaveChanges();
 
-                return Ok("Éxito al guardar cambios");
+
+                return Ok("Éxito al actualizar la oficina");
             }
             catch (Exception ex)
             {
@@ -110,11 +191,20 @@ namespace SAGA.API.Controllers.Catalogos
         {
             try
             {
-                int iden = Convert.ToInt32(id);
-                var datos = db.PreguntasFrecuentes.Where(e => e.Id == iden).FirstOrDefault();
-                db.PreguntasFrecuentes.Remove(datos);
+                Guid iden = new Guid(id);
+
+                var dire = db.Direcciones.Where(e => e.EntidadId == iden).FirstOrDefault();
+                db.Direcciones.Remove(dire);
+                var ofi = db.OficinasReclutamiento.Where(e => e.Id == iden).FirstOrDefault();
+                db.OficinasReclutamiento.Remove(ofi);
+                var ema = db.Emails.Where(e => e.EntidadId == iden).FirstOrDefault();
+                db.Emails.Remove(ema);
+                var tel = db.Telefonos.Where(e => e.EntidadId == iden).FirstOrDefault();
+                db.Telefonos.Remove(tel);
+                var datos = db.OficinasReclutamiento.Where(e => e.Id == iden).FirstOrDefault();
+                db.Entidad.Remove(datos);
                 db.SaveChanges();
-                return Ok("éxito al eliminar la pregunta");
+                return Ok("éxito al eliminar la oficina");
             }
             catch (Exception ex)
             {
@@ -123,6 +213,63 @@ namespace SAGA.API.Controllers.Catalogos
             return Ok("Algo paso intentelo mas tarde");
         }
 
+        [HttpGet]
+        [Route("estado")]
+        public IHttpActionResult estado(string id)
+        {
+                int iden = Convert.ToInt32(id);
+                var datos = db.Estados.Where(e => e.PaisId == 42 ).Select(e=> new {e.estado, e.Id }).ToList();
+            if (iden != 0)
+            {
+                datos = datos.Where(e => e.Id == iden).ToList();
+            }
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("municipio")]
+        public IHttpActionResult municipio(string estado, string municipio)
+        {
+            int estadoid = Convert.ToInt32(estado);
+            int id = Convert.ToInt32(municipio);
+            var datos = db.Municipios.Where(e => e.EstadoId == estadoid).Select(e => new { e.municipio, e.Id }).ToList();
+            if (id != 0)
+            {
+                datos = datos.Where(e => e.Id == id).ToList();
+            }
+           
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("colonia")]
+        public IHttpActionResult colonia(string municipio, string colonia)
+        {
+            int municipioid = Convert.ToInt32(municipio);
+            int id = Convert.ToInt32(colonia);
+            var datos = db.Colonias.Where(e => e.MunicipioId == municipioid).Select(e => new { e.colonia, e.Id }).ToList();
+            if (id != 0)
+            {
+                datos = datos.Where(e => e.Id == id).ToList();
+            }
+            return Ok(datos);
+        }
+
+
+        //[HttpGet]
+        //[Route("tipo")]
+        //public IHttpActionResult tipo(string tipo)
+        //{
+           
+        //    int id = Convert.ToInt32(tipo);
+        //    var datos = db.of.Where(e => e.MunicipioId == municipioid).Select(e => new { e.colonia, e.Id }).ToList();
+        //    if (id != 0)
+        //    {
+        //        datos = datos.Where(e => e.Id == id).ToList();
+        //    }
+        //    return Ok(datos);
+        //}
+      
 
 
     }

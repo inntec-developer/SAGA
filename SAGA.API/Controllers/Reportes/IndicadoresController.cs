@@ -122,29 +122,38 @@ namespace SAGA.API.Controllers.Reportes
             DateTime fecha = DateTime.Now.AddMonths(-1);
             DateTime vencida = DateTime.Now.AddDays(3);
             var asigna = db.AsignacionRequis.Where(e => e.GrpUsrId == id).Select(e => e.RequisicionId).ToList();
-            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) && e.fch_Creacion > fecha).ToList();
+            var vacantes = db.HorariosRequis.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion > fecha).ToList();
+            var horario = vacantes.Select(e => e.Id);
 
-            int entrevTotal = datos.Where(e=> e.fch_Creacion > fecha && e.EstatusId == 18).Select(e => e.horariosRequi.Sum(a => a.numeroVacantes)).ToList().Count;
-            decimal entrevi = db.EstatusRequisiciones.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion > fecha && e.EstatusId == 18).ToList().Count;
+            int entrevTotal = vacantes.Sum(e=>e.numeroVacantes);
+            decimal entrevi = db.ProcesoCandidatos.Where(e => e.EstatusId == 18 && asigna.Contains(e.RequisicionId)).ToList().Count;
 
-            int enviadoTotal = datos.Where(e => e.fch_Creacion > fecha && e.EstatusId == 20).Select(e => e.horariosRequi.Sum(a => a.numeroVacantes)).ToList().Count;
-            decimal enviado = db.EstatusRequisiciones.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion > fecha && e.EstatusId == 20).ToList().Count;
+            int enviadoTotal = entrevTotal;
+            decimal enviado = db.ProcesoCandidatos.Where(e => e.EstatusId == 22 && asigna.Contains(e.RequisicionId)).ToList().Count;
 
-            int contraTotal = datos.Where(e => e.fch_Creacion > fecha && e.EstatusId == 24).Select(e => e.horariosRequi.Sum(a => a.numeroVacantes)).ToList().Count;
-            decimal contrata = db.EstatusRequisiciones.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion > fecha && e.EstatusId == 24).ToList().Count;
+            int contraTotal = entrevTotal;
+            decimal contrata = db.ProcesoCandidatos.Where(e => e.EstatusId == 24 && asigna.Contains(e.RequisicionId)).ToList().Count;
 
             //entrevTotal = 200;
-            //entrevi = 50;
-           
+            int totales = entrevTotal;
+
             if (entrevi > 0)
             {
                 decimal operacion = (entrevi / entrevTotal) * (100m);
                 entrevTotal = Convert.ToInt32(operacion);
             }
+            else
+            {
+                entrevTotal = 0;
+            }
             if (enviado > 0)
             {
                 decimal operacion = (enviado / enviadoTotal) * (100m);
                 enviadoTotal = Convert.ToInt32(operacion);
+            }
+            else
+            {
+                enviadoTotal = 0;
             }
             if (contrata > 0)
             {
@@ -152,14 +161,22 @@ namespace SAGA.API.Controllers.Reportes
                 contraTotal = Convert.ToInt32(operacion);
                 //  entrevTotal = (contrata / contraTotal) * 100;
             }
+            else
+            {
+                contraTotal = 0;
+            }
+            string total = entrevTotal.ToString().Substring(0, 1) + "0";
+            string total2 = enviadoTotal.ToString().Substring(0, 1) + "0";
+            string total3 = contraTotal.ToString().Substring(0, 1) + "0";
             var obj = new
             {
                 entrevi = entrevi,
-                entrevTotal = entrevTotal,
-                enviadoTotal = enviadoTotal,
+                entrevTotal = total,
+                enviadoTotal = total2,
                 enviado = enviado,
-                contraTotal = contraTotal,
+                contraTotal = total3,
                 contrata = contrata,
+                total = totales,
             };
             return Ok(obj);
         }
@@ -179,36 +196,36 @@ namespace SAGA.API.Controllers.Reportes
             DateTime fecha30 = fecha25.AddDays(-5);
             var asigna = db.AsignacionRequis.Where(e => e.GrpUsrId == id && e.fch_Creacion > fechaMes).Select(e => e.RequisicionId).ToList();
            
-            var proceso5 = db.EstatusRequisiciones.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion >= fecha5).ToList();
-            var proceso10 = db.EstatusRequisiciones.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion >= fecha10 && e.fch_Modificacion < fecha5).ToList();
-            var proceso15 = db.EstatusRequisiciones.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion >= fecha15 && e.fch_Modificacion < fecha10).ToList();
-            var proceso20 = db.EstatusRequisiciones.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion >= fecha20 && e.fch_Modificacion < fecha15).ToList();
-            var proceso25 = db.EstatusRequisiciones.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion >= fecha25 && e.fch_Modificacion < fecha20).ToList();
-            var proceso30 = db.EstatusRequisiciones.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion >= fecha30 && e.fch_Modificacion < fecha25).ToList();
+            var proceso5 = db.ProcesoCandidatos.Where(e => asigna.Contains(e.RequisicionId) && e.Fch_Modificacion > fecha5 && e.Fch_Modificacion < fecha10).ToList();
+            var proceso10 = db.ProcesoCandidatos.Where(e => asigna.Contains(e.RequisicionId) && e.Fch_Modificacion > fecha10 && e.Fch_Modificacion < fecha5).ToList();
+            var proceso15 = db.ProcesoCandidatos.Where(e => asigna.Contains(e.RequisicionId) && e.Fch_Modificacion > fecha15 && e.Fch_Modificacion < fecha10).ToList();
+            var proceso20 = db.ProcesoCandidatos.Where(e => asigna.Contains(e.RequisicionId) && e.Fch_Modificacion > fecha20 && e.Fch_Modificacion < fecha15).ToList();
+            var proceso25 = db.ProcesoCandidatos.Where(e => asigna.Contains(e.RequisicionId) && e.Fch_Modificacion > fecha25 && e.Fch_Modificacion < fecha20).ToList();
+            var proceso30 = db.ProcesoCandidatos.Where(e => asigna.Contains(e.RequisicionId) && e.Fch_Modificacion > fecha30 && e.Fch_Modificacion < fecha25).ToList();
 
 
             int dia5Entrevista = proceso5.Where(e => e.EstatusId == 18).ToList().Count;
-            int dia5Enviado = proceso5.Where(e => e.EstatusId == 20).ToList().Count;
+            int dia5Enviado = proceso5.Where(e => e.EstatusId == 22).ToList().Count;
             int dia5Contratado = proceso5.Where(e => e.EstatusId == 24).ToList().Count;
 
             int dia10Entrevista = proceso5.Where(e => e.EstatusId == 18).ToList().Count;
-            int dia10Enviado = proceso5.Where(e => e.EstatusId == 20).ToList().Count;
+            int dia10Enviado = proceso5.Where(e => e.EstatusId == 22).ToList().Count;
             int dia10Contratado = proceso5.Where(e => e.EstatusId == 24).ToList().Count;
 
             int dia15Entrevista = proceso5.Where(e => e.EstatusId == 18).ToList().Count;
-            int dia15Enviado = proceso5.Where(e => e.EstatusId == 20).ToList().Count;
+            int dia15Enviado = proceso5.Where(e => e.EstatusId == 22).ToList().Count;
             int dia15Contratado = proceso5.Where(e => e.EstatusId == 24).ToList().Count;
 
             int dia20Entrevista = proceso5.Where(e => e.EstatusId == 18).ToList().Count;
-            int dia20Enviado = proceso5.Where(e => e.EstatusId == 20).ToList().Count;
+            int dia20Enviado = proceso5.Where(e => e.EstatusId == 22).ToList().Count;
             int dia20Contratado = proceso5.Where(e => e.EstatusId == 24).ToList().Count;
 
             int dia25Entrevista = proceso5.Where(e => e.EstatusId == 18).ToList().Count;
-            int dia25Enviado = proceso5.Where(e => e.EstatusId == 20).ToList().Count;
+            int dia25Enviado = proceso5.Where(e => e.EstatusId == 22).ToList().Count;
             int dia25Contratado = proceso5.Where(e => e.EstatusId == 24).ToList().Count;
 
             int dia30Entrevista = proceso5.Where(e => e.EstatusId == 18).ToList().Count;
-            int dia30Enviado = proceso5.Where(e => e.EstatusId == 20).ToList().Count;
+            int dia30Enviado = proceso5.Where(e => e.EstatusId == 22).ToList().Count;
             int dia30Contratado = proceso5.Where(e => e.EstatusId == 24).ToList().Count;
 
             var obj = new
