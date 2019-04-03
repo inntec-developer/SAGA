@@ -38,10 +38,13 @@ namespace SAGA.API.Controllers.Catalogos
                         caja.TipoOficina.tipoOficina,
                         caja.Activo,
                         cp = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().CodigoPostal,
-                         Estado = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Estado.estado,
-                        Municipio = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Municipio.municipio,
-                        Colonia = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Colonia.colonia,
-                        Calle = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Calle,
+                        Estado = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Estado.estado,
+                        Estadoid = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Estado.Id,
+                         Municipio = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Municipio.municipio,
+                         Municipioid = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Municipio.Id,
+                         Colonia = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Colonia.colonia,
+                         coloniaid = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Colonia.Id,
+                         Calle = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Calle,
                         NumeroExt = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().NumeroExterior,
                         Telefono = db.Telefonos.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().telefono,
                         Extension = db.Telefonos.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().Extension,
@@ -219,10 +222,12 @@ namespace SAGA.API.Controllers.Catalogos
         {
                 int iden = Convert.ToInt32(id);
                 var datos = db.Estados.Where(e => e.PaisId == 42 ).Select(e=> new {e.estado, e.Id }).ToList();
+            datos.Insert(0, new { estado = "Seleccione un estado", Id = 0 });
             if (iden != 0)
             {
-                datos = datos.Where(e => e.Id == iden).ToList();
+                datos = datos.OrderByDescending(e => e.Id == iden).ThenBy(e => e.Id != iden).ToList();
             }
+           
             return Ok(datos);
         }
 
@@ -233,9 +238,10 @@ namespace SAGA.API.Controllers.Catalogos
             int estadoid = Convert.ToInt32(estado);
             int id = Convert.ToInt32(municipio);
             var datos = db.Municipios.Where(e => e.EstadoId == estadoid).Select(e => new { e.municipio, e.Id }).ToList();
+            datos.Insert(0, new { municipio = "Seleccione un municipio", Id = 0 });
             if (id != 0)
             {
-                datos = datos.Where(e => e.Id == id).ToList();
+                datos = datos.OrderByDescending(e => e.Id == id).ThenBy(e => e.Id != id).ToList();
             }
            
             return Ok(datos);
@@ -248,9 +254,10 @@ namespace SAGA.API.Controllers.Catalogos
             int municipioid = Convert.ToInt32(municipio);
             int id = Convert.ToInt32(colonia);
             var datos = db.Colonias.Where(e => e.MunicipioId == municipioid).Select(e => new { e.colonia, e.Id }).ToList();
+            datos.Insert(0, new { colonia = "Seleccione una colonia", Id = 0 });
             if (id != 0)
             {
-                datos = datos.Where(e => e.Id == id).ToList();
+                datos = datos.OrderByDescending(e => e.Id == id).ThenBy(e => e.Id != id).ToList();
             }
             return Ok(datos);
         }

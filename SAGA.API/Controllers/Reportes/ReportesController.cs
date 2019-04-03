@@ -26,7 +26,7 @@ namespace SAGA.API.Controllers.Reportes
         {
             
             DateTime FechaF = DateTime.Now;
-            DateTime FechaI = DateTime.Now.AddDays(-1);
+            DateTime FechaI = DateTime.Now;
             try
             {
                 if (fini != null)
@@ -42,7 +42,7 @@ namespace SAGA.API.Controllers.Reportes
             {
 
             }
-
+            FechaF = FechaF.AddDays(1);
             var datos2 = db.Requisiciones.Where(e => e.fch_Creacion >= FechaI
             && e.fch_Creacion <= FechaF && e.EstatusId != 9 && e.Confidencial == false).OrderByDescending(e=>e.fch_Creacion).ToList();
 
@@ -231,15 +231,17 @@ namespace SAGA.API.Controllers.Reportes
         [Route("empresas")]
         public IHttpActionResult Empresas()
         {
+            var fecha = DateTime.Now.AddDays(-15);
             var datos = db.Clientes.Where(e=>e.Activo == true && e.esCliente.Equals(true)).Select(e => new
             {
                 e.RFC,
                 e.Nombrecomercial,
                 e.Id,
-                e.RazonSocial
+                e.RazonSocial,
+                fechal = fecha
             }).Distinct().OrderBy(x=>x.RazonSocial).ToList();
 
-            datos.Insert(0, new { RFC = "Todos", Nombrecomercial = "as", Id = new Guid("00000000-0000-0000-0000-000000000000"), RazonSocial = "Todas" });
+            datos.Insert(0, new { RFC = "Todos", Nombrecomercial = "as", Id = new Guid("00000000-0000-0000-0000-000000000000"), RazonSocial = "Todas", fechal = fecha });
             return Ok(datos);
         }
 
