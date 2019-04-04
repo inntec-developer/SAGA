@@ -19,7 +19,6 @@ namespace SAGA.BOL
         public int Estatus { get; set; } //1 espera  2 atendiendo 3 examen 4 finalizado
         public DateTime fch_Creacion { get; set; }
 
-        public Candidato Candidato { get; set; }
         public ModulosReclutamiento Modulo { get; set; }
         public Requisicion Requisicion { get; set; }
 

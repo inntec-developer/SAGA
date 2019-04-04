@@ -178,7 +178,7 @@ namespace SAGA.API.Controllers
                 if (tipo == 8)
                 {
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true))
+                   .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -248,7 +248,7 @@ namespace SAGA.API.Controllers
                     uids.Add(propietario);
 
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId))
+                   .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId) && e.Confidencial.Equals(false))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -475,7 +475,7 @@ namespace SAGA.API.Controllers
             try
             {
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus))
+                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus) && e.Confidencial.Equals(false))
                     .Select(e => new
                     {
                         Id = e.Id,
@@ -524,7 +524,7 @@ namespace SAGA.API.Controllers
                 {
 
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                        .Where(e => e.Activo.Equals(true))
+                        .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -668,7 +668,7 @@ namespace SAGA.API.Controllers
                 {
                    
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                        .Where(e => e.Activo.Equals(true))
+                        .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -730,7 +730,7 @@ namespace SAGA.API.Controllers
 
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                         .Where(e => asig.Contains(e.Id))
-                        .Where(e => e.Activo.Equals(true))
+                        .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -976,7 +976,7 @@ namespace SAGA.API.Controllers
                 if (tipo == 8)
                 {
                     var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento)
-                       .Where(e => e.Activo.Equals(true) && e.EstatusId != 9).Select(h => new
+                       .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 && e.Confidencial.Equals(false)).Select(h => new
                        {
                            Id = h.Id,
                            Folio = h.Folio,
@@ -1027,7 +1027,7 @@ namespace SAGA.API.Controllers
                         .ToList();
 
                     var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => asig.Contains(e.Id))
-                        .Where(e => e.Activo.Equals(true) && e.EstatusId != 9).Select(h => new
+                        .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 && e.Confidencial.Equals(false)).Select(h => new
                         {
                             Id = h.Id,
                             Folio = h.Folio,
@@ -1078,7 +1078,7 @@ namespace SAGA.API.Controllers
                     .ToList();
 
                 var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => asig.Contains(e.Id))
-                    .Where(e => e.Activo.Equals(true) && e.EstatusId != 9).Select(h => new
+                    .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 && e.Confidencial.Equals(false)).Select(h => new
                     {
                         Id = h.Id,
                         Folio = h.Folio,
@@ -1714,54 +1714,77 @@ namespace SAGA.API.Controllers
                 m.From = new MailAddress(from, "SAGA INN");
                 m.Subject = "Vacantes en Pausa";
 
-                var datos = db.Requisiciones.Where(x => !estatus.Contains(x.EstatusId) && DateTime.Now.Day - x.fch_Modificacion.Value.Day >= 3).Select( R => new
+                var datos = db.Database.SqlQuery<PausadasDto>("dbo.sp_RequisPausadas").ToList();
+
+
+                if (datos.Count > 0)
                 {
-                    requisicionId = R.Id,
-                    folio = R.Folio,
-                    vBtra = R.VBtra,
-                    cliente = R.Cliente.Nombrecomercial,
-                    fch_Aprobacion = R.fch_Aprobacion.Value.Year.ToString() + "-" + R.fch_Aprobacion.Value.Month.ToString() + "-" +  R.fch_Aprobacion.Value.Day.ToString(),
-                    fch_Modificacion = R.fch_Modificacion.Value.Year.ToString() + "-" + R.fch_Modificacion.Value.Month.ToString() + "-" + R.fch_Modificacion.Value.Day.ToString(),
-                    estatus = R.Estatus.Descripcion,
-                    vacantes = R.horariosRequi.Count() > 0 ? R.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-                    solicita = db.Usuarios.Where(x => x.Id.Equals(R.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
-                    aprobador = db.Usuarios.Where(x => x.Id.Equals(R.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
-                    aprobadorId = R.AprobadorId,
-                    email = db.Emails.Where(x => x.EntidadId.Equals(R.AprobadorId)).Select(e => e.email).FirstOrDefault(),
-                    dias = R.fch_Modificacion.Value.Day
-                }).ToList();
+                    var aprobadores = datos.Select(x => x.aprobadorId).Distinct().ToList();
 
-                //var requis = datos.Where(x => DateTime.Now.Day - x.dias >= 3).ToList();
-                var aprobadores = datos.Select(x => x.aprobadorId).Distinct().ToList();
+                    var inicio = "<html><head><style>td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:9pt;color:Black;font-family:'calibri';} " +
+                                 "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>CLIENTE</th><th align=center>RECLUTADOR</th><th align=center>SOLICITA</th><th align=center>No POSICIONES</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th></tr>";
 
-                var inicio  = "<html><head><style>td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:9pt;color:Black;font-family:'calibri';} " +
-                             "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>CLIENTE</th><th align=center>RECLUTADOR</th><th align=center>SOLICITA</th><th align=center>No POSICIONES</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th></tr>";
-
-                var body = "";
-                foreach (var a in aprobadores)
-                {
-                    m.To.Add("idelatorre@damsa.com.mx");
-                    var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
-                    var email = aux[0].email;
-                    foreach (var r in aux)
+                    var body = "";
+                    foreach (var a in aprobadores)
                     {
-                        body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
-                                                   "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td></tr>",
-                                                   r.dias, r.folio, r.vBtra, r.fch_Aprobacion, r.cliente, r.solicita, r.aprobador, r.vacantes, r.estatus, r.fch_Modificacion);
+                        m.To.Add("idelatorre@damsa.com.mx");
+                        var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
+                        var email = aux[0].email;
+                        foreach (var r in aux)
+                        {
+                            body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
+                                                       "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td></tr>",
+                                                       r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.Cliente, r.solicitante, r.aprobador, r.vacantes, r.estatus, r.fch_Modificacion);
+                        }
+
+                        body = inicio + body + "</table></body></html><br/><p>El correo deber&iacute;a de llegar a " + email + "</p>";
+                        m.Body = body;
+                        m.IsBodyHtml = true;
+                        SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                        smtp.Send(m);
+
+                        body = "";
+
                     }
 
-                    body = inicio + body + "</table></body></html><br/><p>El correo deber&iacute;a de llegar a " + email + "</p>";
-                    m.Body = body;
-                    m.IsBodyHtml = true;
-                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
-                    smtp.EnableSsl = true;
-                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-                    smtp.Send(m);
+                    //var datos = from R in db.Requisiciones
+                    //            where R.EstatusId.Equals(39) && (DateTime.Now.DayOfYear - R.fch_Modificacion.Value.DayOfYear) >= 3
+                    //            select new
+                    //            {
+                    //                requisicionId = R.Id,
+                    //                folio = R.Folio,
+                    //                vBtra = R.VBtra,
+                    //                cliente = R.Cliente.Nombrecomercial,
+                    //                fch_Aprobacion = R.fch_Aprobacion.Value.Year.ToString() + "-" + R.fch_Aprobacion.Value.Month.ToString() + "-" + R.fch_Aprobacion.Value.Day.ToString(),
+                    //                fch_Modificacion = R.fch_Modificacion.Value.Year.ToString() + "-" + R.fch_Modificacion.Value.Month.ToString() + "-" + R.fch_Modificacion.Value.Day.ToString(),
+                    //                estatus = R.Estatus.Descripcion,
+                    //                vacantes = R.horariosRequi.Count() > 0 ? R.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                    //                solicita = db.Usuarios.Where(x => x.Id.Equals(R.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                    //                aprobador = db.Usuarios.Where(x => x.Id.Equals(R.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                    //                aprobadorId = R.AprobadorId,
+                    //                email = db.Emails.Where(x => x.EntidadId.Equals(R.AprobadorId)).Select(e => e.email).FirstOrDefault(),
+                    //                dias = DateTime.Now.DayOfYear - R.fch_Modificacion.Value.DayOfYear
+                    //            };
 
-                    body = "";
-                    
+                    //                  var datos = db.Requisiciones.Where(x => x.EstatusId.Equals(39) && (DateTime.Now.Day - x.fch_Modificacion.Value.Day) >= 3).Select( R => new
+                    //{
+                    //    requisicionId = R.Id,
+                    //    folio = R.Folio,
+                    //    vBtra = R.VBtra,
+                    //    cliente = R.Cliente.Nombrecomercial,
+                    //    fch_Aprobacion = R.fch_Aprobacion.Value.Year.ToString() + "-" + R.fch_Aprobacion.Value.Month.ToString() + "-" +  R.fch_Aprobacion.Value.Day.ToString(),
+                    //    fch_Modificacion = R.fch_Modificacion.Value.Year.ToString() + "-" + R.fch_Modificacion.Value.Month.ToString() + "-" + R.fch_Modificacion.Value.Day.ToString(),
+                    //    estatus = R.Estatus.Descripcion,
+                    //    vacantes = R.horariosRequi.Count() > 0 ? R.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                    //    solicita = db.Usuarios.Where(x => x.Id.Equals(R.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                    //    aprobador = db.Usuarios.Where(x => x.Id.Equals(R.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
+                    //    aprobadorId = R.AprobadorId,
+                    //    email = db.Emails.Where(x => x.EntidadId.Equals(R.AprobadorId)).Select(e => e.email).FirstOrDefault(),
+                    //    dias = DateTime.Now.DayOfYear - R.fch_Modificacion.Value.DayOfYear
+                    //}).ToList();
                 }
-
                 return Ok(HttpStatusCode.OK);
 
             }

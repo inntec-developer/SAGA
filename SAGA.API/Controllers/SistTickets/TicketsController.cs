@@ -22,6 +22,23 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("getEstados")]
+        public IHttpActionResult GetEstados()
+        {
+            try
+            {
+                var estados = db.Estados.Where(x => x.Id != 0).Select(E => new { id = E.Id, estado = E.estado }).ToArray();
+
+                return Ok(estados);
+
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+
+        [HttpGet]
         [Route("InsertTicketRecl")]
         public IHttpActionResult InsertTicketRecl(Guid Ticket, Guid ReclutadorId, int ModuloId)
         {
@@ -75,36 +92,62 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var cita = db.CalendarioCandidato.Where(x => x.Folio.Equals(folio)).Select(T => new
+                DateTime endDate = DateTime.Now.AddDays(1);
+
+                var cita = (from items in db.CalendarioCandidato
+                           where items.Folio.Equals(folio) && (DateTime.Now >= items.Fecha && items.Fecha < endDate) && DateTime.Now.Hour <= items.Fecha.Hour + 1
+                           select new { id= items.Id, activa = items.Estatus, fecha = items.Fecha, requisicionId = items.RequisicionId, candidatoId = items.CandidatoId }).ToList();
+
+                if (cita.Count() > 0)
                 {
-                    requisicionId = T.RequisicionId,
-                    candidatoId = T.CandidatoId
-                }).FirstOrDefault();
+                    if (cita[0].activa == 1)
+                    {
 
-                if (cita != null)
-                {
-                    Ticket ticket = new Ticket();
-                    ticket.CandidatoId = cita.candidatoId;
-                    ticket.RequisicionId = cita.requisicionId;
-                    ticket.MovimientoId = 1;
-                    ticket.ModuloId = 1;
-                    ticket.Estatus = 1;
+                        //if ((cita.fecha - DateTime.Now).TotalMinutes <= -15 || (cita.fecha - DateTime.Now).TotalMinutes >= 15)
+                        //var cita = db.CalendarioCandidato.Where(x => x.Folio.Equals(folio)).Select(T => new
+                        //{
+                        //    requisicionId = T.RequisicionId,
+                        //    candidatoId = T.CandidatoId
+                        //}).FirstOrDefault();
 
-                    var num = db.Tickets.Where(x => x.RequisicionId.Equals(cita.requisicionId) && x.MovimientoId.Equals(1)).Count();
+                        //if (cita != null)
+                        //{
+                        Ticket ticket = new Ticket();
+                        ticket.CandidatoId = cita[0].candidatoId;
+                        ticket.RequisicionId = cita[0].requisicionId;
+                        ticket.MovimientoId = 1;
+                        ticket.ModuloId = 1;
+                        ticket.Estatus = 1;
 
-                    var f = db.Requisiciones.Where(x => x.Id.Equals(cita.requisicionId)).Select(ff => ff.Folio).FirstOrDefault().ToString();
+                        var num = db.Tickets.Where(x => x.RequisicionId.Equals(ticket.RequisicionId) && x.MovimientoId.Equals(1)).Count();
 
-                    ticket.Numero = "CC-" + f.Substring(f.Length - 4, 4) + '-'  + num.ToString().PadLeft(3, '0');
+                        var f = db.Requisiciones.Where(x => x.Id.Equals(ticket.RequisicionId)).Select(ff => ff.Folio).FirstOrDefault().ToString();
 
-                    db.Tickets.Add(ticket);
+                        ticket.Numero = "CC-" + f.Substring(f.Length - 4, 4) + '-' + num.ToString().PadLeft(3, '0');
 
-                    db.SaveChanges();
+                        db.Tickets.Add(ticket);
 
-                    return Ok(ticket.Numero);
+                        db.SaveChanges();
+
+                        var folioCita = db.CalendarioCandidato.Find(cita[0].id);
+
+                        db.Entry(folioCita).Property(x => x.Estatus).IsModified = true;
+
+                        folioCita.Estatus = 0;
+
+                        db.SaveChanges();
+
+                        return Ok(ticket.Numero);
+                    }
+                    else
+                    {
+                        return Ok(HttpStatusCode.OK);
+                    }
                 }
                 else
                 {
-                    return Ok("sincita");
+                    return Ok("No");
+                 
                 }
             }
             catch(Exception ex)
@@ -119,8 +162,9 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                Ticket ticket = new Ticket(); 
-                    ticket.CandidatoId = new Guid("1FD57341-F35D-E811-80E1-9E274155325E"); //pablo
+                Ticket ticket = new Ticket();
+                ticket.CandidatoId = auxID;
+                    //new Guid("1FD57341-F35D-E811-80E1-9E274155325E"); //pablo
                 //ticket.CandidatoId = new Guid("F66DA23E-9D69-E811-80E1-9E274155325E"); //coni
                 ticket.RequisicionId = requisicionId;
                 ticket.MovimientoId = 2;
@@ -317,9 +361,13 @@ namespace SAGA.API.Controllers
 
             try
             {
-                var requisiciones = db.CalendarioCandidato.OrderByDescending(f => f.Fecha).Where(x => (x.Fecha.Minute - DateTime.Now.Minute) >= -15 && (x.Fecha.Minute - DateTime.Now.Minute) <= 15).Select(c => c.RequisicionId).ToList();
+                //var rrr = (from items in db.CalendarioCandidato
+                //        where (items.Fecha - DateTime.Now).TotalMinutes >= -15 && (items.Fecha - DateTime.Now).TotalMinutes <= 15
+                //        select new { items.RequisicionId }).ToList();
 
-                var requiReclutador = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId) && requisiciones.Contains(x.RequisicionId)).Select(r => r.RequisicionId).ToList();
+                //var requisiciones = db.CalendarioCandidato.OrderByDescending(f => f.Fecha).Where(x => (x.Fecha.Minute - DateTime.Now.Minute) >= -15 && (x.Fecha.Minute - DateTime.Now.Minute) <= 15).Select(c => c.RequisicionId).ToList();
+
+                var requiReclutador = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId)).Select(r => r.RequisicionId).ToList();
 
                 //var requiReclutador = db.Requisiciones.Where(x => requisiciones.Contains(x.Id) && x.PropietarioId.Equals(reclutadorId)).Select(r => r.Id).ToList();
 
@@ -335,9 +383,7 @@ namespace SAGA.API.Controllers
 
                 if (concita == null)
                 {
-                    var requis = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId)).Select(r => r.RequisicionId).ToList();
-
-                    var sincita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && requis.Contains(x.RequisicionId)).Select(t => new
+                    var sincita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && requiReclutador.Contains(x.RequisicionId) && x.MovimientoId.Equals(2)).Select(t => new
                     {
                         ticketId = t.Id,
                         ticket = t.Numero,
@@ -360,7 +406,7 @@ namespace SAGA.API.Controllers
                         //}).FirstOrDefault();
 
                         //this.InsertTicketRecl(ticket.ticketId, reclutadorId, ModuloId);
-                        return Ok(auxID);
+                        return Ok(HttpStatusCode.ExpectationFailed);
                     }
                     else
                     {
@@ -415,19 +461,19 @@ namespace SAGA.API.Controllers
                     tiempo = tiempo,
                     //  tiempo = db.TicketsReclutador.Where(x => x.ReclutadorId.Equals(ReclutadorId)).Select(TR=>(TR.fch_Final -TR.fch_Atencion).TotalMinutes),
                     //tiempo = from TR in db.TicketsReclutador group TR by TR.fch_Atencion.Day into G select new { Day = G.Key, Minutes =  G.Average(TR => (TR.fch_Final - TR.fch_Atencion).TotalMinutes) > 0 ? G.Average(TR => (TR.fch_Final - TR.fch_Atencion).TotalMinutes) : 0 },
-                    candidato = new
+                    candidato = db.Candidatos.Where(x => x.Id.Equals(T.Ticket.CandidatoId)).Select(C => new
                     {
                         candidatoId = T.Ticket.CandidatoId,
-                        curp = T.Ticket.Candidato.CURP,
-                        nombre = T.Ticket.Candidato.Nombre + " " + T.Ticket.Candidato.ApellidoPaterno + " " + T.Ticket.Candidato.ApellidoPaterno,
-                        dirNacimiento = T.Ticket.Candidato.municipioNacimiento.municipio + " " + T.Ticket.Candidato.estadoNacimiento.estado,
-                        fechaNac = T.Ticket.Candidato.FechaNacimiento,
-                        edad = DateTime.Now.Year - T.Ticket.Candidato.FechaNacimiento.Value.Year >= 0 ? DateTime.Now.Year - T.Ticket.Candidato.FechaNacimiento.Value.Year : 0,
-                        email = T.Ticket.Candidato.emails.Select(m => m.email).FirstOrDefault(),
+                        curp = C.CURP,
+                        nombre = C.Nombre + " " + C.ApellidoPaterno + " " + C.ApellidoPaterno,
+                        dirNacimiento = C.municipioNacimiento.municipio + " " + C.estadoNacimiento.estado,
+                        fechaNac = C.FechaNacimiento,
+                        edad = DateTime.Now.Year - C.FechaNacimiento.Value.Year >= 0 ? DateTime.Now.Year - C.FechaNacimiento.Value.Year : 0,
+                        email = C.emails.Select(m => m.email).FirstOrDefault(),
                         estatusId = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.Ticket.CandidatoId)).Count() > 0 ? db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.Ticket.CandidatoId)).Select(E => E.EstatusId).FirstOrDefault() : 27,
                         estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(T.Ticket.CandidatoId)).Count() > 0 ? db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.Ticket.CandidatoId)).Select(E => E.Estatus.Descripcion).FirstOrDefault() : "Disponible",
                         requisicionId = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.Ticket.CandidatoId)).Count() > 0 ? db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.Ticket.CandidatoId)).Select(r => r.RequisicionId).FirstOrDefault() : auxID
-                    }
+                    }).FirstOrDefault()
 
                 }).ToList();
 
@@ -456,20 +502,20 @@ namespace SAGA.API.Controllers
                     numero = T.Numero,
                     estado = T.Estatus,
                     psicometria = db.PsicometriasDamsaRequis.Where(x => x.RequisicionId.Equals(T.RequisicionId) && x.PsicometriaId > 0).Count() > 0 ? true : false,
-                    candidato = new
+                    candidato = db.Candidatos.Where(x => x.Id.Equals(T.CandidatoId)).Select(C => new
                     {
                         candidatoId = T.CandidatoId,
-                        curp = T.Candidato.CURP,
-                        nombre = T.Candidato.Nombre + " " + T.Candidato.ApellidoPaterno + " " + T.Candidato.ApellidoPaterno,
-                        dirNacimiento = T.Candidato.municipioNacimiento.municipio + " " + T.Candidato.estadoNacimiento.estado,
-                        fechaNac = T.Candidato.FechaNacimiento,
-                        edad = DateTime.Now.Year - T.Candidato.FechaNacimiento.Value.Year >= 0 ? DateTime.Now.Year - T.Candidato.FechaNacimiento.Value.Year : 0,
-                        email = T.Candidato.emails.Select(m => m.email).FirstOrDefault(),
+                        curp = C.CURP,
+                        nombre = C.Nombre + " " + C.ApellidoPaterno + " " + C.ApellidoPaterno,
+                        dirNacimiento = C.municipioNacimiento.municipio + " " + C.estadoNacimiento.estado,
+                        fechaNac = C.FechaNacimiento,
+                        edad = DateTime.Now.Year - C.FechaNacimiento.Value.Year >= 0 ? DateTime.Now.Year - C.FechaNacimiento.Value.Year : 0,
+                        email = C.emails.Select(m => m.email).FirstOrDefault(),
                         estatusId = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.CandidatoId)).Count() > 0 ? db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.CandidatoId)).Select(E => E.EstatusId).FirstOrDefault() : 27,
                         estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(T.CandidatoId)).Count() > 0 ? db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.CandidatoId)).Select(E => E.Estatus.Descripcion).FirstOrDefault() : "Disponible",
                         requisicionId = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.CandidatoId)).Count() > 0 ? db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.CandidatoId)).Select(r => r.RequisicionId).FirstOrDefault() : aux,
                         tecnicos = db.ExamenCandidato.Where(x => x.CandidatoId.Equals(T.CandidatoId) && x.RequisicionId.Equals(T.RequisicionId)).Count() > 0 ? db.ExamenCandidato.Where(x => x.CandidatoId.Equals(T.CandidatoId) && x.RequisicionId.Equals(T.RequisicionId)).Select(R => R.Resultado).FirstOrDefault() : 9999
-                    }
+                    }).FirstOrDefault()
 
                 }).ToList();
 
@@ -597,6 +643,7 @@ namespace SAGA.API.Controllers
                     .Select(e => new
                     {
                         Id = e.Id,
+                        estatus = e.Estatus.Descripcion,
                         //Folio = e.Folio,
                         //Cliente = e.Cliente.Nombrecomercial,
                         //ClienteId = e.Cliente.Id,
@@ -610,7 +657,8 @@ namespace SAGA.API.Controllers
                         experiencia = e.Experiencia, 
                         categoria = e.Area.areaExperiencia,
                         icono = e.Area.Icono,
-                        areaId = e.AreaId
+                        areaId = e.AreaId,
+                        cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0
                     }).ToList();
 
   
@@ -732,6 +780,42 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
 
+        }
+
+        [HttpGet]
+        [Route("getConcurrencia")]
+        public IHttpActionResult GetConcurrencia()
+        {
+            try
+            {
+                var conc = db.HistoricosTickets.GroupBy(T => T.CandidatoId)
+                    .Select(C => new
+                    {
+                        candidatoId = C.Key,
+                        fecha = C.Where(x => x.Estatus.Equals(1)).Select( f=> f.fch_Modificacion).FirstOrDefault(),
+                        usuario = db.Usuarios.Where( u => u.Id.Equals(C.Where(xx => !xx.ReclutadorId.Equals(auxID)).Select(x => x.ReclutadorId).FirstOrDefault())).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(),
+                        tiempo = C.Where(x => x.Estatus > 1).Sum(s => s.fch_Modificacion.Minute) > 60 ? C.Where(x => x.Estatus > 1).Sum(s => s.fch_Modificacion.Minute) / 60 : C.Where(x => x.Estatus > 1).Sum(s => s.fch_Modificacion.Minute),
+                        hora = C.Where(x => x.Estatus == 2).Select(h => h.fch_Modificacion).FirstOrDefault(),
+                        modulo = C.Select(m => m.Modulo.Modulo).FirstOrDefault(),
+                        turno = C.Select(t => t.Numero.Substring(t.Numero.Length - 3, 3)).FirstOrDefault(),
+                        resumen = C.Select(tt => new
+                        {
+                            Fecha = tt.fch_Modificacion,
+                            EstatusId = tt.Estatus,
+                            Estatus = tt.Estatus == 2 ? "En Atencion" : tt.Estatus == 3 ? "Examenes" : tt.Estatus == 4 ? "Finalizado" : tt.Estatus == 5 ? "En Atencion Examen" : "En Espera"
+                            
+
+                            //db.HistoricosTickets.Where(x => x.CandidatoId.Equals(C.CandidatoId) && x.RequisicionId.Equals(C.RequisicionId)).Select(T => T.fch_Modificacion.Minute).Sum() >= 60 ? db.HistoricosTickets.Where(x => x.CandidatoId.Equals(C.CandidatoId) && x.RequisicionId.Equals(C.RequisicionId)).Select(T => T.fch_Modificacion.Minute).Sum() / 60 : db.HistoricosTickets.Where(x => x.CandidatoId.Equals(C.CandidatoId) && x.RequisicionId.Equals(C.RequisicionId)).Select(T => T.fch_Modificacion.Minute).Sum()
+                        }).ToList()
+                    }).ToList();
+
+                return Ok(conc);
+
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
         }
 
 
