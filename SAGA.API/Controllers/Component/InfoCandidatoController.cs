@@ -30,7 +30,7 @@ namespace SAGA.API.Controllers.Component
                 string fecha = "07/12/1990";
                 var edad = DateTime.Today.AddTicks(-Convert.ToDateTime(Convert.ToDateTime(fecha)).Ticks).Year - 1;
                 //var mocos = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre).FirstOrDefault();
-                var infoCanditato = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(Id)).Select(p => new InfoCandidato
+                var infoCanditato = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(Id)).Select(p => new
                 {
                     Id = p.CandidatoId,
                     Nombre = p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno,
@@ -51,11 +51,18 @@ namespace SAGA.API.Controllers.Component
                     Direccion = p.Candidato.direcciones.FirstOrDefault(),
                     Email = p.Candidato.emails.FirstOrDefault(),
                     Telefono = p.Candidato.telefonos.ToList(),
-                    Estatus = db.ProcesoCandidatos.Where(e => e.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(x => x.Fch_Modificacion).FirstOrDefault(),
+                    Estatus = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(e => e.CandidatoId.Equals(p.CandidatoId)).Select(PC => new {
+                        id = PC.Id,
+                        EstatusId = PC.EstatusId,
+                        descripcion = PC.Estatus.Descripcion,
+                        requisicionId = PC.RequisicionId,
+                        reclutador = db.Usuarios.Where(x => x.Id.Equals(PC.ReclutadorId)).Select(RR => RR.Nombre + " " + RR.ApellidoPaterno + " " + RR.ApellidoMaterno).FirstOrDefault()
+                    }).FirstOrDefault(),
                     RedSocial = db.RedesSociales.Where(r => r.EntidadId.Equals(p.CandidatoId)).Select(r => r.redSocial).ToList(),
                     propietarioId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Count() > 0 ? db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(o => o.Fch_Modificacion).Select(id => id.Requisicion.PropietarioId).FirstOrDefault() : new Guid("00000000-0000-0000-0000-000000000000"),
-                    URLCv = db.MiCVUpload.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Count() > 0 ? db.MiCVUpload.OrderByDescending(x => x.Id).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(x => x.UrlCV).FirstOrDefault() : ""
-                }).FirstOrDefault();
+                    URLCv = db.MiCVUpload.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Count() > 0 ? db.MiCVUpload.OrderByDescending(x => x.Id).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(x => x.UrlCV).FirstOrDefault() : "",
+                    Edad =0
+            }).FirstOrDefault();
 
 
                 //var infoCanditato = db.CandidatosInfo.Where(p => p.EntidadId.Equals(Id)).Select(p => new InfoCandidato
@@ -81,7 +88,7 @@ namespace SAGA.API.Controllers.Component
 
                 //}).FirstOrDefault();
 
-                infoCanditato.Edad = DateTime.Today.AddTicks(-Convert.ToDateTime(Convert.ToDateTime(infoCanditato.FechaNacimiento)).Ticks).Year - 1;
+                //infoCanditato.Edad = DateTime.Today.AddTicks(-Convert.ToDateTime(Convert.ToDateTime(infoCanditato.FechaNacimiento)).Ticks).Year - 1;
                 return Ok(infoCanditato);
             }
             catch (Exception ex)
@@ -260,6 +267,15 @@ namespace SAGA.API.Controllers.Component
         {
             try
             {
+                Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
+
+                if (lc.ProcesoCandidatoId == auxID)
+                {
+                    var pc = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.RequisicionId.Equals(lc.RequisicionId) && x.CandidatoId.Equals(lc.CandidatoId)).Select(PC => PC.Id).FirstOrDefault();
+
+                    lc.ProcesoCandidatoId = pc;
+                }
+
                 ProcesoCandidato liberar = db.ProcesoCandidatos.Find(lc.ProcesoCandidatoId);
                 db.Entry(liberar).State = EntityState.Modified;
                 liberar.EstatusId = 27;

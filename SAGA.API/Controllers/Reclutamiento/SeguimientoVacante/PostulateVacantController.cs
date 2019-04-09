@@ -277,23 +277,35 @@ namespace SAGA.API.Controllers
                 }
                 else
                 {
-                    ProcesoCandidato proceso = new ProcesoCandidato();
-                    
-                    proceso.CandidatoId = datos.candidatoId;
-                    proceso.RequisicionId = datos.requisicionId;
-                    proceso.Folio = db.Requisiciones.Where(x => x.Id.Equals(datos.requisicionId)).Select(R => R.Folio).FirstOrDefault();
-                    proceso.Reclutador = "SIN ASIGNAR";
-                    proceso.ReclutadorId = datos.ReclutadorId;
-                    proceso.EstatusId = datos.estatusId;
-                    proceso.TpContrato = 0;
-                    proceso.HorarioId = datos.horarioId;
-                    proceso.Fch_Modificacion = DateTime.Now;
-                    proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
-                    proceso.TipoMediosId = 2;
+                    if (datos.candidatoId != auxID)
+                    {
+                        var horario = auxID;
+                        if (datos.horarioId == auxID)
+                        {
+                            horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(datos.requisicionId)).Select(h => h.Id).FirstOrDefault();
+                        }
+                        else
+                        {
+                            horario = datos.horarioId;
+                        }
 
-                    db.ProcesoCandidatos.Add(proceso);
-                    db.SaveChanges();
+                        ProcesoCandidato proceso = new ProcesoCandidato();
 
+                        proceso.CandidatoId = datos.candidatoId;
+                        proceso.RequisicionId = datos.requisicionId;
+                        proceso.Folio = db.Requisiciones.Where(x => x.Id.Equals(datos.requisicionId)).Select(R => R.Folio).FirstOrDefault();
+                        proceso.Reclutador = "SIN ASIGNAR";
+                        proceso.ReclutadorId = datos.ReclutadorId;
+                        proceso.EstatusId = datos.estatusId;
+                        proceso.TpContrato = 0;
+                        proceso.HorarioId = horario;
+                        proceso.Fch_Modificacion = DateTime.Now;
+                        proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
+                        proceso.TipoMediosId = 2;
+
+                        db.ProcesoCandidatos.Add(proceso);
+                        db.SaveChanges();
+                    }
                     return Ok(HttpStatusCode.OK);
                 }
             }
