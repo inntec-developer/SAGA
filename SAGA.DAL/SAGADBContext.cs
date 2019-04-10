@@ -147,7 +147,7 @@ namespace SAGA.DAL
         public DbSet<TipoAlerta> TiposAlertas { get; set; }
         public DbSet<OficinaReclutamiento> OficinasReclutamiento { get; set; }
         public DbSet<UnidadNegocio> UnidadesNegocios { get; set; }
-
+        public DbSet<Catalogos> Catalogos { get; set; }
 
         ///modulo admin 
         public DbSet<Usuarios> Usuarios { get; set; }
@@ -303,6 +303,9 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new SubordinadosMap().ToTable("Subordinados"));
             modelBuilder.Configurations.Add(new UnidadesNegociosMap().ToTable("UnidadesNegocios"));
 
+            //Catalogos
+            modelBuilder.Configurations.Add(new CatalogosMap().ToTable("Catalogos"));
+            
             //Modulo para examenes
             modelBuilder.Configurations.Add(new ExamenesMap().ToTable("Examenes"));
             modelBuilder.Configurations.Add(new TipoExamenesMap().ToTable("TipoExamen"));
@@ -1284,6 +1287,18 @@ namespace SAGA.DAL
             }
         }
 
+        public class CatalogosMap : EntityTypeConfiguration<Catalogos>
+        {
+            public CatalogosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).IsRequired().HasMaxLength(100);
+                Property(x => x.Descripcion).IsRequired().HasMaxLength(255);
+                Property(x => x.EstructuraId).IsRequired();
+                Property(x => x.Activo).IsRequired();
+            }
+        }
 
         #endregion
 
