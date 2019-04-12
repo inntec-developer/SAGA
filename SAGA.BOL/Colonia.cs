@@ -15,7 +15,7 @@ namespace SAGA.BOL
         public virtual Estado Estado { get; set; }
         public int PaisId { get; set; }
         public virtual Pais Pais { get; set; }
+        public bool Activo { get; set; }
 
-        
     }
 }
