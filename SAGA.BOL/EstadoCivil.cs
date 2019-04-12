@@ -7,5 +7,6 @@ namespace SAGA.BOL
         [Key]
         public byte Id { get; set; }
         public string estadoCivil { get; set; }
+        public bool Activo { get; set; }
     }
 }

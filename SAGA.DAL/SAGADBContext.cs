@@ -492,6 +492,7 @@ namespace SAGA.DAL
                 Property(x => x.CP).HasMaxLength(13).IsRequired();
                 Property(x => x.TipoColonia).HasMaxLength(50);
                 Property(x => x.MunicipioId).IsRequired();
+                Property(x => x.Activo).IsOptional();
             }
         }
         public class CompetenciasCardinalesMap : EntityTypeConfiguration<CompetenciaCardinal>
@@ -565,6 +566,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.estadoCivil).HasMaxLength(20).IsRequired();
+                Property(x => x.Activo).IsOptional();
             }
         }
         public class EstadoEstudioMap : EntityTypeConfiguration<EstadoEstudio>
@@ -582,6 +584,7 @@ namespace SAGA.DAL
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.estado).HasMaxLength(100).IsRequired();
                 Property(x => x.PaisId).IsRequired();
+                Property(x => x.Activo).IsOptional();
             }
         }
         public class EstatusMap : EntityTypeConfiguration<Estatus>
@@ -663,6 +666,7 @@ namespace SAGA.DAL
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.municipio).HasMaxLength(100).IsRequired();
                 Property(x => x.EstadoId).IsRequired();
+                Property(x => x.Activo).IsOptional();
             }
         }
         public class NivelMap : EntityTypeConfiguration<Nivel>
@@ -679,7 +683,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.pais).HasMaxLength(50).IsRequired();
-
+                Property(x => x.Activo).IsOptional();
             }
         }
         public class PrioridadMap : EntityTypeConfiguration<Prioridad>
@@ -764,6 +768,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Tipo).HasMaxLength(15).IsRequired();
+                Property(x => x.Activo).IsOptional();
             }
         }
         public class TipoModalidadMap : EntityTypeConfiguration<TipoModalidad>
