@@ -84,11 +84,31 @@ namespace SAGA.API.Controllers.Reportes
             var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) && e.fch_Creacion > fecha).ToList();
             var porVencer = datos.Where(e => e.fch_Cumplimiento <= vencida && e.fch_Cumplimiento > hoy).ToList().Count;
             var total = datos.Where(e => e.fch_Cumplimiento > vencida).ToList().Count;
+            int Nuevo = datos.Where(e => e.EstatusId == 4).ToList().Count;
+            int Aprobada = datos.Where(e => e.EstatusId == 6).ToList().Count;
+            int Publicada = datos.Where(e => e.EstatusId == 7).ToList().Count;
+            int BusCandidatos = datos.Where(e => e.EstatusId == 29).ToList().Count;
+            int EnvCliente = datos.Where(e => e.EstatusId == 30).ToList().Count;
+            int NuBusqueda = datos.Where(e => e.EstatusId == 31).ToList().Count;
+            int Socioeconomicos = datos.Where(e => e.EstatusId == 32).ToList().Count;
+            int Espera = datos.Where(e => e.EstatusId == 33).ToList().Count;
+            int Pausada = datos.Where(e => e.EstatusId == 39).ToList().Count;
+            int Garantia = datos.Where(e => e.EstatusId == 38).ToList().Count;
             var obj = new
                     {
                         porVencer = porVencer,
-                        total = total
-                     };
+                        total = total,
+                        Nuevo = Nuevo,
+                       Aprobada = Aprobada,
+                       Publicada = Publicada,
+                       BusCandidatos = BusCandidatos,
+                       EnvCliente = EnvCliente,
+                       NuBusqueda = NuBusqueda,
+                       Socioeconomicos = Socioeconomicos,
+                       Espera = Espera,
+                       Pausada = Pausada,
+                       Garantia = Garantia,
+            };
             return Ok(obj);
         }
 
