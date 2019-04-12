@@ -161,7 +161,7 @@ namespace SAGA.API.Controllers
         {
             var actividad = db.TipoActividadReclutador
                                 .Where(x => x.Activo.Equals(true))
-                                .ToList();
+                                .ToList().OrderBy(x => x.Actividad);
             return Ok(actividad);
         }
 

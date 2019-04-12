@@ -1809,5 +1809,19 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.NotFound);
             }
         }
+
+        [HttpGet]
+        [Route("sendEmailRedesSociales")]
+        public IHttpActionResult SendEmailRedesSociales(Guid IdRequisicion)
+        {
+            if (SendEmail.SendEmailRedesSociales(IdRequisicion))
+            {
+                return Ok(HttpStatusCode.OK);
+            }
+            else
+            {
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
     }
 }

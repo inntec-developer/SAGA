@@ -165,6 +165,483 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
             }
         }
 
+        [Route("EditInfoGeneral")]
+        [HttpPost]
+        public IHttpActionResult EditInforGeneral(InfoGeneralDto info)
+        {
+            try
+            {
+                var cliente = db.Clientes.Find(info.Id);
+                db.Entry(cliente).State = EntityState.Modified;
+                cliente.RazonSocial = info.RazonSocial;
+                cliente.RFC = info.RFC.ToUpper();
+                cliente.Nombrecomercial = info.NombreComercial;
+                cliente.TamanoEmpresaId = info.TamanoEmpresa;
+                cliente.NumeroEmpleados = info.NumeroEmpleados;
+                cliente.GiroEmpresaId = info.GiroEmpresa;
+                cliente.ActividadEmpresaId = info.ActividadEmpresa;
+                cliente.TipoEmpresaId = info.TipoEmpresa;
+                cliente.TipoBaseId = info.TipoBase;
+                cliente.Clasificacion = info.Clasificacion;
+                cliente.UsuarioMod = info.Usuario;
+                cliente.fch_Modificacion = DateTime.Now;
+                db.SaveChanges();
+                return Ok(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        #region Direccion
+        [Route("AddDireccionCliente")]
+        [HttpPost]
+        public IHttpActionResult AddDireccionCliente(DireccionClienteDto info)
+        {
+            try
+            {
+                var direccion = Mapper.Map<DireccionClienteDto, Direccion>(info);
+                direccion.TipoDireccionId = info.TipoDireccionId;
+                direccion.Calle = info.Calle;
+                direccion.NumeroExterior = info.NumeroExterior;
+                direccion.NumeroInterior = info.NumeroInterior;
+                direccion.PaisId = info.PaisId;
+                direccion.EstadoId = info.EstadoId;
+                direccion.MunicipioId = info.MunicipioId;
+                direccion.ColoniaId = info.ColoniaId;
+                direccion.CodigoPostal = info.CodigoPostal;
+                direccion.esPrincipal = info.esPrincipal;
+                direccion.Activo = info.Activo;
+                direccion.Referencia = info.Referencia;
+                direccion.EntidadId = info.EntidadId;
+                direccion.UsuarioAlta = info.Usuario;
+                direccion.UsuarioMod = info.Usuario;
+                direccion.fch_Modificacion = DateTime.Now;
+                db.Direcciones.Add(direccion);
+                db.SaveChanges();
+
+                var Id = db.Direcciones.OrderByDescending(d => d.fch_Creacion).Where(d => d.EntidadId.Equals(info.EntidadId)).Select(d => d.Id).Take(1).FirstOrDefault();
+
+                return Ok(Id);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Route("EditDireccionCliente")]
+        [HttpPost]
+        public IHttpActionResult EditDireccionCliente(DireccionClienteDto info)
+        {
+            try
+            {
+                var direccion = db.Direcciones.Find(info.Id);
+                db.Entry(direccion).State = EntityState.Modified;
+                direccion.TipoDireccionId = info.TipoDireccionId;
+                direccion.Calle = info.Calle;
+                direccion.NumeroExterior = info.NumeroExterior;
+                direccion.NumeroInterior = info.NumeroInterior;
+                direccion.PaisId = info.PaisId;
+                direccion.EstadoId = info.EstadoId;
+                direccion.MunicipioId = info.MunicipioId;
+                direccion.ColoniaId = info.ColoniaId;
+                direccion.CodigoPostal = info.CodigoPostal;
+                direccion.esPrincipal = info.esPrincipal;
+                direccion.Activo = info.Activo;
+                direccion.Referencia = info.Referencia;
+                direccion.UsuarioMod = info.Usuario;
+                direccion.fch_Modificacion = DateTime.Now;
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Route("DeleteDireccionCliente")]
+        [HttpGet]
+        public IHttpActionResult DeleteDireccionCliente(Guid DireccionId)
+        {
+            try
+            {
+                var direccion = db.Direcciones.Find(DireccionId);
+                db.Entry(direccion).State = EntityState.Deleted;
+
+                var dt = db.DireccionesTelefonos.Where(x => x.DireccionId.Equals(DireccionId)).ToList();
+                //var telefonosId = dt.Select(x => x.TelefonoId).ToList();
+                //var telefonos = db.Telefonos.Where(t => telefonosId.Contains(t.Id)).ToList();
+                //db.Telefonos.RemoveRange(telefonos);
+                db.DireccionesTelefonos.RemoveRange(dt);
+
+                var de = db.DireccionesEmails.Where(x => x.DireccionId.Equals(DireccionId)).ToList();
+                //var emailsId = de.Select(e => e.EmailId).ToList();
+                //var emails = db.Emails.Where(e => emailsId.Contains(e.Id)).ToList();
+                //db.Emails.RemoveRange(emails);
+                db.DireccionesEmails.RemoveRange(de);
+
+                var dc = db.DireccionesContactos.Where(x => x.DireccionId.Equals(DireccionId)).ToList();
+                //var contactosId = dc.Select(c => c.ContactoId).ToList();
+                //var contactos = db.Contactos.Where(c => contactosId.Contains(c.Id)).ToList();
+                //db.Contactos.RemoveRange(contactos);
+                db.DireccionesContactos.RemoveRange(dc);
+
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        #endregion
+
+        [Route("AddTelefonoCliente")]
+        [HttpPost]
+        public IHttpActionResult AddTelefonoCliente(TelefonoClienteDto info)
+        {
+            try
+            {
+                var telefono = Mapper.Map<TelefonoClienteDto, Telefono>(info);
+                telefono.ClavePais = info.ClavePais;
+                telefono.ClaveLada = info.ClaveLada;
+                telefono.Extension = info.Extension;
+                telefono.telefono = info.telefono;
+                telefono.TipoTelefonoId = info.TipoTelefonoId;
+                telefono.esPrincipal = info.esPrincipal;
+                telefono.Activo = info.Activo;
+                telefono.EntidadId = info.EntidadId;
+                telefono.UsuarioAlta = info.Usuario;
+                telefono.UsuarioMod = info.Usuario;
+                telefono.fch_Modificacion = DateTime.Now;
+                db.Telefonos.Add(telefono);
+                db.SaveChanges();
+
+
+                var Id = db.Telefonos.OrderByDescending(d => d.fch_Creacion).Where(d => d.EntidadId.Equals(info.EntidadId)).Select(d => d.Id).Take(1).FirstOrDefault();
+
+                var direccionTelefono = new DireccionTelefono();
+                direccionTelefono.DireccionId = info.DireccionId;
+                direccionTelefono.TelefonoId = Id;
+                db.DireccionesTelefonos.Add(direccionTelefono);
+                db.SaveChanges();
+
+                var IdDT = db.DireccionesTelefonos
+                    .Where(dt => dt.DireccionId.Equals(info.DireccionId))
+                    .Where(dt => dt.TelefonoId.Equals(Id))
+                    .Select(dt => dt.Id)
+                    .FirstOrDefault();
+
+                Guid[] objeto = { IdDT, Id };
+
+                return Ok(objeto);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Route("EditTelefonoCliente")]
+        [HttpPost]
+        public IHttpActionResult EditTelefonoCliente(TelefonoClienteDto info)
+        {
+            try
+            {
+                var telefono = db.Telefonos.Find(info.Id);
+                db.Entry(telefono).State = EntityState.Modified;
+                telefono.ClavePais = info.ClavePais;
+                telefono.ClaveLada = info.ClaveLada;
+                telefono.Extension = info.Extension;
+                telefono.telefono = info.telefono;
+                telefono.TipoTelefonoId = info.TipoTelefonoId;
+                telefono.esPrincipal = info.esPrincipal;
+                telefono.Activo = info.Activo;
+                telefono.UsuarioMod = info.Usuario;
+                telefono.fch_Modificacion = DateTime.Now;
+
+                var direccionTelefono = db.DireccionesTelefonos.Find(info.IdDT);
+                if(direccionTelefono != null)
+                {
+                    db.Entry(direccionTelefono).State = EntityState.Modified;
+                    direccionTelefono.DireccionId = info.DireccionId;
+                    direccionTelefono.TelefonoId = info.Id;
+                }
+                else
+                {
+                    var AddDireccionTelefono = new DireccionTelefono();
+                    AddDireccionTelefono.DireccionId = info.DireccionId;
+                    AddDireccionTelefono.TelefonoId = info.Id;
+                    db.DireccionesTelefonos.Add(AddDireccionTelefono);
+                    db.SaveChanges();
+                }
+                
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        [Route("DeleteTelefonoCliente")]
+        [HttpGet]
+        public IHttpActionResult DeleteTelefonoCliente(Guid TelefonoId)
+        {
+            try
+            {
+                var telefeno = db.Telefonos.Find(TelefonoId);
+                db.Entry(telefeno).State = EntityState.Deleted;
+                db.SaveChanges();
+                return Ok(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        [Route("AddEmailCliente")]
+        [HttpPost]
+        public IHttpActionResult AddEmailCliente(EmailClienteDto info)
+        {
+            try
+            {
+                var email = Mapper.Map<EmailClienteDto, Email>(info);
+                email.email = info.email;
+                email.EntidadId = info.EntidadId;
+                email.UsuarioAlta = info.Usuario;
+                email.UsuarioMod = info.Usuario;
+                email.fch_Modificacion = DateTime.Now;
+                email.esPrincipal = false;
+                db.Emails.Add(email);
+                db.SaveChanges();
+
+                var Id = db.Emails.OrderByDescending(d => d.fch_Creacion).Where(d => d.EntidadId.Equals(info.EntidadId)).Select(d => d.Id).Take(1).FirstOrDefault();
+
+                var direcionEmail = new DireccionEmail();
+                direcionEmail.DireccionId = info.DireccionId;
+                direcionEmail.EmailId = Id;
+                db.DireccionesEmails.Add(direcionEmail);
+                db.SaveChanges();
+
+                var IdDE = db.DireccionesEmails
+                    .Where(d => d.DireccionId.Equals(info.DireccionId))
+                    .Where(d => d.EmailId.Equals(Id))
+                    .Select(d => d.Id)
+                    .FirstOrDefault();
+
+                Guid[] objeto = { IdDE, Id };
+
+                return Ok(objeto);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Route("EditEmailCliente")]
+        [HttpPost]
+        public IHttpActionResult EditEmailCliente(EmailClienteDto info)
+        {
+            try
+            {
+                var email = db.Emails.Find(info.Id);
+                db.Entry(email).State = EntityState.Modified;
+                email.email = info.email;
+                email.EntidadId = info.EntidadId;
+                email.UsuarioMod = info.Usuario;
+                email.fch_Modificacion = DateTime.Now;
+
+                var DirecionEmail = db.DireccionesEmails.Find(info.IdDE);
+                if(DirecionEmail != null)
+                { 
+                    db.Entry(DirecionEmail).State = EntityState.Modified;
+                    DirecionEmail.DireccionId = info.DireccionId;
+                    DirecionEmail.EmailId = info.Id;
+                }
+                else
+                {
+                    var AddDirecionEmail = new DireccionEmail();
+                    AddDirecionEmail.DireccionId = info.DireccionId;
+                    AddDirecionEmail.EmailId = info.Id;
+                    db.DireccionesEmails.Add(AddDirecionEmail);
+                }
+
+                db.SaveChanges();
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Route("DeleteEmailCliente")]
+        [HttpGet]
+        public IHttpActionResult DeleteEmailCliente(Guid EmailId)
+        {
+            try
+            {
+                var email = db.Emails.Find(EmailId);
+                db.Entry(email).State = EntityState.Deleted;
+                db.SaveChanges();
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Route("AddContactoCliente")]
+        [HttpPost]
+        public IHttpActionResult AddContactosCliente(ContactoClienteDto info)
+        {
+            try
+            {
+                var contacto = Mapper.Map<ContactoClienteDto, Contacto>(info);
+                contacto.Nombre = info.Nombre;
+                contacto.ApellidoPaterno = info.ApellidoPaterno;
+                contacto.ApellidoMaterno = info.ApellidoMaterno;
+                contacto.TipoEntidadId = 3;
+                contacto.Puesto = info.Puesto;
+                contacto.ClienteId = info.ClienteId;
+                contacto.emails = info.emails;
+                contacto.telefonos = info.telefonos;
+                contacto.UsuarioAlta = info.Usuario;
+                contacto.UsuarioMod = info.Usuario;
+                contacto.fch_Modificacion = DateTime.Now;
+                db.Contactos.Add(contacto);
+                db.SaveChanges();
+
+                var Id = db.Contactos.OrderByDescending(d => d.fch_Creacion).Where(d => d.ClienteId.Equals(info.ClienteId)).Select(d => d.Id).Take(1).FirstOrDefault();
+
+                var direcionContaco = new DireccionContacto();
+                direcionContaco.DireccionId = info.DireccionId;
+                direcionContaco.ContactoId = Id;
+                db.DireccionesContactos.Add(direcionContaco);
+                db.SaveChanges();
+
+                var IdDCn = db.DireccionesContactos
+                    .Where(d => d.DireccionId.Equals(info.DireccionId))
+                    .Where(d => d.ContactoId.Equals(Id))
+                    .Select(d => d.Id)
+                    .FirstOrDefault();
+
+                var IdTel = db.Telefonos
+                            .Where(t => t.EntidadId.Equals(Id))
+                            .Select(t => t.Id)
+                            .FirstOrDefault();
+
+                var IdEmail = db.Emails
+                            .Where(t => t.EntidadId.Equals(Id))
+                            .Select(t => t.Id)
+                            .FirstOrDefault();
+
+
+                Guid[] objeto = { IdDCn, Id, IdTel, IdEmail };
+
+                return Ok(objeto);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Route("EditContactoCliente")]
+        [HttpPost]
+        public IHttpActionResult EditContactosCliente(ContactoClienteDto info)
+        {
+            try
+            {
+                var contacto = db.Contactos.Find(info.Id);
+                db.Entry(contacto).State = EntityState.Modified;
+                contacto.Nombre = info.Nombre;
+                contacto.ApellidoPaterno = info.ApellidoPaterno;
+                contacto.ApellidoMaterno = info.ApellidoMaterno;
+                contacto.Puesto = info.Puesto;
+                contacto.UsuarioMod = info.Usuario;
+                contacto.fch_Modificacion = DateTime.Now;
+
+                var telefono = db.Telefonos.Find(info.telefonos.Select(t => t.Id).FirstOrDefault());
+                telefono.TipoTelefonoId = info.telefonos.Select(t => t.TipoTelefonoId).FirstOrDefault();
+                telefono.ClavePais = info.telefonos.Select(t => t.ClavePais).FirstOrDefault();
+                telefono.ClaveLada = info.telefonos.Select(t => t.ClaveLada).FirstOrDefault();
+                telefono.Extension = info.telefonos.Select(t => t.Extension).FirstOrDefault();
+                telefono.telefono = info.telefonos.Select(t => t.telefono).FirstOrDefault();
+                telefono.fch_Modificacion = DateTime.Now;
+                telefono.UsuarioAlta = info.Usuario;
+
+                var email = db.Emails.Find(info.emails.Select(e => e.Id).FirstOrDefault());
+                email.email = info.emails.Select(e => e.email).FirstOrDefault();
+                email.fch_Modificacion = DateTime.Now;
+                email.UsuarioMod = info.Usuario;
+
+                var DireccionContacto = db.DireccionesContactos.Find(info.IdDCn);
+                if (DireccionContacto != null)
+                {
+                    db.Entry(DireccionContacto).State = EntityState.Modified;
+                    DireccionContacto.DireccionId = info.DireccionId;
+                    DireccionContacto.ContactoId = info.Id;
+                }
+                else
+                {
+                    var AddDireccionContactol = new DireccionContacto();
+                    AddDireccionContactol.DireccionId = info.DireccionId;
+                    AddDireccionContactol.ContactoId = info.Id;
+                    db.DireccionesContactos.Add(AddDireccionContactol);
+                }
+
+                db.SaveChanges();
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Route("DeleteContactoCliente")]
+        [HttpGet]
+        public IHttpActionResult DeleteContactosCliente(Guid ContactoId)
+        {
+            try
+            {
+                var contacto = db.Contactos.Find(ContactoId);
+                db.Entry(contacto).State = EntityState.Deleted;
+                db.SaveChanges();
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+
+
         [Route("getCliente")]
         [HttpGet]
         public IHttpActionResult GetCliente(Guid ClienteId)
@@ -186,9 +663,11 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                         TipoBase = x.TipoBases,
                         esCliente = x.esCliente,
                         NumeroEmpleados = x.NumeroEmpleados,
+                        Clasificacion = x.Clasificacion,
                         Direcciones = x.direcciones.Select(d => new
                         {
                             Id = d.Id,
+                            EntidadId = d.EntidadId,
                             Activo = d.Activo,
                             Calle = d.Calle,
                             CodigoPostal = d.CodigoPostal,
@@ -213,17 +692,24 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                                     .Select(t => new
                                     {
                                         Id = t.Id,
-                                        IdDT = db.DireccionesTelefonos.Where(dt => dt.TelefonoId.Equals(t.Id)).Select(dt => dt.Id).FirstOrDefault(),
-                                        Direccion = db.DireccionesTelefonos
+                                        EntidadId = t.EntidadId,
+                                        IdDT = db.DireccionesTelefonos
+                                                .Where(dt => dt.TelefonoId.Equals(t.Id))
+                                                .Select(dt => dt.Id)
+                                                .FirstOrDefault(),
+                                        Calle = db.DireccionesTelefonos
+                                                    .Where(dt => dt.TelefonoId.Equals(t.Id)).FirstOrDefault() != null ? 
+                                                    db.DireccionesTelefonos
                                                     .Where(dt => dt.TelefonoId.Equals(t.Id))
-                                                    .Select(dt => new {Calle =  dt.Direccion.Calle + " No. " + dt.Direccion.NumeroExterior + " C.P. " + dt.Direccion.CodigoPostal })
-                                                    .FirstOrDefault(),
+                                                    .Select(dt => dt.Direccion.Calle + " No. " + dt.Direccion.NumeroExterior + " C.P. " + dt.Direccion.CodigoPostal)
+                                                    .FirstOrDefault() : "Sin Registro",
                                         DireccionId = db.DireccionesTelefonos.Where(dt => dt.TelefonoId.Equals(t.Id)).Select(dt => dt.DireccionId).FirstOrDefault(),
                                         ClavePais = t.ClavePais,
                                         ClaveLada = t.ClaveLada,
-                                        Extencion = t.Extension,
+                                        Extension = t.Extension !=  null  ? t.Extension : "",
                                         Telefono = t.telefono,
-                                        TipoTelefono = t.TipoTelefono,
+                                        TTelefono = t.TipoTelefono.Tipo,
+                                        TipoTelefonoId = t.TipoTelefonoId,
                                         Activo = t.Activo,
                                         esPrincipal = t.esPrincipal
                                     })
@@ -231,44 +717,61 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                         Correos = db.Emails
                                     .Where(e => e.EntidadId.Equals(ClienteId))
                                     .Select(e => new {
-                                       Id = e.Id,
-                                       IdDE = db.DireccionesEmails.Where(de => de.EmailId.Equals(e.Id)).Select(de => de.Id).FirstOrDefault(),
-                                       Direccion = db.DireccionesEmails
+                                        Id = e.Id,
+                                        EntidadId = e.EntidadId,
+                                        IdDE = db.DireccionesEmails.Where(de => de.EmailId.Equals(e.Id)).Select(de => de.Id).FirstOrDefault(),
+                                        Calle = db.DireccionesEmails
+                                                    .Where(de => de.EmailId.Equals(e.Id)).FirstOrDefault() != null ? 
+                                                    db.DireccionesEmails
                                                     .Where(de => de.EmailId.Equals(e.Id))
-                                                    .Select(de => new { Calle = de.Direccion.Calle + " No. " + de.Direccion.NumeroExterior + " C.P. " + de.Direccion.CodigoPostal })
-                                                    .FirstOrDefault(),
-                                       DireccionId = db.DireccionesEmails.Where(de => de.EmailId.Equals(e.Id)).Select(de => de.DireccionId).FirstOrDefault(),
-                                       Email = e.email
+                                                    .Select(de => de.Direccion.Calle + " No. " + de.Direccion.NumeroExterior + " C.P. " + de.Direccion.CodigoPostal)
+                                                    .FirstOrDefault() : "Sin Registro",
+                                        DireccionId = db.DireccionesEmails.Where(de => de.EmailId.Equals(e.Id)).Select(de => de.DireccionId).FirstOrDefault(),
+                                        Email = e.email
                                     })
-                                    .ToList() ,
+                                    .ToList(),
                         Contactos = db.Contactos
                                     .Where(c => c.ClienteId.Equals(ClienteId))
                                     .Select(c => new
                                     {
-                                        Id = c.Id,
-                                        IdDE = db.DireccionesContactos.Where(dc => dc.ContactoId.Equals(c.Id)).Select(de => de.Id).FirstOrDefault(),
-                                        Direccion = db.DireccionesContactos
-                                                    .Where(dc => dc.ContactoId.Equals(c.Id))
-                                                    .Select(dc => new { Calle = dc.Direccion.Calle + " No. " + dc.Direccion.NumeroExterior + " C.P. " + dc.Direccion.CodigoPostal })
-                                                    .FirstOrDefault(),
-                                        DireccionId = db.DireccionesContactos.Where(dc => dc.ContactoId.Equals(c.Id)).Select(de => de.DireccionId).FirstOrDefault(),
-                                        Nombre = c.Nombre,
+
                                         ApellidoPaterno = c.ApellidoPaterno,
                                         ApellidoMaterno = c.ApellidoMaterno != null ? c.ApellidoMaterno : "",
+                                        Calle = db.DireccionesContactos
+                                                    .Where(dc => dc.ContactoId.Equals(c.Id)).FirstOrDefault() != null ? db.DireccionesContactos
+                                                    .Where(dc => dc.ContactoId.Equals(c.Id))
+                                                    .Select(dc => dc.Direccion.Calle + " No. " + dc.Direccion.NumeroExterior + " C.P. " + dc.Direccion.CodigoPostal)
+                                                    .FirstOrDefault() : "Sin Registro",
+                                        ClienteId = c.ClienteId,
+                                        DireccionId = db.DireccionesContactos
+                                                        .Where(dc => dc.ContactoId.Equals(c.Id))
+                                                        .Select(de => de.DireccionId)
+                                                        .FirstOrDefault(),
+                                        Emails = c.emails
+                                                    .Select(ce => new {
+                                                        Id = ce.Id,
+                                                        Email = ce.email,
+                                                    }).ToList(),
+                                        EmailAux = c.emails.Select(e => e.email).FirstOrDefault(),
+                                        Id = c.Id,
+                                        IdDCn = db.DireccionesContactos.Where(dc => dc.ContactoId.Equals(c.Id)).Select(de => de.Id).FirstOrDefault(),
+                                        Nombre = c.Nombre,
+                                        nombreAux = c.Nombre + " " + c.ApellidoPaterno,
                                         Puesto = c.Puesto,
-                                        Telefonos = x.telefonos.Select(ct => new
-                                        {
-                                            Id = ct.Id,
-                                            ClavePais = ct.ClavePais,
-                                            ClaveLada = ct.ClaveLada,
-                                            Extencion = ct.Extension,
-                                            Telefono = ct.telefono,
-                                            TipoTelefono = ct.TipoTelefono,
-                                        }).ToList(),
-                                        Emails = x.emails.Select(ce => new {
-                                            Id = ce.Id,
-                                            Email = ce.email,
-                                        }).ToList(),
+                                        Telefonos = c.telefonos
+                                                    .Select(ct => new
+                                                    {
+                                                        Id = ct.Id,
+                                                        ClavePais = ct.ClavePais,
+                                                        ClaveLada = ct.ClaveLada,
+                                                        Extension = ct.Extension != null ? ct.Extension : "",
+                                                        Telefono = ct.telefono,
+                                                        TipoTelefono = ct.TipoTelefono.Tipo,
+                                                        TipoTelefonoId = ct.TipoTelefonoId
+                                                    }).ToList(),
+                                        TelefonoAux = c.telefonos.Select(t => t.telefono).FirstOrDefault(),
+                                        TipoTelefonoAux = c.telefonos.Select(t => t.TipoTelefono.Tipo).FirstOrDefault(),
+                                       
                                     })
                                     .ToList()
                     }).FirstOrDefault();
