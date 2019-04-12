@@ -14,6 +14,6 @@ namespace SAGA.BOL
         public int EstructuraId { get; set; }
         public Boolean Activo { get; set; }
 
-        public virtual Estructura Estructura { get; set; }
+        public Estructura Estructura { get; set; }
     }
 }

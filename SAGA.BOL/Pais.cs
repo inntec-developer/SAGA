@@ -7,5 +7,6 @@ namespace SAGA.BOL
         [Key]
         public int Id { get; set; }
         public string pais { get; set; }
+        public bool Activo { get; set; }
     }
 }
