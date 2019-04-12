@@ -175,7 +175,7 @@ namespace SAGA.API.Controllers
             try
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(propietario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
-                if (tipo == 8)
+                if (tipo == 8 || tipo == 3)
                 {
                     var requisicion = db.Requisiciones
                    .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false))
@@ -198,6 +198,7 @@ namespace SAGA.API.Controllers
                        Prioridad = e.Prioridad.Descripcion,
                        PrioridadId = e.PrioridadId,
                        Cliente = e.Cliente.Nombrecomercial,
+                       Sucursal = db.Direcciones.Where(x => x.Id.Equals(e.DireccionId)).Select(d => d.Calle + " " + d.NumeroExterior + " C.P: " + d.CodigoPostal + " Col: " + d.Colonia.colonia).FirstOrDefault(),
                        GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
                        ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
@@ -268,6 +269,7 @@ namespace SAGA.API.Controllers
                        Prioridad = e.Prioridad.Descripcion,
                        PrioridadId = e.PrioridadId,
                        Cliente = e.Cliente.Nombrecomercial,
+                       Sucursal = db.Direcciones.Where(x => x.Id.Equals(e.DireccionId)).Select(d => d.Calle + " " + d.NumeroExterior + " C.P: " + d.CodigoPostal + " Col: " + d.Colonia.colonia).FirstOrDefault(),
                        GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
                        ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
@@ -332,7 +334,7 @@ namespace SAGA.API.Controllers
             {
                 var UnidadNegocio = db.Usuarios.Where(u => u.Id.Equals(propietario)).Select(u => u.Sucursal.UnidadNegocioId).FirstOrDefault();
 
-                if(UnidadNegocio != 3)
+                if (UnidadNegocio != 3 )
                 {
                     var Sucursales = db.OficinasReclutamiento.Where(s => s.UnidadNegocioId.Equals(UnidadNegocio)).Select(s => s.Id).ToList();
                     var Usuarios = db.Usuarios.Where(u => Sucursales.Contains(u.SucursalId)).Select(u => u.Id).ToList();
@@ -701,6 +703,7 @@ namespace SAGA.API.Controllers
                             Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
                             AreaExperiencia = e.Area.areaExperiencia,
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
+
                         }).ToList();
                     return Ok(vacantes);
                 }
