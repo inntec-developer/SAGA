@@ -487,5 +487,128 @@ namespace SAGA.API.Utilerias
                 return false;
             }
         }
+
+        public bool SendEmailRedesSociales(Guid RequisicionId)
+        {
+            try
+            {
+                var requi = db.Requisiciones
+                   .Where(r => r.Id.Equals(RequisicionId))
+                   .Select(x => new
+                   {
+                       folio = x.Folio,
+                       fch_Creacion = x.fch_Creacion,
+                       solicita =
+                           db.Entidad
+                           .Where(en => en.Id.Equals(x.PropietarioId))
+                           .Select(em => new
+                           {
+                               nombre = em.Nombre + " " + em.ApellidoPaterno + " " + (em.ApellidoMaterno != null ? em.ApellidoMaterno : "")
+                           })
+                       .FirstOrDefault(),
+                       empresa = x.Cliente.RazonSocial,
+                       noVacantes = x.horariosRequi.Sum(h => h.numeroVacantes),
+                       puesto = x.VBtra,
+                       sueldoMinimo = x.SueldoMinimo,
+                       sueldoMaximo = x.SueldoMaximo,
+                       estatusId = x.EstatusId,
+                       estaus = x.Estatus.Descripcion,
+                       estado = x.Direccion.Estado.estado,
+                       propietarioid = x.PropietarioId,
+                       escolaridades = x.escolaridadesRequi,
+                       experiencia = x.Experiencia,
+                       actividades = x.actividadesRequi,
+                       aptitudes = x.aptitudesRequi,
+                       beneficios = x.beneficiosRequi,
+                       prestaciones = x.prestacionesClienteRequi,
+                   }).FirstOrDefault();
+
+                var asignados = db.AsignacionRequis
+                                .Where(a => a.RequisicionId.Equals(RequisicionId))
+                                .Select(x => x.GrpUsrId)
+                                .ToList();
+
+
+                var emailsProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid)).Select(x => x.email).FirstOrDefault();
+
+                var emailsAsignados = db.Emails.Where(x => asignados.Contains(x.EntidadId)).Select(x => x.email).ToList();
+
+                string body = "";
+                string from = "noreply@damsa.com.mx";
+                MailMessage m = new MailMessage();
+                m.From = new MailAddress(from, "SAGA Inn");
+                m.To.Add(ConfigurationManager.AppSettings["Medios"].ToString());
+                m.CC.Add(emailsProp);
+                foreach (var e in emailsAsignados)
+                {
+                    m.CC.Add(e.ToString());
+                }
+                m.Subject = string.Format("Publicacion de Vacante en Redes Sociales {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                body = string.Format("<p style=\"font-size:12px;\">Por este medio se les informa que se ha solicitado publicación en redes sociales la vacante con número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
+             
+
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> FECHA SOLICITUD: </strong><label>{0}</label></p>", requi.fch_Creacion);
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> SOLICITANTE: </strong><label>{0}</label></p>", requi.solicita.nombre.ToUpper());
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> EMPRESA: </strong><label>{0}</label></p>", requi.empresa.ToUpper());
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> ESTADO: </strong><label>{0}</label></p>", requi.estado.ToUpper());
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> NUMERO VACANTES: </strong><label>{0}</label></p>", requi.noVacantes);
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> PUESTO: </strong><label>{0}</label></p>", requi.puesto.ToUpper());
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> SUELDO: </strong><label>{0} a {1}</label></p>", String.Format("{0:C}", requi.sueldoMinimo), String.Format("{0:C}", requi.sueldoMaximo));
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> ESTATUS VACANTE: </strong><label>{0}</label></p>", requi.estaus);
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> EXPERIENCIA: </strong><label>{0}</label></p>", requi.experiencia.ToUpper());
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\">ACTIVIDADES</strong></p><ul>");
+                foreach (var e in requi.actividades)
+                {
+                    body = body + string.Format("<li style=\"font-size:12px;\">{0}</li>", e.Actividades.ToUpper());
+                }
+                body = body + string.Format("</ul>");
+
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\">ESCOLARIDADES</strong></p><ul>");
+                foreach (var e in requi.escolaridades)
+                {
+                    body = body + string.Format("<li style=\"font-size:12px;\">{0} - {1}</li>", e.Escolaridad.gradoEstudio, e.EstadoEstudio.estadoEstudio);
+                }
+                body = body + string.Format("</ul>");
+
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\">APTITUDES</strong></p><ul>");
+                foreach (var e in requi.aptitudes)
+                {
+                    body = body + string.Format("<li style=\"font-size:12px;\">{0}</li>", e.Aptitud.aptitud.ToUpper());
+                }
+                body = body + string.Format("</ul>");
+
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\">BENEFICIOS</strong></p><ul>");
+                foreach (var e in requi.beneficios)
+                {
+                    body = body + string.Format("<li style=\"font-size:12px;\">{0} - {1} - {2}</li>", e.TipoBeneficio.tipoBeneficio.ToUpper(), String.Format("{0:C}", e.Cantidad), e.Observaciones.ToUpper());
+                }
+                body = body + string.Format("</ul>");
+
+                body = body + string.Format("<p style=\"font - size:12px;\"><strong style=\"color: #0049FF\">PRESTACIONES SUPERIORES</strong></p><ul>");
+                foreach (var e in requi.prestaciones)
+                {
+                    body = body + string.Format("<li style=\"font-size:12px;\">{0}</li>", e.Prestamo.ToUpper());
+                }
+                body = body + string.Format("</ul>");
+
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong> Favor de corroborar esta información y dar el seguimiento correspondiente. </strong></p>");
+                body = body + string.Format("<p style=\"font-size:12px;\">Me despido de usted agradeciendo su atención y enviándole un cordial saludo.</p>");
+
+                m.Body = body;
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                smtp.EnableSsl = true;
+                smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                smtp.Send(m);
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return false;
+            }
+        }
     }
 }

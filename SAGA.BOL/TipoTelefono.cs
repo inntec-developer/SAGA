@@ -6,6 +6,7 @@ namespace SAGA.BOL
     {
         [Key]
         public byte Id { get; set; }
-        public string Tipo { get; set; } 
+        public string Tipo { get; set; }
+        public bool Activo { get; set; }
     }
 }

@@ -34,9 +34,10 @@ namespace SAGA.API.Dtos
         public int? Edad { get; set; }
         public bool Reubicacion { get; set; }
         public bool TpVehiculo { get; set; }
-        public virtual ICollection<Formacion> Formaciones { get; set; }
-        public virtual ICollection<ExperienciaProfesional> Experiencias { get; set; }
-        public virtual ICollection<AboutMe> Acercademi { get; set; }
+        public string AreaExp { get; set; }
+        public string AreaInt { get; set; }
+        public string Estatus { get; set; }
+        public virtual List<int> Formaciones { get; set; }
         public virtual ICollection<PerfilIdioma> Idiomas { get; set; }
     }
 }

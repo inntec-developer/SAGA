@@ -23,6 +23,14 @@ namespace SAGA.API
 
             Mapper.CreateMap<Cliente, ProspectoDto>();
             Mapper.CreateMap<ProspectoDto, Cliente>();
+            Mapper.CreateMap<Direccion, DireccionClienteDto>();
+            Mapper.CreateMap<DireccionClienteDto, Direccion>();
+            Mapper.CreateMap<Email, EmailClienteDto>();
+            Mapper.CreateMap<EmailClienteDto, Email>();
+            Mapper.CreateMap<Telefono, TelefonoClienteDto>();
+            Mapper.CreateMap<TelefonoClienteDto, Telefono>();
+            Mapper.CreateMap<Contacto, ContactoClienteDto>();
+            Mapper.CreateMap<ContactoClienteDto, Contacto>();
         }
     }
 }

@@ -9,5 +9,6 @@ namespace SAGA.BOL
         public string municipio { get; set; }
         public int EstadoId { get; set; }
         public Estado Estado { get; set; }
+        public bool Activo { get; set; }
     }
 }

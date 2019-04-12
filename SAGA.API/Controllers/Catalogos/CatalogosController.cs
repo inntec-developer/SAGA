@@ -20,6 +20,8 @@ namespace SAGA.API.Controllers
             db = new SAGADBContext();
         }
 
+        #region Catalogos
+
         [HttpGet]
         [Route("getDocDamsa")]
         public IHttpActionResult GetDocDamsa()
@@ -161,7 +163,7 @@ namespace SAGA.API.Controllers
         {
             var actividad = db.TipoActividadReclutador
                                 .Where(x => x.Activo.Equals(true))
-                                .ToList();
+                                .ToList().OrderBy(x => x.Actividad);
             return Ok(actividad);
         }
 
@@ -180,6 +182,8 @@ namespace SAGA.API.Controllers
             var tipo = db.TiposDirecciones.ToList();
             return Ok(tipo);
         }
+
+        #endregion
 
         #region Catalogos para Prospectos Clientes
 
@@ -305,6 +309,69 @@ namespace SAGA.API.Controllers
                     x.MunicipioId,
                 }).ToList().OrderBy(x => x.colonia);
             return Ok(info);
+        }
+        #endregion
+
+        #region Menu de Catalogos
+
+        [HttpGet]
+        [Route("getCatalogos")]
+        public IHttpActionResult GetCatalogos()
+        {
+            var Catalogos = db.Estructuras
+                .Select(x => new
+                {
+                    x.Id,
+                    x.IdPadre,
+                    x.Nombre,
+                    x.Descripcion,
+                    x.Activo,
+                    Catalogos = db.Catalogos.Where( c => c.EstructuraId == x.Id).ToList()
+                })
+                .Where(e => e.Activo.Equals(true) && e.IdPadre.Equals(1) && e.Id != 1 && e.Catalogos.Count > 0)
+                .ToList();
+
+            return Ok(Catalogos);
+        }
+
+        [HttpGet]
+        [Route("getCatalogosComplete")]
+        public IHttpActionResult getCatalogosComplete(int IdCatalogo )
+        {
+            CatalogosDto Catalogo = new CatalogosDto();
+            //Buscamos los datos del catalogo
+            Catalogo.Catalogos = db.Catalogos
+             .Where(c => c.Id.Equals(IdCatalogo))
+             .SingleOrDefault();
+
+            switch (IdCatalogo)
+            {
+                case 1: // Paises
+
+                    Catalogo.Pais = db.Paises.ToList();
+
+                    break;
+
+                case 2: // Estados
+
+                    Catalogo.Pais = db.Paises.ToList();
+                    Catalogo.Estado = db.Estados
+                        .Select( e => new EstadoDto
+                        {
+                            Id = e.Id,
+                            estado = e.estado,
+                            Clave = e.Clave,
+                            Pais = e.Pais.pais                   
+                        })
+                        .ToList();
+
+                    break;
+
+                default:
+                    break;
+            }
+
+            return Ok(Catalogo);
         }
         #endregion
     }
