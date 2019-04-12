@@ -163,37 +163,39 @@ namespace SAGA.API.Controllers
                 Filtrado = db.PerfilCandidato
                     //.Where(c => activos.Contains(c.CandidatoId))
                     .Select(c => new FiltrosDto
-                     {
-                         IdCandidato = c.CandidatoId,
-                         Estado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Estado.estado).FirstOrDefault(),
-                         Municipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Municipio.municipio).FirstOrDefault(),
-                         IdPais = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.PaisId).FirstOrDefault(),
-                         IdEstado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.EstadoId).FirstOrDefault(),
-                         IdMunicipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.MunicipioId).FirstOrDefault(),
-                         nombre = c.Candidato.Nombre,
-                         apellidoPaterno = c.Candidato.ApellidoPaterno,
-                         apellidoMaterno = c.Candidato.ApellidoMaterno,
-                         cp = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.CodigoPostal).FirstOrDefault(),
-                         curp = c.Candidato.CURP,
-                         fechaNacimiento = c.Candidato.FechaNacimiento,
-                         rfc = c.Candidato.RFC,
-                         nss = c.Candidato.NSS,
-                         Formaciones = c.Formaciones,
-                         Experiencias = c.Experiencias,
-                         IdAreaExp = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault(),
-                         IdPerfil = c.AboutMe.Select(p => p.PerfilExperienciaId).FirstOrDefault(),
-                         IdGenero = c.Candidato.GeneroId,
-                         IdPDiscapacidad = c.Candidato.TipoDiscapacidadId,
-                         IdTipoLicencia = c.Candidato.TipoLicenciaId,
-                         Acercademi = c.AboutMe,
-                         Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault(),
-                         Idiomas = c.Idiomas,
-                         Reubicacion = c.Candidato.puedeRehubicarse,
-                         TpVehiculo = c.Candidato.tieneVehiculoPropio
+                    {
+                        /*SE ELIMINO INFORMACION QUE NO ERA NECESARIA PARA LA BUSQUEDA PRINCIPAL DEL CANDIDATO*/
+                        IdCandidato = c.CandidatoId,
+                        //Estado = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Estado.estado).FirstOrDefault(),
+                        //Municipio = db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.Municipio.municipio).FirstOrDefault(),
+                        IdPais = c.Candidato.direcciones.Select(d => d.PaisId).FirstOrDefault(), /*db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.PaisId).FirstOrDefault()*/
+                        IdEstado = c.Candidato.direcciones.Select(d => d.EstadoId).FirstOrDefault(),  /*db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.EstadoId).FirstOrDefault()*/
+                        IdMunicipio = c.Candidato.direcciones.Select(d => d.MunicipioId).FirstOrDefault(), /*db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.MunicipioId).FirstOrDefault()*/
+                        nombre = c.Candidato.Nombre,
+                        apellidoPaterno = c.Candidato.ApellidoPaterno,
+                        apellidoMaterno = c.Candidato.ApellidoMaterno,
+                        cp = c.Candidato.direcciones.Select(d => d.CodigoPostal).FirstOrDefault() /*db.Direcciones.Where(cp => cp.EntidadId.Equals(c.CandidatoId)).Select(d => d.CodigoPostal).FirstOrDefault()*/,
+                        curp = c.Candidato.CURP,
+                        fechaNacimiento = c.Candidato.FechaNacimiento,
+                        rfc = c.Candidato.RFC,
+                        nss = c.Candidato.NSS,
+                        //Formaciones = c.Formaciones,
+                        //Experiencias = c.Experiencias,
+                        IdAreaExp = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault(),
+                        IdPerfil = c.AboutMe.Select(p => p.PerfilExperienciaId).FirstOrDefault(),
+                        IdGenero = c.Candidato.GeneroId,
+                        IdPDiscapacidad = c.Candidato.TipoDiscapacidadId,
+                        IdTipoLicencia = c.Candidato.TipoLicenciaId,
+                        AreaExp = c.AboutMe.Select(a => a.AreaExperiencia.areaInteres).FirstOrDefault(),
+                        AreaInt = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault(),
+                        Salario = c.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault(),
+                        Idiomas = c.Idiomas,
+                        Reubicacion = c.Candidato.puedeRehubicarse,
+                        TpVehiculo = c.Candidato.tieneVehiculoPropio,
+                        Formaciones = c.Formaciones.Select(f => f.GradoEstudioId).ToList(),
+                        Estatus = db.ProcesoCandidatos.OrderByDescending(p => p.Fch_Modificacion).Where(p => p.CandidatoId.Equals(c.CandidatoId)).Select(p => p.Estatus.Descripcion).FirstOrDefault()
 
-                     }).ToList();
-
-                var FiltradoExp = Filtrado.Select(c => c.Experiencias).ToList();
+                    }).ToList();
 
                 // Revisamos cada filtro que se envio para armar de nuevo la consulta.
                 if (Filtros.IdPais > 0)
@@ -288,8 +290,9 @@ namespace SAGA.API.Controllers
 
                 if (Filtros.IdNvEstudios != null)
                 {
+                    var nvl = Filtros.IdNvEstudios.Value;
                     Filtrado = Filtrado
-                        .Where(c => c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault().Equals(Filtros.IdNvEstudios))
+                        .Where(c => c.Formaciones.Contains(nvl))
                         .ToList();
                 }
 
@@ -325,20 +328,18 @@ namespace SAGA.API.Controllers
                 {
                     candidatoId = x.IdCandidato,
                     nombre = x.nombre + " " + x.apellidoPaterno + " " + x.apellidoMaterno,
-                    AreaExp = x.Acercademi.Select(a => a.AreaExperiencia).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaExperiencia.areaInteres).FirstOrDefault() : "S/D",
-                    AreaInt = x.Acercademi.Select(a => a.AreaInteres).FirstOrDefault() != null ? x.Acercademi.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "S/D",
+                    AreaExp = x.AreaExp != null ? x.AreaExp: "S/D",
+                    AreaInt = x.AreaInt != null ? x.AreaInt : "S/D",
                     edad = x.fechaNacimiento,
                     curp = x.curp,
                     rfc = x.rfc != null ? x.rfc : "S/D",
-                    sueldoMinimo = x.Acercademi.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault() != null ? x.Acercademi.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
+                    sueldoMinimo = x.Salario != null ? x.Salario : 0,
                     localidad = x.Estado + " / " + x.Municipio,
-                    estatus = db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).Count() > 0 ?
-                              db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).OrderByDescending(p => p.Fch_Modificacion).Select(p => p.Estatus.Descripcion).FirstOrDefault() :
-                              "DISPONIBLE",
+                    estatus = x.Estatus != null ? x.Estatus : "DISPONIBLE",
                   
                 }).ToList();
 
-                return Ok(candidatos);
+                return Ok(candidatos.Distinct());
             }
             catch(Exception ex)
             {
