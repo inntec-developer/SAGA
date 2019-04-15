@@ -99,6 +99,7 @@ namespace SAGA.DAL
         public DbSet<TiposMedios> TiposMedios { get; set; }
         public DbSet<CandidatosInfo> CandidatosInfo { get; set; }
         public DbSet<FolioIncidenciasCandidatos> FoliosIncidendiasCandidatos { get; set; }
+        public DbSet<OficioRequisicion> OficiosRequisicion { get; set; }
         #endregion
 
         #region Sist
@@ -305,7 +306,7 @@ namespace SAGA.DAL
 
             //Catalogos
             modelBuilder.Configurations.Add(new CatalogosMap().ToTable("Catalogos"));
-            
+
             //Modulo para examenes
             modelBuilder.Configurations.Add(new ExamenesMap().ToTable("Examenes"));
             modelBuilder.Configurations.Add(new TipoExamenesMap().ToTable("TipoExamen"));
@@ -387,6 +388,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TiposMediosMap().ToTable("TiposMedios", "Recl"));
             modelBuilder.Configurations.Add(new CandidatosInfoMap().ToTable("CandidatosInfo", "Recl"));
             modelBuilder.Configurations.Add(new FoliosIncidenciasCandidatosMap().ToTable("FoliosIncidenciasCandidatos", "Recl"));
+            modelBuilder.Configurations.Add(new OficioRequisicionMap().ToTable("OficiosRequisicion", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -2586,6 +2588,18 @@ namespace SAGA.DAL
                 Property(x => x.ComentarioId).IsRequired();
                 Property(x => x.Folio).IsRequired();
                 Property(x => x.EstatusId).IsRequired();
+            }
+        }
+
+        public class OficioRequisicionMap: EntityTypeConfiguration<OficioRequisicion>
+        {
+            public OficioRequisicionMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Oficio).IsRequired().HasMaxLength(100);
+                Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("DATETIME").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
             }
         }
 

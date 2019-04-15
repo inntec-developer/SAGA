@@ -488,7 +488,7 @@ namespace SAGA.API.Utilerias
             }
         }
 
-        public bool SendEmailRedesSociales(Guid RequisicionId)
+        public bool SendEmailRedesSociales(Guid RequisicionId, string Oficio)
         {
             try
             {
@@ -545,8 +545,8 @@ namespace SAGA.API.Utilerias
                 }
                 m.Subject = string.Format("Publicacion de Vacante en Redes Sociales {0} - {1}", requi.folio, requi.empresa.ToUpper());
                 body = string.Format("<p style=\"font-size:12px;\">Por este medio se les informa que se ha solicitado publicación en redes sociales la vacante con número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
-             
 
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> OFICIO: </strong><label>{0}</label></p>", Oficio);
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> FECHA SOLICITUD: </strong><label>{0}</label></p>", requi.fch_Creacion);
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> SOLICITANTE: </strong><label>{0}</label></p>", requi.solicita.nombre.ToUpper());
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> EMPRESA: </strong><label>{0}</label></p>", requi.empresa.ToUpper());
