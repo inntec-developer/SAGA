@@ -178,7 +178,7 @@ namespace SAGA.API.Controllers
                 if (tipo == 8 || tipo == 3)
                 {
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false))
+                   .Where(e => e.Activo.Equals(true))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -249,7 +249,7 @@ namespace SAGA.API.Controllers
                     uids.Add(propietario);
 
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId) && e.Confidencial.Equals(false))
+                   .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -564,7 +564,8 @@ namespace SAGA.API.Controllers
                             AreaExperiencia = e.Area.areaExperiencia,
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
-                            examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0
+                            examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0,
+                            Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault()
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
                     return Ok(vacantes);
                 }
@@ -1815,16 +1816,35 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("sendEmailRedesSociales")]
-        public IHttpActionResult SendEmailRedesSociales(Guid IdRequisicion)
+        public IHttpActionResult SendEmailRedesSociales(PublicarRedesSocialesDto info)
         {
-            if (SendEmail.SendEmailRedesSociales(IdRequisicion))
+            try
             {
+                if (db.OficiosRequisicion.Where(r => r.RequisicionId.Equals(info.RequisicionId)).Count() == 0)
+                {
+                    OficioRequisicion or = new OficioRequisicion();
+                    or.Oficio = info.Oficio;
+                    or.RequisicionId = info.RequisicionId;
+                    db.OficiosRequisicion.Add(or);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    var of = db.OficiosRequisicion.Find(info.Id);
+                    db.Entry(of).State = EntityState.Modified;
+                    of.Oficio = info.Oficio;
+                    db.SaveChanges();
+                }
+
+                SendEmail.SendEmailRedesSociales(info.Id, info.Oficio);
                 return Ok(HttpStatusCode.OK);
             }
-            else
+            catch (Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
+
         }
     }
 }
