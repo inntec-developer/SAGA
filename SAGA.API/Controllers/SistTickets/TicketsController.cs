@@ -612,7 +612,7 @@ namespace SAGA.API.Controllers
                                       moduloId = items.moduloId,
                                       fch_Creacion = items.fch_Estatus,
                                       fch_cita = items.fch_cita,
-                                      tiempo = (DateTime.Now - items.fch_Estatus).TotalMinutes > 60 ? Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes / 60, 0) : Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0)
+                                      tiempo = DateTime.Now - items.fch_Estatus //(DateTime.Now - items.fch_Estatus).TotalMinutes > 60 ? Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes / 60, 0) : Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0)
                                   };
 
 
