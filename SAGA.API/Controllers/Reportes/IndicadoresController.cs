@@ -83,6 +83,7 @@ namespace SAGA.API.Controllers.Reportes
             var asigna = db.AsignacionRequis.Where(e => e.GrpUsrId == id).Select(e => e.RequisicionId).ToList();
             var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) && e.fch_Creacion > fecha).ToList();
             var porVencer = datos.Where(e => e.fch_Cumplimiento <= vencida && e.fch_Cumplimiento > hoy).ToList().Count;
+            var vencidas = datos.Where(e => e.fch_Cumplimiento < hoy).ToList().Count;
             var total = datos.Where(e => e.fch_Cumplimiento > vencida).ToList().Count;
             int Nuevo = datos.Where(e => e.EstatusId == 4).ToList().Count;
             int Aprobada = datos.Where(e => e.EstatusId == 6).ToList().Count;
@@ -95,19 +96,20 @@ namespace SAGA.API.Controllers.Reportes
             int Pausada = datos.Where(e => e.EstatusId == 39).ToList().Count;
             int Garantia = datos.Where(e => e.EstatusId == 38).ToList().Count;
             var obj = new
-                    {
-                        porVencer = porVencer,
-                        total = total,
-                        Nuevo = Nuevo,
-                       Aprobada = Aprobada,
-                       Publicada = Publicada,
-                       BusCandidatos = BusCandidatos,
-                       EnvCliente = EnvCliente,
-                       NuBusqueda = NuBusqueda,
-                       Socioeconomicos = Socioeconomicos,
-                       Espera = Espera,
-                       Pausada = Pausada,
-                       Garantia = Garantia,
+            {
+                vencidas = vencidas,
+                porVencer = porVencer,
+                total = total,
+                Nuevo = Nuevo,
+                Aprobada = Aprobada,
+                Publicada = Publicada,
+                BusCandidatos = BusCandidatos,
+                EnvCliente = EnvCliente,
+                NuBusqueda = NuBusqueda,
+                Socioeconomicos = Socioeconomicos,
+                Espera = Espera,
+                Pausada = Pausada,
+                Garantia = Garantia,
             };
             return Ok(obj);
         }
@@ -140,51 +142,36 @@ namespace SAGA.API.Controllers.Reportes
             Guid id = new Guid(usuario);
             DateTime hoy = DateTime.Now;
             DateTime fecha = DateTime.Now.AddMonths(-1);
-            DateTime vencida = DateTime.Now.AddDays(3);
-            var asigna = db.AsignacionRequis.Where(e => e.GrpUsrId == id).Select(e => e.RequisicionId).ToList();
-            var vacantes = db.HorariosRequis.Where(e => asigna.Contains(e.RequisicionId) && e.fch_Modificacion > fecha).ToList();
-            var horario = vacantes.Select(e => e.Id);
 
-            int entrevTotal = vacantes.Sum(e=>e.numeroVacantes);
-            decimal entrevi = db.ProcesoCandidatos.Where(e => e.EstatusId == 18 && asigna.Contains(e.RequisicionId)).ToList().Count;
+            var vacantes = db.ProcesoCandidatos.Where(e => e.ReclutadorId == id && e.Fch_Creacion > fecha).ToList();
+
+            int entrevTotal = vacantes.Select(e => e.HorarioId).Distinct().ToList().Count;
+            decimal entrevi = vacantes.Where(e => e.EstatusId == 18).ToList().Count;
+
+            int finalistaTotal = entrevTotal;
+            decimal finalista = vacantes.Where(e => e.EstatusId == 21).ToList().Count;
 
             int enviadoTotal = entrevTotal;
-            decimal enviado = db.ProcesoCandidatos.Where(e => e.EstatusId == 22 && asigna.Contains(e.RequisicionId)).ToList().Count;
+            decimal enviado = vacantes.Where(e => e.EstatusId == 22).ToList().Count;
+
+            int aceptadoTotal = entrevTotal;
+            decimal aceptado = vacantes.Where(e => e.EstatusId == 23).ToList().Count;
 
             int contraTotal = entrevTotal;
-            decimal contrata = db.ProcesoCandidatos.Where(e => e.EstatusId == 24 && asigna.Contains(e.RequisicionId)).ToList().Count;
+            decimal contrata = vacantes.Where(e => e.EstatusId == 24).ToList().Count;
 
+            int rechazadoTotal = entrevTotal;
+            decimal rechazado = vacantes.Where(e => e.EstatusId == 40).ToList().Count;
+            
             //entrevTotal = 200;
             int totales = entrevTotal;
+            entrevTotal = calculo(entrevi, entrevTotal);
+            finalistaTotal = calculo(finalista, finalistaTotal);
+            enviadoTotal = calculo(enviado, enviadoTotal);
+            rechazadoTotal = calculo(rechazado, rechazadoTotal);
+            aceptadoTotal = calculo(aceptado, aceptadoTotal);
+            contraTotal = calculo(contrata, contraTotal);
 
-            if (entrevi > 0)
-            {
-                decimal operacion = (entrevi / entrevTotal) * (100m);
-                entrevTotal = Convert.ToInt32(operacion);
-            }
-            else
-            {
-                entrevTotal = 0;
-            }
-            if (enviado > 0)
-            {
-                decimal operacion = (enviado / enviadoTotal) * (100m);
-                enviadoTotal = Convert.ToInt32(operacion);
-            }
-            else
-            {
-                enviadoTotal = 0;
-            }
-            if (contrata > 0)
-            {
-                decimal operacion = (contrata / contraTotal) * (100m);
-                contraTotal = Convert.ToInt32(operacion);
-                //  entrevTotal = (contrata / contraTotal) * 100;
-            }
-            else
-            {
-                contraTotal = 0;
-            }
             string total = entrevTotal.ToString().Substring(0, 1) + "0";
             string total2 = enviadoTotal.ToString().Substring(0, 1) + "0";
             string total3 = contraTotal.ToString().Substring(0, 1) + "0";
@@ -192,13 +179,34 @@ namespace SAGA.API.Controllers.Reportes
             {
                 entrevi = entrevi,
                 entrevTotal = total,
+                finalista = finalista,
+                finaTotal = finalistaTotal,
                 enviadoTotal = total2,
                 enviado = enviado,
+                aceptado = aceptado,
+                acepTotal = aceptadoTotal,
+                recha = rechazado,
+                rechaTotal = rechazadoTotal,
                 contraTotal = total3,
                 contrata = contrata,
                 total = totales,
             };
             return Ok(obj);
+        }
+
+        public int calculo(decimal a, int b)
+        {
+            if (a > 0)
+            {
+                decimal operacion = (a / b) * (100m);
+                b = Convert.ToInt32(operacion);
+                return b;
+            }
+            else
+            {
+                return 0;
+            }
+          
         }
 
         [HttpGet]
@@ -280,3 +288,6 @@ namespace SAGA.API.Controllers.Reportes
 
     }
 }
+
+
+        
