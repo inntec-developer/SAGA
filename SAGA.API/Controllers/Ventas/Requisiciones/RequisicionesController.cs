@@ -476,8 +476,25 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                List<Guid> uids = new List<Guid>();
+                if (db.Subordinados.Count(x => x.LiderId.Equals(ReclutadorId)) > 0)
+                {
+                    var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(ReclutadorId) && x.LiderId.Equals(ReclutadorId)).Select(u => u.UsuarioId).ToList();
+
+                    uids = GetSub(ids, uids);
+
+                }
+                uids.Add(ReclutadorId);
+
+                var asig = db.AsignacionRequis
+                      .OrderByDescending(e => e.Id)
+                      .Where(a => uids.Distinct().Contains(a.GrpUsrId))
+                      .Select(a => a.RequisicionId)
+                      .Distinct()
+                      .ToList();
+
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus) && e.Confidencial.Equals(false))
+                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus) && asig.Distinct().Contains(e.Id))
                     .Select(e => new
                     {
                         Id = e.Id,
@@ -671,7 +688,7 @@ namespace SAGA.API.Controllers
                 {
                    
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                        .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false))
+                        .Where(e => e.Activo.Equals(true))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -710,31 +727,42 @@ namespace SAGA.API.Controllers
                 }
                 else
                 {
-                    List<Guid> grp = new List<Guid>();
+                    //    List<Guid> grp = new List<Guid>();
 
-                    var Grupos = db.GruposUsuarios
-                        .Where(g => g.EntidadId.Equals(IdUsuario) & g.Grupo.Activo)
-                               .Select(g => g.GrupoId)
-                               .ToList();
+                    //    var Grupos = db.GruposUsuarios
+                    //        .Where(g => g.EntidadId.Equals(IdUsuario) & g.Grupo.Activo)
+                    //               .Select(g => g.GrupoId)
+                    //               .ToList();
 
 
-                    foreach (var grps in Grupos)
+                    //    foreach (var grps in Grupos)
+                    //    {
+                    //        grp = GetGrupo(grps, grp);
+                    //    }
+
+                    //    grp.Add(IdUsuario);
+
+                    List<Guid> uids = new List<Guid>();
+                    if (db.Subordinados.Count(x => x.LiderId.Equals(IdUsuario)) > 0)
                     {
-                        grp = GetGrupo(grps, grp);
-                    }
+                        var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(IdUsuario) && x.LiderId.Equals(IdUsuario)).Select(u => u.UsuarioId).ToList();
 
-                    grp.Add(IdUsuario);
+                        uids = GetSub(ids, uids);
+
+                    }
+                    uids.Add(IdUsuario);
+
 
                     var asig = db.AsignacionRequis
                         .OrderByDescending(e => e.Id)
-                        .Where(a => grp.Distinct().Contains(a.GrpUsrId))
+                        .Where(a => uids.Distinct().Contains(a.GrpUsrId))
                         .Select(a => a.RequisicionId)
                         .Distinct()
                         .ToList();
 
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                         .Where(e => asig.Contains(e.Id))
-                        .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false))
+                        .Where(e => e.Activo.Equals(true))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -1008,24 +1036,33 @@ namespace SAGA.API.Controllers
                 }
                 else
                 {
-                    List<Guid> grp = new List<Guid>();
+                    //List<Guid> grp = new List<Guid>();
 
-                    var Grupos = db.GruposUsuarios
-                        .Where(g => g.EntidadId.Equals(reclutadorId) & g.Grupo.Activo)
-                               .Select(g => g.GrupoId)
-                               .ToList();
+                    //var Grupos = db.GruposUsuarios
+                    //    .Where(g => g.EntidadId.Equals(reclutadorId) & g.Grupo.Activo)
+                    //           .Select(g => g.GrupoId)
+                    //           .ToList();
 
 
-                    foreach (var grps in Grupos)
+                    //foreach (var grps in Grupos)
+                    //{
+                    //    grp = GetGrupo(grps, grp);
+                    //}
+
+                    //grp.Add(reclutadorId);
+                    List<Guid> uids = new List<Guid>();
+                    if (db.Subordinados.Count(x => x.LiderId.Equals(reclutadorId)) > 0)
                     {
-                        grp = GetGrupo(grps, grp);
-                    }
+                        var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(reclutadorId) && x.LiderId.Equals(reclutadorId)).Select(u => u.UsuarioId).ToList();
 
-                    grp.Add(reclutadorId);
+                        uids = GetSub(ids, uids);
+
+                    }
+                    uids.Add(reclutadorId);
 
                     var asig = db.AsignacionRequis
                         .OrderByDescending(e => e.Id)
-                        .Where(a => grp.Distinct().Contains(a.GrpUsrId))
+                        .Where(a => uids.Distinct().Contains(a.GrpUsrId))
                         .Select(a => a.RequisicionId)
                         .Distinct()
                         .ToList();
@@ -1082,7 +1119,7 @@ namespace SAGA.API.Controllers
                     .ToList();
 
                 var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => asig.Contains(e.Id))
-                    .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 && e.Confidencial.Equals(false)).Select(h => new
+                    .Where(e => e.Activo.Equals(true) && e.EstatusId != 9).Select(h => new
                     {
                         Id = h.Id,
                         Folio = h.Folio,
