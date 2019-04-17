@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Web.Http;
 using SAGA.BOL;
 using SAGA.DAL;
+using System.Text.RegularExpressions;
 
 namespace SAGA.API.Controllers.Catalogos
 {
@@ -54,7 +55,8 @@ namespace SAGA.API.Controllers.Catalogos
                 if (filtro != "" && filtro != null )
                 {
                     filtro = filtro.ToUpper();
-                    datos = datos.Where(e => filtro.Contains(e.nombre.ToUpper())).ToList();
+                    datos = datos.Where(a => Regex.IsMatch(a.nombre.ToUpper(), ".*"+filtro+".*")).ToList();
+                //    datos = datos.Where(e => filtro.Contains(e.nombre)).ToList();
                 }
               
                 return Ok(datos);

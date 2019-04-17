@@ -612,7 +612,7 @@ namespace SAGA.API.Controllers
                                       moduloId = items.moduloId,
                                       fch_Creacion = items.fch_Estatus,
                                       fch_cita = items.fch_cita,
-                                      tiempo = (DateTime.Now - items.fch_Estatus).TotalMinutes > 60 ? Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes / 60, 0) : Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0)
+                                      tiempo = Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0) //(DateTime.Now - items.fch_Estatus).TotalMinutes > 60 ? Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes / 60, 0) : Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0)
                                   };
 
 
@@ -648,7 +648,7 @@ namespace SAGA.API.Controllers
                                    moduloId = items.moduloId,
                                    fch_Creacion = items.fch_Creacion,
                                    fch_cita = items.fch_cita,
-                                   tiempo = (DateTime.Now - items.fch_Creacion).TotalMinutes > 60 ? Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes / 60, 0) : Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0)
+                                   tiempo = Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0) //(DateTime.Now - items.fch_Creacion).TotalMinutes > 60 ? Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes / 60, 0).ToString() + " h.": Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0).ToString() + " min."
                                };
 
                     return Ok(tickets);
