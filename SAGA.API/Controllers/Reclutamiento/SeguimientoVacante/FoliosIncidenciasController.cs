@@ -95,25 +95,35 @@ namespace SAGA.API.Controllers
             {
                 var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
                     propietario = p.AprobadorId, 
+                    solicitante = p.PropietarioId,
                     folio = p.Folio, 
                     vbtra = p.VBtra
                 }).FirstOrDefault();
-                var email = db.Emails.Where(x => x.EntidadId.Equals(propietario.propietario)).Select(e => e.email).FirstOrDefault();
-                var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
+                var emailPropietario = db.Emails.Where(x => x.EntidadId.Equals(propietario.propietario)).Select(e => e.email).FirstOrDefault();
+                var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
+
+                var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => new { nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
+                    email = n.emails.Select(ee => ee.email).FirstOrDefault()
+                }).FirstOrDefault();
+
+             
                 //email = "bmorales@damsa.com.mx";
                 string body = "";
                // email = "idelatorre@damsa.com.mx";
-                if (email != "")
+                if (emailPropietario != "")
                 {
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
                     m.Subject = "Solicitud vacante en pausa Requisición, " + propietario.folio;
 
-                    m.To.Add(email);
+                    m.To.Add(emailPropietario);
+                    m.Bcc.Add(emailSolicitante);
+                    m.Bcc.Add(usuario.email.ToString());
+
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
-                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, levant&oacute; una solicitud de vacante \"en pausa\", Vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", usuario, propietario.vbtra, propietario.folio );
+                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, levant&oacute; una solicitud de vacante \"en pausa\", Vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", usuario.nombre, propietario.vbtra, propietario.folio );
                     body = body + "<p>Para validar la solicitud ser&aacute; necesario ingresar a Reclutamiento, seguido de entidades de reclutamiento, selecciona la opci&oacute;n Vacantes, dar clic en el bot&oacute;n Revisi&oacute;n de Vacante, para dar el seguimiento correspondiente.</p>";
                     body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                     body = body + "</body></html>";
