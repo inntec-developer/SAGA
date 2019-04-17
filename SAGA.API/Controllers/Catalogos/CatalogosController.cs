@@ -373,6 +373,13 @@ namespace SAGA.API.Controllers
 
             return Ok(Catalogo);
         }
+
+        [HttpPost]
+        [Route("postCatalogo")]
+        public IHttpActionResult postCatalogos(CatalogosDto Catalogo)
+        {
+            return Ok();
+        }
         #endregion
     }
 }
