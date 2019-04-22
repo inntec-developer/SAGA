@@ -22,5 +22,6 @@ namespace SAGA.API.Dtos
         public Guid Id { get; set; }
         public Guid RequisicionId { get; set; }
         public string Oficio { get; set; }
+        public string Comentario { get; set; }
     }
 }

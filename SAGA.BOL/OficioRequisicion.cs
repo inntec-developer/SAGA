@@ -12,5 +12,6 @@ namespace SAGA.BOL
         public string Oficio { get; set; }
         public Guid RequisicionId { get; set; }
         public DateTime fch_Creacion { get; set; }
+        public string Comentario { get; set; }
     }
 }

@@ -652,7 +652,7 @@ namespace SAGA.API.Controllers
                             DiasEnvio = e.DiasEnvio,
                             Confidencial = e.Confidencial,
                         //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
-                        Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
+                            Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
                             Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Count(),
                             EnProceso = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
                             EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
@@ -1861,7 +1861,9 @@ namespace SAGA.API.Controllers
                 {
                     OficioRequisicion or = new OficioRequisicion();
                     or.Oficio = info.Oficio;
+                    or.Comentario = info.Comentario;
                     or.RequisicionId = info.RequisicionId;
+
                     db.OficiosRequisicion.Add(or);
                     db.SaveChanges();
                 }
@@ -1869,6 +1871,7 @@ namespace SAGA.API.Controllers
                 {
                     var of = db.OficiosRequisicion.Find(info.Id);
                     db.Entry(of).State = EntityState.Modified;
+                    of.Comentario = info.Comentario;
                     of.Oficio = info.Oficio;
                     db.SaveChanges();
                 }
