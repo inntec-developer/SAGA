@@ -488,7 +488,7 @@ namespace SAGA.API.Utilerias
             }
         }
 
-        public bool SendEmailRedesSociales(Guid RequisicionId, string Oficio)
+        public bool SendEmailRedesSociales(Guid RequisicionId, string Oficio, string Comentario)
         {
             try
             {
@@ -523,15 +523,15 @@ namespace SAGA.API.Utilerias
                        prestaciones = x.prestacionesClienteRequi,
                    }).FirstOrDefault();
 
-                var asignados = db.AsignacionRequis
-                                .Where(a => a.RequisicionId.Equals(RequisicionId))
-                                .Select(x => x.GrpUsrId)
-                                .ToList();
+                //var asignados = db.AsignacionRequis
+                //                .Where(a => a.RequisicionId.Equals(RequisicionId))
+                //                .Select(x => x.GrpUsrId)
+                //                .ToList();
 
 
                 var emailsProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid)).Select(x => x.email).FirstOrDefault();
 
-                var emailsAsignados = db.Emails.Where(x => asignados.Contains(x.EntidadId)).Select(x => x.email).ToList();
+                //var emailsAsignados = db.Emails.Where(x => asignados.Contains(x.EntidadId)).Select(x => x.email).ToList();
 
                 string body = "";
                 string from = "noreply@damsa.com.mx";
@@ -539,10 +539,10 @@ namespace SAGA.API.Utilerias
                 m.From = new MailAddress(from, "SAGA Inn");
                 m.To.Add(ConfigurationManager.AppSettings["Medios"].ToString());
                 m.CC.Add(emailsProp);
-                foreach (var e in emailsAsignados)
-                {
-                    m.CC.Add(e.ToString());
-                }
+                //foreach (var e in emailsAsignados)
+                //{
+                //    m.CC.Add(e.ToString());
+                //}
                 m.Subject = string.Format("Publicacion de Vacante en Redes Sociales {0} - {1}", requi.folio, requi.empresa.ToUpper());
                 body = string.Format("<p style=\"font-size:12px;\">Por este medio se les informa que se ha solicitado publicación en redes sociales la vacante con número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
 
@@ -584,12 +584,18 @@ namespace SAGA.API.Utilerias
                 }
                 body = body + string.Format("</ul>");
 
-                body = body + string.Format("<p style=\"font - size:12px;\"><strong style=\"color: #0049FF\">PRESTACIONES SUPERIORES</strong></p><ul>");
+                body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\">PRESTACIONES SUPERIORES</strong></p><ul>");
                 foreach (var e in requi.prestaciones)
                 {
                     body = body + string.Format("<li style=\"font-size:12px;\">{0}</li>", e.Prestamo.ToUpper());
                 }
                 body = body + string.Format("</ul>");
+
+                if(Comentario.Length > 0)
+                {
+                    body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> COMENTARIO ADICIONAL: </strong></p><p style=\"font-size:12px;\"><label>{0}</label></p>", Comentario);
+
+                }
 
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong> Favor de corroborar esta información y dar el seguimiento correspondiente. </strong></p>");
                 body = body + string.Format("<p style=\"font-size:12px;\">Me despido de usted agradeciendo su atención y enviándole un cordial saludo.</p>");

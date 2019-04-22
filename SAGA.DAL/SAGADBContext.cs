@@ -100,6 +100,7 @@ namespace SAGA.DAL
         public DbSet<CandidatosInfo> CandidatosInfo { get; set; }
         public DbSet<FolioIncidenciasCandidatos> FoliosIncidendiasCandidatos { get; set; }
         public DbSet<OficioRequisicion> OficiosRequisicion { get; set; }
+        public DbSet<PonderacionRequisiciones> PonderacionRequisiciones { get; set; }
         #endregion
 
         #region Sist
@@ -389,6 +390,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new CandidatosInfoMap().ToTable("CandidatosInfo", "Recl"));
             modelBuilder.Configurations.Add(new FoliosIncidenciasCandidatosMap().ToTable("FoliosIncidenciasCandidatos", "Recl"));
             modelBuilder.Configurations.Add(new OficioRequisicionMap().ToTable("OficiosRequisicion", "Recl"));
+            modelBuilder.Configurations.Add(new PonderacionRequisicionesMap().ToTable("PonderacionRequisiciones", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -2601,6 +2603,17 @@ namespace SAGA.DAL
                 Property(x => x.RequisicionId).IsRequired();
                 Property(x => x.Comentario).HasMaxLength(500).IsOptional();
                 Property(x => x.fch_Creacion).HasColumnType("DATETIME").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+            }
+        }
+
+        public class PonderacionRequisicionesMap: EntityTypeConfiguration<PonderacionRequisiciones>
+        {
+            public PonderacionRequisicionesMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Ponderacion).IsRequired();
+                Property(x => x.RequisicionId).IsRequired();
             }
         }
 
