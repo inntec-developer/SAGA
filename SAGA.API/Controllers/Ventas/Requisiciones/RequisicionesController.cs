@@ -582,7 +582,7 @@ namespace SAGA.API.Controllers
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
                             examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0,
-                            Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault()
+                            Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
                     return Ok(vacantes);
                 }
@@ -651,7 +651,7 @@ namespace SAGA.API.Controllers
                             Folio = e.Folio,
                             DiasEnvio = e.DiasEnvio,
                             Confidencial = e.Confidencial,
-                        //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
+                            //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                             Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(x => x.GrpUsrId).ToList(),
                             Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Count(),
                             EnProceso = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
@@ -663,7 +663,8 @@ namespace SAGA.API.Controllers
                             AreaExperiencia = e.Area.areaExperiencia,
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
-                            examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0
+                            examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0,
+                            Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
                     return Ok(vacantes);
                 }
@@ -1851,7 +1852,7 @@ namespace SAGA.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("sendEmailRedesSociales")]
         public IHttpActionResult SendEmailRedesSociales(PublicarRedesSocialesDto info)
         {
@@ -1876,7 +1877,7 @@ namespace SAGA.API.Controllers
                     db.SaveChanges();
                 }
 
-                SendEmail.SendEmailRedesSociales(info.Id, info.Oficio);
+                SendEmail.SendEmailRedesSociales(info.RequisicionId, info.Oficio, info.Comentario);
                 return Ok(HttpStatusCode.OK);
             }
             catch (Exception ex)
