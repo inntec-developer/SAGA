@@ -931,6 +931,7 @@ namespace SAGA.API.Controllers
                     VBtra = e.VBtra.ToUpper(),
                     SueldoMaximo = e.SueldoMaximo,
                     Estatus = t.Where(x => x.RequisicionId.Equals(e.Id)).Select(E => E.Estatus).FirstOrDefault(),
+                    EstatusId = requi.Where(a=>a.Id == e.Id).FirstOrDefault().EstatusId,
                     TipoReclutamiento = e.tipoReclutamiento.ToUpper(),
                     ClaseReclutamiento = e.clasesReclutamiento.ToUpper(),
                     comentarios_coord = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
