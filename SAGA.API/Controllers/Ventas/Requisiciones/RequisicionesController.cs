@@ -834,8 +834,10 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getReporte70")]
-        public IHttpActionResult GetReporte70()
+        public IHttpActionResult GetReporte70(string clave, string ofc, string tipo, string fini,
+           string ffin, string emp, string sol, string trcl, string cor, string stus, string recl)
         {
+
             try
             {
                 //Stopwatch stopwatch = new Stopwatch();
@@ -844,7 +846,7 @@ namespace SAGA.API.Controllers
                 List<int> estatus = new List<int> { 6, 7, 29, 30, 33, 38 };
                 var vacantes = db.Database.SqlQuery<ReporteGeneralDto>("dbo.ReporteGeneral");
 
-         
+
 
                 var t = db.EstatusRequisiciones.GroupBy(g => g.RequisicionId)
                     .Select(T => new
@@ -863,7 +865,7 @@ namespace SAGA.API.Controllers
 
                     }).ToList();
 
-           
+
 
                 foreach (var r in t)
                 {
@@ -892,7 +894,9 @@ namespace SAGA.API.Controllers
 
                 //stopwatch.Stop();
                 //TimeSpan ts = stopwatch.Elapsed;
-    
+                var asig = vacantes.Select(e => e.Id).ToList();
+                var requi = db.Requisiciones.Where(e => asig.Contains(e.Id)).ToList();
+
 
                 var objeto = vacantes.OrderByDescending(o => o.fch_Creacion).Select(e => new
                 {
@@ -902,12 +906,21 @@ namespace SAGA.API.Controllers
                     reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a =>
                         db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                                        ).ToList(),
+
                     sucursal = e.RazonSocial.ToUpper(),
                     Cliente = e.Nombrecomercial.ToUpper(),
                     estado = e.estado.ToUpper(),
                     domicilio_trabajo = e.domicilio_trabajo.ToUpper(),
                     Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault().ToUpper() : "SIN REGISTRO",
                     coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault().ToUpper() : "SIN REGISTRO",
+                    ClienteId = db.Requisiciones.Where(x => x.Id == e.Id).Select(a => a.ClienteId).FirstOrDefault(),
+                    ClaseReclutamientoId = requi.Where(x => x.Id == e.Id).Select(a => a.ClaseReclutamientoId).FirstOrDefault(),
+                    TipoReclutamientoId = requi.Where(x => x.Id == e.Id).Select(a => a.TipoReclutamientoId).FirstOrDefault(),
+                    EstadoId = requi.Where(x => x.Id == e.Id).Select(a => a.Direccion.EstadoId).FirstOrDefault(),
+                   
+                    Usuario = db.Usuarios.Where(x => x.Id == e.PropietarioId).FirstOrDefault().Usuario,
+
+
                     Vacantes = e.vacantes,
                     porcentaje = e.porcentaje,
                     EnProcesoEC = e.enProcesoEC,
@@ -938,15 +951,183 @@ namespace SAGA.API.Controllers
                 });
 
 
-                return Ok(objeto);
 
+                DateTime FechaF = DateTime.Now;
+                DateTime FechaI = DateTime.Now;
+                try
+                {
+                    if (fini != null)
+                    {
+                        FechaI = Convert.ToDateTime(fini);
+                    }
+                    if (ffin != null)
+                    {
+                        FechaF = Convert.ToDateTime(ffin);
+                    }
+                }
+                catch (Exception error)
+                {
+                    string errorf = error.Message;
+                }
+                FechaF = FechaF.AddDays(1);
+
+                var datos = objeto.Where(e => e.fch_Solicitud >= FechaI
+                    && e.fch_Solicitud <= FechaF && e.EstatusId != 9).ToList();
+
+                if (stus != "0" && stus != null)
+                {
+                    var obj = stus.Split(',');
+                    List<int> listaAreglo = new List<int>();
+                    for (int i = 0; i < obj.Count() - 1; i++)
+                    {
+                        listaAreglo.Add(Convert.ToInt32(obj[i]));
+                    }
+                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
+                    if (obb.Count == 0)
+                    {
+                        datos = datos.Where(e => listaAreglo.Contains(e.EstatusId)).ToList();
+                    }
+                }
+
+                if (clave != null)
+                {
+                    datos = datos.Where(e => e.VBtra.ToLower().Contains(clave.ToLower())).ToList();
+                }
+
+                if (sol != "0" && sol != null)
+                {
+                    var obj = sol.Split(',');
+                    List<string> listaAreglo = new List<string>();
+                    for (int i = 0; i < obj.Count() - 1; i++)
+                    {
+                        listaAreglo.Add(obj[i]);
+                    }
+                    var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                    if (obb.Count == 0)
+                    {
+                        datos = datos.Where(e => listaAreglo.Contains(e.Usuario)).ToList();
+                    }
+                }
+
+                if (emp != "0" && emp != "00000000-0000-0000-0000-000000000000," && emp != null)
+                {
+                    var obj = emp.Split(',');
+                    List<Guid> listaAreglo = new List<Guid>();
+                    for (int i = 0; i < obj.Count() - 1; i++)
+                    {
+                        listaAreglo.Add(new Guid(obj[i]));
+                    }
+                    var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
+                    if (obb.Count == 0)
+                    {
+                        datos = datos.Where(e => listaAreglo.Contains(e.ClienteId)).ToList();
+                    }
+                }
+
+                if (cor != "0" && cor != null)
+                {
+                    var obj = sol.Split(',');
+                    List<int> listaAreglo = new List<int>();
+                    for (int i = 0; i < obj.Count() - 1; i++)
+                    {
+                        listaAreglo.Add(Convert.ToInt32(obj[i]));
+                    }
+                    var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                    if (obb.Count == 0)
+                    {
+                        datos = datos.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
+                    }
+                }
+
+                if (trcl != "0" && trcl != null)
+                {
+                    var obj = sol.Split(',');
+                    List<int> listaAreglo = new List<int>();
+                    for (int i = 0; i < obj.Count() - 1; i++)
+                    {
+                        listaAreglo.Add(Convert.ToInt32(obj[i]));
+                    }
+                    var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                    if (obb.Count == 0)
+                    {
+                        datos = datos.Where(e => listaAreglo.Contains(e.TipoReclutamientoId)).ToList();
+                    }
+                }
+
+                if (recl != "0" && recl != "00000000-0000-0000-0000-000000000000," && recl != null)
+                {
+                    var obj = recl.Split(',');
+                    List<Guid> listaAreglo = new List<Guid>();
+                    for (int i = 0; i < obj.Count() - 1; i++)
+                    {
+                        listaAreglo.Add(new Guid(obj[i]));
+                    }
+                    var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
+                    if (obb.Count == 0)
+                    {
+                        var asigna = db.AsignacionRequis.Where(e => listaAreglo.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        datos = datos.Where(e => asigna.Contains(e.Id)).ToList();
+                    }
+                }
+
+                if (ofc != "0" && ofc != "0," && ofc != null)
+                {
+                    var obj = ofc.Split(',');
+                    List<int> listaAreglo = new List<int>();
+                    for (int i = 0; i < obj.Count() - 1; i++)
+                    {
+                        listaAreglo.Add(Convert.ToInt32(obj[i]));
+                    }
+
+                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
+                    if (obb.Count == 0)
+                    {
+                        // Estado = db.Direcciones.Where(x => x.EntidadId == db.Usuarios.Where(a => a.Usuario == e.Propietario).FirstOrDefault().SucursalId).FirstOrDefault().Estado.estado,
+                        //int unidad = Convert.ToInt32(ofc);
+
+                        var negocio = db.OficinasReclutamiento.Where(e => listaAreglo.Contains(e.UnidadNegocioId)).Select(e => e.Id).ToList();
+                        var estado = db.Direcciones.Where(e => negocio.Contains(e.EntidadId)).Select(e => e.EstadoId).Distinct().ToList();
+                        foreach (var item in listaAreglo)
+                        {
+                            string monterrey = "6,7,10,28,19,24";
+                            string jalisco = "1,32,3,8,10,11,14,16,18,2,25,26";
+                            string mexico = "4,5,9,13,15,22,27,30,20,12,31,23,21,29,17";
+                            if (item == 1)
+                            {
+                                var array = jalisco.Split(',');
+                                for (int i = 0; i < array.Length; i++)
+                                {
+                                    estado.Add(Int32.Parse(array[i]));
+                                }
+                            }
+                            if (item == 2)
+                            {
+                                var array = mexico.Split(',');
+                                for (int i = 0; i < array.Length; i++)
+                                {
+                                    estado.Add(Int32.Parse(array[i]));
+                                }
+                            }
+                            if (item == 3)
+                            {
+                                var array = monterrey.Split(',');
+                                for (int i = 0; i < array.Length; i++)
+                                {
+                                    estado.Add(Int32.Parse(array[i]));
+                                }
+                            }
+                        }
+                        estado = estado.Distinct().ToList();
+                        datos = datos.Where(e => estado.Contains(e.EstadoId)).ToList();
+                    }
+                }
+                return Ok(datos);
             }
             catch (Exception ex)
             {
                 string mensaje = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
-
         }
 
         [HttpGet]
