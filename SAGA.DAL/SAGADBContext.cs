@@ -2614,6 +2614,8 @@ namespace SAGA.DAL
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Ponderacion).IsRequired();
                 Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("DATETIME").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+                Property(x => x.fch_Creacion).HasColumnType("DATETIME").IsOptional();
             }
         }
 
