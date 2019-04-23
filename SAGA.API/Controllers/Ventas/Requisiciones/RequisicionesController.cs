@@ -705,20 +705,20 @@ namespace SAGA.API.Controllers
                         .Select(e => new
                         {
                             Id = e.Id,
-                            VBtra = e.VBtra,
-                            TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                            VBtra = e.VBtra.ToUpper(),
+                            TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
                             tipoReclutamientoId = e.TipoReclutamientoId,
-                            ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
+                            ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
                             ClaseReclutamientoId = e.ClaseReclutamientoId,
                             SueldoMinimo = e.SueldoMinimo,
                             SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
                             fch_Cumplimiento = e.fch_Cumplimiento,
-                            Estatus = e.Estatus.Descripcion,
+                            Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
-                            Prioridad = e.Prioridad.Descripcion,
+                            Prioridad = e.Prioridad.Descripcion.ToUpper(),
                             PrioridadId = e.PrioridadId,
-                            Cliente = e.Cliente.Nombrecomercial,
+                            Cliente = e.Cliente.Nombrecomercial.ToUpper(),
                             ClienteId = e.Cliente.Id,
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                             Folio = e.Folio,
@@ -779,20 +779,20 @@ namespace SAGA.API.Controllers
                         .Select(e => new
                         {
                             Id = e.Id,
-                            VBtra = e.VBtra,
-                            TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                            VBtra = e.VBtra.ToUpper(),
+                            TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
                             tipoReclutamientoId = e.TipoReclutamientoId,
-                            ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento,
+                            ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
                             ClaseReclutamientoId = e.ClaseReclutamientoId,
                             SueldoMinimo = e.SueldoMinimo,
                             SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
                             fch_Cumplimiento = e.fch_Cumplimiento,
-                            Estatus = e.Estatus.Descripcion,
+                            Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
-                            Prioridad = e.Prioridad.Descripcion,
+                            Prioridad = e.Prioridad.Descripcion.ToUpper(),
                             PrioridadId = e.PrioridadId,
-                            Cliente = e.Cliente.Nombrecomercial,
+                            Cliente = e.Cliente.Nombrecomercial.ToUpper(),
                             ClienteId = e.Cliente.Id,
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                             Folio = e.Folio,
@@ -807,7 +807,7 @@ namespace SAGA.API.Controllers
                             contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
                             Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault(),
                             AreaExperiencia = e.Area.areaExperiencia,
-                            Aprobador = e.Aprobador != null ? e.Aprobador : "",
+                            Aprobador = e.Aprobador != null ? e.Aprobador.ToUpper() : "",
                         }).ToList();
                     return Ok(vacantes);
                 }
@@ -855,7 +855,7 @@ namespace SAGA.API.Controllers
                         Estatus = T.Select(x => new EstatusRequiDto
                         {
                             EstatusId = x.EstatusId,
-                            Estatus = x.Estatus.Descripcion,
+                            Estatus = x.Estatus.Descripcion.ToUpper(),
                             fch_Modificacion = x.fch_Modificacion.Value,
                             diasTrans = 0,
                             diasTotal = 0,
@@ -900,14 +900,14 @@ namespace SAGA.API.Controllers
                     Folio = e.Folio,
                     fch_Solicitud = e.fch_Creacion,
                     reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a =>
-                        db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
+                        db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                                        ).ToList(),
-                    sucursal = e.RazonSocial,
-                    Cliente = e.Nombrecomercial,
-                    estado = e.estado,
-                    domicilio_trabajo = e.domicilio_trabajo,
-                    Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() : "Sin Registro",
-                    coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() : "Sin Registro",
+                    sucursal = e.RazonSocial.ToUpper(),
+                    Cliente = e.Nombrecomercial.ToUpper(),
+                    estado = e.estado.ToUpper(),
+                    domicilio_trabajo = e.domicilio_trabajo.ToUpper(),
+                    Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault().ToUpper() : "SIN REGISTRO",
+                    coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault().ToUpper() : "SIN REGISTRO",
                     Vacantes = e.vacantes,
                     porcentaje = e.porcentaje,
                     EnProcesoEC = e.enProcesoEC,
@@ -915,24 +915,24 @@ namespace SAGA.API.Controllers
                     contratados = e.contratados,
                     faltantes = e.faltante,
                     diasTrans = e.diasTrans,
-                    VBtra = e.VBtra,
+                    VBtra = e.VBtra.ToUpper(),
                     SueldoMaximo = e.SueldoMaximo,
                     Estatus = t.Where(x => x.RequisicionId.Equals(e.Id)).Select(E => E.Estatus).FirstOrDefault(),
-                    TipoReclutamiento = e.tipoReclutamiento,
-                    ClaseReclutamiento = e.clasesReclutamiento,
+                    TipoReclutamiento = e.tipoReclutamiento.ToUpper(),
+                    ClaseReclutamiento = e.clasesReclutamiento.ToUpper(),
                     comentarios_coord = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
-                          c.fch_Creacion + " " + c.Comentario).ToList(),
+                          c.fch_Creacion + " " + c.Comentario.ToUpper()).ToList(),
                     comentarios_solicitante = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.PropietarioId) && !x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
-                    c.fch_Creacion + " " + c.Comentario).ToList(),
+                    c.fch_Creacion + " " + c.Comentario.ToUpper()).ToList(),
 
                     comentarios_reclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && !x.ReclutadorId.Equals(e.AprobadorId) && !x.ReclutadorId.Equals(e.PropietarioId)).GroupBy(g => g.ReclutadorId).Select(c => new
                     {
 
-                        reclutador = db.Usuarios.Where(x => x.Id.Equals(c.Key)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                        reclutador = db.Usuarios.Where(x => x.Id.Equals(c.Key)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault().ToUpper(),
                         comentario = c.Select(cc => new
                         {
                             fch_Creacion = cc.fch_Creacion,
-                            comentario = cc.Comentario
+                            comentario = cc.Comentario.ToUpper()
                         }).ToList()
                     }).ToList()
                 });
@@ -1025,10 +1025,10 @@ namespace SAGA.API.Controllers
                        {
                            Id = h.Id,
                            Folio = h.Folio,
-                           vBtra = h.VBtra,
-                           Estatus = h.Estatus.Descripcion,
+                           vBtra = h.VBtra.ToUpper(),
+                           Estatus = h.Estatus.Descripcion.ToUpper(),
                            EstatusId = h.EstatusId,
-                           cliente = h.Cliente.Nombrecomercial,
+                           cliente = h.Cliente.Nombrecomercial.ToUpper(),
                            Vacantes = h.horariosRequi.Count() > 0 ? h.horariosRequi.Sum(v => v.numeroVacantes) : 0,
                            Fch_limite = h.fch_Cumplimiento,
                            Postulados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(10)).Select(c => c.CandidatoId).Distinct().Count(),
