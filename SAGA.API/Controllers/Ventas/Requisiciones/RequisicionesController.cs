@@ -917,10 +917,7 @@ namespace SAGA.API.Controllers
                     ClaseReclutamientoId = requi.Where(x => x.Id == e.Id).Select(a => a.ClaseReclutamientoId).FirstOrDefault(),
                     TipoReclutamientoId = requi.Where(x => x.Id == e.Id).Select(a => a.TipoReclutamientoId).FirstOrDefault(),
                     EstadoId = requi.Where(x => x.Id == e.Id).Select(a => a.Direccion.EstadoId).FirstOrDefault(),
-                   
                     Usuario = db.Usuarios.Where(x => x.Id == e.PropietarioId).FirstOrDefault().Usuario,
-
-
                     Vacantes = e.vacantes,
                     porcentaje = e.porcentaje,
                     EnProcesoEC = e.enProcesoEC,
