@@ -84,7 +84,6 @@ namespace SAGA.API.Controllers.Reportes
                 reclutadorTotal = db.AsignacionRequis.Where(a => a.RequisicionId == e.Id).Count() == 0? "SIN ASIGNAR" : db.AsignacionRequis.Where(a => a.RequisicionId == e.Id).Count().ToString(),
                 nombreReclutado = String.Join(", ", nombreReclu.Where(b => b.RequisicionId == e.Id).Select(b => b.Nombre).ToList().ToArray())
         }).ToList();
-
             
 
             if (stus != "0" && stus != null)
@@ -95,19 +94,18 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     listaAreglo.Add(Convert.ToInt32(obj[i]));
                 }
-                
                 var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                 if (obb.Count == 0)
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.EstatusId)).ToList();
                 }
-               
             }
 
             if (clave != null)
             {
                 datos = datos.Where(e => e.VBtra.ToLower().Contains(clave.ToLower())).ToList();
             }
+
             if (sol != "0" && sol != null)
             {
                 var obj = sol.Split(',');
@@ -116,14 +114,13 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     listaAreglo.Add(obj[i]);
                 }
-                
                 var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
                 if (obb.Count == 0)
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.Usuario)).ToList();
                 }
-               
             }
+
             if (emp != "0" && emp != "00000000-0000-0000-0000-000000000000," && emp != null)
             {
                 var obj = emp.Split(',');
@@ -137,16 +134,39 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.ClienteId)).ToList();
                 }
-               
+            }
+            //if (cor != "0")
+            //{
+            //    datos = datos.Where(e => e.ClaseReclutamientoId == Convert.ToInt32(cor)).ToList();
+            //}
+            if (cor != "0" && cor != null)
+            {
+                var obj = sol.Split(',');
+                List<int> listaAreglo = new List<int>();
+                for (int i = 0; i < obj.Count() - 1; i++)
+                {
+                    listaAreglo.Add(Convert.ToInt32(obj[i]));
+                }
+                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                if (obb.Count == 0)
+                {
+                    datos = datos.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
+                }
             }
 
-            if (trcl != "0")
+            if (trcl != "0" && trcl != null)
             {
-                datos = datos.Where(e => e.TipoReclutamientoId == Convert.ToInt32(trcl)).ToList();
-            }
-            if (cor != "0")
-            {
-                datos = datos.Where(e => e.ClaseReclutamientoId == Convert.ToInt32(cor)).ToList();
+                var obj = sol.Split(',');
+                List<int> listaAreglo = new List<int>();
+                for (int i = 0; i < obj.Count() - 1; i++)
+                {
+                    listaAreglo.Add(Convert.ToInt32(obj[i]));
+                }
+                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                if (obb.Count == 0)
+                {
+                    datos = datos.Where(e => listaAreglo.Contains(e.TipoReclutamientoId)).ToList();
+                }
             }
 
             if (recl != "0" && recl != "00000000-0000-0000-0000-000000000000," && recl != null)
@@ -187,7 +207,6 @@ namespace SAGA.API.Controllers.Reportes
                         string monterrey = "6,7,10,28,19,24";
                         string jalisco = "1,32,3,8,10,11,14,16,18,2,25,26";
                         string mexico = "4,5,9,13,15,22,27,30,20,12,31,23,21,29,17";
-
                         if (item == 1)
                         {
                             var array = jalisco.Split(',');
@@ -214,14 +233,9 @@ namespace SAGA.API.Controllers.Reportes
                         }
                     }
                     estado = estado.Distinct().ToList();
-
                     datos = datos.Where(e=>estado.Contains(e.EstadoId)).ToList();
-                    
-                    
                 }
             }
-
-        //    datos = datos.OrderByDescending(e => e.fch_Cumplimiento).ToList();
 
             return Ok(datos);
         }
