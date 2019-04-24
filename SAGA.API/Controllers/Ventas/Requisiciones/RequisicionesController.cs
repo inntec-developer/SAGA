@@ -541,9 +541,8 @@ namespace SAGA.API.Controllers
             try
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(IdUsuario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
-                if (tipo == 8)
+                if (tipo == 8 || tipo == 3)
                 {
-
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                         .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false))
                         .Select(e => new
