@@ -124,7 +124,7 @@ namespace SAGA.API.Controllers
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
                     body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, levant&oacute; una solicitud de vacante \"en pausa\", Vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", usuario.nombre, propietario.vbtra, propietario.folio );
-                    body = body + "<p>Para validar la solicitud ser&aacute; necesario ingresar a Reclutamiento, seguido de entidades de reclutamiento, selecciona la opci&oacute;n Vacantes, dar clic en el bot&oacute;n Revisi&oacute;n de Vacante, para dar el seguimiento correspondiente.</p>";
+                    body = body + "<p>Para validar la solicitud ser&aacute; necesario ingresar a Reclutamiento, selecciona la opci&oacute;n Vacantes, dar clic en el bot&oacute;n Visualizar Vacantes en Pausa, para dar el seguimiento correspondiente.</p>";
                     body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                     body = body + "</body></html>";
 
