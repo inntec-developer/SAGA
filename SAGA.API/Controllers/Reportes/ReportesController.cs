@@ -62,12 +62,14 @@ namespace SAGA.API.Controllers.Reportes
                 e.Id,
                 e.Folio,
                 e.VBtra,
+                cubierta = db.ProcesoCandidatos.Where(x => x.RequisicionId == e.Id && x.EstatusId == 24).Select(a => a.CandidatoId).Distinct().ToList().Count,
                 porcentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
                 e.fch_Creacion,
                 e.fch_Modificacion,
                 e.fch_Limite,
                 empresa = e.Cliente.Nombrecomercial,
                 e.ClienteId,
+                cordinador2 = db.Usuarios.Where(x=>x.Usuario == e.Aprobador).ToList().Count > 0? db.Usuarios.Where(x => e.Aprobador.Contains(x.Usuario)).Select(x=>x.Nombre + " " + x.ApellidoPaterno).FirstOrDefault() : "",
                 nombreApellido = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno,
                 propietario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre,
                 Usuario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Usuario,
@@ -264,8 +266,14 @@ namespace SAGA.API.Controllers.Reportes
         [Route("usuario")]
         public IHttpActionResult Usuario()
         {
-            int[] Status = new[] { 1, 2, 3, 4, 5, 6 };
            
+            int[] Status = new[] { 1, 2, 3, 5, 6 };
+
+            //if (cor == "1")
+            //{
+            //    Status = new[] { 4 };
+            //}
+
             var datos = db.Usuarios.Where(e => e.Activo == true && Status.Contains(e.TipoUsuarioId)).Select(e => new
             {
                 Nombre = e.Nombre + " "+ e.ApellidoPaterno,
