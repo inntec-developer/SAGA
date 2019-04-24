@@ -26,6 +26,7 @@ namespace SAGA.API.Dtos
         public List<Telefono> Telefono { get; set; }
         public DateTime FechaNac { get; set; }
         public byte GeneroId { get; set; }
+        public byte OpcionRegistro { get; set; }
 
         //
         public string Acercademi { get; set; }
