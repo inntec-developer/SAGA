@@ -582,7 +582,8 @@ namespace SAGA.API.Controllers
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
                             examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0,
-                            Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null
+                            Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null,
+                            Ponderacion = db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).FirstOrDefault() : null
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
                     return Ok(vacantes);
                 }
@@ -664,7 +665,8 @@ namespace SAGA.API.Controllers
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
                             examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0,
-                            Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null
+                            Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null,
+                            Ponderacion = db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).FirstOrDefault() : null
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
                     return Ok(vacantes);
                 }
@@ -1188,6 +1190,7 @@ namespace SAGA.API.Controllers
                         Estado = d.Estado.estado,
                         Municipio = d.Municipio.municipio,
                         Colonia = d.Colonia.colonia,
+                        CodigoPostal = d.Colonia.CP,
                         Calle = d.Calle,
                         NumeroExterior = d.NumeroExterior,
                         NumeroInterior = d.NumeroInterior != null ? d.NumeroInterior : "S/N",
@@ -1581,6 +1584,25 @@ namespace SAGA.API.Controllers
                         requisicion.Asignada = true;
                     else
                         requisicion.Asignada = false;
+
+                    if(requi.Ponderacion.Id.ToString() == "00000000-0000-0000-0000-000000000000")
+                    {
+                        PonderacionRequisiciones pon = new PonderacionRequisiciones();
+                        pon.Ponderacion = requi.Ponderacion.Ponderacion;
+                        pon.RequisicionId = requi.Id;
+                        pon.fch_Creacion = DateTime.Now;
+                        pon.fch_Modificacion = DateTime.Now;
+                        db.PonderacionRequisiciones.Add(pon);
+                    }
+                    else
+                    {
+                        var pon = db.PonderacionRequisiciones.Find(requi.Ponderacion.Id);
+                        db.Entry(pon).State = EntityState.Modified;
+                        db.Entry(pon).Property(x => x.RequisicionId).IsModified = false;
+                        db.Entry(pon).Property(x => x.fch_Creacion).IsModified = false;
+                        pon.Ponderacion = requi.Ponderacion.Ponderacion;
+                        pon.fch_Modificacion = DateTime.Now;
+                    }
                     db.SaveChanges();
                     AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra);
                     db.SaveChanges();
@@ -1599,7 +1621,7 @@ namespace SAGA.API.Controllers
                 {
                     beginTran.Rollback();
                     Console.Write(ex.Message);
-                    return NotFound();
+                    return Ok(HttpStatusCode.NotFound);
                 }
             }
 

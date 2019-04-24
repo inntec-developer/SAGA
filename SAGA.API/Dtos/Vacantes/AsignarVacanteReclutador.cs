@@ -15,6 +15,7 @@ namespace SAGA.API.Dtos
         public int? DiasEnvio { get; set; }
         public string Usuario { get; set; }
         public virtual List<AsignacionRequi> AsignacionRequi { get; set; }
+        public PonderacionRequisiciones Ponderacion { get; set; }
     }
 
     public class PublicarRedesSocialesDto
