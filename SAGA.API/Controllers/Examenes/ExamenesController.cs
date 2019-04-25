@@ -341,7 +341,7 @@ namespace SAGA.API.Controllers
         {
             var tecnicos = db.ExamenCandidato.OrderByDescending(o => o.fch_Modificacion).Where(x => x.CandidatoId.Equals(candidatoId)).Select(R => new
             {
-                requisicionId = R.Id,
+                requisicionId = R.RequisicionId,
                 folio = R.Requisicion.Folio,
                 cliente = R.Requisicion.Cliente.Nombrecomercial,
                 vBtra = R.Requisicion.VBtra,
