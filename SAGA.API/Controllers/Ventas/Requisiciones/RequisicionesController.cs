@@ -478,25 +478,25 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                List<Guid> uids = new List<Guid>();
-                if (db.Subordinados.Count(x => x.LiderId.Equals(ReclutadorId)) > 0)
-                {
-                    var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(ReclutadorId) && x.LiderId.Equals(ReclutadorId)).Select(u => u.UsuarioId).ToList();
+                //List<Guid> uids = new List<Guid>();
+                //if (db.Subordinados.Count(x => x.LiderId.Equals(ReclutadorId)) > 0)
+                //{
+                //    var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(ReclutadorId) && x.LiderId.Equals(ReclutadorId)).Select(u => u.UsuarioId).ToList();
 
-                    uids = GetSub(ids, uids);
+                //    uids = GetSub(ids, uids);
 
-                }
-                uids.Add(ReclutadorId);
+                //}
+                //uids.Add(ReclutadorId);
 
-                var asig = db.AsignacionRequis
-                      .OrderByDescending(e => e.Id)
-                      .Where(a => uids.Distinct().Contains(a.GrpUsrId))
-                      .Select(a => a.RequisicionId)
-                      .Distinct()
-                      .ToList();
+                //var asig = db.AsignacionRequis
+                //      .OrderByDescending(e => e.Id)
+                //      .Where(a => uids.Distinct().Contains(a.GrpUsrId))
+                //      .Select(a => a.RequisicionId)
+                //      .Distinct()
+                //      .ToList();
 
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus) && asig.Distinct().Contains(e.Id))
+                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus) && e.PropietarioId.Equals(ReclutadorId))
                     .Select(e => new
                     {
                         Id = e.Id,
