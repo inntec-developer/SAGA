@@ -346,9 +346,12 @@ namespace SAGA.API.Controllers
 
             switch (IdCatalogo)
             {
+                #region Sistemas
                 case 1: // Paises
 
-                    Catalogo.Pais = db.Paises.ToList();
+                    Catalogo.Pais = db.Paises
+                        .OrderBy(c => c.Id)
+                        .ToList();
 
                     break;
 
@@ -361,11 +364,107 @@ namespace SAGA.API.Controllers
                             Id = e.Id,
                             estado = e.estado,
                             Clave = e.Clave,
-                            Pais = e.Pais.pais                   
+                            Pais = e.Pais.pais,
+                            Activo = e.Activo                   
                         })
+                        .OrderBy(c => c.Id)
                         .ToList();
 
                     break;
+
+                case 3: // Municipios
+
+                    //Catalogo.Pais = db.Paises.ToList();
+                    Catalogo.Estado = db.Estados
+                        .Select(e => new EstadoDto
+                        {
+                            Id = e.Id,
+                            estado = e.estado,
+                            Clave = e.Clave,
+                            Pais = e.Pais.pais,
+                            Activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 4: // Colonias
+
+                    Catalogo.Pais = db.Paises.ToList();
+                    Catalogo.Estado = db.Estados
+                        .Select(e => new EstadoDto
+                        {
+                            Id = e.Id,
+                            estado = e.estado,
+                            Clave = e.Clave,
+                            Pais = e.Pais.pais,
+                            Activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+                    Catalogo.Municipio = db.Municipios
+                        .Select(m => new MunicipioDto
+                        {
+                            Id = m.Id,
+                            municipio = m.municipio,
+                            Estado = m.Estado.estado,
+                            Activo = m.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+                    
+
+                    break;
+
+                case 6: // Tipo de telefonos
+
+                    Catalogo.TpTelefono = db.TiposTelefonos
+                        .Select(t => new TpTelefonosDto
+                        {
+                            Id = t.Id,
+                            Tipo = t.Tipo,
+                            Activo = t.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 7: // Estados Civiles
+
+                    Catalogo.EstadoCivil = db.EstadosCiviles
+                        .Select(t => new EstadoCivilDto
+                        {
+                            Id = t.Id,
+                            estadoCivil = t.estadoCivil,
+                            Activo = t.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 41: // Tipo de usuario
+
+                    Catalogo.TpUsuario = db.TiposUsuarios
+                        .Select(t => new TpUsuarioDto
+                        {
+                            Id = t.Id,
+                            tipo = t.Tipo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                #endregion
+
+                #region Reclutamiento
+                #endregion
+
+                #region Ventas
+                #endregion
 
                 default:
                     break;
@@ -375,10 +474,296 @@ namespace SAGA.API.Controllers
         }
 
         [HttpPost]
+        [Route("FilterCatalogo")]
+        public IHttpActionResult getCatalogofilter(ParamsDto Parametros)
+        {
+            CatalogosDto Catalogo = new CatalogosDto();
+            //Buscamos los datos del catalogo
+            Catalogo.Catalogos = db.Catalogos
+             .Where(c => c.Id.Equals(Parametros.IdCat))
+             .SingleOrDefault();
+
+            if (Parametros.IdCat == 3) // Municipios
+            {
+                Catalogo.Estado = db.Estados
+                       .Select(e => new EstadoDto
+                       {
+                           Id = e.Id,
+                           estado = e.estado,
+                           Clave = e.Clave,
+                           Pais = e.Pais.pais,
+                           Activo = e.Activo
+                       })
+                       .ToList();
+                Catalogo.Municipio = db.Municipios
+                    .Where(m => m.Estado.Id.Equals(Parametros.IdEstado))
+                    .Select(m => new MunicipioDto
+                    {
+                        Id = m.Id,
+                        municipio = m.municipio,
+                        Estado = m.Estado.estado,
+                        Activo = m.Activo
+                    })
+                    .OrderBy(c => c.Id)
+                    .ToList();
+            }
+            else // Colonias
+            {
+                Catalogo.Pais = db.Paises.ToList();
+                Catalogo.Estado = db.Estados
+                    .Select(e => new EstadoDto
+                    {
+                        Id = e.Id,
+                        estado = e.estado,
+                        Clave = e.Clave,
+                        Pais = e.Pais.pais,
+                        Activo = e.Activo
+                    })
+                    .ToList();
+                Catalogo.Municipio = db.Municipios
+                    .Select(m => new MunicipioDto
+                    {
+                        Id = m.Id,
+                        municipio = m.municipio,
+                        Estado = m.Estado.estado,
+                        Activo = m.Activo
+                    })
+                    .ToList();
+
+                Catalogo.Colonia = db.Colonias
+                    .Where(c => c.Municipio.Id == Parametros.IdMunicipio)
+                    .Select(c => new ColoniasDto
+                    {
+                        Id = c.Id,
+                        colonia = c.colonia,
+                        TipoColonia = c.TipoColonia,
+                        CP = c.CP,
+                        Activo = c.Activo,
+                        Pais = c.Pais.pais,
+                        Estado = c.Estado.estado,
+                        Municipio = c.Municipio.municipio
+                    })
+                    .OrderBy(c => c.Id)
+                    .ToList();
+            }
+
+            return Ok(Catalogo);
+        }
+
+        [HttpPost]
         [Route("postCatalogo")]
         public IHttpActionResult postCatalogos(CatalogosDto Catalogo)
         {
-            return Ok();
+            if (Catalogo.opt == 1) // Agregar
+            {
+                switch(Catalogo.Catalogos.Id) // ¿ Que catalogo es ?
+                {
+                    #region sistemas
+                    case 1: // País
+
+                        db.Paises.Add(Catalogo.Pais[0]);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 2: // Estado
+
+                        Estado estado = new Estado();
+                        
+                        estado.Activo = Catalogo.Estado[0].Activo;
+                        estado.estado = Catalogo.Estado[0].estado;
+                        estado.Clave = Catalogo.Estado[0].Clave;
+                        estado.PaisId = Convert.ToInt32(Catalogo.Estado[0].Pais);
+
+                        db.Estados.Add(estado);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 3: // Municipios
+
+                        Municipio municipio = new Municipio();
+
+                        municipio.municipio = Catalogo.Municipio[0].municipio;
+                        municipio.EstadoId = Convert.ToInt32(Catalogo.Municipio[0].Estado);
+                        municipio.Activo = Catalogo.Municipio[0].Activo;
+
+                        db.Municipios.Add(municipio);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 4: // Colonias
+
+                        Colonia colonia = new Colonia();
+
+                        colonia.colonia = Catalogo.Colonia[0].colonia;
+                        colonia.TipoColonia = Catalogo.Colonia[0].TipoColonia;
+                        colonia.CP = Catalogo.Colonia[0].CP;
+                        colonia.EstadoId = Convert.ToInt32(Catalogo.Colonia[0].Estado);
+                        colonia.MunicipioId = Convert.ToInt32(Catalogo.Colonia[0].Municipio);
+                        colonia.PaisId = Convert.ToInt32(Catalogo.Colonia[0].Pais);
+                        colonia.Activo = Catalogo.Colonia[0].Activo;
+
+                        db.Colonias.Add(colonia);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 6: // Tipo de telefonos
+
+                        TipoTelefono TpTelefonos = new TipoTelefono();
+
+                        TpTelefonos.Tipo = Catalogo.TpTelefono[0].Tipo;
+                        TpTelefonos.Activo = Catalogo.TpTelefono[0].Activo;
+
+                        db.TiposTelefonos.Add(TpTelefonos);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 7: // Estado civil
+
+                        EstadoCivil estadocivil = new EstadoCivil();
+
+                        estadocivil.estadoCivil = Catalogo.EstadoCivil[0].estadoCivil;
+                        estadocivil.Activo = Catalogo.EstadoCivil[0].Activo;
+
+                        db.EstadosCiviles.Add(estadocivil);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 41: // Tipo de usuarios
+
+                        TipoUsuario TpUsuario = new TipoUsuario();
+
+                        TpUsuario.Tipo = Catalogo.TpUsuario[0].tipo;
+
+                        db.TiposUsuarios.Add(TpUsuario);
+                        db.SaveChanges();
+
+                        break;
+
+                        #endregion
+
+                    #region Reclutamiento
+                        #endregion
+
+                    #region Ventas
+                        #endregion
+                }
+            }
+            else // Modificar
+            {
+                switch (Catalogo.Catalogos.Id) // ¿ Que catalogo es ?
+                {
+                    #region Sistema
+
+                    case 1: // Países
+
+                        db.Entry(Catalogo.Pais[0]).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 2: // Estados
+
+                        Estado estado = new Estado();
+
+                        estado.Id = Catalogo.Estado[0].Id;
+                        estado.Activo = Catalogo.Estado[0].Activo;
+                        estado.estado = Catalogo.Estado[0].estado;
+                        estado.Clave = Catalogo.Estado[0].Clave;
+                        estado.PaisId = Convert.ToInt32(Catalogo.Estado[0].Pais);
+
+                        db.Entry(estado).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 3: // Municipios
+
+                        Municipio municipio = new Municipio();
+
+                        municipio.Id = Catalogo.Municipio[0].Id;
+                        municipio.municipio = Catalogo.Municipio[0].municipio;
+                        municipio.EstadoId = Convert.ToInt32(Catalogo.Municipio[0].Estado);
+                        municipio.Activo = Catalogo.Municipio[0].Activo;
+
+                        db.Entry(municipio).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 4: // Colonias
+
+                        Colonia colonia = new Colonia();
+
+                        colonia.Id = Catalogo.Colonia[0].Id;
+                        colonia.colonia = Catalogo.Colonia[0].colonia;
+                        colonia.TipoColonia = Catalogo.Colonia[0].TipoColonia;
+                        colonia.CP = Catalogo.Colonia[0].CP;
+                        colonia.EstadoId = Convert.ToInt32(Catalogo.Colonia[0].Estado);
+                        colonia.MunicipioId = Convert.ToInt32(Catalogo.Colonia[0].Municipio);
+                        colonia.PaisId = Convert.ToInt32(Catalogo.Colonia[0].Pais);
+                        colonia.Activo = Catalogo.Colonia[0].Activo;
+
+                        db.Entry(colonia).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 6: // Tipo de telefonos
+
+                        TipoTelefono TpTelefonos = new TipoTelefono();
+
+                        TpTelefonos.Id = Catalogo.TpTelefono[0].Id;
+                        TpTelefonos.Tipo = Catalogo.TpTelefono[0].Tipo;
+                        TpTelefonos.Activo = Catalogo.TpTelefono[0].Activo;
+
+
+                        db.Entry(TpTelefonos).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 7: // Estado civil
+
+                        EstadoCivil estadocivil = new EstadoCivil();
+
+                        estadocivil.Id = Catalogo.EstadoCivil[0].Id;
+                        estadocivil.estadoCivil = Catalogo.EstadoCivil[0].estadoCivil;
+                        estadocivil.Activo = Catalogo.EstadoCivil[0].Activo;
+
+                        db.Entry(estadocivil).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 41: // Tipo de usuarios
+
+                        TipoUsuario TpUsuario = new TipoUsuario();
+
+                        TpUsuario.Id = Catalogo.TpUsuario[0].Id;
+                        TpUsuario.Tipo = Catalogo.TpUsuario[0].tipo;
+
+                        db.Entry(TpUsuario).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                        #endregion
+
+                    #region Reclutamiento
+                        #endregion
+
+                    #region Ventas
+                        #endregion
+                }
+            }
+
+            return Ok(true);
         }
         #endregion
     }

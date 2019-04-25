@@ -11,5 +11,6 @@ namespace SAGA.API.Dtos
         public string estado { get; set; }
         public string Clave { get; set; }
         public string Pais { get; set; }
+        public bool Activo { get; set; }
     }
 }
