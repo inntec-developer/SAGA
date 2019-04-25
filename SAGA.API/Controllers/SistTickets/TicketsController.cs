@@ -263,58 +263,65 @@ namespace SAGA.API.Controllers
                 DateTime endDate = DateTime.Now.AddDays(1);
 
                 var cita = (from items in db.CalendarioCandidato
-                           where items.Folio.Equals(folio) && (DateTime.Now >= items.Fecha && items.Fecha < endDate) && DateTime.Now.Hour <= items.Fecha.Hour + 1
+                           where items.Folio.Equals(folio) 
                            select new { id= items.Id, activa = items.Estatus, fecha = items.Fecha, requisicionId = items.RequisicionId, candidatoId = items.CandidatoId }).ToList();
 
                 if (cita.Count() > 0)
                 {
                     if (cita[0].activa == 1)
                     {
+                        if (cita[0].fecha.Date < endDate.Date && cita[0].fecha.Date >= DateTime.Now.Date && cita[0].fecha.Hour + 1 > DateTime.Now.Hour)
+                        {
 
-                        //if ((cita.fecha - DateTime.Now).TotalMinutes <= -15 || (cita.fecha - DateTime.Now).TotalMinutes >= 15)
-                        //var cita = db.CalendarioCandidato.Where(x => x.Folio.Equals(folio)).Select(T => new
-                        //{
-                        //    requisicionId = T.RequisicionId,
-                        //    candidatoId = T.CandidatoId
-                        //}).FirstOrDefault();
+                            //if ((cita.fecha - DateTime.Now).TotalMinutes <= -15 || (cita.fecha - DateTime.Now).TotalMinutes >= 15)
+                            //var cita = db.CalendarioCandidato.Where(x => x.Folio.Equals(folio)).Select(T => new
+                            //{
+                            //    requisicionId = T.RequisicionId,
+                            //    candidatoId = T.CandidatoId
+                            //}).FirstOrDefault();
 
-                        //if (cita != null)
-                        //{
-                        Ticket ticket = new Ticket();
-                        ticket.CandidatoId = cita[0].candidatoId;
-                        ticket.RequisicionId = cita[0].requisicionId;
-                        ticket.MovimientoId = 1;
-                        ticket.ModuloId = 1;
-                        ticket.Estatus = 1;
+                            //if (cita != null)
+                            //{
+                            Ticket ticket = new Ticket();
+                            ticket.CandidatoId = cita[0].candidatoId;
+                            ticket.RequisicionId = cita[0].requisicionId;
+                            ticket.MovimientoId = 1;
+                            ticket.ModuloId = 1;
+                            ticket.Estatus = 1;
 
-                        var num = db.Tickets.Where(x => x.RequisicionId.Equals(ticket.RequisicionId) && x.MovimientoId.Equals(1)).Count();
+                            var num = db.Tickets.Where(x => x.RequisicionId.Equals(ticket.RequisicionId) && x.MovimientoId.Equals(1)).Count();
 
-                        var f = db.Requisiciones.Where(x => x.Id.Equals(ticket.RequisicionId)).Select(ff => ff.Folio).FirstOrDefault().ToString();
+                            var f = db.Requisiciones.Where(x => x.Id.Equals(ticket.RequisicionId)).Select(ff => ff.Folio).FirstOrDefault().ToString();
 
-                        ticket.Numero = "CC-" + f.Substring(f.Length - 4, 4) + '-' + num.ToString().PadLeft(3, '0');
+                            ticket.Numero = "CC-" + f.Substring(f.Length - 4, 4) + '-' + num.ToString().PadLeft(3, '0');
 
-                        db.Tickets.Add(ticket);
+                            db.Tickets.Add(ticket);
 
-                        db.SaveChanges();
+                            db.SaveChanges();
 
-                        var folioCita = db.CalendarioCandidato.Find(cita[0].id);
+                            var folioCita = db.CalendarioCandidato.Find(cita[0].id);
 
-                        db.Entry(folioCita).Property(x => x.Estatus).IsModified = true;
+                            db.Entry(folioCita).Property(x => x.Estatus).IsModified = true;
 
-                        folioCita.Estatus = 0;
+                            folioCita.Estatus = 0;
 
-                        db.SaveChanges();
+                            db.SaveChanges();
 
-                        return Ok(ticket.Numero);
+                            return Ok(ticket.Numero);
+                        }
+                        else
+                        {
+                            return Ok(HttpStatusCode.NoContent); //204 se perdío la cita por la hora
+                        }
                     }
                     else
                     {
-                        return Ok(HttpStatusCode.OK);
+                        return Ok(HttpStatusCode.OK); //ya se imprimio ticket para esa cita
                     }
                 }
                 else
                 {
-                    return Ok("No");
+                    return Ok(HttpStatusCode.NotFound); //404 no se encontró la cita
                  
                 }
             }
