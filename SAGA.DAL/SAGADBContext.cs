@@ -150,6 +150,8 @@ namespace SAGA.DAL
         public DbSet<OficinaReclutamiento> OficinasReclutamiento { get; set; }
         public DbSet<UnidadNegocio> UnidadesNegocios { get; set; }
         public DbSet<Catalogos> Catalogos { get; set; }
+        public DbSet<LogCatalogos> LogCatalogos { get; set; }
+
 
         ///modulo admin 
         public DbSet<Usuarios> Usuarios { get; set; }
@@ -307,6 +309,8 @@ namespace SAGA.DAL
 
             //Catalogos
             modelBuilder.Configurations.Add(new CatalogosMap().ToTable("Catalogos"));
+            modelBuilder.Configurations.Add(new LogCatalogosMap().ToTable("LogCatalogos"));
+
 
             //Modulo para examenes
             modelBuilder.Configurations.Add(new ExamenesMap().ToTable("Examenes"));
@@ -1306,6 +1310,20 @@ namespace SAGA.DAL
                 Property(x => x.Descripcion).IsRequired().HasMaxLength(255);
                 Property(x => x.EstructuraId).IsRequired();
                 Property(x => x.Activo).IsRequired();
+            }
+        }
+
+        public class LogCatalogosMap : EntityTypeConfiguration<LogCatalogos>
+        {
+            public LogCatalogosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CatalogoId).IsRequired();
+                Property(x => x.Campo).IsRequired().HasMaxLength(20);
+                Property(x => x.FechaAct).IsRequired();
+                Property(x => x.TpMov).IsRequired().HasMaxLength(5); ;
+                Property(x => x.Usuario).IsRequired().HasMaxLength(50); ;
             }
         }
 
