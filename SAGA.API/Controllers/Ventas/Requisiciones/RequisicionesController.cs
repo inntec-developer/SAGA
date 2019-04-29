@@ -80,15 +80,23 @@ namespace SAGA.API.Controllers
         [Route("getById")]
         public IHttpActionResult GetRequisicion(Guid Id)
         {
-            if (Id != null)
+            try
             {
-                var requisicion = db.Requisiciones.FirstOrDefault(x => x.Id.Equals(Id));
-                return Ok(requisicion);
+                if (Id != null)
+                {
+                    var requisicion = db.Requisiciones.FirstOrDefault(x => x.Id.Equals(Id));
+                    return Ok(requisicion);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch(Exception ex)
             {
-                return NotFound();
+                return Ok(HttpStatusCode.NotFound);
             }
+            
 
         }
 
@@ -96,34 +104,43 @@ namespace SAGA.API.Controllers
         [Route("getByFolio")]
         public IHttpActionResult GetRequisicionFolio(Int64 folio)
         {
-            if (folio != 0)
+            try
             {
+                if (folio != 0)
+                {
 
-                var requisicion = db.Requisiciones.Where(x => x.Folio.Equals(folio)).Select(r => new {
-                    r.Id,
-                    r.Folio,
-                    r.fch_Cumplimiento,
-                    r.fch_Creacion,
-                    r.fch_Limite,
-                    r.Prioridad,
-                    r.Confidencial,
-                    r.Estatus,
-                    asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => x.GrpUsrId).ToList(),
-                    asignadosN = r.AsignacionRequi.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => new {
-                        x.GrpUsr.Nombre,
-                        x.GrpUsr.ApellidoMaterno,
-                        x.GrpUsr.ApellidoPaterno
-                    }),
-                    vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-                    r.VBtra,
-                    HorariosDamfo = db.HorariosPerfiles.Where(h => h.DAMFO290Id.Equals(r.DAMFO290Id)).ToList()
-                }).FirstOrDefault();
-                return Ok(requisicion);
+                    var requisicion = db.Requisiciones.Where(x => x.Folio.Equals(folio)).Select(r => new {
+                        r.Id,
+                        r.Folio,
+                        r.fch_Cumplimiento,
+                        r.fch_Creacion,
+                        r.fch_Limite,
+                        r.Prioridad,
+                        r.Confidencial,
+                        r.Estatus,
+                        asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => x.GrpUsrId).ToList(),
+                        asignadosN = r.AsignacionRequi.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => new {
+                            x.GrpUsr.Nombre,
+                            x.GrpUsr.ApellidoMaterno,
+                            x.GrpUsr.ApellidoPaterno
+                        }),
+                        vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                        r.VBtra,
+                        HorariosDamfo = db.HorariosPerfiles.Where(h => h.DAMFO290Id.Equals(r.DAMFO290Id)).ToList()
+                    }).FirstOrDefault();
+                    return Ok(requisicion);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.NotFound);
+                }
             }
-            else
+            catch(Exception ex)
             {
-                return NotFound();
+                string ms = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
             }
+           
 
         }
 
