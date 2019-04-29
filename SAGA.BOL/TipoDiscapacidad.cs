@@ -7,5 +7,6 @@ namespace SAGA.BOL
         [Key]
         public int Id { get; set; }
         public string  tipoDiscapacidad { get; set; }
+        public bool activo { get; set; }
     }
 }

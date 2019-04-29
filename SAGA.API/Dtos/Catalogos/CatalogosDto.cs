@@ -18,6 +18,12 @@ namespace SAGA.API.Dtos
         public List<TpTelefonosDto> TpTelefono { get; set; }
         public List<TpUsuarioDto> TpUsuario { get; set; }
         public List<EstadoCivilDto> EstadoCivil { get; set; }
+        public List<DepartamentosDto> Departamentos { get; set; }
+        public List<AreaDto> Areas { get; set; }
+        public List<EscolaridadesDto> Escolaridades { get; set; }
+        public List<NivelDto> Nivel { get; set; }
+        public List<MedioDto> Medio { get; set; }
+        public List<IdiomaDto> Idioma { get; set; }
         #endregion
         #region Reclutamiento
         #endregion

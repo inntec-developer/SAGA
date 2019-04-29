@@ -329,6 +329,7 @@ namespace SAGA.API.Controllers
                     Catalogos = db.Catalogos.Where( c => c.EstructuraId == x.Id).ToList()
                 })
                 .Where(e => e.Activo.Equals(true) && e.IdPadre.Equals(1) && e.Id != 1 && e.Catalogos.Count > 0)
+                .OrderBy(e => e.IdPadre)
                 .ToList();
 
             return Ok(Catalogos);
@@ -350,6 +351,7 @@ namespace SAGA.API.Controllers
                 case 1: // Paises
 
                     Catalogo.Pais = db.Paises
+                        .Where(p => p.Activo.Equals(false))
                         .OrderBy(c => c.Id)
                         .ToList();
 
@@ -458,9 +460,104 @@ namespace SAGA.API.Controllers
 
                     break;
 
+                case 42: // Departamentos
+
+                    Catalogo.Areas = db.Areas
+                        .Select(a => new AreaDto
+                        {
+                            Id = a.Id,
+                            Nombre = a.Nombre,
+                            Clave = a.Clave,
+                            Orden = a.Orden
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+                    Catalogo.Departamentos = db.Departamentos
+                        .Select(d => new DepartamentosDto
+                        {
+                            Id = d.Id,
+                            nombre = d.Nombre,
+                            Area = d.Area.Nombre,
+                            clave = d.Clave,
+                            orden = d.Orden
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 43: // Areas
+
+                    Catalogo.Areas = db.Areas
+                        .Select(a => new AreaDto
+                        {
+                            Id = a.Id,
+                            Nombre = a.Nombre,
+                            Clave = a.Clave,
+                            Orden = a.Orden
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
                 #endregion
 
                 #region Reclutamiento
+                case 34: // Escolaridades
+
+                    Catalogo.Escolaridades = db.GradosEstudios
+                        .Select(e => new EscolaridadesDto
+                        {
+                            Id = e.Id,
+                            gradoEstudio = e.gradoEstudio
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 35: // Nivel estudios
+
+                    Catalogo.Nivel = db.Niveles
+                        .Select(e => new NivelDto
+                        {
+                            Id = e.Id,
+                            nivel = e.nivel
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 36: // Medios
+
+                    Catalogo.Medio = db.Medios
+                        .Select(e => new MedioDto
+                        {
+                            Id = e.Id,
+                            Nombre = e.Nombre,
+                            Activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 37: // Idiomas
+
+                    Catalogo.Idioma = db.Idiomas
+                        .Select(e => new IdiomaDto
+                        {
+                            Id = e.Id,
+                            idioma = e.idioma,
+                            activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
                 #endregion
 
                 #region Ventas
@@ -645,12 +742,84 @@ namespace SAGA.API.Controllers
 
                         break;
 
-                        #endregion
+                    case 42: // Departamentos
+
+                        Departamento departamento = new Departamento();
+
+                        departamento.Nombre = Catalogo.Departamentos[0].nombre;
+                        departamento.AreaId = Convert.ToInt32(Catalogo.Departamentos[0].Area);
+                        departamento.Clave = Catalogo.Departamentos[0].clave;
+                        departamento.Orden = Catalogo.Departamentos[0].orden;
+
+                        db.Departamentos.Add(departamento);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 43: // Areas
+
+                        Area area = new Area();
+
+                        area.Nombre = Catalogo.Areas[0].Nombre;
+                        area.Clave = Catalogo.Areas[0].Clave;
+                        area.Orden = Catalogo.Areas[0].Orden;
+
+                        db.Areas.Add(area);
+                        db.SaveChanges();
+
+                        break;
+
+                    #endregion
 
                     #region Reclutamiento
+                    case 34: // Escolaridades
+
+                        GradoEstudio escolaridad = new GradoEstudio();
+
+                        escolaridad.gradoEstudio = Catalogo.Escolaridades[0].gradoEstudio;
+
+                        db.GradosEstudios.Add(escolaridad);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 35: // Nivel estudios
+
+                        Nivel nivel = new Nivel();
+
+                        nivel.nivel = Catalogo.Nivel[0].nivel;
+
+                        db.Niveles.Add(nivel);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 36: // Medios
+
+                        Medios medio = new Medios();
+
+                        medio.Nombre = Catalogo.Medio[0].Nombre;
+                        medio.Activo = Catalogo.Medio[0].Activo;
+
+                        db.Medios.Add(medio);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 37: // Idiomas
+
+                        Idioma idioma = new Idioma();
+
+                        idioma.idioma = Catalogo.Idioma[0].idioma;
+                        idioma.Activo = Catalogo.Idioma[0].activo;
+
+                        db.Idiomas.Add(idioma);
+                        db.SaveChanges();
+
+                        break;
                         #endregion
 
-                    #region Ventas
+                        #region Ventas
                         #endregion
                 }
             }
@@ -753,12 +922,91 @@ namespace SAGA.API.Controllers
 
                         break;
 
-                        #endregion
+                    case 42: // Departamentos
+
+                        Departamento departamento = new Departamento();
+
+                        departamento.Id = Catalogo.Departamentos[0].Id;
+                        departamento.Nombre = Catalogo.Departamentos[0].nombre;
+                        departamento.AreaId = Convert.ToInt32(Catalogo.Departamentos[0].Area);
+                        departamento.Clave = Catalogo.Departamentos[0].clave;
+                        departamento.Orden = Catalogo.Departamentos[0].orden;
+
+                        db.Entry(departamento).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 43: // Areas
+
+                        Area area = new Area();
+
+                        area.Id = Catalogo.Areas[0].Id;
+                        area.Nombre = Catalogo.Areas[0].Nombre;
+                        area.Clave = Catalogo.Areas[0].Clave;
+                        area.Orden = Catalogo.Areas[0].Orden;
+
+                        db.Entry(area).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+
+                    #endregion
 
                     #region Reclutamiento
+                    case 34: // Escolaridades
+
+                        GradoEstudio escolaridad = new GradoEstudio();
+
+                        escolaridad.Id = Catalogo.Escolaridades[0].Id;
+                        escolaridad.gradoEstudio = Catalogo.Escolaridades[0].gradoEstudio;
+
+                        db.Entry(escolaridad).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 35: // Nivel estudios  
+
+                        Nivel nivel = new Nivel();
+
+                        nivel.Id = Catalogo.Nivel[0].Id;
+                        nivel.nivel = Catalogo.Nivel[0].nivel;
+
+                        db.Entry(nivel).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 36: // Medios
+
+                        Medios medio = new Medios();
+
+                        medio.Id = Catalogo.Medio[0].Id;
+                        medio.Nombre = Catalogo.Medio[0].Nombre;
+                        medio.Activo = Catalogo.Medio[0].Activo;
+
+                        db.Entry(medio).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 37: // Idiomas
+
+                        Idioma idioma = new Idioma();
+
+                        idioma.Id = Catalogo.Idioma[0].Id;
+                        idioma.idioma = Catalogo.Idioma[0].idioma;
+                        idioma.Activo = Catalogo.Idioma[0].activo;
+
+                        db.Idiomas.Add(idioma);
+                        db.SaveChanges();
+
+                        break;
                         #endregion
 
-                    #region Ventas
+                        #region Ventas
                         #endregion
                 }
             }

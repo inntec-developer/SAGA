@@ -11,5 +11,6 @@ namespace SAGA.BOL
         public int Id { get; set; } 
         [Display(Name ="Idioma")]
         public string idioma { get; set; }
+        public Boolean Activo { get; set; }
     }
 }

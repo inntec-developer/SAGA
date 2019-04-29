@@ -16,7 +16,7 @@ namespace SAGA.BOL
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Resultado { get; set; }
         public string Resultado { get; set; }
-        public Guid UsuarioId { get; set; }
+        public Guid? UsuarioId { get; set; }
 
         public Candidato Candidato { get; set; }
         public Requisicion Requisicion { get; set; }
