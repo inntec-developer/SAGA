@@ -266,7 +266,7 @@ namespace SAGA.API.Controllers
                            where items.Folio.Equals(folio) 
                            select new { id= items.Id, activa = items.Estatus, fecha = items.Fecha, requisicionId = items.RequisicionId, candidatoId = items.CandidatoId }).ToList();
 
-                if (cita.Count() > 0)
+                if (cita.Count() > 0 && cita[0].fecha.Date == DateTime.Now.Date)
                 {
                     if (cita[0].activa == 1)
                     {
