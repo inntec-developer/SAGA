@@ -894,35 +894,29 @@ namespace SAGA.API.Controllers
                 {
                     Id = e.RequisicionId,
                     vBtra = e.Requisicion.VBtra,
-                    TipoReclutamiento = e.Requisicion.TipoReclutamiento.tipoReclutamiento,
-                    tipoReclutamientoId = e.Requisicion.TipoReclutamientoId,
-                    ClaseReclutamiento = e.Requisicion.ClaseReclutamiento.clasesReclutamiento,
-                    ClaseReclutamientoId = e.Requisicion.ClaseReclutamientoId,
-                    SueldoMinimo = e.Requisicion.SueldoMinimo,
-                    SueldoMaximo = e.Requisicion.SueldoMaximo,
-                    fch_Creacion = e.Requisicion.fch_Creacion,
-                    fch_Modificacion = e.Requisicion.fch_Modificacion,
-                    fch_Cumplimiento = e.Requisicion.fch_Cumplimiento,
+                    //fch_Creacion = e.Requisicion.fch_Creacion,
+                    //fch_Modificacion = e.Requisicion.fch_Modificacion,
+                    //fch_Cumplimiento = e.Requisicion.fch_Cumplimiento,
                     Estatus = e.Requisicion.Estatus.Descripcion,
                     EstatusId = e.Requisicion.EstatusId,
-                    Prioridad = e.Requisicion.Prioridad.Descripcion,
-                    PrioridadId = e.Requisicion.PrioridadId,
+                    //Prioridad = e.Requisicion.Prioridad.Descripcion,
+                    //PrioridadId = e.Requisicion.PrioridadId,
                     Cliente = e.Requisicion.Cliente.Nombrecomercial,
-                    GiroEmpresa = e.Requisicion.Cliente.GiroEmpresas.giroEmpresa,
-                    ActividadEmpresa = e.Requisicion.Cliente.ActividadEmpresas.actividadEmpresa,
+                    //GiroEmpresa = e.Requisicion.Cliente.GiroEmpresas.giroEmpresa,
+                    //ActividadEmpresa = e.Requisicion.Cliente.ActividadEmpresas.actividadEmpresa,
                     Vacantes = e.Requisicion.horariosRequi.Count() > 0 ? e.Requisicion.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                     Folio = e.Requisicion.Folio,
-                    DiasEnvio = e.Requisicion.DiasEnvio,
-                    Confidencial = e.Requisicion.Confidencial,
-                    Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Count(),
+                    //DiasEnvio = e.Requisicion.DiasEnvio,
+                    //Confidencial = e.Requisicion.Confidencial,
+                    //Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Count(),
                     EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
-                    Propietario = db.Usuarios.Where(x => x.Id.Equals(e.Requisicion.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
+                    //Propietario = db.Usuarios.Where(x => x.Id.Equals(e.Requisicion.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
                     reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.RequisicionId)).Select(a => new
                     {
                         reclutadorId = a.GrpUsrId,
                         nombre = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
                     }).Distinct().ToList(),
-                    ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
+                    //ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
                     examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.RequisicionId)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.RequisicionId)).Select(ex => ex.ExamenId).FirstOrDefault() : 0
                 }).ToArray();
                 //&& !x.GrpUsrId.Equals(e.Requisicion.AprobadorId)
@@ -991,7 +985,7 @@ namespace SAGA.API.Controllers
                     ClienteId = e.Cliente.Id,
                     Folio = e.Folio,
                     examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0
-                }).OrderBy(x => x.Folio).ThenByDescending(x => x.Folio).ToList();
+                }).OrderBy(x => x.Folio).ToList();
             return Ok(vacantes);
 
         }
