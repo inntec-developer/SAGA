@@ -345,13 +345,17 @@ namespace SAGA.API.Controllers
              .Where(c => c.Id.Equals(IdCatalogo))
              .SingleOrDefault();
 
+            Catalogo.Log = db.LogCatalogos
+                        .Where(c => c.CatalogoId.Equals(IdCatalogo))
+                        .OrderBy(c => c.FechaAct)
+                        .ToList();
+
             switch (IdCatalogo)
             {
                 #region Sistemas
                 case 1: // Paises
 
                     Catalogo.Pais = db.Paises
-                        .Where(p => p.Activo.Equals(false))
                         .OrderBy(c => c.Id)
                         .ToList();
 
@@ -554,7 +558,7 @@ namespace SAGA.API.Controllers
                             activo = e.Activo
                         })
                         .OrderBy(c => c.Id)
-                        .ToList();
+                        .ToList();                   
 
                     break;
 
@@ -651,12 +655,22 @@ namespace SAGA.API.Controllers
         [Route("postCatalogo")]
         public IHttpActionResult postCatalogos(CatalogosDto Catalogo)
         {
+            LogCatalogos log = new LogCatalogos();
+
             if (Catalogo.opt == 1) // Agregar
             {
                 switch(Catalogo.Catalogos.Id) // ¿ Que catalogo es ?
                 {
                     #region sistemas
                     case 1: // País
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
 
                         db.Paises.Add(Catalogo.Pais[0]);
                         db.SaveChanges();
@@ -672,6 +686,14 @@ namespace SAGA.API.Controllers
                         estado.Clave = Catalogo.Estado[0].Clave;
                         estado.PaisId = Convert.ToInt32(Catalogo.Estado[0].Pais);
 
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+
                         db.Estados.Add(estado);
                         db.SaveChanges();
 
@@ -684,6 +706,14 @@ namespace SAGA.API.Controllers
                         municipio.municipio = Catalogo.Municipio[0].municipio;
                         municipio.EstadoId = Convert.ToInt32(Catalogo.Municipio[0].Estado);
                         municipio.Activo = Catalogo.Municipio[0].Activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
 
                         db.Municipios.Add(municipio);
                         db.SaveChanges();
@@ -702,6 +732,14 @@ namespace SAGA.API.Controllers
                         colonia.PaisId = Convert.ToInt32(Catalogo.Colonia[0].Pais);
                         colonia.Activo = Catalogo.Colonia[0].Activo;
 
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+
                         db.Colonias.Add(colonia);
                         db.SaveChanges();
 
@@ -713,6 +751,14 @@ namespace SAGA.API.Controllers
 
                         TpTelefonos.Tipo = Catalogo.TpTelefono[0].Tipo;
                         TpTelefonos.Activo = Catalogo.TpTelefono[0].Activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
 
                         db.TiposTelefonos.Add(TpTelefonos);
                         db.SaveChanges();
@@ -726,6 +772,14 @@ namespace SAGA.API.Controllers
                         estadocivil.estadoCivil = Catalogo.EstadoCivil[0].estadoCivil;
                         estadocivil.Activo = Catalogo.EstadoCivil[0].Activo;
 
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+
                         db.EstadosCiviles.Add(estadocivil);
                         db.SaveChanges();
 
@@ -736,6 +790,14 @@ namespace SAGA.API.Controllers
                         TipoUsuario TpUsuario = new TipoUsuario();
 
                         TpUsuario.Tipo = Catalogo.TpUsuario[0].tipo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
 
                         db.TiposUsuarios.Add(TpUsuario);
                         db.SaveChanges();
@@ -751,6 +813,14 @@ namespace SAGA.API.Controllers
                         departamento.Clave = Catalogo.Departamentos[0].clave;
                         departamento.Orden = Catalogo.Departamentos[0].orden;
 
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+
                         db.Departamentos.Add(departamento);
                         db.SaveChanges();
 
@@ -764,6 +834,14 @@ namespace SAGA.API.Controllers
                         area.Clave = Catalogo.Areas[0].Clave;
                         area.Orden = Catalogo.Areas[0].Orden;
 
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+
                         db.Areas.Add(area);
                         db.SaveChanges();
 
@@ -776,6 +854,14 @@ namespace SAGA.API.Controllers
 
                         GradoEstudio escolaridad = new GradoEstudio();
 
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
                         escolaridad.gradoEstudio = Catalogo.Escolaridades[0].gradoEstudio;
 
                         db.GradosEstudios.Add(escolaridad);
@@ -789,6 +875,14 @@ namespace SAGA.API.Controllers
 
                         nivel.nivel = Catalogo.Nivel[0].nivel;
 
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+
                         db.Niveles.Add(nivel);
                         db.SaveChanges();
 
@@ -800,6 +894,14 @@ namespace SAGA.API.Controllers
 
                         medio.Nombre = Catalogo.Medio[0].Nombre;
                         medio.Activo = Catalogo.Medio[0].Activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
 
                         db.Medios.Add(medio);
                         db.SaveChanges();
@@ -813,6 +915,13 @@ namespace SAGA.API.Controllers
                         idioma.idioma = Catalogo.Idioma[0].idioma;
                         idioma.Activo = Catalogo.Idioma[0].activo;
 
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
                         db.Idiomas.Add(idioma);
                         db.SaveChanges();
 
@@ -825,11 +934,20 @@ namespace SAGA.API.Controllers
             }
             else // Modificar
             {
+                LogCatalogos logm = new LogCatalogos();
                 switch (Catalogo.Catalogos.Id) // ¿ Que catalogo es ?
                 {
                     #region Sistema
 
                     case 1: // Países
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
 
                         db.Entry(Catalogo.Pais[0]).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
@@ -846,6 +964,14 @@ namespace SAGA.API.Controllers
                         estado.Clave = Catalogo.Estado[0].Clave;
                         estado.PaisId = Convert.ToInt32(Catalogo.Estado[0].Pais);
 
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+
                         db.Entry(estado).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
 
@@ -859,6 +985,14 @@ namespace SAGA.API.Controllers
                         municipio.municipio = Catalogo.Municipio[0].municipio;
                         municipio.EstadoId = Convert.ToInt32(Catalogo.Municipio[0].Estado);
                         municipio.Activo = Catalogo.Municipio[0].Activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
 
                         db.Entry(municipio).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
@@ -878,6 +1012,14 @@ namespace SAGA.API.Controllers
                         colonia.PaisId = Convert.ToInt32(Catalogo.Colonia[0].Pais);
                         colonia.Activo = Catalogo.Colonia[0].Activo;
 
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+
                         db.Entry(colonia).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
 
@@ -890,6 +1032,14 @@ namespace SAGA.API.Controllers
                         TpTelefonos.Id = Catalogo.TpTelefono[0].Id;
                         TpTelefonos.Tipo = Catalogo.TpTelefono[0].Tipo;
                         TpTelefonos.Activo = Catalogo.TpTelefono[0].Activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
 
 
                         db.Entry(TpTelefonos).State = System.Data.Entity.EntityState.Modified;
@@ -905,6 +1055,14 @@ namespace SAGA.API.Controllers
                         estadocivil.estadoCivil = Catalogo.EstadoCivil[0].estadoCivil;
                         estadocivil.Activo = Catalogo.EstadoCivil[0].Activo;
 
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+
                         db.Entry(estadocivil).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
 
@@ -916,6 +1074,14 @@ namespace SAGA.API.Controllers
 
                         TpUsuario.Id = Catalogo.TpUsuario[0].Id;
                         TpUsuario.Tipo = Catalogo.TpUsuario[0].tipo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
 
                         db.Entry(TpUsuario).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
@@ -932,6 +1098,14 @@ namespace SAGA.API.Controllers
                         departamento.Clave = Catalogo.Departamentos[0].clave;
                         departamento.Orden = Catalogo.Departamentos[0].orden;
 
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+
                         db.Entry(departamento).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
 
@@ -945,6 +1119,14 @@ namespace SAGA.API.Controllers
                         area.Nombre = Catalogo.Areas[0].Nombre;
                         area.Clave = Catalogo.Areas[0].Clave;
                         area.Orden = Catalogo.Areas[0].Orden;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
 
                         db.Entry(area).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
@@ -962,6 +1144,14 @@ namespace SAGA.API.Controllers
                         escolaridad.Id = Catalogo.Escolaridades[0].Id;
                         escolaridad.gradoEstudio = Catalogo.Escolaridades[0].gradoEstudio;
 
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+
                         db.Entry(escolaridad).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
 
@@ -973,6 +1163,14 @@ namespace SAGA.API.Controllers
 
                         nivel.Id = Catalogo.Nivel[0].Id;
                         nivel.nivel = Catalogo.Nivel[0].nivel;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
 
                         db.Entry(nivel).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
@@ -987,6 +1185,14 @@ namespace SAGA.API.Controllers
                         medio.Nombre = Catalogo.Medio[0].Nombre;
                         medio.Activo = Catalogo.Medio[0].Activo;
 
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+
                         db.Entry(medio).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
 
@@ -1000,7 +1206,15 @@ namespace SAGA.API.Controllers
                         idioma.idioma = Catalogo.Idioma[0].idioma;
                         idioma.Activo = Catalogo.Idioma[0].activo;
 
-                        db.Idiomas.Add(idioma);
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+
+                        db.Entry(idioma).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
 
                         break;

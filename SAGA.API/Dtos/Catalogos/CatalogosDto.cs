@@ -9,6 +9,7 @@ namespace SAGA.API.Dtos
     public class CatalogosDto
     {
         public int opt { get; set; }
+        public string Usuario { get; set; }
         #region Sistema
         public Catalogos Catalogos { get; set; }
         public List<Pais> Pais { get; set; }
@@ -24,6 +25,7 @@ namespace SAGA.API.Dtos
         public List<NivelDto> Nivel { get; set; }
         public List<MedioDto> Medio { get; set; }
         public List<IdiomaDto> Idioma { get; set; }
+        public List<LogCatalogos> Log { get; set; }
         #endregion
         #region Reclutamiento
         #endregion
