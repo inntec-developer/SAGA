@@ -152,7 +152,6 @@ namespace SAGA.DAL
         public DbSet<Catalogos> Catalogos { get; set; }
         public DbSet<LogCatalogos> LogCatalogos { get; set; }
 
-
         ///modulo admin 
         public DbSet<Usuarios> Usuarios { get; set; }
         public DbSet<Roles> Roles { get; set; }
@@ -620,6 +619,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.giroEmpresa).HasMaxLength(15).IsRequired();
+                Property(x => x.activo).IsRequired();
             }
         }
         public class GradoEstudioMap : EntityTypeConfiguration<GradoEstudio>
@@ -665,6 +665,7 @@ namespace SAGA.DAL
                 Property(x => x.Jornada).HasMaxLength(50).IsRequired();
                 Property(x => x.Orden).IsRequired();
                 Property(x => x.VariosHorarios).IsRequired();
+                Property(x => x.activo).IsRequired();
             }
         }
         public class MunicipioMap : EntityTypeConfiguration<Municipio>
@@ -717,6 +718,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.tamanoEmpresa).HasMaxLength(30).IsRequired();
+                Property(x => x.activo).IsRequired();
             }
         }
         public class TelefonoMap : EntityTypeConfiguration<Telefono>
@@ -752,6 +754,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.tipoBase).HasMaxLength(50).IsRequired();
+                Property(x => x.activo).IsRequired();
             }
         }
         public class TipoDireccionMap : EntityTypeConfiguration<TipoDireccion>
@@ -1512,7 +1515,8 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.perfilExperiencia).HasMaxLength(200);
-			}
+				Property(x => x.activo).IsRequired();
+            }
 		}
 		public class PerfilCandidatoMap : EntityTypeConfiguration<PerfilCandidato>
 		{
@@ -1663,7 +1667,8 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.actividadEmpresa).HasMaxLength(50).IsRequired();
-			}
+				Property(x => x.activo).IsRequired();
+            }
 		}
 		public class AgenciaMap : EntityTypeConfiguration<Agencia>
 		{
@@ -2166,7 +2171,8 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.aptitud).HasMaxLength(50).IsRequired();
-			}
+				Property(x => x.activo).IsRequired();
+            }
 		}
 		public class BeneficiosPerfilMap : EntityTypeConfiguration<BeneficiosPerfil>
 		{
@@ -2345,7 +2351,8 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.periodoPago).HasMaxLength(50).IsRequired();
-			}
+                Property(x => x.activo).IsRequired();
+            }
 		}
 		public class PrestacionesClientePerfilMap : EntityTypeConfiguration<PrestacionesClientePerfil>
 		{
@@ -2438,7 +2445,8 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.tipoPsicometria).HasMaxLength(50).IsRequired();
 				Property(x => x.descripcion).HasMaxLength(50).IsRequired();
-			}
+				Property(x => x.activo).IsRequired();
+            }
 		}
 		public class TipoBeneficioMap : EntityTypeConfiguration<TipoBeneficio>
 		{
@@ -2454,7 +2462,8 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.tipoDeNomina).HasMaxLength(50).IsRequired();
-			}
+				Property(x => x.activo).IsRequired();
+            }
 		}
 		public class TipoContratoMap : EntityTypeConfiguration<TipoContrato>
 		{

@@ -16,6 +16,7 @@ namespace SAGA.BOL
         [Key]
         public int Id { get; set; }
         public string aptitud { get; set; }
+        public bool activo { get; set; }
     }
 
 }

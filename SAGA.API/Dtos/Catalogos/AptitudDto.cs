@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace SAGA.BOL
+namespace SAGA.API.Dtos
 {
-    public class PerfilExperiencia
+    public class AptitudDto
     {
         public int Id { get; set; }
-        public string perfilExperiencia { get; set; }
+        public string aptitud { get; set; }
         public bool activo { get; set; }
     }
 }

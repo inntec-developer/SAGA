@@ -13,5 +13,6 @@ namespace SAGA.BOL
         public int Id { get; set; }
         public string Modalidad { get; set; }
         public int Orden { get; set; }
+        public bool activo { get; set; }
     }
 }

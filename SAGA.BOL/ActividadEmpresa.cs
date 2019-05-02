@@ -16,6 +16,7 @@ namespace SAGA.BOL
         public int Id { get; set; }
         public int GiroEmpresaId { get; set; }
         public string actividadEmpresa{ get; set; }
+        public bool activo { get; set; }
 
         public virtual GiroEmpresa GiroEmpresas { get; set; }
     }

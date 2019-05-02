@@ -562,9 +562,240 @@ namespace SAGA.API.Controllers
 
                     break;
 
+                case 38: // Discapacidades
+
+                    Catalogo.Discapacidad = db.TiposDiscapacidades
+                        .Select(e => new DiscapacidadDto
+                        {
+                            Id = e.Id,
+                            tipoDiscapacidad = e.tipoDiscapacidad,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 39: // Tipo Licencia
+
+                    Catalogo.TipoLicencia = db.TiposLicencias
+                        .Select(e => new TipoLicenciaDto
+                        {
+                            Id = e.Id,
+                            Descripcion = e.Descripcion,
+                            tipoLicencia = e.tipoLicencia,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 40: // Tipo Examen
+
+                    Catalogo.TipoExamen = db.TipoExamen
+                        .Select(e => new TipoExamenDto
+                        {
+                            Id = e.Id,
+                            Nombre = e.Nombre,
+                            Descripcion = e.Descripcion,
+                            Activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
                 #endregion
 
                 #region Ventas
+                case 8: // Giro del cliente
+
+                    Catalogo.GiroEmpresa = db.GirosEmpresas
+                        .Select(e => new GiroEmpresaDto
+                        {
+                            Id = e.Id,
+                            giroEmpresa = e.giroEmpresa,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 9: // Actividad cliente
+
+                    Catalogo.ActividadEmpresa = db.ActividadesEmpresas
+                        .Select(e => new ActividadEmpresaDto
+                        {
+                            Id = e.Id,
+                            actividadEmpresa = e.actividadEmpresa,
+                            GiroEmpresa = e.GiroEmpresas.giroEmpresa,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 10: // Tamaño de empresa
+
+                    Catalogo.TamanoEmpresa = db.TamanoEmpresas
+                        .Select(e => new TamanoEmpresaDto
+                        {
+                            Id = e.Id,
+                            tamanoEmpresa = e.tamanoEmpresa,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 11: // Tipo base
+
+                    Catalogo.TiposBase = db.TiposBases
+                        .Select(e => new TiposBasesDto
+                        {
+                            Id = e.Id,
+                            tipoBase = e.tipoBase,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 16: // Perfil puesto
+
+                    Catalogo.PerfilExperiencia = db.PerfilExperiencia
+                        .Select(e => new PerfilExpDto
+                        {
+                            Id = e.Id,
+                            perfilExperiencia = e.perfilExperiencia,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 17: // Aptitudes
+
+                    Catalogo.Aptitud = db.Aptitudes
+                        .Select(e => new AptitudDto
+                        {
+                            Id = e.Id,
+                            aptitud = e.aptitud,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 18: // Categorias
+
+                    Catalogo.AreaExperiencia = db.AreasExperiencia
+                        .Select(e => new AreaExpDto
+                        {
+                            Id = e.Id,
+                            areaExperiencia = e.areaExperiencia,
+                            Activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 19: // Subcategorias
+
+                    Catalogo.AreaInteres = db.AreasInteres
+                        .Select(e => new AreaInteresDto
+                        {
+                            Id = e.Id,
+                            AreaExperiencia = e.AreaExperiencia.areaExperiencia,
+                            areaInteres = e.areaInteres,
+                            Activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 20: // Jornada Loboral
+
+                    Catalogo.JornadaLaboral = db.JornadasLaborales
+                        .Select(e => new JornadaLaboralDto
+                        {
+                            Id = e.Id,
+                            Jornada = e.Jornada,
+                            VariosHorarios = e.VariosHorarios,
+                            Orden = e.Orden,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 21: // Modalidad Loboral
+
+                    Catalogo.TipoModalidad = db.TiposModalidades
+                        .Select(e => new TpModalidadDto
+                        {
+                            Id = e.Id,
+                            Modalidad = e.Modalidad,
+                            Orden = e.Orden,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 22: // Psicometrias
+
+                    Catalogo.TipoPsicometria = db.TiposPsicometrias
+                        .Select(e => new TiposPiscoDto
+                        {
+                            Id = e.Id,
+                            tipoPsicometria = e.tipoPsicometria,
+                            descripcion = e.descripcion,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 24: // Tipos de nomina
+
+                    Catalogo.TipoNomina = db.TiposNominas
+                        .Select(e => new TpNominaDto
+                        {
+                            Id = e.Id,
+                            tipoDeNomina = e.tipoDeNomina,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 26: // Periodos de pago
+
+                    Catalogo.PeriodoPago = db.PeriodosPagos
+                        .Select(e => new PeriodoPagoDto
+                        {
+                            Id = e.Id,
+                            periodoPago = e.periodoPago,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
                 #endregion
 
                 default:
@@ -926,6 +1157,65 @@ namespace SAGA.API.Controllers
                         db.SaveChanges();
 
                         break;
+
+                    case 38: // Discapacidades
+
+                        TipoDiscapacidad tpdiscapacidad = new TipoDiscapacidad();
+
+                        tpdiscapacidad.tipoDiscapacidad = Catalogo.Discapacidad[0].tipoDiscapacidad;
+                        tpdiscapacidad.activo = Catalogo.Discapacidad[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TiposDiscapacidades.Add(tpdiscapacidad);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 39: // Tipo Licencia
+
+                        TipoLicencia tplicencia = new TipoLicencia();
+
+                        tplicencia.Descripcion = Catalogo.TipoLicencia[0].Descripcion;
+                        tplicencia.tipoLicencia = Catalogo.TipoLicencia[0].tipoLicencia;
+                        tplicencia.activo = Catalogo.TipoLicencia[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TiposLicencias.Add(tplicencia);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 40: // Tipo Examen
+
+                        TipoExamen tpexamen = new TipoExamen();
+
+                        tpexamen.Nombre = Catalogo.TipoExamen[0].Nombre;
+                        tpexamen.Descripcion = Catalogo.TipoExamen[0].Descripcion;
+                        tpexamen.Activo = Catalogo.TipoExamen[0].Activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TipoExamen.Add(tpexamen);
+                        db.SaveChanges();
+
+                        break;
                         #endregion
 
                         #region Ventas
@@ -1218,10 +1508,73 @@ namespace SAGA.API.Controllers
                         db.SaveChanges();
 
                         break;
+
+                    case 38: // Discapacidades
+
+                        TipoDiscapacidad tpdicapacidad = new TipoDiscapacidad();
+
+                        tpdicapacidad.Id = Catalogo.Discapacidad[0].Id;
+                        tpdicapacidad.tipoDiscapacidad = Catalogo.Discapacidad[0].tipoDiscapacidad;
+                        tpdicapacidad.activo = Catalogo.Discapacidad[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+
+                        db.Entry(tpdicapacidad).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 39: // Tipo Licencia
+
+                        TipoLicencia tplicencia = new TipoLicencia();
+
+                        tplicencia.Id = Catalogo.TipoLicencia[0].Id;
+                        tplicencia.Descripcion = Catalogo.TipoLicencia[0].Descripcion;
+                        tplicencia.tipoLicencia = Catalogo.TipoLicencia[0].tipoLicencia;
+                        tplicencia.activo = Catalogo.TipoLicencia[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.Entry(tplicencia).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 40: // Tipo Examen
+
+                        TipoExamen tpexamen = new TipoExamen();
+
+                        tpexamen.Id = Catalogo.TipoExamen[0].Id;
+                        tpexamen.Nombre = Catalogo.TipoExamen[0].Nombre;
+                        tpexamen.Descripcion = Catalogo.TipoExamen[0].Descripcion;
+                        tpexamen.Activo = Catalogo.TipoExamen[0].Activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.Entry(tpexamen).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
                         #endregion
 
-                        #region Ventas
-                        #endregion
+                    #region Ventas
+                    #endregion
                 }
             }
 

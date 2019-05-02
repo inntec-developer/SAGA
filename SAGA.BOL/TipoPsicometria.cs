@@ -10,5 +10,6 @@ namespace SAGA.BOL
         public int Id { get; set; }
         public string tipoPsicometria { get; set; }
         public string descripcion { get; set; }
+        public bool activo { get; set; }
     }
 }

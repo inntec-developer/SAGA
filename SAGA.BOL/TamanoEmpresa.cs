@@ -11,5 +11,6 @@ namespace SAGA.BOL
         [Key]
         public int Id { get; set; }
         public string tamanoEmpresa { get; set; }
+        public bool activo { get; set; }
     }
 }

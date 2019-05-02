@@ -26,6 +26,22 @@ namespace SAGA.API.Dtos
         public List<MedioDto> Medio { get; set; }
         public List<IdiomaDto> Idioma { get; set; }
         public List<LogCatalogos> Log { get; set; }
+        public List<DiscapacidadDto> Discapacidad { get; set; }
+        public List<TipoLicenciaDto> TipoLicencia { get; set; }
+        public List<TipoExamenDto> TipoExamen { get; set; }
+        public List<GiroEmpresaDto> GiroEmpresa { get; set; }
+        public List<TamanoEmpresaDto> TamanoEmpresa { get; set; }
+        public List<TiposBasesDto> TiposBase { get; set; }
+        public List<ActividadEmpresaDto> ActividadEmpresa { get; set; }
+        public List<PerfilExpDto> PerfilExperiencia { get; set; }
+        public List<AreaExpDto> AreaExperiencia { get; set; }
+        public List<AptitudDto> Aptitud { get; set; }
+        public List<AreaInteresDto> AreaInteres { get; set; }
+        public List<JornadaLaboralDto> JornadaLaboral { get; set; }
+        public List<TpModalidadDto> TipoModalidad { get; set; }
+        public List<TiposPiscoDto> TipoPsicometria { get; set; }
+        public List<PeriodoPagoDto> PeriodoPago { get; set; }
+        public List<TpNominaDto> TipoNomina { get; set; }
         #endregion
         #region Reclutamiento
         #endregion
