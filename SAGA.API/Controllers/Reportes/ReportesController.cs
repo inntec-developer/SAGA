@@ -52,7 +52,8 @@ namespace SAGA.API.Controllers.Reportes
              && e.fch_Modificacion <= FechaF && e.EstatusId != 9 && e.Confidencial == false).OrderByDescending(e => e.fch_Modificacion).ToList();
             }
             var requi = datos2.Select(e => e.Id).ToList();
-            var nombreReclu = db.AsignacionRequis.Where(a => requi.Contains(a.RequisicionId)).Select(a => new { a.RequisicionId, Nombre = db.Usuarios.Where(e=>e.Id == a.GrpUsrId).FirstOrDefault().Nombre +" "+ db.Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoPaterno }).ToList();
+            var aprobador = datos2.Select(e => e.AprobadorId).ToList();
+            var nombreReclu = db.AsignacionRequis.Where(a => requi.Contains(a.RequisicionId)).Select(a => new { a.RequisicionId, Nombre = db.Usuarios.Where(e=>e.Id == a.GrpUsrId && !aprobador.Contains(a.GrpUsrId)).FirstOrDefault().Nombre +" "+ db.Usuarios.Where(e => e.Id == a.GrpUsrId && !aprobador.Contains(a.GrpUsrId)).FirstOrDefault().ApellidoPaterno }).ToList();
            // var nombreReclu = db.Usuarios.Where(x => lago.Contains(x.Id)).Select(x => new { x.Nombre,x.Id }).ToList();
             //var cadenas = nombreReclu.Where(b => b.Id == new Guid("2217b0f2-5a6e-e811-80e1-9e274155325e")).Select(b => b.Nombre).ToList();
             //String.Join(String.Empty, cadenas.ToArray());
@@ -83,7 +84,7 @@ namespace SAGA.API.Controllers.Reportes
                 e.ClaseReclutamientoId,
                 e.fch_Cumplimiento,
                 estatus = e.Estatus.Descripcion,
-                reclutadorTotal = db.AsignacionRequis.Where(a => a.RequisicionId == e.Id).Count() == 0? "SIN ASIGNAR" : db.AsignacionRequis.Where(a => a.RequisicionId == e.Id).Count().ToString(),
+                reclutadorTotal = db.AsignacionRequis.Where(a => a.RequisicionId == e.Id && a.GrpUsrId != e.AprobadorId).Count() == 0? "SIN ASIGNAR" : db.AsignacionRequis.Where(a => a.RequisicionId == e.Id && a.GrpUsrId != e.AprobadorId).Count().ToString(),
                 nombreReclutado = String.Join(", ", nombreReclu.Where(b => b.RequisicionId == e.Id).Select(b => b.Nombre).ToList().ToArray())
         }).ToList();
             
