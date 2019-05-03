@@ -32,7 +32,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                 try
                 {
                     var cliente = Mapper.Map<ProspectoDto, Cliente>(prospecto);
-                    cliente.Nombrecomercial = prospecto.Nombrecomercial;
+                    cliente.Nombrecomercial = prospecto.Nombrecomercial.ToUpper();
                     cliente.GiroEmpresaId = prospecto.GiroEmpresaId;
                     cliente.ActividadEmpresaId = prospecto.ActividadEmpresaId;
                     cliente.NumeroEmpleados = prospecto.NumeroEmpleados;
@@ -148,8 +148,8 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
             {
                 var prospecto = db.Clientes.Find(cliente.Id);
                 db.Entry(prospecto).State = EntityState.Modified;
-                prospecto.RazonSocial = cliente.Razonsocial;
-                prospecto.RFC = cliente.RFC;
+                prospecto.RazonSocial = cliente.Razonsocial.ToUpper();
+                prospecto.RFC = cliente.RFC.ToUpper();
                 prospecto.esCliente = true;
                 prospecto.UsuarioMod = cliente.Usuario;
                 prospecto.fch_Modificacion = DateTime.Now;
@@ -173,9 +173,9 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
             {
                 var cliente = db.Clientes.Find(info.Id);
                 db.Entry(cliente).State = EntityState.Modified;
-                cliente.RazonSocial = info.RazonSocial;
+                cliente.RazonSocial = info.RazonSocial.ToUpper();
                 cliente.RFC = info.RFC.ToUpper();
-                cliente.Nombrecomercial = info.NombreComercial;
+                cliente.Nombrecomercial = info.NombreComercial.ToUpper();
                 cliente.TamanoEmpresaId = info.TamanoEmpresa;
                 cliente.NumeroEmpleados = info.NumeroEmpleados;
                 cliente.GiroEmpresaId = info.GiroEmpresa;

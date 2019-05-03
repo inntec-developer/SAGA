@@ -49,7 +49,7 @@ namespace SAGA.API.Controllers.Component.Graficas
             var TipoUsuario = db.Usuarios.Where(u => u.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
             if (TipoUsuario == 8)
             {
-                var Activas = db.Requisiciones
+                var Vigentes = db.Requisiciones
                     .Where(r => r.Activo.Equals(true))
                     .Where(r => r.fch_Cumplimiento > DateActivas)
                     .Where(r => estatus.Contains(r.EstatusId))
@@ -64,7 +64,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     .Where(r => estatus.Contains(r.EstatusId))
                     .Count();
 
-                vr.Activas = Activas;
+                vr.Vigentes = Vigentes;
                 vr.PorVencer = PorVencer;
                 vr.Vencidas = vencidas;
 
@@ -78,7 +78,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                         .Select(a => a.RequisicionId)
                         .Distinct()
                         .ToList();
-                var ActivasR = db.Requisiciones
+                var VigentesR = db.Requisiciones
                     .Where(r => r.Activo.Equals(true))
                     .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                     .Where(r => r.fch_Cumplimiento > DateActivas)
@@ -96,7 +96,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     .Where(r => estatus.Contains(r.EstatusId))
                     .Count();
 
-                vr.Activas = ActivasR;
+                vr.Vigentes = VigentesR;
                 vr.PorVencer = PorVencerR;
                 vr.Vencidas = vencidasR;
             }
@@ -118,7 +118,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                         .Select(a => a.RequisicionId)
                         .Distinct()
                         .ToList();
-                var ActivasR = db.Requisiciones
+                var VigentesR = db.Requisiciones
                     .Where(r => r.Activo.Equals(true))
                     .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
                     .Where(r => r.fch_Cumplimiento > DateActivas)
@@ -136,7 +136,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     .Where(r => estatus.Contains(r.EstatusId))
                     .Count();
 
-                vr.Activas = ActivasR;
+                vr.Vigentes = VigentesR;
                 vr.PorVencer = PorVencerR;
                 vr.Vencidas = vencidasR;
             }
@@ -156,7 +156,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
                 if (tipo == 8)
                 {
-                    if (estado == "Activas")
+                    if (estado == "Vigentes")
                     {
                         var requisicion = db.Requisiciones
                         .Where(r => r.Activo.Equals(true))
@@ -274,7 +274,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                             .Select(a => a.RequisicionId)
                             .Distinct()
                             .ToList();
-                   if (estado == "Activas")
+                   if (estado == "Vigentes")
                     {
                         var requisicion = db.Requisiciones
                         .Where(e => e.Activo.Equals(true))

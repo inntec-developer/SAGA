@@ -7,7 +7,7 @@ namespace SAGA.API.Dtos
 {
     public class VacantesReclutador
     {
-        public int Activas { get; set; }
+        public int Vigentes { get; set; }
         public int PorVencer { get; set; }
         public int Vencidas { get; set; }
     }
