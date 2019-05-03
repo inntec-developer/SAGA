@@ -61,25 +61,25 @@ namespace SAGA.API.Controllers.Reportes
             {
                 e.Id,
                 e.Folio,
-                e.VBtra,
+                VBtra = e.VBtra.ToUpper(),
                 cubierta = db.ProcesoCandidatos.Where(x => x.RequisicionId == e.Id && x.EstatusId == 24).Select(a => a.CandidatoId).Distinct().ToList().Count,
                 porcentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
                 e.fch_Creacion,
                 e.fch_Modificacion,
                 e.fch_Limite,
-                empresa = e.Cliente.Nombrecomercial,
+                empresa = e.Cliente.Nombrecomercial.ToUpper(),
                 e.ClienteId,
-                cordinador2 = db.Usuarios.Where(x=>x.Usuario == e.Aprobador).ToList().Count > 0? db.Usuarios.Where(x => e.Aprobador.Contains(x.Usuario)).Select(x=>x.Nombre + " " + x.ApellidoPaterno).FirstOrDefault() : "",
-                nombreApellido = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno,
-                propietario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre,
+                cordinador2 = db.Usuarios.Where(x=>x.Usuario == e.Aprobador).ToList().Count > 0? db.Usuarios.Where(x => e.Aprobador.Contains(x.Usuario)).Select(x=>x.Nombre + " " + x.ApellidoPaterno).FirstOrDefault().ToUpper() : "",
+                nombreApellido = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno.ToUpper(),
+                propietario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper(),
                 Usuario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Usuario,
-                Estado = e.Direccion.Estado.estado,
+                Estado = e.Direccion.Estado.estado.ToUpper(),
                 e.Direccion.EstadoId,
                 numero = e.horariosRequi.Sum(a => a.numeroVacantes),
                 e.EstatusId,
                 e.TipoReclutamientoId,
-                e.TipoReclutamiento.tipoReclutamiento,
-                e.ClaseReclutamiento.clasesReclutamiento,
+                tipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
+                clasesReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
                 e.ClaseReclutamientoId,
                 e.fch_Cumplimiento,
                 estatus = e.Estatus.Descripcion,
@@ -267,13 +267,12 @@ namespace SAGA.API.Controllers.Reportes
         public IHttpActionResult Usuario()
         {
            
-            int[] Status = new[] { 1, 2, 3, 5, 6 };
-
             //if (cor == "1")
             //{
             //    Status = new[] { 4 };
             //}
 
+            int[] Status = new[] { 1, 2, 3, 5, 6 };
             var datos = db.Usuarios.Where(e => e.Activo == true && Status.Contains(e.TipoUsuarioId)).Select(e => new
             {
                 Nombre = e.Nombre + " "+ e.ApellidoPaterno,
