@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 
-namespace SAGA.BOL
+namespace SAGA.API.Dtos
 {
-    public partial class DiaSemana
+    public class DiasSemanaDto
     {
-        public DiaSemana(){}
-        [Key]
         public byte Id { get; set; }
         public string diaSemana { get; set; }
         public bool activo { get; set; }

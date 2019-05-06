@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 
-namespace SAGA.BOL
+namespace SAGA.API.Dtos
 {
-    public class TipoBeneficio
+    public class BeneficiosPerfilDto
     {
-        [Key]
         public int Id { get; set; }
         public string tipoBeneficio { get; set; }
         public bool activo { get; set; }

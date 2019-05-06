@@ -532,6 +532,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.diaSemana).HasMaxLength(15).IsRequired();
+                Property(x => x.activo).IsRequired();
             }
         }
         public class DireccionMap : EntityTypeConfiguration<Direccion>
@@ -746,6 +747,7 @@ namespace SAGA.DAL
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Tiempo).HasMaxLength(50).IsRequired();
                 Property(x => x.Orden).IsRequired();
+                Property(x => x.activo).IsRequired();
             }
         }
         public class TipoBaseMap : EntityTypeConfiguration<TipoBase>
@@ -2266,7 +2268,8 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.documentoDamsa).HasMaxLength(100).IsRequired();
-			}
+				Property(x => x.activo).IsRequired();
+            }
 		}
 		public class DocumentosClienteMap : EntityTypeConfiguration<DocumentosCliente>
 		{
@@ -2373,7 +2376,8 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.prestacionLey).HasMaxLength(50).IsRequired();
-			}
+				Property(x => x.activo).IsRequired();
+            }
 		}
 		public class ProcesoPerfilMap : EntityTypeConfiguration<ProcesoPerfil>
 		{
@@ -2454,7 +2458,8 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.tipoBeneficio).HasMaxLength(50).IsRequired();
-			}
+				Property(x => x.activo).IsRequired();
+            }
 		}
 		public class TipodeNominaMap : EntityTypeConfiguration<TipodeNomina>
 		{
@@ -2472,7 +2477,8 @@ namespace SAGA.DAL
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.tipoContrato).HasMaxLength(50).IsRequired();
                 Property(x => x.periodoPrueba).IsRequired();
-			}
+                Property(x => x.activo).IsRequired();
+            }
 		}
 		public class ProcesoCandidatoMap : EntityTypeConfiguration<ProcesoCandidato>
 		{

@@ -42,6 +42,12 @@ namespace SAGA.API.Dtos
         public List<TiposPiscoDto> TipoPsicometria { get; set; }
         public List<PeriodoPagoDto> PeriodoPago { get; set; }
         public List<TpNominaDto> TipoNomina { get; set; }
+        public List<DiasSemanaDto> DiasSemana { get; set; }
+        public List<BeneficiosPerfilDto> BeneficioPerfil { get; set; }
+        public List<TipoContratoDto> TipoContrato { get; set; }
+        public List<TiemposContratoDto> TiemposContrato { get; set; }
+        public List<DocDamsaDto> DocDamsa { get; set; }
+        public List<PrestacionesdeLeyDto> PrestacionesLey { get; set; }
         #endregion
         #region Reclutamiento
         #endregion

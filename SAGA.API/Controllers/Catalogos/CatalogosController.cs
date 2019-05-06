@@ -625,6 +625,16 @@ namespace SAGA.API.Controllers
 
                 case 9: // Actividad cliente
 
+                    Catalogo.GiroEmpresa = db.GirosEmpresas
+                        .Where( g => g.activo.Equals(true))
+                        .Select(g => new GiroEmpresaDto
+                        {
+                            Id = g.Id,
+                            giroEmpresa = g.giroEmpresa,
+                            activo = g.activo
+                        })
+                        .ToList();
+
                     Catalogo.ActividadEmpresa = db.ActividadesEmpresas
                         .Select(e => new ActividadEmpresaDto
                         {
@@ -701,6 +711,7 @@ namespace SAGA.API.Controllers
                         {
                             Id = e.Id,
                             areaExperiencia = e.areaExperiencia,
+                            Icono = e.Icono,
                             Activo = e.Activo
                         })
                         .OrderBy(c => c.Id)
@@ -709,6 +720,18 @@ namespace SAGA.API.Controllers
                     break;
 
                 case 19: // Subcategorias
+
+                    Catalogo.AreaExperiencia = db.AreasExperiencia
+                       .Where(a => a.Activo.Equals(true))
+                       .Select(e => new AreaExpDto
+                       {
+                           Id = e.Id,
+                           areaExperiencia = e.areaExperiencia,
+                           Icono = e.Icono,
+                           Activo = e.Activo
+                       })
+                       .OrderBy(c => c.Id)
+                       .ToList();
 
                     Catalogo.AreaInteres = db.AreasInteres
                         .Select(e => new AreaInteresDto
@@ -1216,9 +1239,261 @@ namespace SAGA.API.Controllers
                         db.SaveChanges();
 
                         break;
-                        #endregion
+                    #endregion
 
-                        #region Ventas
+                    #region Ventas
+                    case 8: // Giro de empresa
+
+                        GiroEmpresa giro = new GiroEmpresa();
+
+                        giro.giroEmpresa = Catalogo.GiroEmpresa[0].giroEmpresa;
+                        giro.activo = Catalogo.GiroEmpresa[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.GirosEmpresas.Add(giro);
+                        db.SaveChanges();
+
+                        break;
+                    case 9: // Actvidades de empresa
+
+                        ActividadEmpresa actividad = new ActividadEmpresa();
+
+                        actividad.actividadEmpresa = Catalogo.ActividadEmpresa[0].actividadEmpresa;
+                        actividad.GiroEmpresaId = Convert.ToInt16(Catalogo.ActividadEmpresa[0].GiroEmpresa);
+                        actividad.activo = Catalogo.ActividadEmpresa[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.ActividadesEmpresas.Add(actividad);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 10: // Tamaño de empresa
+
+                        TamanoEmpresa tamano = new TamanoEmpresa();
+
+                        tamano.tamanoEmpresa = Catalogo.TamanoEmpresa[0].tamanoEmpresa;
+                        tamano.activo = Catalogo.TamanoEmpresa[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TamanoEmpresas.Add(tamano);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 11: // Tipos base
+
+                        TipoBase tpbase = new TipoBase();
+
+                        tpbase.tipoBase = Catalogo.TiposBase[0].tipoBase;
+                        tpbase.activo = Catalogo.TiposBase[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TiposBases.Add(tpbase);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 16: // Perfil experiencia
+
+                        PerfilExperiencia perfil = new PerfilExperiencia();
+
+                        perfil.perfilExperiencia = Catalogo.PerfilExperiencia[0].perfilExperiencia;
+                        perfil.activo = Catalogo.PerfilExperiencia[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.PerfilExperiencia.Add(perfil);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 17: // Aptitudes
+
+                        Aptitud aptitud = new Aptitud();
+
+                        aptitud.aptitud = Catalogo.Aptitud[0].aptitud;
+                        aptitud.activo = Catalogo.Aptitud[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.Aptitudes.Add(aptitud);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 18: // Area Experiencia
+
+                        AreaExperiencia areaexp = new AreaExperiencia();
+
+                        areaexp.areaExperiencia = Catalogo.AreaExperiencia[0].areaExperiencia;
+                        areaexp.Activo = Catalogo.AreaExperiencia[0].Activo;
+                        areaexp.Icono = Catalogo.AreaExperiencia[0].Icono;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.AreasExperiencia.Add(areaexp);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 19: // Area Interes
+
+                        AreaInteres areaint = new AreaInteres();
+
+                        areaint.areaInteres = Catalogo.AreaInteres[0].areaInteres;
+                        areaint.AreaExperienciaId = Convert.ToInt16(Catalogo.AreaInteres[0].AreaExperiencia);
+                        areaint.Activo = Catalogo.AreaInteres[0].Activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.AreasInteres.Add(areaint);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 20: // Jornada laboral
+
+                        JornadaLaboral jl = new JornadaLaboral();
+
+                        jl.Jornada = Catalogo.JornadaLaboral[0].Jornada;
+                        jl.Orden = Catalogo.JornadaLaboral[0].Orden;
+                        jl.VariosHorarios = Catalogo.JornadaLaboral[0].VariosHorarios;
+                        jl.activo = Catalogo.JornadaLaboral[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.JornadasLaborales.Add(jl);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 21: // Modalidad
+
+                        TipoModalidad tpmodalidad = new TipoModalidad();
+
+                        tpmodalidad.Modalidad = Catalogo.TipoModalidad[0].Modalidad;
+                        tpmodalidad.Orden = Catalogo.TipoModalidad[0].Orden;
+                        tpmodalidad.activo = Catalogo.TipoModalidad[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TiposModalidades.Add(tpmodalidad);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 22: // Psicometrias
+
+                        TipoPsicometria tppsi = new TipoPsicometria();
+
+                        tppsi.tipoPsicometria = Catalogo.TipoPsicometria[0].tipoPsicometria;
+                        tppsi.descripcion = Catalogo.TipoPsicometria[0].descripcion;
+                        tppsi.activo = Catalogo.TipoPsicometria[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TiposPsicometrias.Add(tppsi);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 24: // Tipos de nomina
+
+                        TipodeNomina tpnomina = new TipodeNomina();
+
+                        tpnomina.tipoDeNomina = Catalogo.TipoNomina[0].tipoDeNomina;
+                        tpnomina.activo = Catalogo.TipoNomina[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TiposNominas.Add(tpnomina);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 26: // Periodos de pago
+
+                        PeriodoPago periodo = new PeriodoPago();
+
+                        periodo.periodoPago = Catalogo.PeriodoPago[0].periodoPago;
+                        periodo.activo = Catalogo.PeriodoPago[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.PeriodosPagos.Add(periodo);
+                        db.SaveChanges();
+
+                        break;
                         #endregion
                 }
             }
@@ -1539,13 +1814,13 @@ namespace SAGA.API.Controllers
                         tplicencia.tipoLicencia = Catalogo.TipoLicencia[0].tipoLicencia;
                         tplicencia.activo = Catalogo.TipoLicencia[0].activo;
 
-                        log.CatalogoId = Catalogo.Catalogos.Id;
-                        log.TpMov = "N";
-                        log.Usuario = Catalogo.Usuario;
-                        log.FechaAct = DateTime.UtcNow;
-                        log.Campo = "";
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
 
-                        db.LogCatalogos.Add(log);
+                        db.LogCatalogos.Add(logm);
                         db.Entry(tplicencia).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
 
@@ -1560,21 +1835,287 @@ namespace SAGA.API.Controllers
                         tpexamen.Descripcion = Catalogo.TipoExamen[0].Descripcion;
                         tpexamen.Activo = Catalogo.TipoExamen[0].Activo;
 
-                        log.CatalogoId = Catalogo.Catalogos.Id;
-                        log.TpMov = "N";
-                        log.Usuario = Catalogo.Usuario;
-                        log.FechaAct = DateTime.UtcNow;
-                        log.Campo = "";
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
 
-                        db.LogCatalogos.Add(log);
+                        db.LogCatalogos.Add(logm);
                         db.Entry(tpexamen).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
 
                         break;
-                        #endregion
+                    #endregion
 
                     #region Ventas
-                    #endregion
+                    case 8: // Giro de empresas
+
+                        GiroEmpresa giro = new GiroEmpresa();
+
+                        giro.Id = Catalogo.GiroEmpresa[0].Id;
+                        giro.giroEmpresa = Catalogo.GiroEmpresa[0].giroEmpresa;
+                        giro.activo = Catalogo.GiroEmpresa[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(giro).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 9: // ACtividades de empresas
+
+                        ActividadEmpresa actividad = new ActividadEmpresa();
+
+                        actividad.Id = Catalogo.ActividadEmpresa[0].Id;
+                        actividad.actividadEmpresa = Catalogo.ActividadEmpresa[0].actividadEmpresa;
+                        actividad.GiroEmpresaId = Convert.ToInt16(Catalogo.ActividadEmpresa[0].GiroEmpresa);
+                        actividad.activo = Catalogo.ActividadEmpresa[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(actividad).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 10: // Tamano de empresas
+
+                        TamanoEmpresa tamano = new TamanoEmpresa();
+
+                        tamano.Id = Catalogo.TamanoEmpresa[0].Id;
+                        tamano.tamanoEmpresa = Catalogo.TamanoEmpresa[0].tamanoEmpresa;
+                        tamano.activo = Catalogo.TamanoEmpresa[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(tamano).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 11: // Tamano de empresas
+
+                        TipoBase tpbase = new TipoBase();
+
+                        tpbase.Id = Catalogo.TiposBase[0].Id;
+                        tpbase.tipoBase = Catalogo.TiposBase[0].tipoBase;
+                        tpbase.activo = Catalogo.TiposBase[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(tpbase).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 16: // Perfil experiencia
+
+                        PerfilExperiencia perfil = new PerfilExperiencia();
+
+                        perfil.Id = Catalogo.PerfilExperiencia[0].Id;
+                        perfil.perfilExperiencia = Catalogo.PerfilExperiencia[0].perfilExperiencia;
+                        perfil.activo = Catalogo.PerfilExperiencia[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(perfil).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 17: // Aptitudes
+
+                        Aptitud aptitud = new Aptitud();
+
+                        aptitud.Id = Catalogo.Aptitud[0].Id;
+                        aptitud.aptitud = Catalogo.Aptitud[0].aptitud;
+                        aptitud.activo = Catalogo.Aptitud[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(aptitud).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 18: // Area experiencia
+
+                        AreaExperiencia areaexp = new AreaExperiencia();
+
+                        areaexp.Id = Catalogo.AreaExperiencia[0].Id;
+                        areaexp.areaExperiencia = Catalogo.AreaExperiencia[0].areaExperiencia;
+                        areaexp.Activo = Catalogo.AreaExperiencia[0].Activo;
+                        areaexp.Icono = Catalogo.AreaExperiencia[0].Icono;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(areaexp).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 19: // Area Interes
+
+                        AreaInteres areaint = new AreaInteres();
+
+                        areaint.Id = Catalogo.AreaInteres[0].Id;
+                        areaint.areaInteres = Catalogo.AreaInteres[0].areaInteres;
+                        areaint.AreaExperienciaId = Convert.ToInt16(Catalogo.AreaInteres[0].AreaExperiencia);
+                        areaint.Activo = Catalogo.AreaInteres[0].Activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(areaint).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 20: // Jornada Laboral
+
+                        JornadaLaboral jl = new JornadaLaboral();
+
+                        jl.Id = Catalogo.JornadaLaboral[0].Id;
+                        jl.Jornada = Catalogo.JornadaLaboral[0].Jornada;
+                        jl.Orden = Catalogo.JornadaLaboral[0].Orden;
+                        jl.VariosHorarios = Catalogo.JornadaLaboral[0].VariosHorarios;
+                        jl.activo = Catalogo.JornadaLaboral[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(jl).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 21: // Modalidad
+
+                        TipoModalidad tpmodalidad = new TipoModalidad();
+
+                        tpmodalidad.Id = Catalogo.TipoModalidad[0].Id;
+                        tpmodalidad.Modalidad = Catalogo.TipoModalidad[0].Modalidad;
+                        tpmodalidad.Orden = Catalogo.TipoModalidad[0].Orden;
+                        tpmodalidad.activo = Catalogo.TipoModalidad[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(tpmodalidad).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 22: // Psicometrias
+
+                        TipoPsicometria tppsi = new TipoPsicometria();
+
+                        tppsi.Id = Catalogo.TipoPsicometria[0].Id;
+                        tppsi.tipoPsicometria = Catalogo.TipoPsicometria[0].tipoPsicometria;
+                        tppsi.descripcion = Catalogo.TipoPsicometria[0].descripcion;
+                        tppsi.activo = Catalogo.TipoPsicometria[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(tppsi).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 24: // Tipos de nomina
+
+                        TipodeNomina tpnomina = new TipodeNomina();
+
+                        tpnomina.Id = Catalogo.TipoNomina[0].Id;
+                        tpnomina.tipoDeNomina = Catalogo.TipoNomina[0].tipoDeNomina;
+                        tpnomina.activo = Catalogo.TipoNomina[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(tpnomina).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 26: // Periodos pago
+
+                        PeriodoPago periodo = new PeriodoPago();
+
+                        periodo.Id = Catalogo.PeriodoPago[0].Id;
+                        periodo.periodoPago = Catalogo.PeriodoPago[0].periodoPago;
+                        periodo.activo = Catalogo.PeriodoPago[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(periodo).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+                        #endregion
                 }
             }
 

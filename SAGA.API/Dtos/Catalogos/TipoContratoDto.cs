@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 
-namespace SAGA.BOL
+namespace SAGA.API.Dtos
 {
-    public class TipoContrato
+    public class TipoContratoDto
     {
-        [Key]
         public int Id { get; set; }
         public string tipoContrato { get; set; }
         public bool periodoPrueba { get; set; }
