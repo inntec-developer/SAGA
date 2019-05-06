@@ -2116,6 +2116,70 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("execProcedureVencidas")]
+        public IHttpActionResult ExecProcedureVencidas()
+        {
+            try
+            {
+                string from = "noreply@damsa.com.mx";
+                MailMessage m = new MailMessage();
+                m.From = new MailAddress(from, "SAGA INN");
+                m.Subject = "Requisiciones Vencidas";
+
+                var datos = db.Database.SqlQuery<PausadasDto>("dbo.sp_RequisVencidas").ToList();
+
+
+                if (datos.Count > 0)
+                {
+                    var aprobadores = datos.Select(x => x.aprobadorId).Distinct().ToList();
+
+                    var inicio = "<html><head><style>td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:9pt;color:Black;font-family:'calibri';} " +
+                                                "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>RECLUTADOR</th><th align=center>COORDINADOR</th><th align=center>No POSICIONES</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th></tr>";
+
+                    var body = "";
+                    foreach (var a in aprobadores)
+                    {
+                        m.To.Add("idelatorre@damsa.com.mx");
+                        m.Bcc.Add("bmorales@damsa.com.mx");
+
+                        var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
+                        var email = aux[0].email;
+                        foreach (var r in aux)
+                        {
+                            body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
+                                                       "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td><td align=center>{10}</td></tr>",
+                                                       r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.vacantes, r.estatus, r.fch_Modificacion);
+                        }
+
+                        body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
+                        body = body + "<br/><p>El correo deber&iacute;a de llegar a " + email + "</p></body></html>";
+                        m.Body = body;
+                        m.IsBodyHtml = true;
+                        SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                        smtp.Send(m);
+
+                        body = "";
+
+                        m.To.Clear();
+                        m.Bcc.Clear();
+
+                    }
+
+                }
+                return Ok(HttpStatusCode.OK);
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+
+            }
+
+        }
+
+        [HttpGet]
         [Route("sendEmailRequiPura")]
         public IHttpActionResult SendEmailREquiPura(Guid IdRequisicion)
         {

@@ -11,6 +11,8 @@ using System.Data.Entity;
 using System.Data.SqlClient;
 using SAGA.API.Dtos;
 using SAGA.API.Utilerias;
+using SAGA.API.Dtos.SistTickets;
+
 namespace SAGA.API.Controllers
 {
     [RoutePrefix("api/SistTickets")]
@@ -38,6 +40,7 @@ namespace SAGA.API.Controllers
 
 
         private SAGADBContext db;
+
         Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
         public TicketsController()
         {
@@ -477,6 +480,35 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                AspNetUsers usuario = new AspNetUsers();
+                var username = "";
+                var pass = datos.Nombre.Substring(0,1).ToLower() + datos.ApellidoPaterno.ToLower().Trim();
+                if(datos.OpcionRegistro == 1)
+                {
+                    username = datos.Email[0].email.ToString();
+                }
+                else
+                {
+                    username = datos.Telefono[0].telefono.ToString();
+                }
+                usuario.Id = Guid.NewGuid().ToString();
+                usuario.PhoneNumber = datos.Telefono[0].telefono.ToString();
+                usuario.Clave = "00000";
+                usuario.Pasword = pass;
+                usuario.RegistroClave = DateTime.Now;
+                usuario.PhoneNumberConfirmed = false;
+                usuario.EmailConfirmed = false;
+                usuario.LockoutEnabled = false;
+                usuario.AccessFailedCount = 0;
+                usuario.Email = datos.Email[0].email.ToString();
+                usuario.UserName = username;
+                usuario.Activo = 1;
+               
+                db.AspNetUsers.Add(usuario);
+                db.SaveChanges();
+
+                var add = db.Database.ExecuteSqlCommand("spEncriptarPasword @id", new SqlParameter("id", usuario.Id));
+
                 var candidato = new Candidato();
 
                 candidato.CURP = CalcularCURP(datos);
@@ -505,11 +537,56 @@ namespace SAGA.API.Controllers
 
                 db.SaveChanges();
 
-                return Ok(candidato.Id);
+                var t = db.AspNetUsers.Find(usuario.Id);
+                db.Entry(t).Property(x => x.IdPersona).IsModified = true;
+
+                t.IdPersona = candidato.Id;
+                db.SaveChanges();
+
+                LoginDto login = new LoginDto();
+                login.Id = candidato.Id;
+                login.username = username;
+                login.pass = pass;
+
+                return Ok(login);
             }
             catch (Exception ex)
             {
                 return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+
+        [HttpGet]
+        [Route("loginBolsa")]
+        public IHttpActionResult LoginBolsa(string usuario, string pass)
+        {
+            try
+            {
+
+                var p = db.AspNetUsers.Where(x => x.UserName.Equals(usuario)).Select(U => new { id = U.Id, personaId = U.IdPersona, password = U.Pasword,
+                        usuario = db.Entidad.Where(x => x.Id.Equals(U.IdPersona)).Select(u => u.Nombre + " " + u.ApellidoPaterno + " " + u.ApellidoMaterno).FirstOrDefault()
+                }).ToList();
+                
+                if(p.Count > 0)
+                {
+                    var pd = db.Database.SqlQuery<String>("dbo.spDesencriptarPasword @id", new SqlParameter("id", p[0].id)).FirstOrDefault();
+                    if(pd.Equals(pass))
+                    {
+                        return Ok(p);
+                    }
+                    else
+                    {
+                        return Ok(HttpStatusCode.Ambiguous); //300 diferentes contraseñas
+                    }
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.NotFound); //404
+                }
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
             }
         }
 
@@ -854,6 +931,11 @@ namespace SAGA.API.Controllers
                         fechaNac = C.FechaNacimiento,
                         edad = DateTime.Now.Year - C.FechaNacimiento.Value.Year >= 0 ? DateTime.Now.Year - C.FechaNacimiento.Value.Year : 0,
                         email = C.emails.Select(m => m.email).FirstOrDefault(),
+                        credenciales = db.AspNetUsers.Where(x => x.IdPersona.Equals(T.CandidatoId)).Select( U => new {
+                            id = U.Id,
+                            username = U.UserName,
+                            pass = U.Pasword
+                            }).FirstOrDefault(),
                         estatusId = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.CandidatoId)).Count() > 0 ? db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.CandidatoId)).Select(E => E.EstatusId).FirstOrDefault() : 27,
                         estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(T.CandidatoId)).Count() > 0 ? db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.CandidatoId)).Select(E => E.Estatus.Descripcion).FirstOrDefault() : "Disponible",
                         requisicionId = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.CandidatoId)).Count() > 0 ? db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(T.CandidatoId)).Select(r => r.RequisicionId).FirstOrDefault() : aux,
@@ -863,17 +945,41 @@ namespace SAGA.API.Controllers
                 }).ToList();
 
                 this.UpdateStatus(Ticket, 5, 1);
-                //Ticket t = new Ticket();
 
-                //t = db.Tickets.Find(Ticket);
+                var tt = from T in ticket select new
+                {
+                    ticketId = T.ticketId,
+                    requisicionId = T.requisicionId,
+                    vBtra = T.vBtra,
+                    folio = T.folio,
+                    numero = T.numero,
+                    estado = T.estado,
+                    psicometria = db.PsicometriasDamsaRequis.Where(x => x.RequisicionId.Equals(T.requisicionId) && x.PsicometriaId > 0).Count() > 0 ? true : false,
+                    candidato = new
+                    {
+                        candidatoId = T.candidato.candidatoId,
+                        curp = T.candidato.curp,
+                        nombre = T.candidato.nombre,
+                        dirNacimiento = T.candidato.dirNacimiento,
+                        fechaNac = T.candidato.fechaNac,
+                        edad = T.candidato.edad,
+                        email = T.candidato.email,
+                        credenciales = new
+                        {
+                            id = T.candidato.credenciales.id,
+                            username = T.candidato.credenciales.username,
+                            pass = db.Database.SqlQuery<String>("dbo.spDesencriptarPasword @id", new SqlParameter("id", T.candidato.credenciales.id)).FirstOrDefault()
 
-                //db.Entry(t).State = EntityState.Modified;
-               
-                //t.Estatus = 5;
+                        },
+                        estatusId = T.candidato.estatusId,
+                        estatus = T.candidato.estatus,
+                        requisicionId = T.candidato.requisicionId,
+                        tecnicos = T.candidato.tecnicos
+                    }
+                };
 
-                //db.SaveChanges();
 
-                return Ok(ticket);
+                return Ok(tt);
             }
             catch (Exception ex)
             {
