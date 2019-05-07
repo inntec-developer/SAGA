@@ -94,6 +94,7 @@ namespace SAGA.API.Controllers
             }
             catch(Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
             
@@ -202,25 +203,17 @@ namespace SAGA.API.Controllers
                        VBtra = e.VBtra.ToUpper(),
                        TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
                        tipoReclutamientoId = e.TipoReclutamientoId,
-                       //ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
-                       //ClaseReclutamientoId = e.ClaseReclutamientoId,
                        SueldoMinimo = e.SueldoMinimo,
-                       //SueldoMaximo = e.SueldoMaximo,
                        fch_Creacion = e.fch_Creacion,
                        fch_Modificacion = e.fch_Modificacion,
                        fch_Cumplimiento = e.fch_Cumplimiento,
                        Estatus = e.Estatus.Descripcion.ToUpper(),
                        EstatusId = e.EstatusId,
                        EstatusOrden = e.Estatus.Orden,
-                       //Prioridad = e.Prioridad.Descripcion.ToUpper(),
-                       //PrioridadId = e.PrioridadId,
                        Cliente = e.Cliente.Nombrecomercial.ToUpper(),
                        Sucursal = db.Direcciones.Where(x => x.Id.Equals(e.DireccionId)).Select(d => d.Calle + " " + d.NumeroExterior + " C.P: " + d.CodigoPostal + " Col: " + d.Colonia.colonia).FirstOrDefault().ToUpper(),
-                       //GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa.ToUpper(),
-                       //ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa.ToUpper(),
                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                        Folio = e.Folio,
-                       //DiasEnvio = e.DiasEnvio,
                        Confidencial = e.Confidencial,
                        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Count(),
                        PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Select(p => new
@@ -232,8 +225,7 @@ namespace SAGA.API.Controllers
                            p.Candidato.CURP,
                            email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
                            p.StatusId,
-                                        //estatusId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.CandidatoId.Equals(p.CandidatoId) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
-                                    }),
+                       }),
                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
                        EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Select(d => new
                        {
@@ -274,25 +266,17 @@ namespace SAGA.API.Controllers
                        VBtra = e.VBtra.ToUpper(),
                        TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
                        tipoReclutamientoId = e.TipoReclutamientoId,
-                       //ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
-                       //ClaseReclutamientoId = e.ClaseReclutamientoId,
                        SueldoMinimo = e.SueldoMinimo,
-                       //SueldoMaximo = e.SueldoMaximo,
                        fch_Creacion = e.fch_Creacion,
                        fch_Modificacion = e.fch_Modificacion,
                        fch_Cumplimiento = e.fch_Cumplimiento,
                        Estatus = e.Estatus.Descripcion.ToUpper(),
                        EstatusId = e.EstatusId,
                        EstatusOrden = e.Estatus.Orden,
-                       //Prioridad = e.Prioridad.Descripcion.ToUpper(),
-                       //PrioridadId = e.PrioridadId,
                        Cliente = e.Cliente.Nombrecomercial.ToUpper(),
                        Sucursal = db.Direcciones.Where(x => x.Id.Equals(e.DireccionId)).Select(d => d.Calle + " " + d.NumeroExterior + " C.P: " + d.CodigoPostal + " Col: " + d.Colonia.colonia).FirstOrDefault().ToUpper(),
-                       //GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa.ToUpper(),
-                       //ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa.ToUpper(),
                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                        Folio = e.Folio,
-                       //DiasEnvio = e.DiasEnvio,
                        Confidencial = e.Confidencial,
                        Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Count(),
                        PostuladosN = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) & p.StatusId.Equals(1)).Select(p => new
@@ -303,9 +287,8 @@ namespace SAGA.API.Controllers
                            p.Candidato.ApellidoMaterno,
                            p.Candidato.CURP,
                            email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
-                           p.StatusId,
-                                        //estatusId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.CandidatoId.Equals(p.CandidatoId) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
-                                    }),
+                           p.StatusId
+                       }),
                        EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
                        EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Select(d => new
                        {
@@ -331,6 +314,7 @@ namespace SAGA.API.Controllers
             }
             catch(Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
             
@@ -340,15 +324,6 @@ namespace SAGA.API.Controllers
         [Route("getRequisicionesTipo")]
         public IHttpActionResult GetRequisicionesPuro(Guid propietario, int tipo)
         {
-            //List<Guid> uids = new List<Guid>();
-            //if (db.Subordinados.Count(x => x.LiderId.Equals(propietario)) > 0)
-            //{
-            //    var ids = db.Subordinados.Where(x => x.LiderId.Equals(propietario)).Select(u => u.UsuarioId).ToList();
-
-            //    uids = GetSub(ids, uids);
-
-            //}
-            //uids.Add(propietario);
             try
             {
                 var UnidadNegocio = db.Usuarios.Where(u => u.Id.Equals(propietario)).Select(u => u.Sucursal.UnidadNegocioId).FirstOrDefault();
@@ -397,8 +372,7 @@ namespace SAGA.API.Controllers
                                 p.Candidato.ApellidoMaterno,
                                 p.Candidato.CURP,
                                 email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
-                                p.StatusId,
-                                //estatusId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.CandidatoId.Equals(p.CandidatoId) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
+                                p.StatusId
                             }),
                             EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
                             EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Select(d => new
@@ -458,9 +432,8 @@ namespace SAGA.API.Controllers
                                p.Candidato.ApellidoMaterno,
                                p.Candidato.CURP,
                                email = p.Candidato.emails.Select(m => m.email).FirstOrDefault(),
-                               p.StatusId,
-                                //estatusId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(pp => pp.RequisicionId.Equals(e.Id) && pp.CandidatoId.Equals(p.CandidatoId) && pp.EstatusId != 24 && pp.EstatusId != 27 && pp.EstatusId != 40 && pp.EstatusId != 28 && pp.EstatusId != 42).Select(d => d.EstatusId).FirstOrDefault()
-                            }),
+                               p.StatusId
+                           }),
                            EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
                            EnProcesoN = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 24 && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Select(d => new
                            {
@@ -484,6 +457,7 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
 
@@ -566,30 +540,21 @@ namespace SAGA.API.Controllers
                         {
                             Id = e.Id,
                             VBtra = e.VBtra.ToUpper(),
-                            //TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
-                            //tipoReclutamientoId = e.TipoReclutamientoId,
                             ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
                             ClaseReclutamientoId = e.ClaseReclutamientoId,
                             SueldoMinimo = e.SueldoMinimo,
-                            //SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
                             fch_Modificacion = e.fch_Modificacion,
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
                             EstatusOrden = e.Estatus.Orden,
-                            //Prioridad = e.Prioridad.Descripcion.ToUpper(),
-                            //PrioridadId = e.PrioridadId,
                             Cliente = e.Cliente.Nombrecomercial.ToUpper(),
                             ClienteId = e.Cliente.Id,
                             Sucursal = db.Direcciones.Where(x => x.Id.Equals(e.DireccionId)).Select(d => d.Calle + " " + d.NumeroExterior + " C.P: " + d.CodigoPostal + " Col: " + d.Colonia.colonia).FirstOrDefault().ToUpper(),
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                             Folio = e.Folio,
-                            //DiasEnvio = e.DiasEnvio,
                             Confidencial = e.Confidencial,
-                            //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
-
-                            //Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(x => x.GrpUsrId).ToList(),
                             Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Count(),
                             EnProceso = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
                             EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
@@ -600,15 +565,10 @@ namespace SAGA.API.Controllers
                             PropietarioId = e.PropietarioId,
                             AprobadorId = e.AprobadorId,
                             Aprobada = e.Aprobada,
-                        
-                            //Reclutador = db.Usuarios.Where(x => x.Id.Equals(IdUsuario)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault(),
                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
                             
                                 db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()).ToList(),
-                            //AreaExperiencia = e.Area.areaExperiencia.ToUpper(),
-                            //Aprobador = e.Aprobador != null ? e.Aprobador.ToUpper() : "",
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion.ToUpper() + " - ") + c.Comentario.ToUpper()).ToList(),
-                            //examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0,
                             Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null,
                             Ponderacion = db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).FirstOrDefault() : null
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
@@ -640,29 +600,21 @@ namespace SAGA.API.Controllers
                         {
                             Id = e.Id,
                             VBtra = e.VBtra.ToUpper(),
-                            //TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
-                            //tipoReclutamientoId = e.TipoReclutamientoId,
                             ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
                             ClaseReclutamientoId = e.ClaseReclutamientoId,
                             SueldoMinimo = e.SueldoMinimo,
-                            //SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
                             fch_Modificacion = e.fch_Modificacion,
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
                             EstatusOrden = e.Estatus.Orden,
-                            //Prioridad = e.Prioridad.Descripcion.ToUpper(),
-                            //PrioridadId = e.PrioridadId,
                             Cliente = e.Cliente.Nombrecomercial.ToUpper(),
                             ClienteId = e.Cliente.Id,
                             Sucursal = db.Direcciones.Where(x => x.Id.Equals(e.DireccionId)).Select(d => d.Calle + " " + d.NumeroExterior + " C.P: " + d.CodigoPostal + " Col: " + d.Colonia.colonia).FirstOrDefault().ToUpper(),
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                             Folio = e.Folio,
-                            //DiasEnvio = e.DiasEnvio,
                             Confidencial = e.Confidencial,
-                            //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
-                            //Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(x => x.GrpUsrId).ToList(),
                             Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Count(),
                             EnProceso = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
                             EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
@@ -673,14 +625,10 @@ namespace SAGA.API.Controllers
                             PropietarioId = e.PropietarioId,
                             AprobadorId = e.AprobadorId,
                             aprobada = e.Aprobada,
-                            //Reclutador = db.Usuarios.Where(x => x.Id.Equals(IdUsuario)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper(),
                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
                                db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                             ).Distinct().ToList(),
-                            //AreaExperiencia = e.Area.areaExperiencia.ToUpper(),
-                            //Aprobador = e.Aprobador != null ? e.Aprobador.ToUpper() : "",
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion.ToUpper() + " - ") + c.Comentario.ToUpper()).ToList(),
-                            //examenId = db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.RequiExamen.Where(x => x.RequisicionId.Equals(e.Id)).Select(ex => ex.ExamenId).FirstOrDefault() : 0,
                             Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null,
                             Ponderacion = db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).FirstOrDefault() : null
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
@@ -714,23 +662,16 @@ namespace SAGA.API.Controllers
                             VBtra = e.VBtra.ToUpper(),
                             TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
                             tipoReclutamientoId = e.TipoReclutamientoId,
-                            //ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
-                            //ClaseReclutamientoId = e.ClaseReclutamientoId,
                             SueldoMinimo = e.SueldoMinimo,
-                            //SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
-                            //Prioridad = e.Prioridad.Descripcion.ToUpper(),
-                            //PrioridadId = e.PrioridadId,
                             Cliente = e.Cliente.Nombrecomercial.ToUpper(),
                             ClienteId = e.Cliente.Id,
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                             Folio = e.Folio,
-                            //DiasEnvio = e.DiasEnvio,
                             Confidencial = e.Confidencial,
-                            //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                             Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(x => x.GrpUsrId).ToList(),
                             Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
                             EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
@@ -746,20 +687,6 @@ namespace SAGA.API.Controllers
                 }
                 else
                 {
-                    //    List<Guid> grp = new List<Guid>();
-
-                    //    var Grupos = db.GruposUsuarios
-                    //        .Where(g => g.EntidadId.Equals(IdUsuario) & g.Grupo.Activo)
-                    //               .Select(g => g.GrupoId)
-                    //               .ToList();
-
-
-                    //    foreach (var grps in Grupos)
-                    //    {
-                    //        grp = GetGrupo(grps, grp);
-                    //    }
-
-                    //    grp.Add(IdUsuario);
 
                     List<Guid> uids = new List<Guid>();
                     if (db.Subordinados.Count(x => x.LiderId.Equals(IdUsuario)) > 0)
@@ -788,10 +715,7 @@ namespace SAGA.API.Controllers
                             VBtra = e.VBtra.ToUpper(),
                             TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
                             tipoReclutamientoId = e.TipoReclutamientoId,
-                            //ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
-                            //ClaseReclutamientoId = e.ClaseReclutamientoId,
                             SueldoMinimo = e.SueldoMinimo,
-                            //SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion.ToUpper(),
@@ -802,10 +726,8 @@ namespace SAGA.API.Controllers
                             ClienteId = e.Cliente.Id,
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                             Folio = e.Folio,
-                            //DiasEnvio = e.DiasEnvio,
                             Confidencial = e.Confidencial,
-                        //asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
-                        Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(x => x.GrpUsrId).ToList(),
+                            Asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(x => x.GrpUsrId).ToList(),
                             Postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => c.CandidatoId).Except(db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(e.Id) && xx.EstatusId.Equals(27) || xx.EstatusId.Equals(40)).Select(cc => cc.CandidatoId)).Count(),
                             EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId != 27 && p.EstatusId != 40).Count(),
                             EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
@@ -1330,6 +1252,7 @@ namespace SAGA.API.Controllers
             }
             catch(Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
         }
@@ -1365,6 +1288,7 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
+                string msg = ex.Message;
                 return NotFound();
             }
         }
@@ -1517,6 +1441,7 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
         }
@@ -1540,7 +1465,8 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
-                 return Ok(HttpStatusCode.NotFound);
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
             }
         }
 
@@ -1672,6 +1598,7 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.NotAcceptable);
             }
         }
@@ -1701,6 +1628,7 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.NotAcceptable);
             }
         }
@@ -1981,8 +1909,8 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.ExpectationFailed);
-
             }
 
         }
@@ -2045,6 +1973,7 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.ExpectationFailed);
 
             }
@@ -2109,8 +2038,8 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.ExpectationFailed);
-
             }
 
         }
@@ -2173,8 +2102,8 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
+                string msg = ex.Message;
                 return Ok(HttpStatusCode.ExpectationFailed);
-
             }
 
         }

@@ -731,14 +731,14 @@ namespace SAGA.API.Controllers
                         sucursal = users.Sucursal.Nombre
                     }).ToList();
 
-            //object[] _params = {
-            //        new SqlParameter("@CLAVE", Data.Select(x => x.clave).FirstOrDefault())
-            //    };
+            object[] _params = {
+                    new SqlParameter("@CLAVE", Data.Select(x => x.clave).FirstOrDefault())
+                };
 
-            //var activo = db.Database.SqlQuery<Int32>("exec sp_ValidatorLogin @CLAVE", _params).FirstOrDefault();
+            var activo = db.Database.SqlQuery<Int32>("exec sp_ValidatorLogin @CLAVE", _params).FirstOrDefault();
 
-            //if (activo > 0)
-            //{
+            if (activo > 0)
+            {
                 if (Data.Count() > 0)
                 {
                     if (Data.Select(x => x.activo).FirstOrDefault() == true)
@@ -779,11 +779,11 @@ namespace SAGA.API.Controllers
                 {
                     return Ok(HttpStatusCode.NotFound);
                 }
-            //}
-            //else
-            //{
-            //    return Ok(HttpStatusCode.NotAcceptable);
-            //}
+            }
+            else
+            {
+                return Ok(HttpStatusCode.NotAcceptable);
+            }
         }
 
     }
