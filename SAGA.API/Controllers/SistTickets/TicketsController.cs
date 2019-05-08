@@ -497,12 +497,12 @@ namespace SAGA.API.Controllers
                 usuario.Pasword = pass;
                 usuario.RegistroClave = DateTime.Now;
                 usuario.PhoneNumberConfirmed = false;
-                usuario.EmailConfirmed = false;
+                usuario.EmailConfirmed = true;
                 usuario.LockoutEnabled = false;
                 usuario.AccessFailedCount = 0;
                 usuario.Email = datos.Email[0].email.ToString();
                 usuario.UserName = username;
-                usuario.Activo = 1;
+                usuario.Activo = 0;
                
                 db.AspNetUsers.Add(usuario);
                 db.SaveChanges();
@@ -668,7 +668,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                if (estatus == 3)
+                if (estatus == 3 || estatus == 1)
                 {
 
                     var fila = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(estatus)).Select(t => new
@@ -781,15 +781,7 @@ namespace SAGA.API.Controllers
 
             try
             {
-                //var rrr = (from items in db.CalendarioCandidato
-                //        where (items.Fecha - DateTime.Now).TotalMinutes >= -15 && (items.Fecha - DateTime.Now).TotalMinutes <= 15
-                //        select new { items.RequisicionId }).ToList();
-
-                //var requisiciones = db.CalendarioCandidato.OrderByDescending(f => f.Fecha).Where(x => (x.Fecha.Minute - DateTime.Now.Minute) >= -15 && (x.Fecha.Minute - DateTime.Now.Minute) <= 15).Select(c => c.RequisicionId).ToList();
-
-                var requiReclutador = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId)).Select(r => r.RequisicionId).ToList();
-
-                //var requiReclutador = db.Requisiciones.Where(x => requisiciones.Contains(x.Id) && x.PropietarioId.Equals(reclutadorId)).Select(r => r.Id).ToList();
+               var requiReclutador = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId)).Select(r => r.RequisicionId).ToList();
 
                 var concita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && requiReclutador.Contains(x.RequisicionId) && x.MovimientoId.Equals(1))
                 .Select(t => new
@@ -815,17 +807,6 @@ namespace SAGA.API.Controllers
 
                     if (sincita == null)
                     {
-                        //var ticket = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1)).Select(t => new
-                        //{
-                        //    ticketId = t.Id,
-                        //    ticket = t.Numero,
-                        //    candidatoId = t.CandidatoId,
-                        //    requisicionId = t.RequisicionId,
-                        //    movimientoId = t.MovimientoId,
-                        //    tiempoCita = t.fch_Creacion.Minute - DateTime.Now.Minute
-                        //}).FirstOrDefault();
-
-                        //this.InsertTicketRecl(ticket.ticketId, reclutadorId, ModuloId);
                         return Ok(HttpStatusCode.ExpectationFailed);
                     }
                     else
@@ -851,6 +832,39 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
+
+        [HttpGet]
+        [Route("getCitas")]
+        public IHttpActionResult GetCitas(Guid reclutadorId, int ModuloId)
+        {
+            try
+            {
+                var concita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && x.MovimientoId.Equals(1))
+                   .Select(t => new
+                   {
+                       ticketId = t.Id,
+                       ticket = t.Numero,
+                       candidatoId = t.CandidatoId,
+                       movimientoId = t.MovimientoId,
+                       tiempoCita = t.fch_Creacion.Minute - DateTime.Now.Minute
+                   }).FirstOrDefault();
+
+                if(concita != null)
+                {
+                    this.InsertTicketRecl(concita.ticketId, reclutadorId, ModuloId);
+                    return Ok(concita.ticketId);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.ExpectationFailed);
+                }
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+
 
         [HttpGet]
         [Route("getTicketsReclutador")]
