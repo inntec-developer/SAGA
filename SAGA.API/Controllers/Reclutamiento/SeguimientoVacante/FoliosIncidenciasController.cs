@@ -153,7 +153,7 @@ namespace SAGA.API.Controllers
             try
             {
                 var email = "idelatorre@damsa.com.mx";
-                var emailCoor = "";
+                var aprovadorEmail = "idelatorre@damsa.com.mx";
                 var folio = "000000000000";
                 var vbtra = "No se encontró vacante";
 
@@ -161,16 +161,18 @@ namespace SAGA.API.Controllers
                     propietario = p.PropietarioId,
                     aprobador = p.AprobadorId,
                     folio = p.Folio.ToString(),
-                    vbtra = p.VBtra
+                    vbtra = p.VBtra,
                 }).FirstOrDefault();
                 
                 if(propietario != null)
                 {
                     email = db.Emails.Where(x => x.EntidadId.Equals(propietario.propietario)).Select(e => e.email).FirstOrDefault();
-                    emailCoor = db.Emails.Where(x => x.EntidadId.Equals(propietario.aprobador)).Select(e => e.email).FirstOrDefault();
+                    aprovadorEmail = db.Emails.Where(x => x.EntidadId.Equals(propietario.aprobador)).Select(e => e.email).FirstOrDefault();
+
                     folio = propietario.folio;
                     vbtra = propietario.vbtra;
                 }
+
                 var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => new {
                     nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
                     email = n.emails.Select(e => e.email).FirstOrDefault()
@@ -200,8 +202,9 @@ namespace SAGA.API.Controllers
                     m.Subject = "Reporte posible NR en Requisición, " + folio;
 
                     m.To.Add(email);
-                    m.Bcc.Add(usuario.email.ToString());
-                    m.Bcc.Add(emailCoor);
+                    m.CC.Add(usuario.email.ToString());
+                    m.CC.Add(aprovadorEmail);
+
                     //usuario, candidato, motivo, vbtra, folio
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";

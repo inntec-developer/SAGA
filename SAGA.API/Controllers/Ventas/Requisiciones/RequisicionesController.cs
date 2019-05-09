@@ -566,6 +566,8 @@ namespace SAGA.API.Controllers
                             PropietarioId = e.PropietarioId,
                             AprobadorId = e.AprobadorId,
                             Aprobada = e.Aprobada,
+                            DiasEnvio = e.DiasEnvio,
+                            asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
                             
                                 db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()).ToList(),
@@ -626,6 +628,8 @@ namespace SAGA.API.Controllers
                             PropietarioId = e.PropietarioId,
                             AprobadorId = e.AprobadorId,
                             aprobada = e.Aprobada,
+                            DiasEnvio = e.DiasEnvio,
+                            asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
                                db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                             ).Distinct().ToList(),
