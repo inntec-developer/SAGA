@@ -308,13 +308,13 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var resultados = db.RequiExamen.Select(R => new
+                var resultados = db.RequiExamen.OrderByDescending(x => x.Requisicion.Folio).Select(R => new
                 {
                     requisicionId = R.Id,
                     folio = R.Requisicion.Folio,
                     cliente = R.Requisicion.Cliente.Nombrecomercial,
                     vBtra = R.Requisicion.VBtra,
-                    candidatos = db.ExamenCandidato.Where(x => x.RequisicionId.Equals(R.RequisicionId)).Select(C => new
+                    candidatos = db.ExamenCandidato.OrderByDescending(o => o.fch_Modificacion).Where(x => x.RequisicionId.Equals(R.RequisicionId)).Select(C => new
                     {
                         C.CandidatoId,
                         C.RequisicionId,

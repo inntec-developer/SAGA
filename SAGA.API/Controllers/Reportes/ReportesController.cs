@@ -22,7 +22,7 @@ namespace SAGA.API.Controllers.Reportes
         [HttpGet]
         [Route("Informe")]
         public IHttpActionResult Informe(string clave, string ofc, string tipo, string fini,
-           string ffin, string emp, string sol, string trcl, string cor, string stus, string recl)
+           string ffin, string emp, string sol, string trcl, string cor, string stus, string recl, string usercor)
         {
             
             DateTime FechaF = DateTime.Now;
@@ -70,6 +70,7 @@ namespace SAGA.API.Controllers.Reportes
                 e.fch_Limite,
                 empresa = e.Cliente.Nombrecomercial.ToUpper(),
                 e.ClienteId,
+                e.AprobadorId,
                 cordinador2 = db.Usuarios.Where(x=>x.Usuario == e.Aprobador).ToList().Count > 0? db.Usuarios.Where(x => e.Aprobador.Contains(x.Usuario)).Select(x=>x.Nombre + " " + x.ApellidoPaterno).FirstOrDefault().ToUpper() : "",
                 nombreApellido = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper() + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno.ToUpper(),
                 propietario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper(),
@@ -144,7 +145,7 @@ namespace SAGA.API.Controllers.Reportes
             //}
             if (cor != "0" && cor != null)
             {
-                var obj = sol.Split(',');
+                var obj = cor.Split(',');
                 List<int> listaAreglo = new List<int>();
                 for (int i = 0; i < obj.Count() - 1; i++)
                 {
@@ -154,6 +155,21 @@ namespace SAGA.API.Controllers.Reportes
                 if (obb.Count == 0)
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
+                }
+            }
+
+            if (usercor != "0" && usercor != null && usercor != "00000000-0000-0000-0000-000000000000,")
+            {
+                var obj = usercor.Split(',');
+                List<Guid> listaAreglo = new List<Guid>();
+                for (int i = 0; i < obj.Count() - 1; i++)
+                {
+                    listaAreglo.Add(new Guid(obj[i]));
+                }
+                var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
+                if (obb.Count == 0)
+                {
+                    datos = datos.Where(e => listaAreglo.Contains(e.AprobadorId)).ToList();
                 }
             }
 
@@ -265,15 +281,15 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("usuario")]
-        public IHttpActionResult Usuario()
+        public IHttpActionResult Usuario(string cor)
         {
-           
-            //if (cor == "1")
-            //{
-            //    Status = new[] { 4 };
-            //}
-
+            
             int[] Status = new[] { 1, 2, 3, 5, 6 };
+
+            if (cor == "1")
+            {
+                Status = new[] { 4 };
+            }
             var datos = db.Usuarios.Where(e => e.Activo == true && Status.Contains(e.TipoUsuarioId)).Select(e => new
             {
                 Nombre = e.Nombre + " "+ e.ApellidoPaterno,

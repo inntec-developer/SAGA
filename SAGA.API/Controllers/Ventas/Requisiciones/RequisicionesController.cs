@@ -119,8 +119,10 @@ namespace SAGA.API.Controllers
                         r.Prioridad,
                         r.Confidencial,
                         r.Estatus,
+                        solicitante = db.Entidad.Where(x => x.Id.Equals(r.PropietarioId)).Select(S => S.Nombre + " " + S.ApellidoPaterno + " " + S.ApellidoMaterno).FirstOrDefault(),
+                        coordinador  = db.Entidad.Where(x => x.Id.Equals(r.AprobadorId)).Select(S => S.Nombre + " " + S.ApellidoPaterno + " " + S.ApellidoMaterno).FirstOrDefault(),
                         asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => x.GrpUsrId).ToList(),
-                        asignadosN = r.AsignacionRequi.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => new {
+                        asignadosN = r.AsignacionRequi.Where(x => x.RequisicionId.Equals(r.Id) && !x.GrpUsrId.Equals(r.AprobadorId)).Select(x => new {
                             x.GrpUsr.Nombre,
                             x.GrpUsr.ApellidoMaterno,
                             x.GrpUsr.ApellidoPaterno
@@ -196,7 +198,7 @@ namespace SAGA.API.Controllers
                 if (tipo == 8 || tipo == 3)
                 {
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true))
+                   .Where(e => e.Activo.Equals(true) && !e.Confidencial)
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -1880,10 +1882,12 @@ namespace SAGA.API.Controllers
                     var body = "";
                     foreach (var a in aprobadores)
                     {
-                        m.To.Add("idelatorre@damsa.com.mx");
-                        m.Bcc.Add("bmorales@damsa.com.mx");
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
                         var email = aux[0].email;
+                        var emailSol = aux[0].emailSol;
+                        m.To.Add(email);
+                        m.Bcc.Add(emailSol);
+                      
                         foreach (var r in aux)
                         {
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
@@ -1891,7 +1895,7 @@ namespace SAGA.API.Controllers
                                                        r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.vacantes, r.estatus, r.fch_Modificacion);
                         }
 
-                        body = inicio + body + "</table></body></html><br/><p>El correo deber&iacute;a de llegar a " + email + "</p>";
+                        body = inicio + body + "</table></body></html><br/>";
                         m.Body = body;
                         m.IsBodyHtml = true;
                         SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
@@ -1943,11 +1947,11 @@ namespace SAGA.API.Controllers
                     var body = "";
                     foreach (var a in aprobadores)
                     {
-                        m.To.Add("idelatorre@damsa.com.mx");
-                        m.Bcc.Add("bmorales@damsa.com.mx");
-
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
-                        var email = aux[0].email;
+
+                        m.To.Add(aux[0].email);
+                        m.Bcc.Add(aux[0].emailSol);
+
                         foreach (var r in aux)
                         {
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
@@ -1956,7 +1960,7 @@ namespace SAGA.API.Controllers
                         }
 
                         body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
-                        body = body + "<br/><p>El correo deber&iacute;a de llegar a " + email + "</p></body></html>";
+                        body = body + "</body></html>";
                         m.Body = body;
                         m.IsBodyHtml = true;
                         SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
@@ -2009,10 +2013,11 @@ namespace SAGA.API.Controllers
                     var body = "";
                     foreach (var a in aprobadores)
                     {
-                        m.To.Add("idelatorre@damsa.com.mx");
-                        m.Bcc.Add("bmorales@damsa.com.mx");
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
-                        var email = aux[0].email;
+
+                        m.To.Add(aux[0].email);
+                        m.Bcc.Add(aux[0].emailSol);
+                        
                         foreach (var r in aux)
                         {
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
@@ -2021,7 +2026,7 @@ namespace SAGA.API.Controllers
                         }
 
                         body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
-                        body = body + "<br/><p>El correo deber&iacute;a de llegar a " + email + "</p></body></html>";
+                        body = body + "<br/></body></html>";
                         m.Body = body;
                         m.IsBodyHtml = true;
                         SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
@@ -2072,11 +2077,11 @@ namespace SAGA.API.Controllers
                     var body = "";
                     foreach (var a in aprobadores)
                     {
-                        m.To.Add("idelatorre@damsa.com.mx");
-                        m.Bcc.Add("bmorales@damsa.com.mx");
-
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
-                        var email = aux[0].email;
+
+                        m.To.Add(aux[0].email);
+                        m.Bcc.Add(aux[0].emailSol);
+
                         foreach (var r in aux)
                         {
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
@@ -2085,7 +2090,7 @@ namespace SAGA.API.Controllers
                         }
 
                         body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
-                        body = body + "<br/><p>El correo deber&iacute;a de llegar a " + email + "</p></body></html>";
+                        body = body + "<br/></body></html>";
                         m.Body = body;
                         m.IsBodyHtml = true;
                         SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
