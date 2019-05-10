@@ -1301,6 +1301,38 @@ namespace SAGA.API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("getTicketsGenerados")]
+        public IHttpActionResult GetTicketsGenerados()
+        {
+            try
+            {
+                //tickets con cita y sin cita
+                var conc = db.HistoricosTickets
+                    .Select(C => new
+                    {
+
+                        fecha = C.fch_Modificacion,
+                        estatus = C.Estatus,
+                        ticket = C.Numero
+                        //total = C.Select(t => t.Numero).Count(),
+
+                    
+                    }).OrderByDescending(o => o.fecha).ToList();
+
+                var result = from T in conc
+                             group T by T.fecha.Date into g
+                             select new { g.Key, total=g.Select(t => t.ticket).Count(), enAtencion = g.Where(x => x.estatus.Equals(2)).Select(x => x.ticket).Count() };
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+
+
 
     }
 }

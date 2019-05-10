@@ -272,7 +272,7 @@ namespace SAGA.API.Controllers.Component
                     estatus = inf.Motivo.Estatus.Descripcion,
                     comentario = inf.Comentario,
                     respuesta = ""
-                }).OrderByDescending(f => f.fecha).GroupBy(g => g.candidatoId).Select(result => result.FirstOrDefault()).ToList();
+                }).GroupBy(g => g.candidatoId).Select(result => result.FirstOrDefault()).OrderByDescending(o=>o.fecha).ToList();
 
                
                 return Ok(folio);

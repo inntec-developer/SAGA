@@ -159,15 +159,16 @@ namespace SAGA.API.Controllers
 
                 var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
                     propietario = p.PropietarioId,
+                    aprobador = p.AprobadorId,
                     folio = p.Folio.ToString(),
                     vbtra = p.VBtra,
-                    aprobador = p.AprobadorId,
                 }).FirstOrDefault();
                 
                 if(propietario != null)
                 {
                     email = db.Emails.Where(x => x.EntidadId.Equals(propietario.propietario)).Select(e => e.email).FirstOrDefault();
                     aprovadorEmail = db.Emails.Where(x => x.EntidadId.Equals(propietario.aprobador)).Select(e => e.email).FirstOrDefault();
+
                     folio = propietario.folio;
                     vbtra = propietario.vbtra;
                 }
@@ -177,7 +178,7 @@ namespace SAGA.API.Controllers
                     email = n.emails.Select(e => e.email).FirstOrDefault()
                 }).FirstOrDefault();
 
-                var candidato = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(candidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
+                var candidato = db.Candidatos.Where(x => x.Id.Equals(candidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
                 var motivo = db.ComentariosEntrevistas.OrderByDescending(x => x.fch_Creacion)
                     .Where(x => x.CandidatoId.Equals(candidatoId) 
                                 & x.RequisicionId.Equals(requi) 
@@ -203,6 +204,7 @@ namespace SAGA.API.Controllers
                     m.To.Add(email);
                     m.CC.Add(usuario.email.ToString());
                     m.CC.Add(aprovadorEmail);
+
                     //usuario, candidato, motivo, vbtra, folio
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
