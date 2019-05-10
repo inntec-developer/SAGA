@@ -1668,13 +1668,16 @@ namespace SAGA.API.Controllers
                         db.Entry(requisicion).Property(x => x.Aprobada).IsModified = false;
                         db.Entry(requisicion).Property(x => x.fch_Aprobacion).IsModified = false;
                     }
-                    requisicion.DiasEnvio = requi.DiasEnvio;
-                    requisicion.fch_Modificacion = DateTime.Now;
-                    requisicion.UsuarioMod = requi.Usuario;
-                    if (requi.AsignacionRequi.ToList().Count() > 1)
-                        requisicion.Asignada = true;
-                    else
-                        requisicion.Asignada = false;
+                    if (requi.AprobadorId == requisicion.AprobadorId)
+                    {
+                        requisicion.DiasEnvio = requi.DiasEnvio;
+                        requisicion.fch_Modificacion = DateTime.Now;
+                        requisicion.UsuarioMod = requi.Usuario;
+                        if (requi.AsignacionRequi.ToList().Count() > 1)
+                            requisicion.Asignada = true;
+                        else
+                            requisicion.Asignada = false;
+                    }
 
                     if(requi.Ponderacion.Id.ToString() == "00000000-0000-0000-0000-000000000000")
                     {
@@ -1685,7 +1688,7 @@ namespace SAGA.API.Controllers
                         pon.fch_Modificacion = DateTime.Now;
                         db.PonderacionRequisiciones.Add(pon);
                     }
-                    else
+                    else if(requi.AprobadorId == requisicion.AprobadorId)
                     {
                         var pon = db.PonderacionRequisiciones.Find(requi.Ponderacion.Id);
                         db.Entry(pon).State = EntityState.Modified;
@@ -1695,7 +1698,7 @@ namespace SAGA.API.Controllers
                         pon.fch_Modificacion = DateTime.Now;
                     }
                     db.SaveChanges();
-                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra);
+                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra);    
                     db.SaveChanges();
                     Int64 Folio = requisicion.Folio;
                     //Creacion de Trazabalidad par ala requisición.
