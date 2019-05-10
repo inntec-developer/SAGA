@@ -44,12 +44,12 @@ namespace SAGA.API.Controllers.Reportes
             }
             FechaF = FechaF.AddDays(1);
             var datos2 = db.Requisiciones.Where(e => e.fch_Creacion >= FechaI
-            && e.fch_Creacion <= FechaF && e.EstatusId != 9 && e.Confidencial == false).OrderByDescending(e=>e.fch_Creacion).ToList();
+            && e.fch_Creacion <= FechaF  && e.Confidencial == false).OrderByDescending(e=>e.fch_Creacion).ToList();
 
             if (tipo == "2" || tipo == "6")
             {
              datos2 = db.Requisiciones.Where(e => e.fch_Modificacion >= FechaI
-             && e.fch_Modificacion <= FechaF && e.EstatusId != 9 && e.Confidencial == false).OrderByDescending(e => e.fch_Modificacion).ToList();
+             && e.fch_Modificacion <= FechaF && e.Confidencial == false).OrderByDescending(e => e.fch_Modificacion).ToList();
             }
             var requi = datos2.Select(e => e.Id).ToList();
       //      var aprobador = datos2.Select(e => new { e.AprobadorId, e.Id }).ToList();
@@ -305,7 +305,7 @@ namespace SAGA.API.Controllers.Reportes
         [Route("estatus")]
         public IHttpActionResult Estatus()
         {
-            var datos = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 2 && e.Id != 9 && e.Id != 5).Select(e => new
+            var datos = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 2 && e.Id != 5).Select(e => new
             {
                 e.Descripcion,
                 e.Id

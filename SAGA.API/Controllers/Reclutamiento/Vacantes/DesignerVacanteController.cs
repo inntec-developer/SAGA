@@ -9,6 +9,7 @@ using SAGA.BOL;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Data;
 
 
 namespace SAGA.API.Controllers
@@ -67,6 +68,7 @@ namespace SAGA.API.Controllers
                                                && a.TipoMovimientoId == 3
                                             ).OrderBy(e => e.Orden).ToList();
             var configura = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
+            var requi = db.Requisiciones.Where(r => r.Id.Equals(Requi)).FirstOrDefault();
             foreach (var item in datos)
             {
                 listadoEstru pieza = new listadoEstru();
@@ -80,6 +82,7 @@ namespace SAGA.API.Controllers
                 pieza.Resumen = false;
                 pieza.Detalle = false;
                 pieza.Publica = false;
+                pieza.Valor = requi.GetType().GetProperty(item.Nombre).GetValue(requi, null).ToString();
                 try
                 {
                     pieza.Resumen = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().R;
@@ -589,6 +592,7 @@ namespace SAGA.API.Controllers
             public bool? Resumen { get; set; }
             public bool? Detalle { get; set; }
             public bool? Publica { get; set; }
+            public string Valor { get; set; }
         }
 
         public class listaPublicar
