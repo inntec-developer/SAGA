@@ -38,6 +38,30 @@
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Infobip.Push, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\infobip.push.1.0.3\lib\Infobip.Push.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="InfobipClientLib, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Infobip.Api.Client.1.1.0\lib\net45\InfobipClientLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OneApi, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OneApi.1.0.0.0\lib\net35\OneApi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RestSharp, Version=102.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.102.7\lib\net35\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -49,46 +73,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Migrations\201805102153501_AlterDepto.cs" />
-    <Compile Include="Migrations\201805102153501_AlterDepto.Designer.cs">
-      <DependentUpon>201805102153501_AlterDepto.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201805102154315_AlterDepto2.cs" />
-    <Compile Include="Migrations\201805102154315_AlterDepto2.Designer.cs">
-      <DependentUpon>201805102154315_AlterDepto2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201805111354187_alterDeptoFkArea.cs" />
-    <Compile Include="Migrations\201805111354187_alterDeptoFkArea.Designer.cs">
-      <DependentUpon>201805111354187_alterDeptoFkArea.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201805111358304_AddDeptoFkArea.cs" />
-    <Compile Include="Migrations\201805111358304_AddDeptoFkArea.Designer.cs">
-      <DependentUpon>201805111358304_AddDeptoFkArea.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201805112044332_AlterDeptoFKDrop.cs" />
-    <Compile Include="Migrations\201805112044332_AlterDeptoFKDrop.Designer.cs">
-      <DependentUpon>201805112044332_AlterDeptoFKDrop.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201805112046496_AlterDeptoFKaDD.cs" />
-    <Compile Include="Migrations\201805112046496_AlterDeptoFKaDD.Designer.cs">
-      <DependentUpon>201805112046496_AlterDeptoFKaDD.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201805141435166_DropDepto.cs" />
-    <Compile Include="Migrations\201805141435166_DropDepto.Designer.cs">
-      <DependentUpon>201805141435166_DropDepto.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201805141442079_AddDeptoAlterUsuario.cs" />
-    <Compile Include="Migrations\201805141442079_AddDeptoAlterUsuario.Designer.cs">
-      <DependentUpon>201805141442079_AddDeptoAlterUsuario.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201805151752582_alterTrazabilidad.cs" />
-    <Compile Include="Migrations\201805151752582_alterTrazabilidad.Designer.cs">
-      <DependentUpon>201805151752582_alterTrazabilidad.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201805151756221_AlterAsignacionesRequi.cs" />
-    <Compile Include="Migrations\201805151756221_AlterAsignacionesRequi.Designer.cs">
-      <DependentUpon>201805151756221_AlterAsignacionesRequi.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SAGADBContext.cs" />
@@ -104,38 +88,6 @@
       <Project>{3bc6ec23-0424-41fb-be3f-d42ab3400d9c}</Project>
       <Name>SAGA.BOL</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201805102153501_AlterDepto.resx">
-      <DependentUpon>201805102153501_AlterDepto.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201805102154315_AlterDepto2.resx">
-      <DependentUpon>201805102154315_AlterDepto2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201805111354187_alterDeptoFkArea.resx">
-      <DependentUpon>201805111354187_alterDeptoFkArea.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201805111358304_AddDeptoFkArea.resx">
-      <DependentUpon>201805111358304_AddDeptoFkArea.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201805112044332_AlterDeptoFKDrop.resx">
-      <DependentUpon>201805112044332_AlterDeptoFKDrop.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201805112046496_AlterDeptoFKaDD.resx">
-      <DependentUpon>201805112046496_AlterDeptoFKaDD.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201805141435166_DropDepto.resx">
-      <DependentUpon>201805141435166_DropDepto.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201805141442079_AddDeptoAlterUsuario.resx">
-      <DependentUpon>201805141442079_AddDeptoAlterUsuario.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201805151752582_alterTrazabilidad.resx">
-      <DependentUpon>201805151752582_alterTrazabilidad.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201805151756221_AlterAsignacionesRequi.resx">
-      <DependentUpon>201805151756221_AlterAsignacionesRequi.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
