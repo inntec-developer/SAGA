@@ -482,7 +482,7 @@ namespace SAGA.API.Controllers
             {
                 AspNetUsers usuario = new AspNetUsers();
                 var username = "";
-                var pass = datos.Nombre.Substring(0,1).ToLower() + datos.ApellidoPaterno.ToLower().Trim();
+                var pass = datos.Nombre.Substring(0,1).ToLower() + datos.ApellidoPaterno.Trim().ToLower();
                 if(datos.OpcionRegistro == 1)
                 {
                     username = datos.Email[0].email.ToString();
@@ -630,6 +630,30 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("postularCandidato")]
+        public IHttpActionResult PostularCandidato(Guid candidatoId, Guid requisicionId)
+        {
+            try
+            {
+                if (db.Postulaciones.Where(x => x.CandidatoId.Equals(candidatoId) && x.RequisicionId.Equals(requisicionId)).Count() == 0)
+                {
+                    Postulacion obj = new Postulacion();
+                    obj.CandidatoId = candidatoId;
+                    obj.fch_Postulacion = DateTime.Now;
+                    obj.RequisicionId = requisicionId;
+                    obj.StatusId = 1;
+
+                    db.Postulaciones.Add(obj);
+                    db.SaveChanges();
+                }
+                return Ok(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+        [HttpGet]
         [Route("updateStatus")]
         public IHttpActionResult UpdateStatus(Guid ticketId, int estatus, int moduloId)
         {
@@ -662,6 +686,8 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
+
+
         [HttpGet]
         [Route("getFilaTickets")]
         public IHttpActionResult GetFilaTickets(int estatus, Guid reclutadorId)
@@ -696,7 +722,7 @@ namespace SAGA.API.Controllers
                                       moduloId = items.moduloId,
                                       fch_Creacion = items.fch_Estatus,
                                       fch_cita = items.fch_cita,
-                                      tiempo = Math.Round((DateTime.Now - items.fch_Estatus).TotalMinutes, 0) //(DateTime.Now - items.fch_Estatus).TotalMinutes > 60 ? Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes / 60, 0) : Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0)
+                                      tiempo = Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0) //(DateTime.Now - items.fch_Estatus).TotalMinutes > 60 ? Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes / 60, 0) : Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0)
                                   };
 
 
@@ -1008,6 +1034,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
+             
                 var requisicion = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Creacion)
                 .Where(e => e.CandidatoId.Equals(candidatoId) && e.Requisicion.Activo.Equals(true))
                 .Select(e => new
@@ -1255,7 +1282,8 @@ namespace SAGA.API.Controllers
 
                         db.SaveChanges();
                 }
-                 
+                
+            
                 return Ok(HttpStatusCode.OK);
             }
             catch (Exception ex)
