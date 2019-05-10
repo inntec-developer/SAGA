@@ -305,7 +305,6 @@ namespace SAGA.API.Controllers
 
                         db.ProcesoCandidatos.Add(proceso);
                         db.SaveChanges();
-
                     }
                     return Ok(HttpStatusCode.OK);
                 }
