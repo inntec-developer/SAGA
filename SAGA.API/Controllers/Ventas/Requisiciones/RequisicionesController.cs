@@ -119,8 +119,10 @@ namespace SAGA.API.Controllers
                         r.Prioridad,
                         r.Confidencial,
                         r.Estatus,
+                        solicitante = db.Entidad.Where(x => x.Id.Equals(r.PropietarioId)).Select(S => S.Nombre + " " + S.ApellidoPaterno + " " + S.ApellidoMaterno).FirstOrDefault(),
+                        coordinador  = db.Entidad.Where(x => x.Id.Equals(r.AprobadorId)).Select(S => S.Nombre + " " + S.ApellidoPaterno + " " + S.ApellidoMaterno).FirstOrDefault(),
                         asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => x.GrpUsrId).ToList(),
-                        asignadosN = r.AsignacionRequi.Where(x => x.RequisicionId.Equals(r.Id)).Select(x => new {
+                        asignadosN = r.AsignacionRequi.Where(x => x.RequisicionId.Equals(r.Id) && !x.GrpUsrId.Equals(r.AprobadorId)).Select(x => new {
                             x.GrpUsr.Nombre,
                             x.GrpUsr.ApellidoMaterno,
                             x.GrpUsr.ApellidoPaterno
@@ -196,7 +198,7 @@ namespace SAGA.API.Controllers
                 if (tipo == 8 || tipo == 3)
                 {
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true))
+                   .Where(e => e.Activo.Equals(true) && !e.Confidencial)
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -237,10 +239,10 @@ namespace SAGA.API.Controllers
                        Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
                        coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                        Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
-                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a => new
-                       {
-                           reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
-                       }).Distinct().ToList(),
+                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                      db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
+                                       ).ToList(),
+
                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
                    }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
@@ -300,10 +302,9 @@ namespace SAGA.API.Controllers
                        Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
                        coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                        Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault().ToUpper(),
-                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a => new
-                       {
-                           reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
-                       }).Distinct().ToList(),
+                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                      db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
+                                       ).ToList(),
                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion.ToUpper() + " - ") + c.Comentario.ToUpper()).ToList()
                    }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
@@ -565,6 +566,8 @@ namespace SAGA.API.Controllers
                             PropietarioId = e.PropietarioId,
                             AprobadorId = e.AprobadorId,
                             Aprobada = e.Aprobada,
+                            DiasEnvio = e.DiasEnvio,
+                            asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
                             
                                 db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()).ToList(),
@@ -625,6 +628,8 @@ namespace SAGA.API.Controllers
                             PropietarioId = e.PropietarioId,
                             AprobadorId = e.AprobadorId,
                             aprobada = e.Aprobada,
+                            DiasEnvio = e.DiasEnvio,
+                            asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
                                db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                             ).Distinct().ToList(),
@@ -1662,13 +1667,16 @@ namespace SAGA.API.Controllers
                         db.Entry(requisicion).Property(x => x.Aprobada).IsModified = false;
                         db.Entry(requisicion).Property(x => x.fch_Aprobacion).IsModified = false;
                     }
-                    requisicion.DiasEnvio = requi.DiasEnvio;
-                    requisicion.fch_Modificacion = DateTime.Now;
-                    requisicion.UsuarioMod = requi.Usuario;
-                    if (requi.AsignacionRequi.ToList().Count() > 1)
-                        requisicion.Asignada = true;
-                    else
-                        requisicion.Asignada = false;
+                    if (requi.AprobadorId == requisicion.AprobadorId)
+                    {
+                        requisicion.DiasEnvio = requi.DiasEnvio;
+                        requisicion.fch_Modificacion = DateTime.Now;
+                        requisicion.UsuarioMod = requi.Usuario;
+                        if (requi.AsignacionRequi.ToList().Count() > 1)
+                            requisicion.Asignada = true;
+                        else
+                            requisicion.Asignada = false;
+                    }
 
                     if(requi.Ponderacion.Id.ToString() == "00000000-0000-0000-0000-000000000000")
                     {
@@ -1679,7 +1687,7 @@ namespace SAGA.API.Controllers
                         pon.fch_Modificacion = DateTime.Now;
                         db.PonderacionRequisiciones.Add(pon);
                     }
-                    else
+                    else if(requi.AprobadorId == requisicion.AprobadorId)
                     {
                         var pon = db.PonderacionRequisiciones.Find(requi.Ponderacion.Id);
                         db.Entry(pon).State = EntityState.Modified;
@@ -1689,7 +1697,7 @@ namespace SAGA.API.Controllers
                         pon.fch_Modificacion = DateTime.Now;
                     }
                     db.SaveChanges();
-                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra);
+                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra);    
                     db.SaveChanges();
                     Int64 Folio = requisicion.Folio;
                     //Creacion de Trazabalidad par ala requisición.
@@ -1876,10 +1884,14 @@ namespace SAGA.API.Controllers
                     var body = "";
                     foreach (var a in aprobadores)
                     {
-                        m.To.Add("idelatorre@damsa.com.mx");
-                        m.Bcc.Add("bmorales@damsa.com.mx");
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
                         var email = aux[0].email;
+                        var emailSol = aux[0].emailSol;
+                        m.To.Add(email);
+                        m.Bcc.Add(emailSol);
+                        m.Bcc.Add("idelatorre@damsa.com.mx");
+                        m.Bcc.Add("mventura@damsa.com.mx");
+
                         foreach (var r in aux)
                         {
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
@@ -1887,7 +1899,7 @@ namespace SAGA.API.Controllers
                                                        r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.vacantes, r.estatus, r.fch_Modificacion);
                         }
 
-                        body = inicio + body + "</table></body></html><br/><p>El correo deber&iacute;a de llegar a " + email + "</p>";
+                        body = inicio + body + "</table></body></html><br/>";
                         m.Body = body;
                         m.IsBodyHtml = true;
                         SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
@@ -1939,11 +1951,12 @@ namespace SAGA.API.Controllers
                     var body = "";
                     foreach (var a in aprobadores)
                     {
-                        m.To.Add("idelatorre@damsa.com.mx");
-                        m.Bcc.Add("bmorales@damsa.com.mx");
-
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
-                        var email = aux[0].email;
+
+                        m.To.Add(aux[0].email);
+                        m.Bcc.Add(aux[0].emailSol);
+                        m.Bcc.Add("idelatorre@damsa.com.mx");
+                        m.Bcc.Add("mventura@damsa.com.mx");
                         foreach (var r in aux)
                         {
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
@@ -1952,7 +1965,7 @@ namespace SAGA.API.Controllers
                         }
 
                         body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
-                        body = body + "<br/><p>El correo deber&iacute;a de llegar a " + email + "</p></body></html>";
+                        body = body + "</body></html>";
                         m.Body = body;
                         m.IsBodyHtml = true;
                         SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
@@ -2005,10 +2018,12 @@ namespace SAGA.API.Controllers
                     var body = "";
                     foreach (var a in aprobadores)
                     {
-                        m.To.Add("idelatorre@damsa.com.mx");
-                        m.Bcc.Add("bmorales@damsa.com.mx");
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
-                        var email = aux[0].email;
+
+                        m.To.Add(aux[0].email);
+                        m.Bcc.Add(aux[0].emailSol);
+                        m.Bcc.Add("idelatorre@damsa.com.mx");
+                        m.Bcc.Add("mventura@damsa.com.mx");
                         foreach (var r in aux)
                         {
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
@@ -2017,7 +2032,7 @@ namespace SAGA.API.Controllers
                         }
 
                         body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
-                        body = body + "<br/><p>El correo deber&iacute;a de llegar a " + email + "</p></body></html>";
+                        body = body + "<br/></body></html>";
                         m.Body = body;
                         m.IsBodyHtml = true;
                         SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
@@ -2068,11 +2083,12 @@ namespace SAGA.API.Controllers
                     var body = "";
                     foreach (var a in aprobadores)
                     {
-                        m.To.Add("idelatorre@damsa.com.mx");
-                        m.Bcc.Add("bmorales@damsa.com.mx");
-
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
-                        var email = aux[0].email;
+
+                        m.To.Add(aux[0].email);
+                        m.Bcc.Add(aux[0].emailSol);
+                        m.Bcc.Add("idelatorre@damsa.com.mx");
+                        m.Bcc.Add("mventura@damsa.com.mx");
                         foreach (var r in aux)
                         {
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
@@ -2081,7 +2097,7 @@ namespace SAGA.API.Controllers
                         }
 
                         body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
-                        body = body + "<br/><p>El correo deber&iacute;a de llegar a " + email + "</p></body></html>";
+                        body = body + "<br/></body></html>";
                         m.Body = body;
                         m.IsBodyHtml = true;
                         SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));

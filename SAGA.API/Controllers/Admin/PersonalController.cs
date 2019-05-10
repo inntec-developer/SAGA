@@ -708,81 +708,88 @@ namespace SAGA.API.Controllers
         [Route("setUsers")]
         public IHttpActionResult SetUsers(string p, string e)
         {
-            PrivilegiosController obj = new PrivilegiosController();
-            UsuarioDto userData = new UsuarioDto();
-
-            
-
-            var Data =
-                   (from users in db.Usuarios
-                    join email in db.Emails on users.Id equals email.EntidadId
-                    where users.Password == p & email.email == e & users.TipoEntidadId == 1
-                    select new
-                    {
-                        id = users.Id,
-                        nombre = users.Nombre + " " + users.ApellidoPaterno,
-                        usuario = users.Usuario,
-                        activo = users.Activo,
-                        email = email.email,
-                        foto = users.Foto,
-                        clave = users.Clave,
-                        tipousuario = users.TipoUsuarioId,
-                        tip = users.TipoUsuario.Tipo,
-                        sucursal = users.Sucursal.Nombre
-                    }).ToList();
-
-            object[] _params = {
-                    new SqlParameter("@CLAVE", Data.Select(x => x.clave).FirstOrDefault())
-                };
-
-            var activo = db.Database.SqlQuery<Int32>("exec sp_ValidatorLogin @CLAVE", _params).FirstOrDefault();
-
-            if (activo > 0)
+            try
             {
-                if (Data.Count() > 0)
+                PrivilegiosController obj = new PrivilegiosController();
+                UsuarioDto userData = new UsuarioDto();
+                var Data =
+                       (from users in db.Usuarios
+                        join email in db.Emails on users.Id equals email.EntidadId
+                        where users.Password == p & email.email == e & users.TipoEntidadId == 1
+                        select new
+                        {
+                            id = users.Id,
+                            nombre = users.Nombre + " " + users.ApellidoPaterno,
+                            usuario = users.Usuario,
+                            activo = users.Activo,
+                            email = email.email,
+                            foto = users.Foto,
+                            clave = users.Clave,
+                            tipousuario = users.TipoUsuarioId,
+                            tip = users.TipoUsuario.Tipo,
+                            sucursal = users.Sucursal.Nombre
+                        }).ToList();
+
+                object[] _params = {
+                        new SqlParameter("@CLAVE", Data.Select(x => x.clave).FirstOrDefault())
+                    };
+
+                var activo = db.Database.SqlQuery<Int32>("exec sp_ValidatorLogin @CLAVE", _params).FirstOrDefault();
+
+                if (activo > 0)
                 {
-                    if (Data.Select(x => x.activo).FirstOrDefault() == true)
+                    if (Data.Count() > 0)
                     {
-                        userData.Id = Data.Select(x => x.id).FirstOrDefault();
-                        userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
-                        userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
-                        userData.Privilegios = obj.GetPrivilegios(userData.Id);
-                        userData.Email = Data.Select(x => x.email).FirstOrDefault();
-                        userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
-                        userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
-                        userData.TipoUsuarioId = Data.Select(x => x.tipousuario).FirstOrDefault();
-                        userData.Tipo = Data.Select(x => x.tip).FirstOrDefault();
-                        userData.Sucursal = Data.Select(x => x.sucursal).FirstOrDefault();
-                        return Ok(userData);
-                    }
-                    else if (Data.Select(x => x.activo).FirstOrDefault() == false && db.Roles.ToList().Count() == 0)
-                    {
-                        userData.Id = Data.Select(x => x.id).FirstOrDefault();
-                        userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
-                        userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
-                        userData.Privilegios = obj.GetPrivilegiosDios();
-                        userData.Email = Data.Select(x => x.email).FirstOrDefault();
-                        userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
-                        userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
-                        userData.TipoUsuarioId = Data.Select(x => x.tipousuario).FirstOrDefault();
-                        userData.Tipo = Data.Select(x => x.tip).FirstOrDefault();
-                        userData.Sucursal = Data.Select(x => x.sucursal).FirstOrDefault();
-                        return Ok(userData);
+                        if (Data.Select(x => x.activo).FirstOrDefault() == true)
+                        {
+                            userData.Id = Data.Select(x => x.id).FirstOrDefault();
+                            userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
+                            userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
+                            userData.Privilegios = obj.GetPrivilegios(userData.Id);
+                            userData.Email = Data.Select(x => x.email).FirstOrDefault();
+                            userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
+                            userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
+                            userData.TipoUsuarioId = Data.Select(x => x.tipousuario).FirstOrDefault();
+                            userData.Tipo = Data.Select(x => x.tip).FirstOrDefault();
+                            userData.Sucursal = Data.Select(x => x.sucursal).FirstOrDefault();
+                            return Ok(userData);
+                        }
+                        else if (Data.Select(x => x.activo).FirstOrDefault() == false && db.Roles.ToList().Count() == 0)
+                        {
+                            userData.Id = Data.Select(x => x.id).FirstOrDefault();
+                            userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
+                            userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
+                            userData.Privilegios = obj.GetPrivilegiosDios();
+                            userData.Email = Data.Select(x => x.email).FirstOrDefault();
+                            userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
+                            userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
+                            userData.TipoUsuarioId = Data.Select(x => x.tipousuario).FirstOrDefault();
+                            userData.Tipo = Data.Select(x => x.tip).FirstOrDefault();
+                            userData.Sucursal = Data.Select(x => x.sucursal).FirstOrDefault();
+                            return Ok(userData);
+                        }
+                        else
+                        {
+                            return Ok(HttpStatusCode.NotAcceptable);
+                        }
+
                     }
                     else
                     {
-                        return Ok(HttpStatusCode.NotAcceptable);
+                        return Ok(HttpStatusCode.NotFound);
                     }
-
                 }
                 else
                 {
-                    return Ok(HttpStatusCode.NotFound);
+                    return Ok(HttpStatusCode.NotAcceptable);
                 }
+            
+
             }
-            else
+            catch(Exception ex)
             {
-                return Ok(HttpStatusCode.NotAcceptable);
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
             }
         }
 
