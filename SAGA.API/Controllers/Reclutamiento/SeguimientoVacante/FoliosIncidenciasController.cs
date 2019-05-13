@@ -94,12 +94,12 @@ namespace SAGA.API.Controllers
             try
             {
                 var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
-                    propietario = p.AprobadorId, 
+                    coordinador = p.AprobadorId, 
                     solicitante = p.PropietarioId,
                     folio = p.Folio, 
                     vbtra = p.VBtra
                 }).FirstOrDefault();
-                var emailPropietario = db.Emails.Where(x => x.EntidadId.Equals(propietario.propietario)).Select(e => e.email).FirstOrDefault();
+                var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
                 var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
 
                 var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => new { nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
@@ -110,14 +110,14 @@ namespace SAGA.API.Controllers
                 //email = "bmorales@damsa.com.mx";
                 string body = "";
                // email = "idelatorre@damsa.com.mx";
-                if (emailPropietario != "")
+                if (emailSolicitante != "")
                 {
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
                     m.Subject = "Solicitud vacante en pausa Requisición, " + propietario.folio;
 
-                    m.To.Add(emailPropietario);
+                    m.To.Add(emailCoord);
                     m.Bcc.Add(emailSolicitante);
                     m.Bcc.Add(usuario.email.ToString());
 

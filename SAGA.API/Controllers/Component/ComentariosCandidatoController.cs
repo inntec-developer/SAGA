@@ -255,7 +255,7 @@ namespace SAGA.API.Controllers.Component
             Guid aux = new Guid("00000000-0000-0000-0000-000000000000");
             try
             {
-                var requis = db.Requisiciones.Where(x => x.PropietarioId.Equals(propietarioId)).Select(R => R.Id).ToList();
+                var requis = db.Requisiciones.Where(x => x.AprobadorId.Equals(propietarioId)).Select(R => R.Id).ToList();
 
                 var folio = db.ComentariosEntrevistas.Where(x => requis.Contains(x.RequisicionId) && x.Motivo.EstatusId.Equals(estatus) && db.ProcesoCandidatos.Where(xx => xx.CandidatoId.Equals(x.CandidatoId) && xx.RequisicionId.Equals(x.RequisicionId)).Select(cc => cc.EstatusId).FirstOrDefault() == 42).Select(inf => new
                 {
