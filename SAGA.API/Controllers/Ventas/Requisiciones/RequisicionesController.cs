@@ -1677,6 +1677,10 @@ namespace SAGA.API.Controllers
                         else
                             requisicion.Asignada = false;
                     }
+                    else
+                    {
+                        return Ok(HttpStatusCode.Ambiguous);
+                    }
 
                     if(requi.Ponderacion.Id.ToString() == "00000000-0000-0000-0000-000000000000")
                     {
