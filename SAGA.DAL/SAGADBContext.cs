@@ -807,7 +807,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Usuario).HasMaxLength(30).IsRequired().IsUnicode();
-                Property(x => x.Password).HasMaxLength(40).IsRequired();
+                Property(x => x.Password).IsRequired();
                 Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(30);
                 Property(x => x.UsuarioMod).IsOptional().HasMaxLength(30);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
