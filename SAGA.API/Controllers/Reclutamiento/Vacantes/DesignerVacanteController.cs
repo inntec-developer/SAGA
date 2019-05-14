@@ -82,7 +82,7 @@ namespace SAGA.API.Controllers
                 pieza.Resumen = false;
                 pieza.Detalle = false;
                 pieza.Publica = false;
-                pieza.Valor = requi.GetType().GetProperty(item.Nombre).GetValue(requi, null).ToString();
+                pieza.Requi = requi;
                 try
                 {
                     pieza.Resumen = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().R;
@@ -592,7 +592,7 @@ namespace SAGA.API.Controllers
             public bool? Resumen { get; set; }
             public bool? Detalle { get; set; }
             public bool? Publica { get; set; }
-            public string Valor { get; set; }
+            public Requisicion Requi { get; set; }
         }
 
         public class listaPublicar
