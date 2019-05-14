@@ -1351,7 +1351,7 @@ namespace SAGA.API.Controllers
 
                 var result = from T in conc
                              group T by T.fecha.Date into g
-                             select new { g.Key, total=g.Select(t => t.ticket).Count(), atendidos = g.Where(x => x.estatus.Equals(2)).Select(x => x.ticket).Count(),
+                             select new { fecha = g.Key, total=g.Select(t => t.ticket).Count(), atendidos = g.Where(x => x.estatus.Equals(2)).Select(x => x.ticket).Count(),
                              concita = g.Where(x => x.tipo.Equals(1)).Count(), sincita = g.Where(x => x.tipo.Equals(2)).Count()};
                 return Ok(result);
 
