@@ -101,12 +101,18 @@ namespace SAGA.API.Controllers
                 }).FirstOrDefault();
                 var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
                 var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi)).Select(A => new
+                {
+                    emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
+                }).ToList();
 
-                var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => new { nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
+                var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => new
+                {
+                    nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
                     email = n.emails.Select(ee => ee.email).FirstOrDefault()
                 }).FirstOrDefault();
 
-             
+
                 //email = "bmorales@damsa.com.mx";
                 string body = "";
                // email = "idelatorre@damsa.com.mx";
@@ -119,7 +125,12 @@ namespace SAGA.API.Controllers
 
                     m.To.Add(emailCoord);
                     m.Bcc.Add(emailSolicitante);
-                    m.Bcc.Add(usuario.email.ToString());
+                    foreach (var e in asignados)
+                    {
+                        m.Bcc.Add(e.emails.ToString());
+                    }
+
+                    m.Bcc.Add("bmorales@damsa.com.mx");
 
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
