@@ -792,6 +792,20 @@ namespace SAGA.API.Controllers
 
                     break;
 
+                case 23: // Días de la semana
+
+                    Catalogo.DiasSemana = db.DiasSemanas
+                        .Select(e => new DiasSemanaDto
+                        {
+                            Id = e.Id,
+                            diaSemana = e.diaSemana,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
                 case 24: // Tipos de nomina
 
                     Catalogo.TipoNomina = db.TiposNominas
@@ -813,6 +827,78 @@ namespace SAGA.API.Controllers
                         {
                             Id = e.Id,
                             periodoPago = e.periodoPago,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 27: // Beneficios
+
+                    Catalogo.BeneficioPerfil = db.TiposBeneficios
+                        .Select(e => new BeneficiosPerfilDto
+                        {
+                            Id = e.Id,
+                            tipoBeneficio = e.tipoBeneficio,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 28: // Tipo de contrato
+
+                    Catalogo.TipoContrato = db.TiposContrato
+                        .Select(e => new TipoContratoDto
+                        {
+                            Id = e.Id,
+                            tipoContrato = e.tipoContrato,
+                            periodoPrueba = e.periodoPrueba,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 29: // Tiempos contrato
+
+                    Catalogo.TiemposContrato = db.TiemposContratos
+                        .Select(e => new TiemposContratoDto
+                        {
+                            Id = e.Id,
+                            Tiempo = e.Tiempo,
+                            Orden = e.Orden,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 31: // Documentos DAMSA
+
+                    Catalogo.DocDamsa = db.DocumentosDamsa
+                        .Select(e => new DocDamsaDto
+                        {
+                            Id = e.Id,
+                            documentoDamsa = e.documentoDamsa,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
+                case 32: // Prestaciones Ley
+
+                    Catalogo.PrestacionesLey = db.PrestacionesLey
+                        .Select(e => new PrestacionesdeLeyDto
+                        {
+                            Id = e.Id,
+                            prestacionLey = e.prestacionLey,
                             activo = e.activo
                         })
                         .OrderBy(c => c.Id)
@@ -1457,6 +1543,26 @@ namespace SAGA.API.Controllers
 
                         break;
 
+                    case 23: // Dias de la semana
+
+                        DiaSemana DiasSemana = new DiaSemana();
+
+                        DiasSemana.diaSemana = Catalogo.DiasSemana[0].diaSemana;
+                        DiasSemana.activo = Catalogo.DiasSemana[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.DiasSemanas.Add(DiasSemana);
+                        db.SaveChanges();
+
+                        break;
+
+
                     case 24: // Tipos de nomina
 
                         TipodeNomina tpnomina = new TipodeNomina();
@@ -1494,6 +1600,104 @@ namespace SAGA.API.Controllers
                         db.SaveChanges();
 
                         break;
+
+                    case 27: // Beneficios perfil
+
+                        TipoBeneficio tpbeneficio = new TipoBeneficio();
+
+                        tpbeneficio.tipoBeneficio = Catalogo.BeneficioPerfil[0].tipoBeneficio;
+                        tpbeneficio.activo = Catalogo.BeneficioPerfil[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TiposBeneficios.Add(tpbeneficio);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 28: // Tipo de contrato
+
+                        TipoContrato tpcontrato = new TipoContrato();
+
+                        tpcontrato.tipoContrato = Catalogo.TipoContrato[0].tipoContrato;
+                        tpcontrato.periodoPrueba = Catalogo.TipoContrato[0].periodoPrueba;
+                        tpcontrato.activo = Catalogo.TipoContrato[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TiposContrato.Add(tpcontrato);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 29: // Tiempo de contrato
+
+                        TiempoContrato tiempocontrato = new TiempoContrato();
+
+                        tiempocontrato.Tiempo = Catalogo.TiemposContrato[0].Tiempo;
+                        tiempocontrato.Orden = Catalogo.TiemposContrato[0].Orden;
+                        tiempocontrato.activo = Catalogo.TiemposContrato[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.TiemposContratos.Add(tiempocontrato);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 31: // Documentos DAMSA
+
+                        DocumentosDamsa docdamsa = new DocumentosDamsa();
+
+                        docdamsa.documentoDamsa = Catalogo.DocDamsa[0].documentoDamsa;
+                        docdamsa.activo = Catalogo.DocDamsa[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.DocumentosDamsa.Add(docdamsa);
+                        db.SaveChanges();
+
+                        break;
+
+                    case 32: // Documentos DAMSA
+
+                        PrestacionLey pley = new PrestacionLey();
+
+                        pley.prestacionLey = Catalogo.PrestacionesLey[0].prestacionLey;
+                        pley.activo = Catalogo.PrestacionesLey[0].activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+                        db.PrestacionesLey.Add(pley);
+                        db.SaveChanges();
+
+                        break;
+
                         #endregion
                 }
             }
@@ -2076,6 +2280,26 @@ namespace SAGA.API.Controllers
 
                         break;
 
+                    case 23: // Dias de la semana
+
+                        DiaSemana DiasSemana = new DiaSemana();
+
+                        DiasSemana.Id = Catalogo.DiasSemana[0].Id;
+                        DiasSemana.diaSemana = Catalogo.DiasSemana[0].diaSemana;
+                        DiasSemana.activo = Catalogo.DiasSemana[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(DiasSemana).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
                     case 24: // Tipos de nomina
 
                         TipodeNomina tpnomina = new TipodeNomina();
@@ -2112,6 +2336,109 @@ namespace SAGA.API.Controllers
 
                         db.LogCatalogos.Add(logm);
                         db.Entry(periodo).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+
+                    case 27: // Beneficios perfil
+
+                        TipoBeneficio tpbeneficio = new TipoBeneficio();
+
+                        tpbeneficio.Id = Catalogo.BeneficioPerfil[0].Id;
+                        tpbeneficio.tipoBeneficio = Catalogo.BeneficioPerfil[0].tipoBeneficio;
+                        tpbeneficio.activo = Catalogo.BeneficioPerfil[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(tpbeneficio).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 28: // Tipo de contrato
+
+                        TipoContrato tpcontrato = new TipoContrato();
+
+                        tpcontrato.Id = Catalogo.TipoContrato[0].Id;
+                        tpcontrato.tipoContrato = Catalogo.TipoContrato[0].tipoContrato;
+                        tpcontrato.periodoPrueba = Catalogo.TipoContrato[0].periodoPrueba;
+                        tpcontrato.activo = Catalogo.TipoContrato[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(tpcontrato).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 29: // Tiempo de contrato
+
+                        TiempoContrato tiempocontrato = new TiempoContrato();
+
+                        tiempocontrato.Id = Catalogo.TiemposContrato[0].Id;
+                        tiempocontrato.Tiempo = Catalogo.TiemposContrato[0].Tiempo;
+                        tiempocontrato.Orden = Catalogo.TiemposContrato[0].Orden;
+                        tiempocontrato.activo = Catalogo.TiemposContrato[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(tiempocontrato).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 31: // Documentos DAMSA
+
+                        DocumentosDamsa docdamsa = new DocumentosDamsa();
+
+                        docdamsa.Id = Catalogo.DocDamsa[0].Id;
+                        docdamsa.documentoDamsa = Catalogo.DocDamsa[0].documentoDamsa;
+                        docdamsa.activo = Catalogo.DocDamsa[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(docdamsa).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
+
+                    case 32: // Documentos DAMSA
+
+                        PrestacionLey pley = new PrestacionLey();
+
+                        pley.Id = Catalogo.PrestacionesLey[0].Id;
+                        pley.prestacionLey = Catalogo.PrestacionesLey[0].prestacionLey;
+                        pley.activo = Catalogo.PrestacionesLey[0].activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+                        db.Entry(pley).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
 
                         break;
