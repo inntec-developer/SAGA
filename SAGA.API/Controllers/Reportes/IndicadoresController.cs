@@ -22,17 +22,35 @@ namespace SAGA.API.Controllers.Reportes
         public IHttpActionResult vcubierta(string usuario)
         {
             Guid id = new Guid(usuario);
+            var ListaUsuario = new List<Guid>();
+            ListaUsuario.Add(id);
+            var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
+            if (arbol.Count > 0)
+            {
+                ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
+                foreach (var item in arbol)
+                {
+                    var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
+                    if (hijos.Count > 0)
+                    {
+                        ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                    }
+                }
+            }
+
             DateTime fecha = DateTime.Now.AddMonths(-3);
-            var asigna = db.AsignacionRequis.Where(e => e.GrpUsrId == id).Select(e => e.RequisicionId).ToList();
-            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) && e.fch_Creacion > fecha).ToList();
+            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.PropietarioId)).ToList();
             var cubierta = datos.Where(e => e.EstatusId == 34).ToList();
             var cubiertaParcialmente = datos.Where(e => e.EstatusId == 35).ToList();
             var cubiertaMedios = datos.Where(e => e.EstatusId == 36).ToList();
+            var cCliente = datos.Where(e => e.EstatusId == 37).ToList();
             var obj = new {
                 cubiertas = cubierta.Count,
                 Parcialmente = cubiertaParcialmente.Count,
                 medios = cubiertaMedios.Count,
-                total = 0 + cubierta.Count + cubiertaParcialmente.Count + cubiertaMedios.Count
+                cubiertacliente = cCliente.Count,
+                total = 0 + cubierta.Count + cubiertaParcialmente.Count + cubiertaMedios.Count + cCliente.Count
             };
             return Ok(obj);
         }
@@ -43,9 +61,27 @@ namespace SAGA.API.Controllers.Reportes
         public IHttpActionResult vactiva(string usuario)
         {
             Guid id = new Guid(usuario);
+
+            var ListaUsuario = new List<Guid>();
+            ListaUsuario.Add(id);
+            var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
+            if (arbol.Count > 0)
+            {
+                ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
+                foreach (var item in arbol)
+                {
+                    var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
+                    if (hijos.Count > 0)
+                    {
+                        ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                    }
+                }
+            }
+
             DateTime fecha = DateTime.Now.AddMonths(-1);
-            var asigna = db.AsignacionRequis.Where(e => e.GrpUsrId == id).Select(e => e.RequisicionId).ToList();
-            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) && e.fch_Creacion > fecha).ToList();
+            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+          //  int[] EstatusList = new[] { 4,5,6,7,29,30,31,32,33,38,39 };
+            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.PropietarioId)).ToList();
             int Nuevo = datos.Where(e => e.EstatusId == 4).ToList().Count;
             int Aprobada = datos.Where(e => e.EstatusId == 6).ToList().Count;
             int Publicada = datos.Where(e => e.EstatusId == 7).ToList().Count;
@@ -77,17 +113,36 @@ namespace SAGA.API.Controllers.Reportes
         public IHttpActionResult vporvencer(string usuario)
         {
             Guid id = new Guid(usuario);
-           
+
+            var ListaUsuario = new List<Guid>();
+            ListaUsuario.Add(id);
+            var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
+            if (arbol.Count > 0)
+            {
+                ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
+                foreach (var item in arbol)
+                {
+                    var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
+                    if (hijos.Count > 0)
+                    {
+                        ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                    }
+                }
+            }
+
             DateTime hoy = DateTime.Now;
             DateTime fecha = DateTime.Now.AddMonths(-1);
             DateTime vencida = DateTime.Now.AddDays(3);
-            var asigna = db.AsignacionRequis.Where(e => e.GrpUsrId == id).Select(e => e.RequisicionId).ToList();
-            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) && e.fch_Creacion > fecha).ToList();
-            var porVencer = datos.Where(e => e.fch_Cumplimiento <= vencida && e.fch_Cumplimiento > hoy).ToList().Count;
-            var vencidas = datos.Where(e => e.fch_Cumplimiento < hoy).ToList().Count;
-            var total = datos.Where(e => e.fch_Cumplimiento > vencida).ToList().Count;
-            int Nuevo = datos.Where(e => e.EstatusId == 4).ToList().Count;
-            int Aprobada = datos.Where(e => e.EstatusId == 6).ToList().Count;
+            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.PropietarioId)).ToList();
+            int[] EstatusList = new[] { 34, 35, 36, 37 };
+            var info = db.InformeRequisiciones.Where(e => asigna.Contains(e.RequisicionId)).Where(e => EstatusList.Contains(e.EstatusId)).Select(e=>e.RequisicionId).ToList();
+            //var porVencer = datos.Where(e => e.fch_Cumplimiento <= vencida && e.fch_Cumplimiento > hoy).ToList().Count;
+            //var vencidas = datos.Where(e => e.fch_Cumplimiento < hoy).ToList().Count;
+
+            //int Nuevo = datos.Where(e => e.EstatusId == 4).ToList().Count;
+            //int Aprobada = datos.Where(e => e.EstatusId == 6).ToList().Count;
+            datos = datos.Where(e => !info.Contains(e.Id)).ToList();
             int Publicada = datos.Where(e => e.EstatusId == 7).ToList().Count;
             int BusCandidatos = datos.Where(e => e.EstatusId == 29).ToList().Count;
             int EnvCliente = datos.Where(e => e.EstatusId == 30).ToList().Count;
@@ -96,13 +151,17 @@ namespace SAGA.API.Controllers.Reportes
             int Espera = datos.Where(e => e.EstatusId == 33).ToList().Count;
             int Pausada = datos.Where(e => e.EstatusId == 39).ToList().Count;
             int Garantia = datos.Where(e => e.EstatusId == 38).ToList().Count;
+            int total = Publicada + BusCandidatos + EnvCliente + NuBusqueda + Socioeconomicos + Espera + Pausada + Garantia;
+
+       //     var cubiertass = db.ProcesoCandidatos.Where(x => x.RequisicionId == e.Id && x.EstatusId == 24).Select(a => a.CandidatoId).Distinct().ToList().Count;
+
             var obj = new
             {
-                vencidas = vencidas,
-                porVencer = porVencer,
+                //vencidas = vencidas,
+                //porVencer = porVencer,
                 total = total,
-                Nuevo = Nuevo,
-                Aprobada = Aprobada,
+                //Nuevo = Nuevo,
+                //Aprobada = Aprobada,
                 Publicada = Publicada,
                 BusCandidatos = BusCandidatos,
                 EnvCliente = EnvCliente,

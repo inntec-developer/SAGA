@@ -912,7 +912,7 @@ namespace SAGA.API.Controllers
                 FechaF = FechaF.AddDays(1);
 
                 var datos = objeto.Where(e => e.fch_Solicitud >= FechaI
-                    && e.fch_Solicitud <= FechaF && e.EstatusId != 9).ToList();
+                    && e.fch_Solicitud <= FechaF ).ToList();
 
                 if (stus != "0" && stus != null)
                 {
