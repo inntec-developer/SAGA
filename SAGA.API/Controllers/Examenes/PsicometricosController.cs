@@ -28,7 +28,7 @@ namespace SAGA.API.Controllers
 
                 var requisiciones = db.PsicometriasDamsaRequis.Where(x => x.PsicometriaId > 0).Select(R => R.RequisicionId).ToList().Distinct();
 
-                var psico = db.Requisiciones.Where(x => requisiciones.Contains(x.Id)).Select(R => new
+                var psico = db.Requisiciones.OrderByDescending(o => o.fch_Creacion).Where(x => requisiciones.Contains(x.Id)).Select(R => new
                 {
                     requisicionId = R.Id,
                     folio = R.Folio,
@@ -162,7 +162,7 @@ namespace SAGA.API.Controllers
         [Route("getClaves")]
         public IHttpActionResult GetClaves(Guid requisicionId)
         {
-            var claves = db.Requisiciones.Where(x => x.Id.Equals(requisicionId)).Select(C => new
+            var claves = db.Requisiciones.OrderByDescending(o => o.fch_Creacion).Where(x => x.Id.Equals(requisicionId)).Select(C => new
             {
                 vBtra = C.VBtra,
                 folio = C.Folio,
@@ -174,7 +174,7 @@ namespace SAGA.API.Controllers
         [Route("getClaveCandidatos")]
         public IHttpActionResult GetClaveCandidatos()
         {
-            var candidatos = db.PsicometriaCandidato.Select(C => new
+            var candidatos = db.PsicometriaCandidato.OrderByDescending(o => o.fch_Resultado).Select(C => new
             {
                 requisicionId = C.RequisicionId,
                 candidatoId = C.CandidatoId,

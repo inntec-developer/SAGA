@@ -22,6 +22,7 @@ namespace SAGA.API.Dtos
         public string estatus { get; set; }
         public DateTime fch_Modificacion { get; set; }
         public int vacantes { get; set; }
+        public int cubiertas { get; set; }
         
     }
 }
