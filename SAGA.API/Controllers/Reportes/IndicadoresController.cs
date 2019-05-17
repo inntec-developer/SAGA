@@ -135,11 +135,14 @@ namespace SAGA.API.Controllers.Reportes
             DateTime vencida = DateTime.Now.AddDays(3);
             var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
             var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.PropietarioId)).ToList();
+            int[] EstatusList = new[] { 34, 35, 36, 37 };
+            var info = db.InformeRequisiciones.Where(e => asigna.Contains(e.RequisicionId)).Where(e => EstatusList.Contains(e.EstatusId)).Select(e=>e.RequisicionId).ToList();
             //var porVencer = datos.Where(e => e.fch_Cumplimiento <= vencida && e.fch_Cumplimiento > hoy).ToList().Count;
             //var vencidas = datos.Where(e => e.fch_Cumplimiento < hoy).ToList().Count;
-           
+
             //int Nuevo = datos.Where(e => e.EstatusId == 4).ToList().Count;
             //int Aprobada = datos.Where(e => e.EstatusId == 6).ToList().Count;
+            datos = datos.Where(e => !info.Contains(e.Id)).ToList();
             int Publicada = datos.Where(e => e.EstatusId == 7).ToList().Count;
             int BusCandidatos = datos.Where(e => e.EstatusId == 29).ToList().Count;
             int EnvCliente = datos.Where(e => e.EstatusId == 30).ToList().Count;
