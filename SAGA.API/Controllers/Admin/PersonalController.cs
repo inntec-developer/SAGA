@@ -336,6 +336,27 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("getByTipoUsuario")]
+        public IHttpActionResult GetByTipoUsuario(int tipo)
+        {
+            try
+            {
+                var usuarios = db.Usuarios.Where(x => x.Activo && x.TipoUsuarioId.Equals(4)).Select(L => new
+                {
+                    id = L.Id,
+                    nombre = L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno
+                }).OrderBy(o => o.nombre).ToList();
+
+                return Ok(usuarios);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+        }
+
+        [HttpGet]
         [Route("getLideres")]
         public IHttpActionResult GetLideres()
         {
