@@ -77,17 +77,17 @@ namespace SAGA.API.Controllers
                 r.fch_Cumplimiento,
                 r.fch_Limite,
                 r.fch_Modificacion,
-                r.Genero.genero,
-                r.Aprobada,
-                r.Aprobador,
+                //r.Genero.genero,
+                //r.Aprobada,
+                //r.Aprobador,
                 ActividadesRequis = db.ActividadesRequis.Where(a => a.RequisicionId.Equals(r.Id)).Select(a => a.Actividades).ToList(),
                 r.Area.areaExperiencia,
                 AptitudesRequis = db.AptitudesRequis.Where(a => a.RequisicionId.Equals(r.Id)).Select(a => a.Aptitud.aptitud).ToList(),
-                r.Asignada,
+                //r.Asignada,
                 beneficiosRequi = db.BeneficiosRequis.Where(b => b.RequisicionId.Equals(r.Id)).Select(b => new
                 { b.TipoBeneficio.tipoBeneficio, b.Cantidad, b.Observaciones
                 }).ToList(),
-                r.ClaseReclutamiento.clasesReclutamiento,
+                //r.ClaseReclutamiento.clasesReclutamiento,
                 r.Cliente.Nombrecomercial,
                 logotipo = r.Cliente.Foto,
                 r.Cliente.RFC,
@@ -109,7 +109,7 @@ namespace SAGA.API.Controllers
                     c.Nivel,
                     c.Competencia.competenciaGerencial
                 }).ToList(),
-                r.Confidencial,
+                //r.Confidencial,
                 r.ContratoInicial.periodoPrueba,
                 r.ContratoInicial.tipoContrato,
                 Contactos = db.Clientes.Where(c => c.Id.Equals(r.ClienteId)).Select(c => c.Contactos.Select(s => new
@@ -140,18 +140,18 @@ namespace SAGA.API.Controllers
                 }).FirstOrDefault(),
                 DocumentosCliente = db.DocumentosClienteRequis.Where(d => d.RequisicionId.Equals(r.Id)).Select(d => d.Documento).ToList(),
                 DocumentosDamsa = db.DocumentosDamsa.Select(d => d.documentoDamsa).ToList(),
-                r.EdadMaxima,
-                r.EdadMinima,
+                //r.EdadMaxima,
+                //r.EdadMinima,
                 EscolaridadesRequi = db.EscolaridadesRequis.Where(e => e.RequisicionId.Equals(r.Id)).Select(e => new
                 {
                     e.Escolaridad.gradoEstudio,
                     e.EstadoEstudio.estadoEstudio
                 }).ToList(),
-                r.Especifique,
-                r.EstadoCivil.estadoCivil,
+                //r.Especifique,
+                //r.EstadoCivil.estadoCivil,
                 Estatus = r.Estatus.Descripcion,
-                EstatusTpMov = r.Estatus.TipoMovimiento,
-                r.FlexibilidadHorario,
+                //EstatusTpMov = r.Estatus.TipoMovimiento,
+                //r.FlexibilidadHorario,
                 horariosRequi = db.HorariosRequis.Where(h => h.RequisicionId.Equals(r.Id)).Select(h => new
                 {
                     h.Nombre,
@@ -173,7 +173,7 @@ namespace SAGA.API.Controllers
                     p.Orden,
                     p.Proceso
                 }).ToList(),
-                r.Propietario,
+                //r.Propietario,
                 PsicoCliente = db.PsicometriasClienteRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => new
                 {
                     p.Psicometria,
@@ -190,10 +190,10 @@ namespace SAGA.API.Controllers
                     e.Activo,
                     e.esPrincipal
                 })).ToList(),
-                TCOrden = r.TiempoContrato.Orden,
+                //TCOrden = r.TiempoContrato.Orden,
                 TCTiempo = r.TiempoContrato.Tiempo,
-                TMModalidad = r.TipoModalidad.Modalidad,
-                TMOrden = r.TipoModalidad.Orden,
+                //TMModalidad = r.TipoModalidad.Modalidad,
+                //TMOrden = r.TipoModalidad.Orden,
                 r.TipoNomina.tipoDeNomina,
                 r.TipoReclutamiento.tipoReclutamiento,
                 r.VBtra
