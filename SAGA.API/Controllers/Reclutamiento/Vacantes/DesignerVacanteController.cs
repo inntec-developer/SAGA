@@ -10,7 +10,7 @@ using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
-
+using SAGA.API.Dtos;
 
 namespace SAGA.API.Controllers
 {
@@ -38,7 +38,6 @@ namespace SAGA.API.Controllers
             }).ToList();
             return Ok(datos);
         }
-
 
         private bool ValidaHaycampos(int SubSesionID)
         {
@@ -68,7 +67,138 @@ namespace SAGA.API.Controllers
                                                && a.TipoMovimientoId == 3
                                             ).OrderBy(e => e.Orden).ToList();
             var configura = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
-            var requi = db.Requisiciones.Where(r => r.Id.Equals(Requi)).FirstOrDefault();
+            var requi = db.Requisiciones.Where(r => r.Id.Equals(Requi)).Select(r => new
+            {
+                r.Id,
+                r.Experiencia,
+                r.Folio,
+                r.fch_Aprobacion,
+                r.fch_Creacion,
+                r.fch_Cumplimiento,
+                r.fch_Limite,
+                r.fch_Modificacion,
+                r.Genero.genero,
+                r.Aprobada,
+                r.Aprobador,
+                ActividadesRequis = db.ActividadesRequis.Where(a => a.RequisicionId.Equals(r.Id)).Select(a => a.Actividades).ToList(),
+                r.Area.areaExperiencia,
+                AptitudesRequis = db.AptitudesRequis.Where(a => a.RequisicionId.Equals(r.Id)).Select(a => a.Aptitud.aptitud).ToList(),
+                r.Asignada,
+                beneficiosRequi = db.BeneficiosRequis.Where(b => b.RequisicionId.Equals(r.Id)).Select(b => new
+                { b.TipoBeneficio.tipoBeneficio, b.Cantidad, b.Observaciones
+                }).ToList(),
+                r.ClaseReclutamiento.clasesReclutamiento,
+                r.Cliente.Nombrecomercial,
+                logotipo = r.Cliente.Foto,
+                r.Cliente.RFC,
+                r.Cliente.GiroEmpresas.giroEmpresa,
+                r.Cliente.ActividadEmpresas.actividadEmpresa,
+                r.Cliente.RazonSocial,
+                CompetenciasArea = db.CompetenciasAreaRequis.Where(c => c.RequisicionId.Equals(r.Id)).Select(c => new
+                {
+                    c.Nivel,
+                    c.Competencia.competenciaArea
+                }).ToList(),
+                CompetenciasCardinal = db.CompetenciasCardinalRequis.Where(c => c.RequisicionId.Equals(r.Id)).Select(c => new
+                {
+                    c.Nivel,
+                    c.Competencia.competenciaCardinal
+                }).ToList(),
+                CompetenciaGerencial = db.CompetetenciasGerencialRequis.Where(c => c.RequisicionId.Equals(r.Id)).Select(c => new
+                {
+                    c.Nivel,
+                    c.Competencia.competenciaGerencial
+                }).ToList(),
+                r.Confidencial,
+                r.ContratoInicial.periodoPrueba,
+                r.ContratoInicial.tipoContrato,
+                Contactos = db.Clientes.Where(c => c.Id.Equals(r.ClienteId)).Select(c => c.Contactos.Select(s => new
+                {
+                    Nombre = s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno,
+                    s.Puesto,
+                    s.TipoEntidad.tipoEntidad,
+                    extension = db.Telefonos.Where(e => e.EntidadId.Equals(s.Id)).Select(f => f.Extension).FirstOrDefault(),
+                    Telefono = db.Telefonos.Where(t => t.EntidadId.Equals(s.Id)).Select(e => e.telefono).FirstOrDefault(),
+                    Email = db.Emails.Where(e => e.EntidadId.Equals(s.Id)).Select(m => m.email).FirstOrDefault()
+                })).ToList(),
+                DiaCorte = r.DiaCorte.diaSemana,
+                DiaPago = r.DiaPago.diaSemana,
+                r.DiasEnvio,
+                Direccion = db.Direcciones.Where(d => d.Id.Equals(r.DireccionId)).Select(d => new
+                {
+                    d.Calle,
+                    d.Colonia.colonia,
+                    d.Municipio.municipio,
+                    d.Estado.estado,
+                    d.Pais.pais,
+                    d.CodigoPostal,
+                    d.NumeroInterior,
+                    d.NumeroExterior,
+                    d.TipoDireccion.tipoDireccion,
+                    d.esPrincipal,
+                    d.Activo
+                }).FirstOrDefault(),
+                DocumentosCliente = db.DocumentosClienteRequis.Where(d => d.RequisicionId.Equals(r.Id)).Select(d => d.Documento).ToList(),
+                DocumentosDamsa = db.DocumentosDamsa.Select(d => d.documentoDamsa).ToList(),
+                r.EdadMaxima,
+                r.EdadMinima,
+                EscolaridadesRequi = db.EscolaridadesRequis.Where(e => e.RequisicionId.Equals(r.Id)).Select(e => new
+                {
+                    e.Escolaridad.gradoEstudio,
+                    e.EstadoEstudio.estadoEstudio
+                }).ToList(),
+                r.Especifique,
+                r.EstadoCivil.estadoCivil,
+                Estatus = r.Estatus.Descripcion,
+                EstatusTpMov = r.Estatus.TipoMovimiento,
+                r.FlexibilidadHorario,
+                horariosRequi = db.HorariosRequis.Where(h => h.RequisicionId.Equals(r.Id)).Select(h => new
+                {
+                    h.Nombre,
+                    deDia = h.deDia.diaSemana,
+                    aDia = h.aDia.diaSemana,
+                    h.deHora,
+                    h.aHora,
+                    h.numeroVacantes,
+                    h.Especificaciones,
+                    h.Activo
+                }).ToList(),
+                r.PeriodoPago.periodoPago,
+                ObservacionesRequi = db.ObservacionesRequis.Where(o => o.RequisicionId.Equals(r.Id)).Select(o => o.Observaciones).ToList(),
+                PrestacionesRequi = db.PrestacionesClienteRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => p.Prestamo).ToList(),
+                prestacionLey = db.PrestacionesLey.Select(p => p.prestacionLey).ToList(),
+                Prioridad = r.Prioridad.Descripcion,
+                ProcesoRequi = db.ProcesoRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => new
+                {
+                    p.Orden,
+                    p.Proceso
+                }).ToList(),
+                r.Propietario,
+                PsicoCliente = db.PsicometriasClienteRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => new
+                {
+                    p.Psicometria,
+                    p.Descripcion
+                }).ToList(),
+                PsicoDamsa = db.PsicometriasDamsaRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => p.Psicometria).ToList(),
+                r.SueldoMaximo,
+                r.SueldoMinimo,
+                telefono = db.Clientes.Where(t => t.Id.Equals(r.ClienteId)).Select(t => t.telefonos.Select(e => new
+                {
+                    e.TipoTelefono.Tipo,
+                    e.telefono,
+                    e.Extension,
+                    e.Activo,
+                    e.esPrincipal
+                })).ToList(),
+                TCOrden = r.TiempoContrato.Orden,
+                TCTiempo = r.TiempoContrato.Tiempo,
+                TMModalidad = r.TipoModalidad.Modalidad,
+                TMOrden = r.TipoModalidad.Orden,
+                r.TipoNomina.tipoDeNomina,
+                r.TipoReclutamiento.tipoReclutamiento,
+                r.VBtra
+            }
+            ).FirstOrDefault();
             foreach (var item in datos)
             {
                 listadoEstru pieza = new listadoEstru();
@@ -592,7 +722,7 @@ namespace SAGA.API.Controllers
             public bool? Resumen { get; set; }
             public bool? Detalle { get; set; }
             public bool? Publica { get; set; }
-            public Requisicion Requi { get; set; }
+            public object Requi { get; set; }
         }
 
         public class listaPublicar

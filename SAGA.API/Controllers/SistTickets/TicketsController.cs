@@ -1351,7 +1351,7 @@ namespace SAGA.API.Controllers
 
                 var result = from T in conc
                              group T by T.fecha.Date into g
-                             select new { g.Key, total=g.Select(t => t.ticket).Count(), atendidos = g.Where(x => x.estatus.Equals(2)).Select(x => x.ticket).Count(),
+                             select new { fecha = g.Key, total=g.Select(t => t.ticket).Count(), atendidos = g.Where(x => x.estatus.Equals(2)).Select(x => x.ticket).Count(),
                              concita = g.Where(x => x.tipo.Equals(1)).Count(), sincita = g.Where(x => x.tipo.Equals(2)).Count()};
                 return Ok(result);
 
@@ -1362,7 +1362,64 @@ namespace SAGA.API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("getRportAtencion")]
+        public IHttpActionResult GetRportAtencion()
+        {
+            try
+            {
+                //tickets con cita y sin cita
+                var conc = db.HistoricosTickets
+                    .Select(C => new
+                    {
 
+                        fecha = C.fch_Modificacion,
+                        estatus = C.Estatus,
+                        ticket = C.Numero,
+                        tipo = C.MovimientoId,
+                        reclutadorId = C.ReclutadorId
+                        //total = C.Select(t => t.Numero).Count(),
+
+
+                    }).OrderByDescending(o => o.fecha).ToList();
+
+                var result = from T in conc
+                             group T by T.fecha.Date into g
+                             select new
+                             {
+                                 fecha = g.Key,
+                                 datos = from R in g
+                                         group R by R.reclutadorId into r
+                                         select new
+                                         {
+                                             reclutador = String.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(r.Key)).Select(R => R.Nombre + " " + R.ApellidoPaterno + " " + R.ApellidoMaterno).FirstOrDefault()) ? "SIN REGISTRO" : db.Usuarios.Where(x => x.Id.Equals(r.Key)).Select(R => R.Nombre + " " + R.ApellidoPaterno + " " + R.ApellidoMaterno).FirstOrDefault(),
+                                             total = r.Select(x => x.ticket).Count(),
+                                             concita = r.Where(x => x.tipo.Equals(1)).Count(),
+                                             sincita = r.Where(x => x.tipo.Equals(2)).Count(),
+                                             //mocos = (from TR in db.HistoricosTickets
+                                             //              where TR.ReclutadorId.Equals(r.Key)
+                                             //              group TR by TR.Estatus into f
+
+                                             //              select new {
+                                             //                  rid = f.Select(rrr => rrr.ReclutadorId),
+                                             //                  f1 = f.Where(x => x.Estatus.Equals(2)).Select(f1 => f1.fch_Modificacion),
+                                             //                  f2 = f.Where(x => x.Estatus.Equals(3) || x.Estatus.Equals(4)).Select(f2 => f2.fch_Modificacion) }
+                                             //              ),
+
+                                       f1 = r.Where(x => x.estatus.Equals(2)).Select(f1 => f1.fecha).ToArray(),
+                                       f2 = r.Where(x => x.estatus.Equals(3) || x.estatus.Equals(4)).Select(f2 => f2.fecha).ToArray(),
+                                     
+                                     
+                                 }
+                             };
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
 
     }
 }
