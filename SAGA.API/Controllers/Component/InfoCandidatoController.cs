@@ -56,7 +56,8 @@ namespace SAGA.API.Controllers.Component
                         EstatusId = PC.EstatusId,
                         descripcion = PC.Estatus.Descripcion,
                         requisicionId = PC.RequisicionId,
-                        reclutador = db.Usuarios.Where(x => x.Id.Equals(PC.ReclutadorId)).Select(RR => RR.Nombre + " " + RR.ApellidoPaterno + " " + RR.ApellidoMaterno).FirstOrDefault()
+                        reclutador = db.Usuarios.Where(x => x.Id.Equals(PC.ReclutadorId)).Select(RR => RR.Nombre + " " + RR.ApellidoPaterno + " " + RR.ApellidoMaterno).FirstOrDefault(),
+                        reclutadorId = PC.ReclutadorId
                     }).FirstOrDefault(),
                     RedSocial = db.RedesSociales.Where(r => r.EntidadId.Equals(p.CandidatoId)).Select(r => r.redSocial).ToList(),
                     propietarioId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Count() > 0 ? db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(o => o.Fch_Modificacion).Select(id => id.Requisicion.PropietarioId).FirstOrDefault() : new Guid("00000000-0000-0000-0000-000000000000"),

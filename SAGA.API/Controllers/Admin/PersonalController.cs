@@ -710,17 +710,18 @@ namespace SAGA.API.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("setUsers")]
-        public IHttpActionResult SetUsers(string p, string e)
+        [HttpPost]
+        [Route("login")]
+        public IHttpActionResult LogIn(LogIn logIn)
         {
             try
             {
                 PrivilegiosController obj = new PrivilegiosController();
                 UsuarioDto userData = new UsuarioDto();
+                LoginValidation loginValidation = new LoginValidation();
                 object[] _LoginSaga = {
-                        new SqlParameter("@Password", p),
-                        new SqlParameter("@Email", e),
+                        new SqlParameter("@Password", logIn.password),
+                        new SqlParameter("@Email", logIn.email),
                     };
 
                 var Data = db.Database.SqlQuery<UsuarioDto>("exec sp_LoginSagaERP @Email, @Password", _LoginSaga).FirstOrDefault();
@@ -729,41 +730,30 @@ namespace SAGA.API.Controllers
                     object[] _params = {
                         new SqlParameter("@CLAVE", Data.Clave)
                     };
+                    /*
+                     * Verifica que el usario que intenta ingresar al sistea un se sea empleado de DAMSA.
+                     */
                     var activo = db.Database.SqlQuery<Int32>("exec sp_ValidatorLogin @CLAVE", _params).FirstOrDefault();
 
                     if (activo > 0)
                     {
-                        if (Data.Activo)
-                        {
-                            userData.Id = Data.Id;
-                            userData.Nombre = Data.Nombre;
-                            userData.Usuario = Data.Usuario;
-                            userData.Privilegios = obj.GetPrivilegios(userData.Id);
-                            userData.Email = Data.Email;
-                            userData.Clave = Data.Clave;
-                            userData.TipoUsuarioId = Data.TipoUsuarioId;
-                            userData.Tipo = Data.Tipo;
-                            userData.Sucursal = Data.Sucursal;
-                            return Ok(userData);
-                        }
-                        //else if (Data.Select(x => x.activo).FirstOrDefault() == false && db.Roles.ToList().Count() == 0)
-                        //{
-                        //    userData.Id = Data.Select(x => x.id).FirstOrDefault();
-                        //    userData.Nombre = Data.Select(x => x.nombre).FirstOrDefault();
-                        //    userData.Usuario = Data.Select(x => x.usuario).FirstOrDefault();
-                        //    userData.Privilegios = obj.GetPrivilegiosDios();
-                        //    userData.Email = Data.Select(x => x.email).FirstOrDefault();
-                        //    userData.Foto = Data.Select(x => x.foto).FirstOrDefault();
-                        //    userData.Clave = Data.Select(x => x.clave).FirstOrDefault();
-                        //    userData.TipoUsuarioId = Data.Select(x => x.tipousuario).FirstOrDefault();
-                        //    userData.Tipo = Data.Select(x => x.tip).FirstOrDefault();
-                        //    userData.Sucursal = Data.Select(x => x.sucursal).FirstOrDefault();
-                        //    return Ok(userData);
-                        //}
-                        else
-                        {
-                            return Ok(HttpStatusCode.NotAcceptable);
-                        }
+                        
+                        userData.Id = Data.Id;
+                        userData.Nombre = Data.Nombre;
+                        userData.Usuario = Data.Usuario;
+                        userData.Privilegios = obj.GetPrivilegios(userData.Id);
+                        userData.Email = Data.Email;
+                        userData.Clave = Data.Clave;
+                        userData.TipoUsuarioId = Data.TipoUsuarioId;
+                        userData.Tipo = Data.Tipo;
+                        userData.Sucursal = Data.Sucursal;
+                        var token = TokenGenerator.GenerateTokenJwt(userData);
+
+                        ReturnLogIn returnLogIn = new ReturnLogIn();
+                        returnLogIn.Token = token;
+                        returnLogIn.Usuario = userData;
+
+                        return Ok(returnLogIn);
                     }
                     else
                     {
@@ -782,5 +772,48 @@ namespace SAGA.API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("getUser")]
+        public IHttpActionResult GetUser(LoginValidation logInV)
+        {
+            try
+            {
+
+
+                var Data = db.Usuarios
+                                .Where(u => u.Id.Equals(logInV.Id))
+                                .Where(U => U.Clave.Equals(logInV.Clave))
+                                .Select(u => new UsuarioDto
+                                {
+                                    Id = u.Id,
+                                    Nombre = u.Nombre + " " + u.ApellidoPaterno,
+                                    Usuario = u.Usuario,
+                                    Email = u.emails.Select(e => e.email).FirstOrDefault(),
+                                    Clave = u.Clave,
+                                    TipoUsuarioId = u.TipoUsuarioId,
+                                    Tipo = u.TipoUsuario.Tipo,
+                                    Sucursal = u.Sucursal.Nombre
+                                }).FirstOrDefault();
+
+                PrivilegiosController obj = new PrivilegiosController();
+                UsuarioDto userData = new UsuarioDto();
+                userData.Id = Data.Id;
+                userData.Nombre = Data.Nombre;
+                userData.Usuario = Data.Usuario;
+                userData.Privilegios = obj.GetPrivilegios(userData.Id);
+                userData.Email = Data.Email;
+                userData.Clave = Data.Clave;
+                userData.TipoUsuarioId = Data.TipoUsuarioId;
+                userData.Tipo = Data.Tipo;
+                userData.Sucursal = Data.Sucursal;
+
+                return Ok(userData);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
     }
 }
