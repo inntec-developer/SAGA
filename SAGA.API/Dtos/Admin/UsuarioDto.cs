@@ -8,7 +8,6 @@ namespace SAGA.API.Dtos
     public class UsuarioDto
     {
         public Guid Id { get; set; }
-        public bool Activo { get; set; }
         public string Nombre { get; set; }
         public string Email { get; set; }
         public string Usuario { get; set; }
