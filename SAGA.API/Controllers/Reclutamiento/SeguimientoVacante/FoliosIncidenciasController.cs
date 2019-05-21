@@ -10,6 +10,7 @@ using System.Web.Http;
 using System.Data.Entity;
 using System.Net.Mail;
 using System.Configuration;
+using System.Globalization;
 
 namespace SAGA.API.Controllers
 {
@@ -82,6 +83,80 @@ namespace SAGA.API.Controllers
             {
                 return false;
             }
+        }
+        
+        public IHttpActionResult TransferRequi(Guid requi, Guid coorId, Guid usuario, int tipo)
+        {
+            try
+            {
+                RastreabilidadMes RM = new RastreabilidadMes();
+                string descripcion = "";
+                Guid usuarioAux;
+                var datos = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(r => new
+                {
+                    folio = r.Folio,
+                    aprobadorId = r.AprobadorId,
+                    coordinador = db.Usuarios.Where(x => x.Id.Equals(r.AprobadorId)).Select( U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(),
+                    propietarioId = r.PropietarioId,
+                    solicitante = db.Usuarios.Where(x => x.Id.Equals(r.PropietarioId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault()
+                }).ToList();
+
+                var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
+                var tmId = aux.Where(x => x.folio == datos[0].folio.ToString()).Select(ID => new { id = ID.id }).ToList();
+
+                if(tipo == 1) //cambio coord
+                {
+                    usuarioAux = datos[0].aprobadorId;
+                   descripcion = "Se realizó una transferencia de coordinador - " + datos[0].coordinador + " a " + db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault();
+                }
+                else //cambio propietario
+                {
+                    usuarioAux = datos[0].propietarioId;
+                    descripcion = "Se realizó una transferencia de propietario - " + datos[0].solicitante + " a " + db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault();
+                }
+
+                var trans = db.Database.BeginTransaction();
+
+                try
+                {
+                    RM.TrazabilidadMesId = tmId[0].id;
+                    RM.TipoAccionId = 3;
+                    RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
+                    RM.Descripcion = "Actualizacion (UPDATE)";
+                    db.RastreabilidadMes.Add(RM);
+                    db.SaveChanges();
+
+                    var R = db.Requisiciones.Find(requi);
+                    if (tipo == 1)
+                    {
+                        db.Entry(R).Property(r => r.AprobadorId).IsModified = true;
+                        R.AprobadorId = coorId;
+                    }
+                    else
+                    {
+                        db.Entry(R).Property(r => r.PropietarioId).IsModified = true;
+                        R.PropietarioId = coorId;
+                    }
+
+                    db.SaveChanges();
+
+                    trans.Commit();
+
+                    this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno ).FirstOrDefault(), descripcion, usuarioAux);
+
+                }
+                catch(Exception ex)
+                {
+                    trans.Rollback();
+                }
+               
+                return Ok(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+           
         }
 
         //[Route("generarFolio")]
@@ -225,6 +300,75 @@ namespace SAGA.API.Controllers
                     body = body + "<p>Para validar y dar seguimineto a la informaci&oacute;n reportada ser&aacute; necesario ingresar a:<p/> ";
                     body = body + "<ol><li>Secci&oacute;n de Reclutamiento.</li><li>Posteriormente en Vacantes.</li><li>Dar clic en bot&oacute;n Incidente, en la parte superior.</li><li>Identificar Candidato y agregar comentario de resultado.</li><li>Aceptar o Rechazar la solicitud.</li></ol>";
                     body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
+                    body = body + "</body></html>";
+
+                    m.Body = body;
+                    m.IsBodyHtml = true;
+                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                    smtp.EnableSsl = true;
+                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                    smtp.Send(m);
+
+                }
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+
+        public IHttpActionResult EnviarEmailTransfer(Guid requi, string reclutador, string desc, Guid coor)
+        {
+
+            FolioIncidencia obj = new FolioIncidencia();
+            //revisar para sacar solo la de pausa
+            try
+            {
+                var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
+                    coordinador = p.AprobadorId,
+                    solicitante = p.PropietarioId,
+                    folio = p.Folio,
+                    vbtra = p.VBtra
+                }).FirstOrDefault();
+                var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
+                var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi)).Select(A => new
+                {
+                    emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
+                }).ToList();
+
+                var usuario = db.Usuarios.Where(x => x.Id.Equals(coor)).Select(n => new
+                {
+                    nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
+                    email = n.emails.Select(ee => ee.email).FirstOrDefault()
+                }).FirstOrDefault();
+
+
+                string body = "";
+                if (emailSolicitante != "")
+                {
+                    string from = "noreply@damsa.com.mx";
+                    MailMessage m = new MailMessage();
+                    m.From = new MailAddress(from, "SAGA Inn");
+                    m.Subject = "Transferencia de Requisición";
+
+                    m.To.Add("idelatorre@damsa.com.mx");
+                    //m.To.Add(emailCoord);
+                    //m.Bcc.Add(emailSolicitante);
+                    //foreach (var e in asignados)
+                    //{
+                    //    m.Bcc.Add(e.emails.ToString());
+                    //}
+
+                    m.Bcc.Add("bmorales@damsa.com.mx");
+
+                    body = "<html><head></head>";
+                    body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
+                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, realiz&oacute;; una transferencia de vacante, Vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", reclutador, propietario.vbtra, propietario.folio);
+                    body = body + string.Format("<p>{0}</p>", desc);
+                    body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                     body = body + "</body></html>";
 
                     m.Body = body;

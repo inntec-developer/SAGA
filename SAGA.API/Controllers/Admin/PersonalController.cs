@@ -337,11 +337,11 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getByTipoUsuario")]
-        public IHttpActionResult GetByTipoUsuario(int tipo)
+        public IHttpActionResult GetByTipoUsuario(byte tipo)
         {
             try
             {
-                var usuarios = db.Usuarios.Where(x => x.Activo && x.TipoUsuarioId.Equals(4)).Select(L => new
+                var usuarios = db.Usuarios.Where(x => x.Activo && x.TipoUsuarioId.Equals(tipo)).Select(L => new
                 {
                     id = L.Id,
                     nombre = L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno

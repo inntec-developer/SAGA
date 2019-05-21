@@ -41,21 +41,23 @@ namespace SAGA.API.Controllers
                     .OrderBy(x => x.fchComentario);
                 return Ok(comentarios);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
         }
 
-   
+
         [HttpPost]
         [Route("addComentariosVacante")]
         public IHttpActionResult AddComentarios(ComentariosRequisicionesDto comentario)
         {
+            FoliosIncidenciasController Ofi = new FoliosIncidenciasController();
+
+            var T = db.Database.BeginTransaction();
             try
             {
-                FoliosIncidenciasController Ofi = new FoliosIncidenciasController();
                 ComentarioVacante cm = new ComentarioVacante();
                 cm.Comentario = comentario.Comentario.ToUpper().Trim();
                 cm.RequisicionId = comentario.RequisicionId;
@@ -67,17 +69,22 @@ namespace SAGA.API.Controllers
                 db.ComentariosVacantes.Add(cm);
                 db.SaveChanges();
 
-                if(comentario.EstatusId.Equals(39)) //pausada
+                if (comentario.EstatusId.Equals(39)) //pausada
                 {
                     Ofi.GenerarFolio(comentario.EstatusId, cm.Id);
                     Ofi.EnviarEmail(comentario.EstatusId, comentario.RequisicionId, comentario.ReclutadorId);
-
                 }
+                else if (comentario.EstatusId.Equals(20))
+                {
+                    Ofi.TransferRequi(comentario.RequisicionId, comentario.UsuarioTransferId, comentario.ReclutadorId, comentario.Tipo);
+                }
+
+                T.Commit();
                 return Ok(HttpStatusCode.OK);
             }
-            catch (Exception ex)
+            catch
             {
-                var msg = ex.Message;
+                T.Rollback();
                 return Ok(HttpStatusCode.NotFound);
             }
         }

@@ -15,5 +15,7 @@ namespace SAGA.API.Dtos
         public Guid ReclutadorId { get; set; }
         public int MotivoId { get; set; }
         public int EstatusId { get; set; }
+        public Guid UsuarioTransferId { get; set; }
+        public int Tipo { get; set; } //tipo de transfer
     }
 }
