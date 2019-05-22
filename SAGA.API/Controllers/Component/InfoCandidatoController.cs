@@ -217,6 +217,9 @@ namespace SAGA.API.Controllers.Component
         {
             try
             {
+                ProcesoDto datos = new ProcesoDto();
+                PostulateVacantController obj = new PostulateVacantController();
+
                 var horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(proceso.RequisicionId)).Select(h => h.Id).FirstOrDefault();
                 var candidato = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(proceso.CandidatoId) && x.RequisicionId.Equals(proceso.RequisicionId)).FirstOrDefault();
                 var estatus = 12;
@@ -226,8 +229,19 @@ namespace SAGA.API.Controllers.Component
                     proceso.Fch_Modificacion = DateTime.Now;
                     proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
                     proceso.TipoMediosId = 2;
+
                     db.ProcesoCandidatos.Add(proceso);
                     db.SaveChanges();
+
+                    var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(proceso.RequisicionId) && x.EstatusId.Equals(29)).Count();
+                    if (requi == 0)
+                    {
+                        datos.requisicionId = proceso.RequisicionId;
+                        datos.estatusId = 29;
+                        obj.UpdateStatusVacante(datos);
+
+                    }
+
                     return Ok(HttpStatusCode.OK);
                 }
                 else if (candidato.EstatusId == 27 || candidato.EstatusId == 40)
@@ -246,6 +260,15 @@ namespace SAGA.API.Controllers.Component
                     candidato.HorarioId = horario;
 
                     db.SaveChanges();
+
+                    var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(proceso.RequisicionId) && x.EstatusId.Equals(29)).Count();
+                    if (requi == 0)
+                    {
+                        datos.requisicionId = proceso.RequisicionId;
+                        datos.estatusId = 29;
+                        obj.UpdateStatusVacante(datos);
+
+                    }
 
                     return Ok(HttpStatusCode.OK);
                 }

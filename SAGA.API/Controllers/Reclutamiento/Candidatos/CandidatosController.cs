@@ -846,27 +846,43 @@ namespace SAGA.API.Controllers
             {
                 var postulate = db.ProcesoCandidatos
                     .OrderByDescending(f => f.Fch_Modificacion)
-                    .Where(x => x.RequisicionId.Equals(VacanteId) & x.EstatusId.Equals(24)).Select(c => new
+                    .Where(x => x.RequisicionId.Equals(VacanteId) && x.EstatusId != 27 && x.EstatusId != 40 && x.EstatusId != 28 && x.EstatusId != 42).Select(c => new
                     {
                     Id = c.Id,
                     candidatoId = c.CandidatoId,
                     estatus = c.Estatus.Descripcion,
                     estatusId = c.EstatusId,
-                    contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
+                    contratados = db.Candidatos.Where(x => x.Id.Equals(c.CandidatoId)).Select(p => new
                     {
-                        nombre = p.Nombre == null ? "" : p.Nombre,
-                        apellidoPaterno = p.ApellidoPaterno,
-                        apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "" : p.ApellidoMaterno,
-                        edad = p.FechaNacimiento,
-                        rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
-                        curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
-                        nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
-                        paisNacimiento = p.PaisNacimientoId,
-                        estadoNacimiento = p.EstadoNacimientoId,
-                        municipioNacimiento = p.MunicipioNacimientoId,
-                        localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
-                        generoId = p.GeneroId
-                    }).ToList(),
+                            nombre = p.Nombre == null ? "" : p.Nombre,
+                            apellidoPaterno = p.ApellidoPaterno,
+                            apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "" : p.ApellidoMaterno,
+                            edad = p.FechaNacimiento,
+                            rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
+                            curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
+                            nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
+                            paisNacimiento = p.PaisNacimientoId,
+                            estadoNacimiento = p.EstadoNacimientoId,
+                            municipioNacimiento = p.MunicipioNacimientoId,
+                            localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
+                            generoId = p.GeneroId
+                     }).ToList(),
+
+                    //    contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId) && c.EstatusId.Equals(24)).Select(p => new
+                    //{
+                    //    nombre = p.Nombre == null ? "" : p.Nombre,
+                    //    apellidoPaterno = p.ApellidoPaterno,
+                    //    apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "" : p.ApellidoMaterno,
+                    //    edad = p.FechaNacimiento,
+                    //    rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
+                    //    curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
+                    //    nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
+                    //    paisNacimiento = p.PaisNacimientoId,
+                    //    estadoNacimiento = p.EstadoNacimientoId,
+                    //    municipioNacimiento = p.MunicipioNacimientoId,
+                    //    localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
+                    //    generoId = p.GeneroId
+                    //}).ToList(),
                 }).ToList();
 
                 return Ok(postulate);
