@@ -90,6 +90,8 @@ namespace SAGA.API.Controllers
             try
             {
                 RastreabilidadMes RM = new RastreabilidadMes();
+                Transferencias Transf = new Transferencias();
+                
                 string descripcion = "";
                 Guid usuarioAux;
                 var datos = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(r => new
@@ -104,10 +106,10 @@ namespace SAGA.API.Controllers
                 var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
                 var tmId = aux.Where(x => x.folio == datos[0].folio.ToString()).Select(ID => new { id = ID.id }).ToList();
 
-                if(tipo == 1) //cambio coord
+                if (tipo == 1) //cambio coord
                 {
                     usuarioAux = datos[0].aprobadorId;
-                   descripcion = "Se realizó una transferencia de coordinador - " + datos[0].coordinador + " a " + db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault();
+                    descripcion = "Se realizó una transferencia de coordinador - " + datos[0].coordinador + " a " + db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault();
                 }
                 else //cambio propietario
                 {
@@ -119,6 +121,15 @@ namespace SAGA.API.Controllers
 
                 try
                 {
+                    Transf.antId = usuarioAux;
+                    Transf.actId = coorId;
+                    Transf.requisicionId = requi;
+                    Transf.tipoTransferenciaId = tipo;
+                    Transf.fch_Modificacion = DateTime.Now;
+
+                    db.Transferencias.Add(Transf);
+                    db.SaveChanges();
+
                     RM.TrazabilidadMesId = tmId[0].id;
                     RM.TipoAccionId = 3;
                     RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
@@ -139,6 +150,8 @@ namespace SAGA.API.Controllers
                     }
 
                     db.SaveChanges();
+
+          
 
                     trans.Commit();
 

@@ -151,6 +151,9 @@ namespace SAGA.DAL
         public DbSet<UnidadNegocio> UnidadesNegocios { get; set; }
         public DbSet<Catalogos> Catalogos { get; set; }
         public DbSet<LogCatalogos> LogCatalogos { get; set; }
+        public DbSet<Transferencias> Transferencias { get; set; }
+        public DbSet<TiposTransferencias> TiposTransferencias { get; set; }
+
 
         ///modulo admin 
         public DbSet<Usuarios> Usuarios { get; set; }
@@ -324,6 +327,9 @@ namespace SAGA.DAL
 
             //Preguntas Frecuentes 
             modelBuilder.Configurations.Add(new PreguntasFrecuentesMap().ToTable("PreguntasFrecuentes"));
+
+            modelBuilder.Configurations.Add(new TransferenciasMap().ToTable("Transferencias"));
+            modelBuilder.Configurations.Add(new TiposTransferenciasMap().ToTable("TiposTransferencias"));
 
             modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
             #endregion
@@ -1332,6 +1338,30 @@ namespace SAGA.DAL
             }
         }
 
+        public class TransferenciasMap : EntityTypeConfiguration<Transferencias>
+        {
+            public TransferenciasMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.antId).IsRequired();
+                Property(x => x.actId).IsRequired();
+                Property(x => x.requisicionId).IsRequired();
+                Property(x => x.tipoTransferenciaId).IsRequired();
+                Property(x => x.fch_Modificacion).IsRequired();
+            }
+        }
+
+        public class TiposTransferenciasMap : EntityTypeConfiguration<TiposTransferencias>
+        {
+            public TiposTransferenciasMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.TipoTransf).HasMaxLength(100).IsRequired();
+                Property(x => x.Activo).IsRequired();
+            }
+        }
         #endregion
 
         #region "Mapeo BTra"
