@@ -28,7 +28,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("get")]
-        public IHttpActionResult getDtosPersonal()
+        public IHttpActionResult getDtosPersonal(Guid user)
         {
             List<PersonasDtos> dts = new List<PersonasDtos>();
 
@@ -48,49 +48,92 @@ namespace SAGA.API.Controllers
 
             //}).ToList();
 
-            var persona = db.Usuarios.Select(u => new
+            var tpuser = db.Usuarios
+                .Where(u => u.Id.Equals(user))
+                .Select(t => t.TipoUsuarioId)
+                .FirstOrDefault();
+
+            if (tpuser == 1)
             {
-                EntidadId = u.Id,
-                Foto = u.Foto,
-                Clave = u.Clave,
-                nombre = u.Nombre,
-                apellidoPaterno = u.ApellidoPaterno,
-                apellidoMaterno = u.ApellidoMaterno,
-                tipoUsuario = u.TipoUsuario.Tipo,
-                tipoUsuarioId = u.TipoUsuario.Id,
-                Usuario = u.Usuario,
-                Departamento = u.Departamento.Nombre,
-                DepartamentoId = u.Departamento.Id,
-                Email = u.emails.Select(e => e.email).FirstOrDefault(),
-                //grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
-                //{
-                //    Id = g.GrupoId,
-                //    Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre)
-                //}),
-                liderId = db.Subordinados.Where(x => x.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault(),
-                nombreLider = 
-                    db.Usuarios
-                    .Where(x => x.Id.Equals(
-                        db.Subordinados
-                        .Where(xx => xx.UsuarioId.Equals(u.Id))
-                        .Select(L => L.LiderId).FirstOrDefault()))
-                    .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault() == null ?
-                    "SIN ASIGNAR" : 
-                    db.Usuarios
-                    .Where(x => x.Id.Equals(
-                        db.Subordinados
-                        .Where(xx => xx.UsuarioId.Equals(u.Id))
-                        .Select(L => L.LiderId).FirstOrDefault()))
-                    .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault(),
-                oficinaId = u.SucursalId,
-                oficina = u.Sucursal.Nombre,
-                activo = u.Activo
+                var persona = db.Usuarios.Select(u => new
+                {
+                    EntidadId = u.Id,
+                    Foto = u.Foto,
+                    Clave = u.Clave,
+                    nombre = u.Nombre,
+                    apellidoPaterno = u.ApellidoPaterno,
+                    apellidoMaterno = u.ApellidoMaterno,
+                    tipoUsuario = u.TipoUsuario.Tipo,
+                    tipoUsuarioId = u.TipoUsuario.Id,
+                    Usuario = u.Usuario,
+                    Departamento = u.Departamento.Nombre,
+                    DepartamentoId = u.Departamento.Id,
+                    Email = u.emails.Select(e => e.email).FirstOrDefault(),
+                    //grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
+                    //{
+                    //    Id = g.GrupoId,
+                    //    Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre)
+                    //}),
+                    liderId = db.Subordinados.Where(x => x.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault(),
+                    nombreLider = db.Usuarios
+                                    .Where(x => x.Id.Equals(db.Subordinados.Where(xx => xx.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault()))
+                                    .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault() == null ? "SIN ASIGNAR" : db.Usuarios
+                                                                                                                                                            .Where(x => x.Id.Equals(db.Subordinados
+                                                                                                                                                                                      .Where(xx => xx.UsuarioId.Equals(u.Id))
+                                                                                                                                                                                      .Select(L => L.LiderId).FirstOrDefault()))
+                                                                                                                                                            .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault(),
+                    oficinaId = u.SucursalId,
+                    oficina = u.Sucursal.Nombre,
+                    activo = u.Activo
 
-            }).OrderBy(o => o.nombre).ToList();
+                }).OrderBy(o => o.nombre).ToList();
 
+                return Ok(persona);
+            } else
+            {
 
+                var subordinados = db.Subordinados
+                    .Where(u => u.LiderId.Equals(user))
+                    .Select(u => u.UsuarioId)
+                    .ToList();
 
-            return Ok(persona);
+                var persona = db.Usuarios
+                    .Where(u => subordinados.Contains(u.Id))
+                    .Select(u => new
+                {
+                    EntidadId = u.Id,
+                    Foto = u.Foto,
+                    Clave = u.Clave,
+                    nombre = u.Nombre,
+                    apellidoPaterno = u.ApellidoPaterno,
+                    apellidoMaterno = u.ApellidoMaterno,
+                    tipoUsuario = u.TipoUsuario.Tipo,
+                    tipoUsuarioId = u.TipoUsuario.Id,
+                    Usuario = u.Usuario,
+                    Departamento = u.Departamento.Nombre,
+                    DepartamentoId = u.Departamento.Id,
+                    Email = u.emails.Select(e => e.email).FirstOrDefault(),
+                    //grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
+                    //{
+                    //    Id = g.GrupoId,
+                    //    Nombre = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre)
+                    //}),
+                    liderId = db.Subordinados.Where(x => x.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault(),
+                    nombreLider = db.Usuarios
+                                    .Where(x => x.Id.Equals(db.Subordinados.Where(xx => xx.UsuarioId.Equals(u.Id)).Select(L => L.LiderId).FirstOrDefault()))
+                                    .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault() == null ? "SIN ASIGNAR" : db.Usuarios
+                                                                                                                                                            .Where(x => x.Id.Equals(db.Subordinados
+                                                                                                                                                                                      .Where(xx => xx.UsuarioId.Equals(u.Id))
+                                                                                                                                                                                      .Select(L => L.LiderId).FirstOrDefault()))
+                                                                                                                                                            .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault(),
+                    oficinaId = u.SucursalId,
+                    oficina = u.Sucursal.Nombre,
+                    activo = u.Activo
+
+                }).OrderBy(o => o.nombre).ToList();
+
+                return Ok(persona);
+            }
 
         }
 
@@ -418,6 +461,20 @@ namespace SAGA.API.Controllers
                 db.Usuarios.Add(usuario);
                 SendEmaiNewRegistro(listJson);
                 db.SaveChanges();
+
+                //Asignar Líder.
+                var lider = new Subordinados();
+
+                lider.LiderId = listJson.liderId;
+                lider.UsuarioId = db.Usuarios
+                    .Where(u => u.Usuario.Equals(usuario.Usuario))
+                    .Select(u => u.Id)
+                    .FirstOrDefault();
+
+                db.Subordinados.Add(lider);
+                db.SaveChanges();
+
+
                 object[] _EncryptPass = {
                         new SqlParameter("@Clave", listJson.Clave)
                     };

@@ -13,7 +13,7 @@ using System.Collections;
 namespace SAGA.API.Controllers
 {
     [RoutePrefix("api/admin")]
-    [Authorize]
+    //[Authorize]
     public class PrivilegiosController : ApiController
     {
         private SAGADBContext db;
