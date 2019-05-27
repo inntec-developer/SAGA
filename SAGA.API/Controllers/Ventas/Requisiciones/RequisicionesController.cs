@@ -179,7 +179,7 @@ namespace SAGA.API.Controllers
             catch (Exception ex)
             {
                 string messg = ex.Message;
-                return Ok(HttpStatusCode.ExpectationFailed);
+                return Ok(HttpStatusCode.NotFound);
             }
 
         }
