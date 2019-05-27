@@ -179,7 +179,7 @@ namespace SAGA.API.Controllers
             catch (Exception ex)
             {
                 string messg = ex.Message;
-                return Ok(HttpStatusCode.ExpectationFailed);
+                return Ok(HttpStatusCode.NotFound);
             }
 
         }
@@ -1043,7 +1043,7 @@ namespace SAGA.API.Controllers
                 {
                     string errorf = error.Message;
                 }
-                FechaF = FechaF.AddDays(1);
+              //  FechaF = FechaF.AddDays(1);
 
                 var datos = objeto.Where(e => e.fch_Solicitud >= FechaI
                     && e.fch_Solicitud <= FechaF ).ToList();

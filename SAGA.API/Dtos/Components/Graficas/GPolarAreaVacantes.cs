@@ -11,14 +11,4 @@ namespace SAGA.API.Dtos
         public int PorVencer { get; set; }
         public int Vencidas { get; set; }
     }
-
-    public class VacantesCordinador
-    {
-
-    }
-
-    public class VacantesGerente
-    {
-
-    }
 }
