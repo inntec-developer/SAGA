@@ -76,7 +76,14 @@ namespace SAGA.API.Controllers
                 }
                 else if (comentario.EstatusId.Equals(20))
                 {
-                    Ofi.TransferRequi(comentario.RequisicionId, comentario.UsuarioTransferId, comentario.ReclutadorId, comentario.Tipo);
+                    if (comentario.Tipo == 3)
+                    {
+                        Ofi.TransferRequiReclutador(comentario.RequisicionId, comentario.UsuarioAux, comentario.UsuarioTransferId, comentario.ReclutadorId);
+                    }
+                    else
+                    {
+                        Ofi.TransferRequi(comentario.RequisicionId, comentario.UsuarioTransferId, comentario.ReclutadorId, comentario.Tipo);
+                    }
                 }
 
                 T.Commit();
