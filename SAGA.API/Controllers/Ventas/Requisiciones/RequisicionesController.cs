@@ -196,7 +196,7 @@ namespace SAGA.API.Controllers
                 if (tipo == 8 || tipo == 3)
                 {
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && !e.Confidencial )
+                   .Where(e => e.Activo.Equals(true) && !e.Confidencial && !estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -259,7 +259,7 @@ namespace SAGA.API.Controllers
                     uids.Add(propietario);
 
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId))
+                   .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId) && !estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -671,7 +671,7 @@ namespace SAGA.API.Controllers
                 if (tipo == 8 || tipo == 3)
                 {
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                        .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false))
+                        .Where(e => e.Activo.Equals(true) && e.Confidencial.Equals(false) && !estatusId.Contains(e.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -737,7 +737,7 @@ namespace SAGA.API.Controllers
 
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                         .Where(e => asig.Contains(e.Id))
-                        .Where(e => e.Activo.Equals(true))
+                        .Where(e => e.Activo.Equals(true) && !estatusId.Contains(e.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
