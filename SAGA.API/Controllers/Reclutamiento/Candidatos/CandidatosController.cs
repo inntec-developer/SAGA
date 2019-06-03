@@ -161,7 +161,7 @@ namespace SAGA.API.Controllers
             try
             {
                 Filtrado = db.PerfilCandidato
-                    //.Where(c => activos.Contains(c.CandidatoId))
+                    .Where(c => activos.Contains(c.CandidatoId))
                     .Select(c => new FiltrosDto
                     {
                         /*SE ELIMINO INFORMACION QUE NO ERA NECESARIA PARA LA BUSQUEDA PRINCIPAL DEL CANDIDATO*/

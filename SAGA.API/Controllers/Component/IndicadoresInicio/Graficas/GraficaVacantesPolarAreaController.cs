@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using SAGA.API.Dtos;
+using SAGA.BOL;
 
 namespace SAGA.API.Controllers.Component.Graficas
 {
@@ -69,38 +70,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                 vr.Vencidas = vencidas;
 
             }
-            else if (TipoUsuario == 6)
-            {
-
-                var requis = db.AsignacionRequis
-                        .OrderByDescending(e => e.Id)
-                        .Where(a => a.GrpUsrId.Equals(UsuarioId))
-                        .Select(a => a.RequisicionId)
-                        .Distinct()
-                        .ToList();
-                var VigentesR = db.Requisiciones
-                    .Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
-                    .Where(r => r.fch_Cumplimiento > DateActivas)
-                    .Where(r => estatus.Contains(r.EstatusId))
-                    .Count();
-                var PorVencerR = db.Requisiciones
-                    .Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
-                    .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
-                    .Where(r => estatus.Contains(r.EstatusId))
-                    .Count();
-                var vencidasR = db.Requisiciones.Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
-                    .Where(r => r.fch_Cumplimiento < DateTime.Now)
-                    .Where(r => estatus.Contains(r.EstatusId))
-                    .Count();
-
-                vr.Vigentes = VigentesR;
-                vr.PorVencer = PorVencerR;
-                vr.Vencidas = vencidasR;
-            }
-            else if(TipoUsuario > 2 && TipoUsuario < 6)
+            else 
             {
                 if (db.Subordinados.Count(x => x.LiderId.Equals(UsuarioId)) > 0)
                 {
@@ -363,5 +333,7 @@ namespace SAGA.API.Controllers.Component.Graficas
             }
 
         }
+
+        
     }
 }

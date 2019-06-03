@@ -90,5 +90,25 @@ namespace SAGA.API.Controllers.Component
                }).ToList();
             return Ok(asignacion);
         }
+
+        [HttpGet]
+        [Route("getAsignados")]
+        public IHttpActionResult GetAsignados(Guid requisicionId)
+        {
+            try
+            {
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requisicionId) & !x.GrpUsrId.Equals(x.Requisicion.AprobadorId)).Select(A => new
+                {
+                    reclutadorId = A.GrpUsrId,
+                    nombre = db.Usuarios.Where(x => x.Id.Equals(A.GrpUsrId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault()
+                }).ToList();
+                return Ok(asignados);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+
+            }
+        }
     }
 }

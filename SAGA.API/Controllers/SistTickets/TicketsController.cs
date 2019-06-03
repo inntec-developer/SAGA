@@ -1299,10 +1299,10 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var conc = db.HistoricosTickets.GroupBy(T => T.CandidatoId)
+                var conc = db.HistoricosTickets.GroupBy(T => T.Numero)
                     .Select(C => new
                     {
-                        candidatoId = C.Key,
+                        candidatoId = C.Where(x => x.Estatus > 1).Select(c => c.CandidatoId).FirstOrDefault(),
                         fecha = C.Where(x => x.Estatus.Equals(1)).Select( f=> f.fch_Modificacion).FirstOrDefault(),
                         usuario = db.Usuarios.Where( u => u.Id.Equals(C.Where(xx => !xx.ReclutadorId.Equals(auxID)).Select(x => x.ReclutadorId).FirstOrDefault())).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(),
                         tiempo = C.Where(x => x.Estatus > 1).Sum(s => s.fch_Modificacion.Minute) > 60 ? C.Where(x => x.Estatus > 1).Sum(s => s.fch_Modificacion.Minute) / 60 : C.Where(x => x.Estatus > 1).Sum(s => s.fch_Modificacion.Minute),
@@ -1351,8 +1351,8 @@ namespace SAGA.API.Controllers
 
                 var result = from T in conc
                              group T by T.fecha.Date into g
-                             select new { fecha = g.Key, total=g.Select(t => t.ticket).Count(), atendidos = g.Where(x => x.estatus.Equals(2)).Select(x => x.ticket).Count(),
-                             concita = g.Where(x => x.tipo.Equals(1)).Count(), sincita = g.Where(x => x.tipo.Equals(2)).Count()};
+                             select new { fecha = g.Key, total=g.Select(t => t.ticket).Distinct().Count(), atendidos = g.Where(x => x.estatus.Equals(2)).Select(x => x.ticket).Count(),
+                             concita = g.Where(x => x.tipo.Equals(1) && x.estatus.Equals(1)).Count(), sincita = g.Where(x => x.tipo.Equals(2) && x.estatus.Equals(1)).Count()};
                 return Ok(result);
 
             }
@@ -1393,9 +1393,9 @@ namespace SAGA.API.Controllers
                                          select new
                                          {
                                              reclutador = String.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(r.Key)).Select(R => R.Nombre + " " + R.ApellidoPaterno + " " + R.ApellidoMaterno).FirstOrDefault()) ? "SIN REGISTRO" : db.Usuarios.Where(x => x.Id.Equals(r.Key)).Select(R => R.Nombre + " " + R.ApellidoPaterno + " " + R.ApellidoMaterno).FirstOrDefault(),
-                                             total = r.Select(x => x.ticket).Count(),
-                                             concita = r.Where(x => x.tipo.Equals(1)).Count(),
-                                             sincita = r.Where(x => x.tipo.Equals(2)).Count(),
+                                             total = r.Select(x => x.ticket).Distinct().Count(),
+                                             concita = r.Where(x => x.tipo.Equals(1) && x.estatus.Equals(2)).Count(),
+                                             sincita = r.Where(x => x.tipo.Equals(2) && x.estatus.Equals(2)).Count(),
                                              //mocos = (from TR in db.HistoricosTickets
                                              //              where TR.ReclutadorId.Equals(r.Key)
                                              //              group TR by TR.Estatus into f

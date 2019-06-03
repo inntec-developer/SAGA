@@ -53,7 +53,7 @@ namespace SAGA.API.Controllers.Reportes
             }
             var requi = datos2.Select(e => e.Id).ToList();
       //      var aprobador = datos2.Select(e => new { e.AprobadorId, e.Id }).ToList();
-            var nombreReclu = db.AsignacionRequis.Where(a => requi.Contains(a.RequisicionId)).Select(a => new { a.RequisicionId, a.GrpUsrId, Nombre = db.Usuarios.Where(e=>e.Id == a.GrpUsrId).FirstOrDefault().Nombre.ToUpper() +" "+ db.Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoPaterno.ToUpper() }).ToList();
+            var nombreReclu = db.AsignacionRequis.Where(a => requi.Contains(a.RequisicionId)).Select(a => new { a.RequisicionId, a.GrpUsrId, Nombre = db.Usuarios.Where(e=>e.Id == a.GrpUsrId).FirstOrDefault().Nombre.ToUpper() +" "+ db.Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + db.Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoMaterno.ToUpper() }).ToList();
            // var nombreReclu = db.Usuarios.Where(x => lago.Contains(x.Id)).Select(x => new { x.Nombre,x.Id }).ToList();
             //var cadenas = nombreReclu.Where(b => b.Id == new Guid("2217b0f2-5a6e-e811-80e1-9e274155325e")).Select(b => b.Nombre).ToList();
             //String.Join(String.Empty, cadenas.ToArray());
@@ -72,7 +72,7 @@ namespace SAGA.API.Controllers.Reportes
                 e.ClienteId,
                 e.AprobadorId,
                 cordinador2 = db.Usuarios.Where(x=>x.Usuario == e.Aprobador).ToList().Count > 0? db.Usuarios.Where(x => e.Aprobador.Contains(x.Usuario)).Select(x=>x.Nombre + " " + x.ApellidoPaterno).FirstOrDefault().ToUpper() : "",
-                nombreApellido = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper() + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno.ToUpper(),
+                nombreApellido = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper() + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoMaterno.ToUpper(),
                 propietario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper(),
                 Usuario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Usuario,
                 Estado = e.Direccion.Estado.estado.ToUpper(),
@@ -84,7 +84,7 @@ namespace SAGA.API.Controllers.Reportes
                 clasesReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
                 e.ClaseReclutamientoId,
                 e.fch_Cumplimiento,
-                estatus = e.Estatus.Descripcion,
+                estatus = e.Estatus.Descripcion.ToUpper(),
                 reclutadorTotal = db.AsignacionRequis.Where(a => a.RequisicionId == e.Id && a.GrpUsrId != e.AprobadorId).Count() == 0? "SIN ASIGNAR" : db.AsignacionRequis.Where(a => a.RequisicionId == e.Id && a.GrpUsrId != e.AprobadorId).Count().ToString(),
                 nombreReclutado = String.Join(", ", nombreReclu.Where(b => b.RequisicionId == e.Id && b.GrpUsrId != e.AprobadorId).Select(b => b.Nombre).ToList().ToArray())
         }).ToList();
@@ -331,6 +331,140 @@ namespace SAGA.API.Controllers.Reportes
             }).OrderBy(e => e.Orden).ToList();
             
             return Ok(datos);
+        }
+
+
+        [HttpGet]
+        [Route("actividad")]
+        public IHttpActionResult actividad(string fini,string ffin,string recl)
+        {
+            DateTime FechaF = DateTime.Now;
+            DateTime FechaI = DateTime.Now;
+            try
+            {
+                if (fini != null)
+                {
+                    FechaI = Convert.ToDateTime(fini);
+                }
+                if (ffin != null)
+                {
+                    FechaF = Convert.ToDateTime(ffin);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+
+            var candidatos = db.ProcesoCandidatos.Where(e => e.Fch_Creacion >= FechaI).ToList();
+            int[] Status = new[] { 34, 35, 36, 37 };
+            var recluta = candidatos.Select(e => e.ReclutadorId).Distinct().ToList();
+            var requi = candidatos.Select(e => e.RequisicionId).ToList();
+            var vacantes = db.Requisiciones.Where(e => requi.Contains(e.Id)).ToList();
+            var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).ToList();
+            //var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).Select(e => new {
+            //    e.Id,
+            //    vacantes = db.HorariosRequis.Where(x => candidatos.Where(a => a.ReclutadorId == e.Id).Select(a => a.RequisicionId).Contains(x.RequisicionId)).Sum(x => x.numeroVacantes),
+            //    cubiertas = db.HorariosRequis.Where(x => candidatos.Where(a => a.ReclutadorId == e.Id && a.EstatusId == 34).Select(a => a.RequisicionId).Contains(x.RequisicionId)).Sum(x => x.numeroVacantes),
+            //    puntaje = PuntajeCalculo(e.Id, candidatos)
+            //}).ToList();
+
+            try
+            {
+                List<proactividad> ProActi = new List<proactividad>();
+                foreach (var item in datos)
+                {
+                    var obj = new proactividad();
+                    var Listacandidato = candidatos.Where(e=>e.ReclutadorId == item.Id).Select(e=>e.RequisicionId).ToList();
+                    var Listareclutador = candidatos.Where(e => e.ReclutadorId == item.Id && Status.Contains(e.EstatusId)).Select(e => e.RequisicionId).ToList();
+                    var ListaCubierta = candidatos.Where(e => e.ReclutadorId == item.Id && Status.Contains(e.EstatusId)).ToList();
+                    try
+                    {
+                        obj.vacantes = db.HorariosRequis.Where(x => Listacandidato.Contains(x.RequisicionId)).Sum(x => x.numeroVacantes);
+                    }
+                    catch (Exception)
+                    {
+                        obj.vacantes = 0;
+                    }
+
+                    try
+                    {
+                        obj.cubiertas = db.HorariosRequis.Where(x => Listareclutador.Contains(x.RequisicionId)).Sum(x => x.numeroVacantes);
+                        obj.puntaje = PuntajeCalculo(item.Id, ListaCubierta);
+                    }
+                    catch (Exception)
+                    {
+                        obj.cubiertas = 0;
+                    }
+                    obj.nombre = item.Nombre + " " + item.ApellidoPaterno + " " + item.ApellidoMaterno;
+                    obj.id = item.Id;
+                    
+                    ProActi.Add(obj);
+                }
+
+                if (recl != "0" && recl != "00000000-0000-0000-0000-000000000000," && recl != null)
+                {
+                    var obj = recl.Split(',');
+                    List<Guid> listaAreglo = new List<Guid>();
+                    for (int i = 0; i < obj.Count() - 1; i++)
+                    {
+                        listaAreglo.Add(new Guid(obj[i]));
+                    }
+                    var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
+                    if (obb.Count == 0)
+                    {
+                        //  var asigna = db.AsignacionRequis.Where(e => listaAreglo.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        ProActi = ProActi.Where(e => listaAreglo.Contains(e.id)).ToList();
+                    }
+                }
+
+
+
+                return Ok(ProActi);
+            }
+            catch (Exception eror)
+            {
+                var algo = eror;
+            }
+            //int entrevTotal = db.HorariosRequis.Where(e => asigna.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
+            //decimal entrevi = db.InformeRequisiciones.Where(e => asigna.Contains(e.RequisicionId) && e.EstatusId == 18).Select(a => a.CandidatoId).Distinct().ToList().Count;
+            // datos.Insert(0, new { Descripcion = "Todos", Id = 0 });
+            return Ok("Por el momento el servidor no responde");
+        }
+
+        public class proactividad
+        {
+            public int vacantes { get; set; }
+            public int cubiertas { get; set; }
+            public int puntaje { get; set; }
+            public string nombre { get; set; }
+            public Guid id { get; set; }
+        }
+
+
+        public int PuntajeCalculo(Guid id, List<ProcesoCandidato> lista)
+        {
+            int total = 0;
+            var requi = lista.Where(e=>e.ReclutadorId == id).Select(e => e.RequisicionId).ToList();
+            try
+            {
+                var datos = db.PonderacionRequisiciones.Where(e => requi.Contains(e.RequisicionId)).Select(e => new
+                {
+                    e.RequisicionId,
+                    e.Ponderacion
+                }).ToList();
+                var ponderacion = datos.Select(e => new
+                {
+                    puntos = db.InformeRequisiciones.Where(a => a.RequisicionId == e.RequisicionId).ToList().Count() * e.Ponderacion
+                }).ToList();
+                total = ponderacion.Sum(e => e.puntos);
+            }
+            catch (Exception)
+            {
+                total = 0;
+            }
+           
+            return total;
         }
     }
 }

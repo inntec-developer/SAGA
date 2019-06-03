@@ -132,7 +132,7 @@ namespace SAGA.API.Controllers
                         horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
                         contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
                         {
-                            nombre = p.Nombre == null ? "" : p.Nombre,
+                            nombre = p.Nombre,
                             apellidoPaterno = p.ApellidoPaterno,
                             apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
                             edad = p.FechaNacimiento,

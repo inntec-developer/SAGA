@@ -84,7 +84,84 @@ namespace SAGA.API.Controllers
                 return false;
             }
         }
-        
+
+        public IHttpActionResult TransferRequiReclutador(Guid requi, Guid reclutadorId, Guid reclutadorId2, Guid usuario )
+        {
+            try
+            {
+                RastreabilidadMes RM = new RastreabilidadMes();
+                Transferencias Transf = new Transferencias();
+
+                var folio = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(F => F.Folio).FirstOrDefault();
+                var datos = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(requi) && x.ReclutadorId.Equals(reclutadorId)).Select(r => new
+                {
+                    id = r.Id,
+                    candidato = db.Usuarios.Where(x => x.Id.Equals(r.CandidatoId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(),
+                    candidatoId = r.CandidatoId
+                }).ToList();
+
+                var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
+                var tmId = aux.Where(x => x.folio == folio.ToString()).Select(ID => new { id = ID.id }).ToList();
+
+               var trans = db.Database.BeginTransaction();
+
+                try
+                {
+                    Transf.antId = reclutadorId;
+                    Transf.actId = reclutadorId2;
+                    Transf.requisicionId = requi;
+                    Transf.tipoTransferenciaId = 2;
+                    Transf.fch_Modificacion = DateTime.Now;
+
+                    db.Transferencias.Add(Transf);
+                    db.SaveChanges();
+
+                    RM.TrazabilidadMesId = tmId[0].id;
+                    RM.TipoAccionId = 3;
+                    RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
+                    RM.Descripcion = "Actualizacion (UPDATE)";
+                    db.RastreabilidadMes.Add(RM);
+                    db.SaveChanges();
+
+                    var A = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && x.GrpUsrId.Equals(reclutadorId)).Select(ID => ID.Id).FirstOrDefault();
+                    if(A != null)
+                    {
+                        var AID = db.AsignacionRequis.Find(A);
+                        db.Entry(AID).State = EntityState.Deleted;
+
+                        db.SaveChanges();
+                    }
+
+                    foreach (var p in datos)
+                    {
+                        var PC = db.ProcesoCandidatos.Find(p.id);
+
+                        db.Entry(PC).Property(r => r.ReclutadorId).IsModified = true;
+                        PC.ReclutadorId = reclutadorId2;
+
+                        db.SaveChanges();
+                    }
+
+                    trans.Commit();
+
+                    var descripcion = "Se realizó una transferencia del usuario " + db.Usuarios.Where(x => x.Id.Equals(reclutadorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault() + " a " + db.Usuarios.Where(x => x.Id.Equals(reclutadorId2)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault() + " se transfirieron " + datos.Count() + " candidatos en proceso";
+                    this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(), descripcion);
+
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                }
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+        }
+
         public IHttpActionResult TransferRequi(Guid requi, Guid coorId, Guid usuario, int tipo)
         {
             try
@@ -109,14 +186,14 @@ namespace SAGA.API.Controllers
                 if (tipo == 1) //cambio coord
                 {
                     usuarioAux = datos[0].aprobadorId;
-                    descripcion = "Se realizó una transferencia de coordinador - " + datos[0].coordinador + " a " + db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault();
+                    descripcion = "Se realizó una transferencia del usuario " + datos[0].coordinador + " a " + db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault();
                 }
                 else //cambio propietario
                 {
                     usuarioAux = datos[0].propietarioId;
-                    descripcion = "Se realizó una transferencia de propietario - " + datos[0].solicitante + " a " + db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault();
+                    descripcion = "Se realizó una transferencia del usuario " + datos[0].solicitante + " a " + db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault();
                 }
-
+                
                 var trans = db.Database.BeginTransaction();
 
                 try
@@ -155,7 +232,7 @@ namespace SAGA.API.Controllers
 
                     trans.Commit();
 
-                    this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno ).FirstOrDefault(), descripcion, usuarioAux);
+                    this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno ).FirstOrDefault(), descripcion);
 
                 }
                 catch(Exception ex)
@@ -332,7 +409,7 @@ namespace SAGA.API.Controllers
             }
         }
 
-        public IHttpActionResult EnviarEmailTransfer(Guid requi, string reclutador, string desc, Guid coor)
+        public IHttpActionResult EnviarEmailTransfer(Guid requi, string usuario, string desc)
         {
 
             FolioIncidencia obj = new FolioIncidencia();
@@ -352,11 +429,11 @@ namespace SAGA.API.Controllers
                     emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
                 }).ToList();
 
-                var usuario = db.Usuarios.Where(x => x.Id.Equals(coor)).Select(n => new
-                {
-                    nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
-                    email = n.emails.Select(ee => ee.email).FirstOrDefault()
-                }).FirstOrDefault();
+                //var usuario = db.Usuarios.Where(x => x.Id.Equals(coor)).Select(n => new
+                //{
+                //    nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
+                //    email = n.emails.Select(ee => ee.email).FirstOrDefault()
+                //}).FirstOrDefault();
 
 
                 string body = "";
@@ -379,7 +456,7 @@ namespace SAGA.API.Controllers
 
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
-                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, realiz&oacute;; una transferencia de vacante, Vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", reclutador, propietario.vbtra, propietario.folio);
+                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, realiz&oacute una transferencia vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", usuario, propietario.vbtra, propietario.folio);
                     body = body + string.Format("<p>{0}</p>", desc);
                     body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                     body = body + "</body></html>";
