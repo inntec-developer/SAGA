@@ -33,6 +33,10 @@ namespace SAGA.API.Controllers
                 new Claim("Tipo", username.Tipo),
                 new Claim("Privilegios",privilegios ),
                 new Claim("Usuario", username.Usuario ),
+                new Claim("Lider", username.Lider ),
+                new Claim("LiderId", username.LiderId.ToString()),
+                new Claim("DepartamentoId", username.DepartamentoId.ToString()),
+                new Claim("Departamento", username.Departamento),
             });
 
             // create token to the user

@@ -116,7 +116,7 @@ namespace SAGA.API.Utilerias
             return listaIds;
         }
 
-        public void ConstructEmail(List<AsignacionRequi> asignaciones, List<AsignacionRequi> NotChange, string action, Int64 Folio, string Usuario, string VBr)
+        public void ConstructEmail(List<AsignacionRequi> asignaciones, List<AsignacionRequi> NotChange, string action, Int64 Folio, string Usuario, string VBr, List<CoincidenciasDto> Coincidencias)
         {
             try
             {
@@ -177,11 +177,31 @@ namespace SAGA.API.Utilerias
 
                     if (action == "C")
                     {
+
                         m.Subject = "Asignacion de Requisicion " + Folio;
-                        body = "<p>Asignación de Requisición:</p>";
-                        body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>. ", Usuario, VBr, Folio);
+
+                        var inicio = "<html><head><style>td { border: solid #2471A3 1px; padding-left:5px; padding-right:5px;padding-top:1px; padding-bottom:1px;font-size:9pt; color: #3498DB;font-family:'calibri'; width: 25%; text-align: left; vertical-align: top; border-spacing: 0; border-collapse: collapse;} ";
+                        inicio = inicio + "p { font - family:'calibri'; } th { font - family:'calibri'; width: 25 %; text - align: left; vertical - align: top; border: solid blue 1px; border - spacing: 0; border - collapse: collapse; background: #3498DB; color:white;}";
+                        inicio = inicio + "h3 { font - family:'calibri'; } table { width: 100 %; }</style></head><body style =\"text-align:center; font-family:'calibri'; font-size:10pt;\"><br><br><p> Asignación de Requisición:</p>";
+
+                        
+                        body = inicio;
+                        body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>.", Usuario, VBr, Folio);
+                        body = body + string.Format("<br><p>Coincidencias Candidatos:</p>");
+
+                        if (Coincidencias.Count > 0)
+                        {
+                            body = body + "<table class='table'>";
+                            body = body + "<tr><th align=center>Candidato</th><th align=center>Subcategoria</th><th align=center>Rango Salarial</th><th align=center>Edad</th></tr>";
+                            for (int i = 0; i < Coincidencias.Count(); i++)
+                            {
+                                body = body + "<tr><td align=center> " + Coincidencias[i].Nombre + "</td><td align=center>" + Coincidencias[i].Subcategoria + "</td><td align=center>" + Coincidencias[i].SueldoMinimo + "-" +  Coincidencias[i].SueldoMaximo + "</td><td align=center>" + Coincidencias[i].Edad + "</td></tr>";
+                            }
+                            body = body + "</table>";
+                        }
                         body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de reclutamiento seguido de entidades de reclutamiento, selecciona la opción de vacantes, para dar el seguimiento correspondiente.</p> ";
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
+                        body = body + "</body></html>";
                     }
                     if (action == "D")
                     {

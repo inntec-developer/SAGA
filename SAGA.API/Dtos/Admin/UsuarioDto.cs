@@ -16,6 +16,10 @@ namespace SAGA.API.Dtos
         public Byte TipoUsuarioId { get; set; }
         public string Tipo { get; set; }
         public string Sucursal { get; set; }
+        public Guid LiderId { get; set; }
+        public string Lider { get; set; }
+        public Guid DepartamentoId { get; set; }
+        public string Departamento { get; set; }
         public List<PrivilegiosDtos> Privilegios { get; set; }
     }
 }

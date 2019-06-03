@@ -1491,6 +1491,53 @@ namespace SAGA.API.Controllers
                 try
                 {
                     var requisicion = db.Requisiciones.Find(requi.Id);
+
+                    // Requisicon a coincidir.
+                    var Requi = db.Requisiciones
+                             .Where(r => r.Folio == requisicion.Folio)
+                             .Select(r => new
+                             {
+                                 Categoria = r.Area.Id,
+                                 SalarioMinimo = r.SueldoMinimo,
+                                 SalarioMaximo = r.SueldoMaximo,
+                                 Genero = r.GeneroId,
+                                 EdadMinima = r.EdadMinima,
+                                 EdadMaxima = r.EdadMaxima,
+                                 EstadoCivil = r.EstadoCivilId,
+                                 Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList()
+                             })
+                            .FirstOrDefault();
+
+                    // Candidatos con todas las coincidencias.
+                    var Candidatos = db.PerfilCandidato
+                        .Select(c => new CoincidenciasDto
+                        {
+                            Nombre = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + c.Candidato.ApellidoMaterno,
+                            Subcategoria = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault(),
+                            AreaExpId = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault(),
+                            SueldoMinimo = c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault(),
+                            SueldoMaximo = c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault(),
+                            Genero = c.Candidato.Genero.genero,
+                            GeneroId = c.Candidato.GeneroId,
+                            EstadoCivil = c.Candidato.EstadoCivil.estadoCivil,
+                            EstadoCivilId = c.Candidato.EstadoCivilId.Value,
+                            Formaciones = c.Formaciones.ToList(),
+                            Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year
+                        })
+                        .ToList();
+
+                    List<CoincidenciasDto> CandidatosFiltro = new List<CoincidenciasDto>();
+
+                    CandidatosFiltro = Candidatos
+                        .Where(c => c.GeneroId.Equals(Requi.Genero))
+                        .Where(c => c.EstadoCivilId == Requi.EstadoCivil)
+                        .Where(c => c.AreaExpId == Requi.Categoria)
+                        .Where(c => Requi.Escolaridades.Contains(c.Formaciones.Select(f => f.EstadoEstudioId).FirstOrDefault()))
+                        .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo)
+                        .Where(c => c.SueldoMaximo <= Requi.SalarioMaximo)
+                        .Where(c => c.Edad >= Requi.EdadMinima || c.Edad <= Requi.EdadMaxima)
+                        .ToList();
+
                     db.Entry(requisicion).State = EntityState.Modified;
 
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
@@ -1513,7 +1560,7 @@ namespace SAGA.API.Controllers
                     else
                         requisicion.Asignada = false;
                     db.SaveChanges();
-                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requi.Folio, requi.Usuario, requisicion.VBtra);
+                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requi.Folio, requi.Usuario, requisicion.VBtra, CandidatosFiltro);
 
                     Int64 Folio = requisicion.Folio;
                     //Creacion de Trazabalidad par ala requisición.
@@ -1561,7 +1608,7 @@ namespace SAGA.API.Controllers
                 //Isertar el registro de la rastreabilidad. 
                 rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 4);
 
-                SendEmail.ConstructEmail(asignados, null, "RD", Folio, string.Empty, VBra);
+                SendEmail.ConstructEmail(asignados, null, "RD", Folio, string.Empty, VBra, null);
 
                 db.SaveChanges();
 
@@ -1601,7 +1648,7 @@ namespace SAGA.API.Controllers
                 //Isertar el registro de la rastreabilidad. 
                 rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 6);
 
-                SendEmail.ConstructEmail(asignados, null, "RU", Folio, string.Empty, VBra);
+                SendEmail.ConstructEmail(asignados, null, "RU", Folio, string.Empty, VBra, null);
 
                 db.SaveChanges();
 
@@ -1654,6 +1701,53 @@ namespace SAGA.API.Controllers
                 try
                 {
                     var requisicion = db.Requisiciones.Find(requi.Id);
+
+                    // Requisicon a coincidir.
+                    var Requi = db.Requisiciones
+                             .Where(r => r.Folio == requisicion.Folio)
+                             .Select(r => new
+                             {
+                                 Categoria = r.Area.Id,
+                                 SalarioMinimo = r.SueldoMinimo,
+                                 SalarioMaximo = r.SueldoMaximo,
+                                 Genero = r.GeneroId,
+                                 EdadMinima = r.EdadMinima,
+                                 EdadMaxima = r.EdadMaxima,
+                                 EstadoCivil = r.EstadoCivilId,
+                                 Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList()
+                             })
+                            .FirstOrDefault();
+
+                    // Candidatos con todas las coincidencias.
+                    var Candidatos = db.PerfilCandidato
+                        .Select(c => new CoincidenciasDto
+                        {
+                            Nombre = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + (c.Candidato.ApellidoMaterno != null ? c.Candidato.ApellidoMaterno : ""),
+                            Subcategoria = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() != null ? c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
+                            AreaExpId = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault() != 0 ? c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault() : 0,
+                            SueldoMinimo = c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
+                            SueldoMaximo = c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() : 0,
+                            Genero = c.Candidato.Genero.genero,
+                            GeneroId = c.Candidato.GeneroId > 0 ? c.Candidato.GeneroId : 0,
+                            EstadoCivil = c.Candidato.EstadoCivil.estadoCivil,
+                            EstadoCivilId = c.Candidato.EstadoCivilId.Value > 0 ? c.Candidato.EstadoCivilId.Value : 0,
+                            Formaciones = c.Formaciones.ToList(),
+                            Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year
+                        })
+                        .ToList();
+
+                    List<CoincidenciasDto> CandidatosFiltro = new List<CoincidenciasDto>();
+
+                    CandidatosFiltro = Candidatos
+                        .Where(c => c.GeneroId.Equals(Requi.Genero))
+                        .Where(c => c.EstadoCivilId == Requi.EstadoCivil)
+                        //.Where(c => c.AreaExpId == Requi.Categoria)
+                        //.Where(c => Requi.Escolaridades.Contains(c.Formaciones.Select(f => f.EstadoEstudioId).FirstOrDefault()))
+                        //.Where(c => c.SueldoMinimo >= Requi.SalarioMinimo)
+                        //.Where(c => c.SueldoMaximo <= Requi.SalarioMaximo)
+                        //.Where(c => c.Edad >= Requi.EdadMinima || c.Edad <= Requi.EdadMaxima)
+                        .ToList();
+
                     db.Entry(requisicion).State = EntityState.Modified;
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
                     if (requisicion.EstatusId == 4 || requisicion.EstatusId == 46)
@@ -1707,7 +1801,7 @@ namespace SAGA.API.Controllers
                         pon.fch_Modificacion = DateTime.Now;
                     }
                     db.SaveChanges();
-                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra);    
+                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra, CandidatosFiltro);    
                     db.SaveChanges();
                     Int64 Folio = requisicion.Folio;
                     //Creacion de Trazabalidad par ala requisición.
@@ -1752,7 +1846,7 @@ namespace SAGA.API.Controllers
             } while (saveFailed);
         }
 
-        public void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId, Int64 Folio, string Usuario, string VBra)
+        public void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId, Int64 Folio, string Usuario, string VBra, List<CoincidenciasDto> Coincidencias)
         {
             var user = db.Usuarios.Where(x => x.Usuario.Equals(Usuario)).Select(x =>
                x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno
@@ -1794,18 +1888,18 @@ namespace SAGA.API.Controllers
                 if (delet.Count() > 0)
                 {
                     db.AsignacionRequis.RemoveRange(delet);
-                    SendEmail.ConstructEmail(delet, NotChange, "D", Folio, user, VBra);
+                    SendEmail.ConstructEmail(delet, NotChange, "D", Folio, user, VBra, Coincidencias);
                 }
                 if (filterAdd.Count() > 0)
                 {
                     db.AsignacionRequis.AddRange(filterAdd);
-                    SendEmail.ConstructEmail(filterAdd, NotChange, "C", Folio, user, VBra);
+                    SendEmail.ConstructEmail(filterAdd, NotChange, "C", Folio, user, VBra, Coincidencias);
                 }
             }
             else
             {
                 db.AsignacionRequis.AddRange(asignaciones);
-                SendEmail.ConstructEmail(asignaciones, NotChange, "C", Folio, user, VBra);
+                SendEmail.ConstructEmail(asignaciones, NotChange, "C", Folio, user, VBra, Coincidencias);
             }
             db.SaveChanges();
 

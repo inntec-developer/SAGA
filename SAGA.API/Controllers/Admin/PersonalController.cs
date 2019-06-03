@@ -825,6 +825,11 @@ namespace SAGA.API.Controllers
                         userData.TipoUsuarioId = Data.TipoUsuarioId;
                         userData.Tipo = Data.Tipo;
                         userData.Sucursal = Data.Sucursal;
+                        var lider = db.Subordinados.Where(s => s.UsuarioId.Equals(Data.Id)).Select(l => new { nombre = l.Lider.Nombre + " " + l.Lider.ApellidoPaterno + " " + l.Lider.ApellidoMaterno, id = l.LiderId }).FirstOrDefault();
+                        userData.LiderId = lider.id;
+                        userData.Lider = lider.nombre;
+                        userData.DepartamentoId = Data.DepartamentoId;
+                        userData.Departamento = Data.Departamento;
                         var token = TokenGenerator.GenerateTokenJwt(userData);
 
                         ReturnLogIn returnLogIn = new ReturnLogIn();
@@ -870,7 +875,9 @@ namespace SAGA.API.Controllers
                                     Clave = u.Clave,
                                     TipoUsuarioId = u.TipoUsuarioId,
                                     Tipo = u.TipoUsuario.Tipo,
-                                    Sucursal = u.Sucursal.Nombre
+                                    Sucursal = u.Sucursal.Nombre,
+                                    DepartamentoId = u.DepartamentoId,
+                                    Departamento = u.Departamento.Nombre
                                 }).FirstOrDefault();
 
                 PrivilegiosController obj = new PrivilegiosController();
@@ -884,6 +891,11 @@ namespace SAGA.API.Controllers
                 userData.TipoUsuarioId = Data.TipoUsuarioId;
                 userData.Tipo = Data.Tipo;
                 userData.Sucursal = Data.Sucursal;
+                var lider = db.Subordinados.Where(s => s.UsuarioId.Equals(Data.Id)).Select(l => new { nombre = l.Lider.Nombre + " " + l.Lider.ApellidoPaterno + " " + l.Lider.ApellidoMaterno, id = l.LiderId}).FirstOrDefault();
+                userData.LiderId = lider.id;
+                userData.Lider = lider.nombre;
+                userData.DepartamentoId = Data.DepartamentoId;
+                userData.Departamento = Data.Departamento;
 
                 return Ok(userData);
             }
