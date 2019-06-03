@@ -1878,11 +1878,11 @@ namespace SAGA.API.Controllers
                     CandidatosFiltro = Candidatos
                         .Where(c => c.GeneroId.Equals(Requi.Genero))
                         .Where(c => c.EstadoCivilId == Requi.EstadoCivil)
-                        //.Where(c => c.AreaExpId == Requi.Categoria)
-                        //.Where(c => Requi.Escolaridades.Contains(c.Formaciones.Select(f => f.EstadoEstudioId).FirstOrDefault()))
-                        //.Where(c => c.SueldoMinimo >= Requi.SalarioMinimo)
-                        //.Where(c => c.SueldoMaximo <= Requi.SalarioMaximo)
-                        //.Where(c => c.Edad >= Requi.EdadMinima || c.Edad <= Requi.EdadMaxima)
+                        .Where(c => c.AreaExpId == Requi.Categoria)
+                        .Where(c => Requi.Escolaridades.Contains(c.Formaciones.Select(f => f.EstadoEstudioId).FirstOrDefault()))
+                        .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo)
+                        .Where(c => c.SueldoMaximo <= Requi.SalarioMaximo)
+                        .Where(c => c.Edad >= Requi.EdadMinima || c.Edad <= Requi.EdadMaxima)
                         .ToList();
 
                     db.Entry(requisicion).State = EntityState.Modified;
