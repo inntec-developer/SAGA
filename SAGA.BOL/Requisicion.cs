@@ -53,7 +53,7 @@ namespace SAGA.BOL
         public int? DiasEnvio { get; set; }
         public Guid PropietarioId { get; set; }
         public Guid AprobadorId { get; set; }
-
+        public bool Publicado { get; set; }
 
         public virtual Cliente Cliente { get; set; }
         public virtual TipoReclutamiento TipoReclutamiento { get; set; }

@@ -1854,6 +1854,7 @@ namespace SAGA.DAL
                 Property(x => x.DiasEnvio).IsOptional();
                 Property(x => x.PropietarioId).IsOptional();
                 Property(x => x.AprobadorId).IsOptional();
+                Property(x => x.Publicado).IsOptional();
             }
 		}
 		public class EscolaridadesRequiMap : EntityTypeConfiguration<EscolaridadesRequi>
