@@ -349,7 +349,7 @@ namespace SAGA.API.Controllers
             try
             {
 
-                if (RequiID != null && RequiID != "")
+                if (RequiID == null || RequiID == "")
                 {
                     var requi = db.ConfiguracionRequis.ToList();
                     Guid idRequi = ListadoJson.Select(a => a.id).FirstOrDefault();
