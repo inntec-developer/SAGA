@@ -341,7 +341,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updatePublicar")]
-        public IHttpActionResult PublicarVacante(List<listaPublicar> ListadoJson, string RequiID)
+        public IHttpActionResult PublicarVacante(UpdatePublicarDto ListadoJson)
         {
             string mensaje = "Publicacion Exitosa, configuracion guardada";
             bool bandera = true;
@@ -349,16 +349,17 @@ namespace SAGA.API.Controllers
             try
             {
 
-                if (RequiID == null || RequiID == "")
+                if (ListadoJson.RequiId == null || ListadoJson.RequiId == "")
                 {
+                    var listadoJson = ListadoJson.ListaPublicar;
                     var requi = db.ConfiguracionRequis.ToList();
-                    Guid idRequi = ListadoJson.Select(a => a.id).FirstOrDefault();
+                    Guid idRequi = listadoJson.Select(a => a.id).FirstOrDefault();
                     var datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == idRequi).ToList();
 
-                    if (datos.Count < ListadoJson.Count)
+                    if (datos.Count < listadoJson.Count)
                     {
                         var listaID = datos.Select(e => e.IdEstructura).ToList();
-                        var diferente = ListadoJson.Where(e => !listaID.Contains(e.idCampo)).ToList();
+                        var diferente = listadoJson.Where(e => !listaID.Contains(e.idCampo)).ToList();
                         foreach (var item in diferente)
                         {
                             ConfiguracionRequi caja = new ConfiguracionRequi();
@@ -376,7 +377,7 @@ namespace SAGA.API.Controllers
                         datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == idRequi).ToList();
                     }
 
-                    foreach (var item in ListadoJson)
+                    foreach (var item in listadoJson)
                     {
                         var lista = datos.Where(e => e.IdEstructura == item.idCampo).FirstOrDefault();
                         lista.Detalle = item.detalle;
@@ -390,7 +391,7 @@ namespace SAGA.API.Controllers
                 }
                 else
                 {
-                    Guid Requi = new Guid(RequiID);
+                    Guid Requi = new Guid(ListadoJson.RequiId);
                     var CfgRequi = db.CfgRequi.ToList();
                     var datos2 = db.Estructuras.Where(a => a.Activo == true
                                                       && a.TipoEstructuraId == 8
@@ -761,6 +762,12 @@ namespace SAGA.API.Controllers
             public bool resumen { get; set; }
             public int idCampo { get; set; }
             public Guid id { get; set; }
+        }
+
+        public class UpdatePublicarDto
+        {
+            public List<listaPublicar> ListaPublicar { get; set; }
+            public string RequiId { get; set; }
         }
     }
 } 
