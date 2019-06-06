@@ -12,6 +12,7 @@ using System.Data.SqlClient;
 using System.Data.Entity;
 using System.Net.Mail;
 using System.Configuration;
+using static SAGA.API.Controllers.DesignerVacanteController;
 
 namespace SAGA.API.Controllers
 {
@@ -23,6 +24,7 @@ namespace SAGA.API.Controllers
         private BusinessDay businessDay;
         private Rastreabilidad rastreabilidad;
         private SendEmails SendEmail;
+        private DesignerVacanteController Dvc;
 
         public RequisicionesController()
         {
@@ -31,6 +33,7 @@ namespace SAGA.API.Controllers
             businessDay = new BusinessDay();
             rastreabilidad = new Rastreabilidad();
             SendEmail = new SendEmails();
+            Dvc = new DesignerVacanteController();
         }
 
         [HttpGet]
@@ -163,9 +166,12 @@ namespace SAGA.API.Controllers
                 Guid RequisicionId = requi.Id;
                 Int64 Folio = requi.Folio;
 
-                DesignerVacanteController Dvc = new DesignerVacanteController();
+                
 
-                Dvc.PublicarVacante(null, RequisicionId.ToString());
+                UpdatePublicarDto UpDto = new UpdatePublicarDto();
+                UpDto.ListaPublicar = null;
+                UpDto.RequiId = RequisicionId.ToString();
+                Dvc.PublicarVacante(UpDto);
 
                 var infoRequi = db.Requisiciones
                     .Where(x => x.Id.Equals(RequisicionId))
