@@ -198,7 +198,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var estados = db.Estados.Where(x => x.Id != 0).Select(E => new { id = E.Id, estado = E.estado }).ToArray();
+                var estados = db.Estados.Where(x => x.Id != 0).Select(E => new { id = E.Id, estado = E.estado, clave = E.Clave }).ToArray();
 
                 return Ok(estados);
 
@@ -555,6 +555,7 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
+
 
         [HttpGet]
         [Route("loginBolsa")]

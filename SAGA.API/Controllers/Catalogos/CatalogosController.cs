@@ -254,7 +254,8 @@ namespace SAGA.API.Controllers
                 .Select(x => new
                 {
                     x.Id,
-                    x.estado
+                    x.estado,
+                    x.Clave
                 })
                 .ToList();
             return Ok(estado);

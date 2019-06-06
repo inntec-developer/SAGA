@@ -61,7 +61,7 @@ namespace SAGA.API.Controllers
                 ComentarioVacante cm = new ComentarioVacante();
                 cm.Comentario = comentario.Comentario.ToUpper().Trim();
                 cm.RequisicionId = comentario.RequisicionId;
-                cm.UsuarioAlta = comentario.UsuarioAlta;
+                cm.UsuarioAlta = db.Usuarios.Where(x => x.Id.Equals(comentario.ReclutadorId)).Select(u => u.Usuario).FirstOrDefault();
                 cm.ReclutadorId = comentario.ReclutadorId;
                 cm.MotivoId = comentario.MotivoId;
                 cm.RespuestaId = comentario.RespuestaId;
@@ -89,7 +89,7 @@ namespace SAGA.API.Controllers
                 T.Commit();
                 return Ok(HttpStatusCode.OK);
             }
-            catch
+            catch(Exception ex)
             {
                 T.Rollback();
                 return Ok(HttpStatusCode.NotFound);
