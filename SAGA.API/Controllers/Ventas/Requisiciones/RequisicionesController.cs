@@ -158,10 +158,14 @@ namespace SAGA.API.Controllers
                     new SqlParameter("@UsuarioId", cr.UsuarioId)
                 };
 
-                var requi = db.Database.SqlQuery<Requisicion>("exec createRequisicion @Id, @IdAddress, @IdEstatus, @UserAlta, @UsuarioId  ", _params).SingleOrDefault();
+                var requi = db.Database.SqlQuery<NewrequiInfo>("exec createRequisicion @Id, @IdAddress, @IdEstatus, @UserAlta, @UsuarioId  ", _params).SingleOrDefault();
 
                 Guid RequisicionId = requi.Id;
                 Int64 Folio = requi.Folio;
+
+                DesignerVacanteController Dvc = new DesignerVacanteController();
+
+                Dvc.PublicarVacante(null, RequisicionId.ToString());
 
                 var infoRequi = db.Requisiciones
                     .Where(x => x.Id.Equals(RequisicionId))
@@ -1692,10 +1696,18 @@ namespace SAGA.API.Controllers
 
                     requisicion.fch_Modificacion = DateTime.Now;
                     requisicion.UsuarioMod = requi.Usuario;
-                    if(requi.AsignacionRequi.Count() > 1)
+                    if (requi.AsignacionRequi.Count() > 1)
+                    {
                         requisicion.Asignada = true;
+                    }
                     else
+                    {
                         requisicion.Asignada = false;
+                    }
+                    if (requisicion.Confidencial)
+                    {
+                        requisicion.Publicado = false;
+                    }
                     db.SaveChanges();
                     AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requi.Folio, requi.Usuario, requisicion.VBtra, CandidatosFiltro);
 

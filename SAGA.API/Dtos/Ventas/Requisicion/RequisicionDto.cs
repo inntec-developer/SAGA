@@ -18,4 +18,10 @@ namespace SAGA.API.Dtos
         public virtual List<AsignacionRequi> AsignacionRequi { get; set; }
 
     }
+
+    public class NewrequiInfo
+    {
+        public Guid Id { get; set; }
+        public Int64 Folio { get; set; }
+    }
 }
