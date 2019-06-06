@@ -44,73 +44,80 @@ namespace SAGA.API.Controllers.Component.Graficas
         [Route("vacantesInicio")]
         public IHttpActionResult VacantesInicio(Guid UsuarioId)
         {
-            int[] estatus = {4,5,6,7,29,30,31,32,33,38,39,43,44,46 };
-            var DateActivas = DateTime.Now.AddDays(3);
-            
-            var TipoUsuario = db.Usuarios.Where(u => u.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
-            if (TipoUsuario == 8)
+            try
             {
-                var Vigentes = db.Requisiciones
-                    .Where(r => r.Activo.Equals(true))
-                    .Where(r => r.fch_Cumplimiento > DateActivas)
-                    .Where(r => estatus.Contains(r.EstatusId))
-                    .Count();
-                var PorVencer = db.Requisiciones
-                    .Where(r => r.Activo.Equals(true))
-                    .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
-                    .Where(r => estatus.Contains(r.EstatusId))
-                    .Count();
-                var vencidas = db.Requisiciones.Where(r => r.Activo.Equals(true))
-                    .Where(r => r.fch_Cumplimiento < DateTime.Now)
-                    .Where(r => estatus.Contains(r.EstatusId))
-                    .Count();
+                int[] estatus = { 4, 5, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 44, 46 };
+                var DateActivas = DateTime.Now.AddDays(3);
 
-                vr.Vigentes = Vigentes;
-                vr.PorVencer = PorVencer;
-                vr.Vencidas = vencidas;
-
-            }
-            else 
-            {
-                if (db.Subordinados.Count(x => x.LiderId.Equals(UsuarioId)) > 0)
+                var TipoUsuario = db.Usuarios.Where(u => u.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
+                if (TipoUsuario == 8)
                 {
-                    var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(UsuarioId) && x.LiderId.Equals(UsuarioId)).Select(u => u.UsuarioId).ToList();
+                    var Vigentes = db.Requisiciones
+                        .Where(r => r.Activo.Equals(true))
+                        .Where(r => r.fch_Cumplimiento > DateActivas)
+                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Count();
+                    var PorVencer = db.Requisiciones
+                        .Where(r => r.Activo.Equals(true))
+                        .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
+                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Count();
+                    var vencidas = db.Requisiciones.Where(r => r.Activo.Equals(true))
+                        .Where(r => r.fch_Cumplimiento < DateTime.Now)
+                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Count();
 
-                    uids = GetSub(ids, uids);
+                    vr.Vigentes = Vigentes;
+                    vr.PorVencer = PorVencer;
+                    vr.Vencidas = vencidas;
 
                 }
+                else
+                {
+                    if (db.Subordinados.Count(x => x.LiderId.Equals(UsuarioId)) > 0)
+                    {
+                        var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(UsuarioId) && x.LiderId.Equals(UsuarioId)).Select(u => u.UsuarioId).ToList();
 
-                uids.Add(UsuarioId);
+                        uids = GetSub(ids, uids);
 
-                var requis = db.AsignacionRequis
-                        .OrderByDescending(e => e.Id)
-                        .Where(a => uids.Distinct().Contains(a.GrpUsrId))
-                        .Select(a => a.RequisicionId)
-                        .Distinct()
-                        .ToList();
-                var VigentesR = db.Requisiciones
-                    .Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
-                    .Where(r => r.fch_Cumplimiento > DateActivas)
-                    .Where(r => estatus.Contains(r.EstatusId))
-                    .Count();
-                var PorVencerR = db.Requisiciones
-                    .Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
-                    .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
-                    .Where(r => estatus.Contains(r.EstatusId))
-                    .Count();
-                var vencidasR = db.Requisiciones.Where(r => r.Activo.Equals(true))
-                    .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
-                    .Where(r => r.fch_Cumplimiento < DateTime.Now)
-                    .Where(r => estatus.Contains(r.EstatusId))
-                    .Count();
+                    }
 
-                vr.Vigentes = VigentesR;
-                vr.PorVencer = PorVencerR;
-                vr.Vencidas = vencidasR;
+                    uids.Add(UsuarioId);
+
+                    var requis = db.AsignacionRequis
+                            .OrderByDescending(e => e.Id)
+                            .Where(a => uids.Distinct().Contains(a.GrpUsrId))
+                            .Select(a => a.RequisicionId)
+                            .Distinct()
+                            .ToList();
+                    var VigentesR = db.Requisiciones
+                        .Where(r => r.Activo.Equals(true))
+                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
+                        .Where(r => r.fch_Cumplimiento > DateActivas)
+                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Count();
+                    var PorVencerR = db.Requisiciones
+                        .Where(r => r.Activo.Equals(true))
+                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
+                        .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
+                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Count();
+                    var vencidasR = db.Requisiciones.Where(r => r.Activo.Equals(true))
+                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
+                        .Where(r => r.fch_Cumplimiento < DateTime.Now)
+                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Count();
+
+                    vr.Vigentes = VigentesR;
+                    vr.PorVencer = PorVencerR;
+                    vr.Vencidas = vencidasR;
+                }
+                return Ok(vr);
             }
-            return Ok(vr);          
+            catch
+            {
+                return Ok(HttpStatusCode.NotFound);
+            }      
 
         }
 
@@ -119,7 +126,7 @@ namespace SAGA.API.Controllers.Component.Graficas
         public IHttpActionResult GetRequisicionesGPA(string estado, Guid UsuarioId)
         {
             List<Guid> uids = new List<Guid>();
-            int[] estatus = { 4, 5, 6, 7, 29, 39, 31, 32, 33, 38, 39, 43, 44, 46 };
+            int[] estatus = { 4, 5, 6, 7, 29, 30, 39, 31, 32, 33, 38, 39, 43, 44, 46 };
             var DateActivas = DateTime.Now.AddDays(3);
             try
             {

@@ -826,8 +826,18 @@ namespace SAGA.API.Controllers
                         userData.Tipo = Data.Tipo;
                         userData.Sucursal = Data.Sucursal;
                         var lider = db.Subordinados.Where(s => s.UsuarioId.Equals(Data.Id)).Select(l => new { nombre = l.Lider.Nombre + " " + l.Lider.ApellidoPaterno + " " + l.Lider.ApellidoMaterno, id = l.LiderId }).FirstOrDefault();
-                        userData.LiderId = lider.id;
-                        userData.Lider = lider.nombre;
+                        if(lider != null)
+                        {
+                            userData.LiderId = lider.id;
+                            userData.Lider = lider.nombre;
+                        }
+                        else
+                        {
+                            userData.LiderId = new Guid("00000000-0000-0000-0000-000000000000");
+                            userData.Lider = "";
+                        }
+                        //userData.LiderId = lider.id;
+                        //userData.Lider = lider.nombre;
                         userData.DepartamentoId = Data.DepartamentoId;
                         userData.Departamento = Data.Departamento;
                         var token = TokenGenerator.GenerateTokenJwt(userData);

@@ -43,9 +43,12 @@ namespace SAGA.API.Controllers
         [Route("perfiles")]
         public IHttpActionResult GetPerfiles()
         {
+            int perfiles = 0;
             try
             {
-                var perfiles = db.DAMFO290.Where(d => d.Activo.Equals(1)).Count();
+                perfiles = db.DAMFO290
+                    .Where(d => d.Activo.Equals(true))
+                    .Count();
                 return Ok(perfiles);
             }
             catch (Exception ex)
