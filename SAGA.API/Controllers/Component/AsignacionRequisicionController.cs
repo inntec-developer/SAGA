@@ -19,7 +19,7 @@ namespace SAGA.API.Controllers.Component
         {
             db = new SAGADBContext();
         }
-        //api/AsignacionRequi/getUserGroup
+        //api/AsignacionRequi/getUserGroup VENTAS
         [HttpGet]
         [Route("getUserGroup")]
         public IHttpActionResult GetUserGroup()
@@ -29,8 +29,7 @@ namespace SAGA.API.Controllers.Component
 
             var asignacion = db.Grupos.OrderBy(x => x.Nombre)
                 .Where(g => g.Activo.Equals(true) && entidad.Contains(g.Id))
-                .Where(g => g.TipoGrupoId <= 5)
-                .Where(g => g.TipoGrupoId > 0)
+                .Where(g => (g.TipoGrupoId > 0 && g.TipoGrupoId <= 5) || g.TipoGrupoId == 10)
                 .Select(g => new
                 {
                     id = g.Id,
@@ -42,8 +41,7 @@ namespace SAGA.API.Controllers.Component
                                             .Select(x => x.EntidadId)
                                             .ToList()).Contains(u.Id) )
                                 .Where(u =>  u.Activo.Equals(true))
-                                .Where(u => u.TipoUsuarioId <= 5)
-                                .Where(u => u.TipoUsuarioId > 2)
+                                .Where(u => (u.TipoUsuarioId > 2 && u.TipoUsuarioId <= 5) || u.TipoUsuarioId == 11)
                                 .Select(u => new UsuariosDto
                                 {
                                     Id = u.Id,
@@ -65,7 +63,7 @@ namespace SAGA.API.Controllers.Component
             var entidad = db.RolEntidades.Where(x => rol.Contains(x.RolId)).Select(x => x.EntidadId).ToList();
 
             var asignacion = db.Grupos.OrderBy(x => x.Nombre)
-               .Where(g => g.Activo.Equals(true) && g.TipoGrupoId <= 6 && g.TipoGrupoId > 0 && entidad.Contains(g.Id))
+               .Where(g => g.Activo.Equals(true) && (g.TipoGrupoId > 0 && g.TipoGrupoId <= 6) || g.TipoGrupoId == 11 && entidad.Contains(g.Id))
                .Select(g => new
                {
                    id = g.Id,
@@ -77,8 +75,7 @@ namespace SAGA.API.Controllers.Component
                                            .Select(x => x.EntidadId)
                                            .ToList()).Contains(u.Id))
                                            .Where(u => u.Activo.Equals(true))
-                                .Where(u => u.TipoUsuarioId <= 6)
-                                .Where(u => u.TipoUsuarioId > 3)
+                                .Where(u => (u.TipoUsuarioId > 3 && u.TipoUsuarioId <= 6) || u.TipoUsuarioId.Equals(11))
                                .Select(u => new UsuariosDto
                                {
                                    Id = u.Id,

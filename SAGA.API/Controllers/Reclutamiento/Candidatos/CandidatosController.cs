@@ -713,7 +713,7 @@ namespace SAGA.API.Controllers
             {
                 var contratados = db.CandidatosInfo.Select(p => new {
                     candidatoId = p.CandidatoId,
-                    nombre = p.Nombre == null ? "" : p.Nombre,
+                    nombre = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
                     apellidoPaterno = p.ApellidoPaterno,
                     apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
                     edad = p.FechaNacimiento,

@@ -27,6 +27,8 @@ namespace SAGA.API.Dtos
         public DateTime FechaNac { get; set; }
         public byte GeneroId { get; set; }
         public byte OpcionRegistro { get; set; }
+        public Guid requisicionId { get; set; }
+        public Guid reclutadorId { get; set; }
 
         //
         public string Acercademi { get; set; }

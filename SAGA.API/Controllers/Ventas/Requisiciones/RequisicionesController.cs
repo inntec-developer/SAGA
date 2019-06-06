@@ -1655,13 +1655,13 @@ namespace SAGA.API.Controllers
                         {
                             Nombre = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + c.Candidato.ApellidoMaterno,
                             Subcategoria = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault(),
-                            AreaExpId = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault(),
+                            AreaExpId = c.AboutMe.Select(a => a.AreaExperienciaId).Count() > 0 ? c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault() : 0,
                             SueldoMinimo = c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault(),
                             SueldoMaximo = c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault(),
                             Genero = c.Candidato.Genero.genero,
                             GeneroId = c.Candidato.GeneroId,
                             EstadoCivil = c.Candidato.EstadoCivil.estadoCivil,
-                            EstadoCivilId = c.Candidato.EstadoCivilId.Value,
+                            EstadoCivilId = c.Candidato.EstadoCivilId.Value > 0 ? c.Candidato.EstadoCivilId.Value : 0,
                             Formaciones = c.Formaciones.ToList(),
                             Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year
                         })
