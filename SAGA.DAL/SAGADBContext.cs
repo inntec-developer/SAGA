@@ -153,6 +153,7 @@ namespace SAGA.DAL
         public DbSet<LogCatalogos> LogCatalogos { get; set; }
         public DbSet<Transferencias> Transferencias { get; set; }
         public DbSet<TiposTransferencias> TiposTransferencias { get; set; }
+        public DbSet<TipoExamenMedico> TiposExamenMedico { get; set; }
 
 
         ///modulo admin 
@@ -173,7 +174,7 @@ namespace SAGA.DAL
         public DbSet<ResultadosCandidato> resultadocandidato { get; set; }
         public DbSet<RequiClaves> RequiClaves { get; set; }
         public DbSet<PsicometriaCandidato> PsicometriaCandidato { get; set; }
-
+        public DbSet<MedicoCandidato> MedicosCandidato { get; set; }
         // Preguntas Frecuentes
         public DbSet<PreguntasFrecuente> PreguntasFrecuentes { get; set; }
 
@@ -210,6 +211,7 @@ namespace SAGA.DAL
         public DbSet<Referenciado> Referenciados { get; set; }
         public DbSet<TamanoEmpresa> TamanoEmpresas { get; set; }
         public DbSet<TipoBase> TiposBases { get; set; }
+        public ExamenMedicoCliente ExmenesMedicosCliente { get; set; }
 
         // Relacion de Direccion - Emails - Teledonos - Contactos. Para clientes
         public DbSet<DireccionTelefono> DireccionesTelefonos { get; set; }
@@ -308,6 +310,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TipoAlertaMap().ToTable("TiposAlertas"));
             modelBuilder.Configurations.Add(new SubordinadosMap().ToTable("Subordinados"));
             modelBuilder.Configurations.Add(new UnidadesNegociosMap().ToTable("UnidadesNegocios"));
+            modelBuilder.Configurations.Add(new TipoExamenMedicoMap().ToTable("TiposExamenesMedicos"));
 
             //Catalogos
             modelBuilder.Configurations.Add(new CatalogosMap().ToTable("Catalogos"));
@@ -324,6 +327,8 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new ResultadosCandidatoMap().ToTable("ResultadosCandidato"));
             modelBuilder.Configurations.Add(new RequiClavesMap().ToTable("RequiClaves"));
             modelBuilder.Configurations.Add(new PsicometriaCandidatosMap().ToTable("PsicometriaCandidatos"));
+            modelBuilder.Configurations.Add(new MedicoCandidatoMap().ToTable("MedicoCandidato"));
+            
 
             //Preguntas Frecuentes 
             modelBuilder.Configurations.Add(new PreguntasFrecuentesMap().ToTable("PreguntasFrecuentes"));
@@ -428,6 +433,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new DireccionTelefonoMap().ToTable("DireccionesTelefonos", "Vtas"));
             modelBuilder.Configurations.Add(new DireccionEmailMap().ToTable("DireccionesEmails", "Vtas"));
             modelBuilder.Configurations.Add(new DireccionContactoMap().ToTable("DireccionesContactos", "Vtas"));
+            modelBuilder.Configurations.Add(new ExamenMedicoClienteMap().ToTable("ExamenesMedicosCliente","Vtas"));
             #endregion
 
             #region Banco_sist
@@ -1362,6 +1368,33 @@ namespace SAGA.DAL
                 Property(x => x.Activo).IsRequired();
             }
         }
+
+        public class TipoExamenMedicoMap : EntityTypeConfiguration<TipoExamenMedico>
+        {
+            public TipoExamenMedicoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Descripcion).HasMaxLength(100).IsRequired();
+                Property(x => x.Activo).IsRequired();
+            }
+        }
+        public class MedicoCandidatoMap : EntityTypeConfiguration<MedicoCandidato>
+        {
+            public MedicoCandidatoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.CandidatoId).IsRequired();
+                Property(x => x.ExamenMedicoClienteId).IsRequired();
+                Property(x => x.Facturado).IsRequired();
+                Property(x => x.Resultado).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
+            }
+        }
+
+
+
         #endregion
 
         #region "Mapeo BTra"
@@ -1802,6 +1835,21 @@ namespace SAGA.DAL
                 Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.DireccionId).IsRequired();
                 Property(x => x.ContactoId).IsRequired();
+            }
+        }
+
+        public class ExamenMedicoClienteMap :EntityTypeConfiguration<ExamenMedicoCliente>
+        {
+            public ExamenMedicoClienteMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.ClienteId).IsRequired();
+                Property(x => x.TipoExamenMedicoId).IsRequired();
+                Property(x => x.Costo).HasPrecision(18, 4).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
             }
         }
 
