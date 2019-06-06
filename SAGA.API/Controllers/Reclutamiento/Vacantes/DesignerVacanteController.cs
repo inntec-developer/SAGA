@@ -341,49 +341,78 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updatePublicar")]
-        public IHttpActionResult PublicarVacante(List<listaPublicar> ListadoJson)
+        public IHttpActionResult PublicarVacante(List<listaPublicar> ListadoJson, string RequiID)
         {
             string mensaje = "Publicacion Exitosa, configuracion guardada";
             bool bandera = true;
+            
             try
             {
-                var requi = db.ConfiguracionRequis.ToList();
-                Guid idRequi = ListadoJson.Select(a => a.id).FirstOrDefault();
-                var datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == idRequi).ToList();
 
-                if (datos.Count < ListadoJson.Count)
+                if (RequiID != null && RequiID != "")
                 {
-                    var listaID = datos.Select(e => e.IdEstructura).ToList();
-                    var diferente = ListadoJson.Where(e => !listaID.Contains(e.idCampo)).ToList();
-                    foreach (var item in diferente)
+                    var requi = db.ConfiguracionRequis.ToList();
+                    Guid idRequi = ListadoJson.Select(a => a.id).FirstOrDefault();
+                    var datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == idRequi).ToList();
+
+                    if (datos.Count < ListadoJson.Count)
                     {
-                        ConfiguracionRequi caja = new ConfiguracionRequi();
-                      
-                       // caja.id = Guid.NewGuid();
-                        caja.Campo = item.nombre;
-                        caja.RequisicionId = item.id;
-                        caja.Detalle = item.detalle;
-                        caja.Resumen = item.resumen;
-                        caja.R_D = ResumenDetalle(item.resumen, item.detalle);
-                        caja.IdEstructura = item.idCampo;
-                        db.ConfiguracionRequis.Add(caja);
+                        var listaID = datos.Select(e => e.IdEstructura).ToList();
+                        var diferente = ListadoJson.Where(e => !listaID.Contains(e.idCampo)).ToList();
+                        foreach (var item in diferente)
+                        {
+                            ConfiguracionRequi caja = new ConfiguracionRequi();
+
+                            // caja.id = Guid.NewGuid();
+                            caja.Campo = item.nombre;
+                            caja.RequisicionId = item.id;
+                            caja.Detalle = item.detalle;
+                            caja.Resumen = item.resumen;
+                            caja.R_D = ResumenDetalle(item.resumen, item.detalle);
+                            caja.IdEstructura = item.idCampo;
+                            db.ConfiguracionRequis.Add(caja);
+                            db.SaveChanges();
+                        }
+                        datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == idRequi).ToList();
+                    }
+
+                    foreach (var item in ListadoJson)
+                    {
+                        var lista = datos.Where(e => e.IdEstructura == item.idCampo).FirstOrDefault();
+                        lista.Detalle = item.detalle;
+                        lista.Resumen = item.resumen;
+                        lista.R_D = ResumenDetalle(item.resumen, item.detalle);
                         db.SaveChanges();
                     }
-                    datos = db.ConfiguracionRequis.Where(e => e.RequisicionId == idRequi).ToList();
-                }
-
-                foreach (var item in ListadoJson)
-                {
-                    var lista = datos.Where(e => e.IdEstructura == item.idCampo).FirstOrDefault();
-                    lista.Detalle = item.detalle;
-                    lista.Resumen = item.resumen;
-                    lista.R_D = ResumenDetalle(item.resumen, item.detalle);
+                    var EstatusRequi = db.Requisiciones.Where(e => e.Id == idRequi).FirstOrDefault();
+                    EstatusRequi.EstatusId = 7;
                     db.SaveChanges();
                 }
-                var EstatusRequi = db.Requisiciones.Where(e => e.Id == idRequi).FirstOrDefault();
-                EstatusRequi.EstatusId = 7;
-                db.SaveChanges();
-
+                else
+                {
+                    Guid Requi = new Guid(RequiID);
+                    var CfgRequi = db.CfgRequi.ToList();
+                    var datos2 = db.Estructuras.Where(a => a.Activo == true
+                                                      && a.TipoEstructuraId == 8
+                                                      && a.TipoMovimientoId == 3
+                                                   ).OrderBy(e => e.Orden).ToList();
+                    foreach (var item in CfgRequi)
+                    {
+                        ConfiguracionRequi pieza = new ConfiguracionRequi();
+                        pieza.IdEstructura = item.ConfigMovId;
+                        pieza.Resumen = item.R;
+                        pieza.Detalle = item.D;
+                        pieza.R_D = item.R_D;
+                        pieza.Campo = datos2.Where(e => e.Id == item.ConfigMovId).FirstOrDefault().Nombre;
+                        pieza.RequisicionId = Requi;
+                        var add = db.ConfiguracionRequis.Add(pieza);
+                        db.SaveChanges();
+                    }
+                    var requilis = db.Requisiciones.Where(e => e.Id == Requi).FirstOrDefault();
+                    requilis.Publicado = true;
+                    db.SaveChanges();
+                }
+                
             }
             catch (Exception ex)
             {
