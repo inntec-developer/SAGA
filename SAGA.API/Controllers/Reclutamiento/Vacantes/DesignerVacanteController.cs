@@ -396,15 +396,15 @@ namespace SAGA.API.Controllers
                     var datos2 = db.Estructuras.Where(a => a.Activo == true
                                                       && a.TipoEstructuraId == 8
                                                       && a.TipoMovimientoId == 3
-                                                   ).OrderBy(e => e.Orden).ToList();
-                    foreach (var item in CfgRequi)
+                                                   ).Select(e => new { e.Id, e.Nombre, IdMov = db.ConfiguracionesMov.Where(x=>x.EstructuraId == e.Id).FirstOrDefault().Id, e.Orden }).OrderBy(e => e.Orden).ToList();
+                    foreach (var item in CfgRequi.Where(e=> datos2.Select(x=>x.IdMov).ToList().Contains(e.Id)))
                     {
                         ConfiguracionRequi pieza = new ConfiguracionRequi();
                         pieza.IdEstructura = item.ConfigMovId;
                         pieza.Resumen = item.R;
                         pieza.Detalle = item.D;
                         pieza.R_D = item.R_D;
-                        pieza.Campo = datos2.Where(e => e.Id == item.ConfigMovId).FirstOrDefault().Nombre;
+                        pieza.Campo = datos2.Where(e => e.IdMov == item.Id).Select(e=>e.Nombre).FirstOrDefault();
                         pieza.RequisicionId = Requi;
                         var add = db.ConfiguracionRequis.Add(pieza);
                         db.SaveChanges();
