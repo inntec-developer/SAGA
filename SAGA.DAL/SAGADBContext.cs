@@ -211,7 +211,7 @@ namespace SAGA.DAL
         public DbSet<Referenciado> Referenciados { get; set; }
         public DbSet<TamanoEmpresa> TamanoEmpresas { get; set; }
         public DbSet<TipoBase> TiposBases { get; set; }
-        public ExamenMedicoCliente ExmenesMedicosCliente { get; set; }
+        public DbSet<ExamenMedicoCliente> ExmenesMedicosCliente { get; set; }
 
         // Relacion de Direccion - Emails - Teledonos - Contactos. Para clientes
         public DbSet<DireccionTelefono> DireccionesTelefonos { get; set; }
