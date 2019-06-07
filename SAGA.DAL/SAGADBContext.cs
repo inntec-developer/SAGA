@@ -211,7 +211,7 @@ namespace SAGA.DAL
         public DbSet<Referenciado> Referenciados { get; set; }
         public DbSet<TamanoEmpresa> TamanoEmpresas { get; set; }
         public DbSet<TipoBase> TiposBases { get; set; }
-        public DbSet<ExamenMedicoCliente> ExmenesMedicosCliente { get; set; }
+        public DbSet<ExamenMedicoCliente> ExamenesMedicosCliente { get; set; }
 
         // Relacion de Direccion - Emails - Teledonos - Contactos. Para clientes
         public DbSet<DireccionTelefono> DireccionesTelefonos { get; set; }
@@ -1385,11 +1385,11 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.CandidatoId).IsRequired();
-                Property(x => x.ExamenMedicoClienteId).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.Facturado).IsRequired();
                 Property(x => x.Resultado).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
             }
         }
 

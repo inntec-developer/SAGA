@@ -10,13 +10,13 @@ namespace SAGA.BOL
     {
         public Guid Id { get; set; }
         public Guid CandidatoId { get; set; }
-        public int ExamenMedicoClienteId { get; set; }
+        public Guid ClienteId { get; set; }
         public bool Facturado { get; set; }
         public bool Resultado { get; set; }
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Modificacion { get; set; }
 
         public virtual Candidato Candidato { get; set; }
-        public virtual ExamenMedicoCliente ExamenMedicoCliente { get; set; }
+        public virtual Cliente Cliente { get; set; }
     }
 }
