@@ -328,7 +328,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new RequiClavesMap().ToTable("RequiClaves"));
             modelBuilder.Configurations.Add(new PsicometriaCandidatosMap().ToTable("PsicometriaCandidatos"));
             modelBuilder.Configurations.Add(new MedicoCandidatoMap().ToTable("MedicoCandidato"));
-            
+
 
             //Preguntas Frecuentes 
             modelBuilder.Configurations.Add(new PreguntasFrecuentesMap().ToTable("PreguntasFrecuentes"));
@@ -1384,6 +1384,7 @@ namespace SAGA.DAL
             public MedicoCandidatoMap()
             {
                 HasKey(x => x.Id);
+                Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.ClienteId).IsRequired();
                 Property(x => x.Facturado).IsRequired();

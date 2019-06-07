@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.ComponentModel.DataAnnotations;
 namespace SAGA.BOL
 {
     public class MedicoCandidato
     {
+        [Key]
         public Guid Id { get; set; }
         public Guid CandidatoId { get; set; }
         public Guid ClienteId { get; set; }
