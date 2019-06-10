@@ -84,7 +84,141 @@ namespace SAGA.API.Controllers
             {
                 if (Id != null)
                 {
-                    var requisicion = db.Requisiciones.FirstOrDefault(x => x.Id.Equals(Id));
+                    var requisicion = db.Requisiciones
+                        .Select(r => new
+                        {
+                            Id = r.Id,
+                            vBtra = r.VBtra,
+                            estatusId = r.EstatusId,
+                            horarios = r.horariosRequi.Select(h => new {
+                                Id = h.Id,
+                                nombre = h.Nombre,
+                                deDia = h.deDia,
+                                aDia = h.aDia,
+                                deHora = h.deHora,
+                                aHora = h.aHora,
+                                numeroVacantes = h.numeroVacantes,
+                                especificaciones = h.Especificaciones,
+                                activo = h.Activo
+                            }).ToList(),
+                            cliente = new
+                            {
+                                nombrecomercial = r.Cliente.Nombrecomercial,
+                                razonSocial = r.Cliente.RazonSocial,
+                                rfc = r.Cliente.RFC,
+                                giroEmpresa = r.Cliente.GiroEmpresas.giroEmpresa,
+                                actividadEmpresa = r.Cliente.ActividadEmpresas.actividadEmpresa,
+                                telefonos = db.Telefonos
+                                    .Where(t => t.EntidadId == r.ClienteId)
+                                    .Select(t => new {
+                                        tipo = t.TipoTelefono.Tipo,
+                                        clavePais = t.ClavePais,
+                                        claveLada = t.ClaveLada,
+                                        telefono = t.telefono,
+                                        extension = t.Extension,
+                                        activo = t.Activo,
+                                        esPrincipal = t.esPrincipal
+                                    }).ToList(),
+                                contactos = db.Contactos
+                                    .Where(c => c.ClienteId == r.ClienteId)
+                                    .Select(c => new
+                                    {
+                                        nombre = c.Nombre,
+                                        apellidoPaterno = c.ApellidoPaterno,
+                                        apellidoMaterno = c.ApellidoMaterno,
+                                        puesto = c.Puesto,
+                                        telefonos = db.Telefonos
+                                            .Where(t => t.EntidadId == c.Id)
+                                            .Select(t => new {
+                                                tipo = t.TipoTelefono.Tipo,
+                                                clavePais = t.ClavePais,
+                                                claveLada = t.ClaveLada,
+                                                telefono = t.telefono,
+                                                extension = t.Extension
+                                            })
+                                            .ToList(),
+                                        Email = db.Emails
+                                            .Where(e => e.EntidadId == c.Id)
+                                            .Select(e => new { email = e.email })
+                                            .ToList(),
+                                    }).ToList(),
+
+                            },
+                            tipoReclutamiento = r.TipoReclutamiento.tipoReclutamiento,
+                            claseReclutamiento = r.ClaseReclutamiento.clasesReclutamiento,
+                            tipoContrato = r.ContratoInicial.tipoContrato,
+                            periodoPrueba = r.ContratoInicial.periodoPrueba,
+                            tiempo = r.TiempoContrato.Tiempo,
+                            areaExperiencia = r.Area.areaExperiencia,
+                            genero = r.Genero.genero,
+                            edadMinima = r.EdadMinima,
+                            edadMaxima = r.EdadMaxima,
+                            estadoCivil = r.EstadoCivil.estadoCivil,
+                            sueldoMinimo = r.SueldoMinimo,
+                            sueldoMaximo = r.SueldoMaximo,
+                            escolaridades = r.escolaridadesRequi.Select(es => new
+                            {
+                                gradoEstudio = es.Escolaridad.gradoEstudio,
+                                estadoEstudio = es.EstadoEstudio.estadoEstudio
+                            }).ToList(),
+                            aptitudes = r.aptitudesRequi.Select(a => new
+                            {
+                                aptitud = a.Aptitud.aptitud
+                            }).ToList(),
+                            experiencia = r.Experiencia,
+                            diaCorte = r.DiaCorte.diaSemana,
+                            tipoDeNomina = r.TipoNomina.tipoDeNomina,
+                            diaPago = r.DiaPago.diaSemana,
+                            periodoPago = r.PeriodoPago.periodoPago,
+                            especifique = r.Especifique,
+                            direccionId = r.DireccionId,
+                            beneficios = r.beneficiosRequi.Select(bn => new
+                            {
+                                tipoBeneficio = bn.TipoBeneficio.tipoBeneficio,
+                                cantidad = bn.Cantidad,
+                                observaciones = bn.Observaciones,
+                            }).ToList(),
+                            actividades = r.actividadesRequi.Select(ac => new {
+                                actividades = ac.Actividades
+                            }).ToList(),
+                            observaciones = r.observacionesRequi.Select(ob => new {
+                                observaciones = ob.Observaciones
+                            }).ToList(),
+                            procesos = r.procesoRequi.Select(pr => new {
+                                proceso = pr.Proceso
+                            }).ToList(),
+                            documentosCliente = r.documentosClienteRequi.Select(dcr => new
+                            {
+                                documento = dcr.Documento
+                            }).ToList(),
+                            prestacionesCliente = r.prestacionesClienteRequi.Select(pcr => new {
+                                prestamo = pcr.Prestamo
+                            }).ToList(),
+                            psicometriasDamsa = r.psicometriasDamsaRequi.Select(pd => new {
+                                tipoPsicometria = pd.Psicometria.tipoPsicometria,
+                                descripcion = pd.Psicometria.descripcion
+                            }).ToList(),
+                            psicometriasCliente = r.psicometriasClienteRequi.Select(pc => new
+                            {
+                                psicometria = pc.Psicometria,
+                                descripcion = pc.Descripcion
+                            }).ToList(),
+                            competenciasCardinal = r.competenciasCardinalRequi.Select(cc => new {
+                                competencia = cc.Competencia.competenciaCardinal,
+                                nivel = cc.Nivel
+                            }).ToList(),
+                            competenciasArea = r.competenciasAreaRequi.Select(ca => new {
+                                competencia = ca.Competencia.competenciaArea,
+                                nivel = ca.Nivel
+                            }).ToList(),
+                            competenciasGerencial = r.competetenciasGerencialRequi.Select(cg => new {
+                                competencia = cg.Competencia.competenciaGerencial,
+                                nivel = cg.Nivel
+                            }).ToList()
+
+
+                        })
+                        .FirstOrDefault(x => x.Id.Equals(Id));
                     return Ok(requisicion);
                 }
                 else
