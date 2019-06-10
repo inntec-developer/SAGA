@@ -400,7 +400,7 @@ namespace SAGA.API.Controllers
                     foreach (var item in CfgRequi.Where(e=> datos2.Select(x=>x.IdMov).ToList().Contains(e.Id)))
                     {
                         ConfiguracionRequi pieza = new ConfiguracionRequi();
-                        pieza.IdEstructura = item.ConfigMovId;
+                        pieza.IdEstructura = datos2.Where(e => e.IdMov == item.Id).Select(e => e.Id).FirstOrDefault();
                         pieza.Resumen = item.R;
                         pieza.Detalle = item.D;
                         pieza.R_D = item.R_D;
