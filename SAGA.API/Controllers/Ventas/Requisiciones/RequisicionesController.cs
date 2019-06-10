@@ -1146,7 +1146,7 @@ namespace SAGA.API.Controllers
                     faltantes = e.faltante,
                     diasTrans = e.diasTrans,
                     VBtra = e.VBtra.ToUpper(),
-                    SueldoMaximo = e.SueldoMaximo,
+                    SueldoMaximo = e.SueldoMaximo.ToString("c"),
                     Estatus = t.Where(x => x.RequisicionId.Equals(e.Id)).Select(E => E.Estatus).FirstOrDefault(),
                     EstatusId = requi.Where(a=>a.Id == e.Id).FirstOrDefault().EstatusId,
                     TipoReclutamiento = e.tipoReclutamiento.ToUpper(),
@@ -1187,10 +1187,13 @@ namespace SAGA.API.Controllers
                 {
                     string errorf = error.Message;
                 }
-              //  FechaF = FechaF.AddDays(1);
+                //  FechaF = FechaF.AddDays(1);
 
-                var datos = objeto.Where(e => e.fch_Solicitud >= FechaI
-                    && e.fch_Solicitud <= FechaF ).ToList();
+                var datos3 = objeto.ToList();
+
+
+                var datos = objeto.Where(e => e.fch_Solicitud > FechaI.AddDays(-1)
+                    && e.fch_Solicitud < FechaF.AddDays(1) ).ToList();
 
                 if (stus != "0" && stus != null)
                 {
