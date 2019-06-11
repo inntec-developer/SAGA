@@ -84,7 +84,7 @@ namespace SAGA.API.Controllers
                             ext = x.Extension,
                             size = (long)x.Length / 1024,
                             fc = x.LastWriteTime.ToShortDateString()
-                        });
+                        }).OrderByDescending(o => o.fc);
 
 
 
@@ -147,6 +147,28 @@ namespace SAGA.API.Controllers
             //}
 
 
+        }
+
+        [HttpGet]
+        [Route("deleteFiles")]
+        public IHttpActionResult DeleteFiles(string file)
+        {
+            try
+            {
+                string path = System.Web.Hosting.HostingEnvironment.MapPath(file);
+                string nom = Path.GetFileName(path);
+                string ext = Path.GetExtension(path);
+                string mimetype = MimeMapping.GetMimeMapping(path);
+
+                if (File.Exists(path))
+                    File.Delete(path);
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
         }
 
         [HttpPost]

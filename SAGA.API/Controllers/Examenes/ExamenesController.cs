@@ -27,11 +27,11 @@ namespace SAGA.API.Controllers
         [Route("insertExamen")]
         public IHttpActionResult InsertExamen(List<ExamenDto> Objeto)
         {
-         
+
             SAGA.BOL.Examenes E = new SAGA.BOL.Examenes();
             Preguntas P = new Preguntas();
             Respuestas R = new Respuestas();
-         
+
             using (var dbContextTransaction = db.Database.BeginTransaction())
             {
                 try
@@ -57,7 +57,7 @@ namespace SAGA.API.Controllers
                         db.SaveChanges();
 
                         int idP = P.Id;
-                   
+
                         if (obj.Tipo > 1)
                         {
                             foreach (RespuestaDto r in obj.Respuestas)
@@ -72,7 +72,7 @@ namespace SAGA.API.Controllers
                                 R = new Respuestas();
                             }
                         }
-                        else if(obj.Tipo == 1)
+                        else if (obj.Tipo == 1)
                         {
                             R.PreguntaId = idP;
                             R.Respuesta = "Es pregunta abierta";
@@ -98,7 +98,7 @@ namespace SAGA.API.Controllers
                 }
 
             }
-           
+
         }
 
         [HttpPost]
@@ -122,7 +122,7 @@ namespace SAGA.API.Controllers
 
                 return Ok(HttpStatusCode.OK);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Ok(HttpStatusCode.ExpectationFailed);
 
@@ -144,7 +144,7 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.OK);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
@@ -185,16 +185,16 @@ namespace SAGA.API.Controllers
                         value = R.Validacion,
                     }).OrderBy(o => Guid.NewGuid()).ToList(),
                     tipo = E.Tipo,
-                   
+
                 }).ToList();
 
                 return Ok(examenes);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Ok();
             }
-            
+
         }
 
         [HttpGet]
@@ -255,11 +255,11 @@ namespace SAGA.API.Controllers
                         postulados = db.Postulaciones.Where(p => p.RequisicionId.Equals(e.Id) && p.StatusId.Equals(1)).Select(c => new {
                             candidatoId = c.CandidatoId,
                             curp = c.Candidato.CURP,
-                            nombre = c.Candidato.Nombre, 
+                            nombre = c.Candidato.Nombre,
                             apellidoPaterno = c.Candidato.ApellidoPaterno,
                             apellidoMaterno = c.Candidato.ApellidoMaterno
                         }).ToList()
-            }).ToList();
+                    }).ToList();
 
                 return Ok(vacantes);
 
@@ -280,7 +280,7 @@ namespace SAGA.API.Controllers
             {
                 ResultadosCandidato RC = new ResultadosCandidato();
 
-                foreach(var rc in resultado)
+                foreach (var rc in resultado)
                 {
                     RC.CandidatoId = rc.CandidatoId;
                     RC.PreguntaId = rc.PreguntaId;
@@ -295,11 +295,11 @@ namespace SAGA.API.Controllers
 
                 return Ok(HttpStatusCode.OK);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
-        
+
         }
 
         [HttpGet]
@@ -328,12 +328,98 @@ namespace SAGA.API.Controllers
                 });
                 return Ok(resultados);
             }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+
+        [HttpGet]
+        [Route("examenesMedicos")]
+        public IHttpActionResult ExamenesMedicos()
+        {
+            try
+            {
+                List<Guid> clientes = new List<Guid>();
+                clientes.Add(new Guid("2BAEA5F0-7B54-E811-80E0-9E274155325E"));
+                clientes.Add(new Guid("2DAEA5F0-7B54-E811-80E0-9E274155325E"));
+                clientes.Add(new Guid("6D9898FC-7B54-E811-80E0-9E274155325E"));
+                clientes.Add(new Guid("6F9898FC-7B54-E811-80E0-9E274155325E"));
+                clientes.Add(new Guid("9ACB8014-7C54-E811-80E0-9E274155325E"));
+                clientes.Add(new Guid("DB654F3E-7C54-E811-80E0-9E274155325E"));
+
+                var candidatosFac = db.MedicosCandidato.Where(x => clientes.Contains(x.ClienteId)).Select(c => c.CandidatoId).ToList();
+
+                var requis = db.Requisiciones.OrderBy(o => o.fch_Creacion).Where(x => clientes.Contains(x.ClienteId) && x.Activo).GroupBy(g => g.ClienteId).Select(R => new {
+                    requisicionId = R.Select(r => r.Id),
+                    clienteId = R.Key,
+                    cliente = db.Clientes.Where(x => x.Id.Equals(R.Key)).Select(C => C.Nombrecomercial).FirstOrDefault(),
+                    razon = db.Clientes.Where(x => x.Id.Equals(R.Key)).Select(C => C.RazonSocial).FirstOrDefault(),
+                    examenes = R.Select(e => 
+                        db.ExamenesMedicosCliente.Where(x => x.ClienteId.Equals(e.ClienteId)).Select(ee => new
+                        {
+                            id = ee.Id,
+                            examen = ee.TipoExamenMedico.Descripcion,
+                            costo = ee.Costo
+                        })
+                    ).ToList(),
+                    candidatos = R.Select(r =>
+                        db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(r.Id) && !candidatosFac.Contains(x.CandidatoId)).Select(CC => new
+                        {
+                            candidatoId = CC.CandidatoId,
+                            nombre = db.Candidatos.Where(x => x.Id.Equals(CC.CandidatoId)).Select(N => N.Nombre + " " + N.ApellidoPaterno + " " + N.ApellidoMaterno).FirstOrDefault(),
+                        }).OrderBy(o => o.nombre)
+                    ).ToList()
+
+                }).ToList();
+
+                //var resultado = db.ProcesoCandidatos.Where(x => requis.Contains(x.RequisicionId)).GroupBy(g => g.RequisicionId)
+                //    .Select(C => new
+                //    {
+                //        clienteId = db.Requisiciones.Where(x => x.Id.Equals(C.Key)).Select(cc => cc.ClienteId),
+                //        cliente = db.Clientes.Where(x => x.Id.Equals(db.Requisiciones.Where(x => x.Id.Equals(C.Key)).Select(cc => cc.ClienteId))).Select(n => n.Nombrecomercial).FirstOrDefault(),
+                //        razonsocial = db.Clientes.Where(x => x.Id.Equals(C.Key)).Select(n => n.RazonSocial).FirstOrDefault(),
+                //        candidatos = C.Select(cc => db.Candidatos.Where(x => x.Id.Equals(cc.CandidatoId)).Select(nc => nc.Nombre + " " + nc.ApellidoPaterno + " " + nc.ApellidoMaterno).FirstOrDefault())
+                //    });
+
+                return Ok(requis);
+            }
             catch(Exception ex)
             {
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
 
+        [HttpPost]
+        [Route("insertResultMedico")]
+        public IHttpActionResult InsertResultMedico(List<MedicoCandidato> resultado)
+        {
+            try
+            {
+                MedicoCandidato RC = new MedicoCandidato();
+
+                foreach (var rc in resultado)
+                {
+                    RC.CandidatoId = rc.CandidatoId;
+                    RC.ClienteId = rc.ClienteId;
+                    RC.Resultado = rc.Resultado;
+                    RC.Facturado = rc.Facturado;
+                    RC.fch_Modificacion = DateTime.Now;
+
+                    db.MedicosCandidato.Add(RC);
+                    db.SaveChanges();
+
+                    RC = new MedicoCandidato();
+                }
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
 
         [HttpGet]
         [Route("getExamenCandidato")]
