@@ -11,6 +11,7 @@ namespace SAGA.BOL
         public DateTime fch_Creacion { get; set; }
         public string UsuarioMod { get; set; }
         public DateTime? fch_Modificacion { get; set; }
+        public string  InfoAdicional { get; set; }
 
         public virtual Cliente Cliente { get; set; }
     }

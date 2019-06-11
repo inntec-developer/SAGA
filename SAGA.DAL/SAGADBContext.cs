@@ -1769,6 +1769,7 @@ namespace SAGA.DAL
 				Property(x => x.UsuarioMod).IsOptional().HasMaxLength(30);
 				Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
 				Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
+                Property(x => x.InfoAdicional).HasMaxLength(250).IsOptional();
 			}
 		}
 		public class ClaseReclutamientoMap : EntityTypeConfiguration<ClaseReclutamiento>

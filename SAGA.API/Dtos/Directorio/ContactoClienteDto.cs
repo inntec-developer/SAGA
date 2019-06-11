@@ -17,10 +17,36 @@ namespace SAGA.API.Dtos
         public int TipoEntidadId { get; set; }
         
         public string Puesto { get; set; }
+        public string InfoAdicional { get; set; }
         public Guid ClienteId { get; set; }
         public string Usuario { get; set; }
 
         public virtual ICollection<Telefono> telefonos { get; set; }
         public virtual ICollection<Email> emails { get; set; }
+    }
+
+    public class ContactoTelefonoDto
+    {
+        public Guid Id { get; set; }
+        public string ClavePais { get; set; }
+        public String ClaveLada { get; set; }
+        public String Extension { get; set; }
+        public string telefono { get; set; }
+        public byte TipoTelefonoId { get; set; }
+        public bool Activo { get; set; }
+        public bool esPrincipal { get; set; }
+        public Guid EntidadId { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
+
+    public class ContactoCorreoDto
+    {
+        public Guid Id { get; set; }
+        public string email { get; set; }
+        public bool esPrincipal { get; set; }
+        public Guid EntidadId { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
     }
 }

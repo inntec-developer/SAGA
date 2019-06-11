@@ -522,6 +522,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                 contacto.ApellidoMaterno = info.ApellidoMaterno;
                 contacto.TipoEntidadId = 3;
                 contacto.Puesto = info.Puesto;
+                contacto.InfoAdicional = info.InfoAdicional;
                 contacto.ClienteId = info.ClienteId;
                 contacto.emails = info.emails;
                 contacto.telefonos = info.telefonos;
@@ -545,20 +546,35 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                     .Select(d => d.Id)
                     .FirstOrDefault();
 
-                var IdTel = db.Telefonos
+                var Tel = db.Telefonos
                             .Where(t => t.EntidadId.Equals(Id))
-                            .Select(t => t.Id)
-                            .FirstOrDefault();
-
-                var IdEmail = db.Emails
+                            .Select(t => new {
+                                id = t.Id,
+                                clavePais = t.ClavePais,
+                                claveLada = t.ClaveLada,
+                                telefono = t.telefono,
+                                extension = t.Extension,
+                                tipoTelefono = t.TipoTelefono.Tipo,
+                                TipoTelefonoId = t.TipoTelefonoId,
+                            })
+                            .ToList();
+                
+                var Email = db.Emails
                             .Where(t => t.EntidadId.Equals(Id))
-                            .Select(t => t.Id)
-                            .FirstOrDefault();
+                            .Select(t => new {
+                                id = t.Id,
+                                email = t.email,
+                            })
+                            .ToList();
+                var obj = new
+                {
+                    IdDCn = IdDCn,
+                    Id = Id,
+                    telefonos = Tel,
+                    emails = Email
+                };
 
-
-                Guid[] objeto = { IdDCn, Id, IdTel, IdEmail };
-
-                return Ok(objeto);
+                return Ok(obj);
             }
             catch (Exception ex)
             {
@@ -579,29 +595,19 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                 contacto.ApellidoPaterno = info.ApellidoPaterno;
                 contacto.ApellidoMaterno = info.ApellidoMaterno;
                 contacto.Puesto = info.Puesto;
+                contacto.InfoAdicional = info.InfoAdicional;
                 contacto.UsuarioMod = info.Usuario;
                 contacto.fch_Modificacion = DateTime.Now;
-
-                var telefono = db.Telefonos.Find(info.telefonos.Select(t => t.Id).FirstOrDefault());
-                telefono.TipoTelefonoId = info.telefonos.Select(t => t.TipoTelefonoId).FirstOrDefault();
-                telefono.ClavePais = info.telefonos.Select(t => t.ClavePais).FirstOrDefault();
-                telefono.ClaveLada = info.telefonos.Select(t => t.ClaveLada).FirstOrDefault();
-                telefono.Extension = info.telefonos.Select(t => t.Extension).FirstOrDefault();
-                telefono.telefono = info.telefonos.Select(t => t.telefono).FirstOrDefault();
-                telefono.fch_Modificacion = DateTime.Now;
-                telefono.UsuarioAlta = info.Usuario;
-
-                var email = db.Emails.Find(info.emails.Select(e => e.Id).FirstOrDefault());
-                email.email = info.emails.Select(e => e.email).FirstOrDefault();
-                email.fch_Modificacion = DateTime.Now;
-                email.UsuarioMod = info.Usuario;
 
                 var DireccionContacto = db.DireccionesContactos.Find(info.IdDCn);
                 if (DireccionContacto != null)
                 {
-                    db.Entry(DireccionContacto).State = EntityState.Modified;
-                    DireccionContacto.DireccionId = info.DireccionId;
-                    DireccionContacto.ContactoId = info.Id;
+                    if(DireccionContacto.DireccionId != info.DireccionId)
+                    {
+                        db.Entry(DireccionContacto).State = EntityState.Modified;
+                        DireccionContacto.DireccionId = info.DireccionId;
+                        DireccionContacto.ContactoId = info.Id;
+                    }
                 }
                 else
                 {
@@ -640,7 +646,113 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
             }
         }
 
+        [Route("CRUDTelefonContacto")]
+        [HttpPost]
+        public IHttpActionResult CRUDTelefonoContacto(ContactoTelefonoDto telefono)
+        {
+            try
+            {
+                switch (telefono.Action)
+                {
+                    case "C":
+                        Telefono tel = new Telefono();
+                        tel.ClavePais = telefono.ClavePais;
+                        tel.ClaveLada = telefono.ClaveLada;
+                        tel.Extension = telefono.Extension;
+                        tel.telefono = telefono.telefono;
+                        tel.TipoTelefonoId = telefono.TipoTelefonoId;
+                        tel.Activo = telefono.Activo;
+                        tel.esPrincipal = telefono.esPrincipal;
+                        tel.EntidadId = telefono.EntidadId;
+                        tel.UsuarioAlta = telefono.Usuario;
+                        tel.UsuarioMod = telefono.Usuario;
+                        tel.fch_Modificacion = DateTime.Now;
+                        db.Telefonos.Add(tel);
+                        db.SaveChanges();
+                        var IdTelefono = db.Telefonos
+                            .Where(t => t.EntidadId.Equals(telefono.EntidadId)
+                                        && t.telefono.Equals(telefono.telefono)
+                                        && t.Extension.Equals(telefono.Extension))
+                            .Select(x => x.Id).FirstOrDefault();
+                        var obj = new { id = IdTelefono.ToString() };
 
+                        return Ok(obj);
+
+                    case "U":
+                        var Telefono = db.Telefonos.Find(telefono.Id);
+                        db.Entry(Telefono).State = EntityState.Modified;
+                        Telefono.TipoTelefonoId = telefono.TipoTelefonoId;
+                        Telefono.ClavePais = telefono.ClavePais;
+                        Telefono.ClaveLada = telefono.ClaveLada;
+                        Telefono.Extension = telefono.Extension;
+                        Telefono.telefono = telefono.telefono;
+                        Telefono.fch_Modificacion = DateTime.Now;
+                        Telefono.UsuarioMod = telefono.Usuario;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    case "D":
+                        var delete = db.Telefonos.Find(telefono.Id);
+                        db.Entry(delete).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotFound);
+                }
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Route("CRUDContactoCorreo")]
+        [HttpPost]
+        public IHttpActionResult CRUDContactoCorreo(ContactoCorreoDto correo)
+        {
+            try
+            {
+                switch (correo.Action)
+                {
+                    case "C":
+                        Email em = new Email();
+                        em.email = correo.email;
+                        em.esPrincipal = correo.esPrincipal;
+                        em.EntidadId = correo.EntidadId;
+                        em.UsuarioAlta = correo.Usuario;
+                        em.UsuarioMod = correo.Usuario;
+                        em.fch_Modificacion = DateTime.Now;
+                        db.Emails.Add(em);
+                        db.SaveChanges();
+                        var IdCorreo = db.Emails
+                            .Where(e => e.email.Equals(correo.email) && e.EntidadId.Equals(correo.EntidadId))
+                            .Select(e => e.Id).FirstOrDefault();
+                        var obj = new { id = IdCorreo.ToString() };
+                        return Ok(obj);
+                    case "U":
+                        var Email = db.Emails.Find(correo.Id);
+                        db.Entry(Email).State = EntityState.Modified;
+                        Email.email = correo.email;
+                        Email.fch_Modificacion = DateTime.Now;
+                        Email.UsuarioMod = correo.Usuario;
+                        db.SaveChanges(); 
+                        return Ok(HttpStatusCode.OK);
+                    case "D":
+                        var delete = db.Emails.Find(correo.Id);
+                        db.Entry(delete).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotFound);
+
+                }
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
 
         [Route("getCliente")]
         [HttpGet]
@@ -758,6 +870,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                                         Nombre = c.Nombre,
                                         nombreAux = c.Nombre + " " + c.ApellidoPaterno,
                                         Puesto = c.Puesto,
+                                        InfoAdicional = c.InfoAdicional != null ? c.InfoAdicional : "",
                                         Telefonos = c.telefonos
                                                     .Select(ct => new
                                                     {
