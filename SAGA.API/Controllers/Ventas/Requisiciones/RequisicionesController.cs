@@ -135,12 +135,13 @@ namespace SAGA.API.Controllers
                                                 claveLada = t.ClaveLada,
                                                 telefono = t.telefono,
                                                 extension = t.Extension
-                                            })
-                                            .ToList(),
+                                            }).ToList(),
                                         Email = db.Emails
                                             .Where(e => e.EntidadId == c.Id)
-                                            .Select(e => new { email = e.email })
-                                            .ToList(),
+                                            .Select(e => new
+                                            {
+                                                email = e.email
+                                            }).ToList(),
                                     }).ToList(),
 
                             },
@@ -1891,6 +1892,8 @@ namespace SAGA.API.Controllers
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
                 requisicion.EstatusId = 9;
+                if (requisicion.Publicado)
+                    requisicion.Publicado = false;
 
                 db.AsignacionRequis.RemoveRange(asignados);
 
@@ -1930,6 +1933,8 @@ namespace SAGA.API.Controllers
                 requisicion.AprobadorId = new Guid("00000000-0000-0000-0000-000000000000");
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
+                if (requisicion.Publicado)
+                    requisicion.Publicado = false;
 
                 db.AsignacionRequis.RemoveRange(asignados);
 
