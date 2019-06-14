@@ -897,5 +897,32 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                 return Ok(HttpStatusCode.NotFound);
             }
         }
+
+        [Route("CoincidenciaCliente")]
+        [HttpPost]
+        public IHttpActionResult Similitud(ClienteCoincidenciaDto cliente)
+        {
+            try
+            {
+                var match = db.Clientes
+                    .Where(x => x.Nombrecomercial.Contains(cliente.Cliente) || x.RazonSocial.Contains(cliente.Cliente))
+                    .Select(c => new
+                    {
+                        c.esCliente,
+                        c.RazonSocial,
+                        c.Nombrecomercial, 
+                        c.RFC
+                    })
+                    .OrderBy(x => x.esCliente)
+                    .ToList();
+                return Ok(match);
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
     }
 }
