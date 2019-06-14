@@ -6,11 +6,13 @@ using System.Net.Http;
 using System.Web.Http;
 using SAGA.DAL;
 using SAGA.BOL;
-
+using System.IO;
 using SAGA.API.Dtos.Examenes;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Data.Entity;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace SAGA.API.Controllers
 {
@@ -21,6 +23,22 @@ namespace SAGA.API.Controllers
         public ExamenesController()
         {
             db = new SAGADBContext();
+        }
+
+        public void GuardarImagen(string nombre , string file, string type)
+        {
+            string x = file.Replace("data:" + type + ";base64,", "");
+            byte[] imageBytes = Convert.FromBase64String(x);
+            MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+            ms.Write(imageBytes, 0, imageBytes.Length);
+            System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
+
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/Examenes/" + nombre);
+
+            if (File.Exists(fullPath))
+                File.Delete(fullPath);
+
+            image.Save(fullPath);
         }
 
         [HttpPost]
@@ -34,9 +52,9 @@ namespace SAGA.API.Controllers
 
             using (var dbContextTransaction = db.Database.BeginTransaction())
             {
+                List<string> rutas = new List<string>();
                 try
                 {
-
                     E.TipoExamenId = Objeto[0].TipoExamen.Id;
                     E.Nombre = Objeto[0].TipoExamen.Nombre;
                     E.Descripcion = "SIN ASIGNAR";
@@ -49,8 +67,8 @@ namespace SAGA.API.Controllers
                     foreach (var obj in Objeto)
                     {
                         P.ExamenId = idE;
-                        P.Pregunta = obj.Pregunta;
-                        P.Tipo = obj.Tipo;
+                        P.Pregunta = obj.Pregunta.Pregunta;
+                        P.Tipo = obj.Pregunta.Tipo;
                         P.Activo = 1;
 
                         db.Preguntas.Add(P);
@@ -58,7 +76,13 @@ namespace SAGA.API.Controllers
 
                         int idP = P.Id;
 
-                        if (obj.Tipo > 1)
+                        if(obj.Pregunta.file != "")
+                        {
+                            var nom = "Preguntas/_" + idP.ToString() + "_" + obj.Pregunta.name;
+                            this.GuardarImagen(nom, obj.Pregunta.file, obj.Pregunta.type);
+                          
+                        }
+                        if(obj.Pregunta.Tipo == 2)
                         {
                             foreach (RespuestaDto r in obj.Respuestas)
                             {
@@ -69,10 +93,17 @@ namespace SAGA.API.Controllers
                                 db.Respuestas.Add(R);
                                 db.SaveChanges();
 
+                                if (r.file != "")
+                                {
+                                    var nom = "Respuestas/_" + R.Id.ToString() + "_" + r.name;
+                                    this.GuardarImagen(nom, r.name, r.type);
+                                }
+
                                 R = new Respuestas();
                             }
+
                         }
-                        else if (obj.Tipo == 1)
+                        else if (obj.Pregunta.Tipo == 3)
                         {
                             R.PreguntaId = idP;
                             R.Respuesta = "Es pregunta abierta";
@@ -80,6 +111,13 @@ namespace SAGA.API.Controllers
 
                             db.Respuestas.Add(R);
                             db.SaveChanges();
+
+                            if (obj.Pregunta.file != "")
+                            {
+                                var nom = "Preguntas/_" + idP.ToString() + "_" + obj.Pregunta.name;
+                                this.GuardarImagen(nom, obj.Pregunta.file, obj.Pregunta.type);
+
+                            }
 
                             R = new Respuestas();
                         }
