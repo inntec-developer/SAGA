@@ -403,9 +403,8 @@ namespace SAGA.API.Controllers
 
                     uids.Add(propietario);
 
-                    var requisId = db.AsignacionRequis.Where(x => uids.Contains(x.GrpUsrId) && !x.GrpUsrId.Equals(x.Requisicion.AprobadorId)).Select(a => a.RequisicionId).ToList();
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && requisId.Distinct().Contains(e.Id) && !estatusId.Contains(e.EstatusId))
+                   .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId) && !estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
