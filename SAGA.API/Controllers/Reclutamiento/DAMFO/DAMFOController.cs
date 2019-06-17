@@ -52,7 +52,154 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var damfoGetById = db.DAMFO290.First(x => x.Id.Equals(Id));
+                var damfoGetById = db.DAMFO290.Select(r => new
+                {
+                    Id = r.Id,
+                    nombrePerfil = r.NombrePerfil,
+                    clienteId = r.ClienteId,
+                    horarios = r.horariosPerfil.Select(h => new {
+                        Id = h.Id,
+                        nombre = h.Nombre,
+                        deDia = h.deDia,
+                        aDia = h.aDia,
+                        deHora = h.deHora,
+                        aHora = h.aHora,
+                        numeroVacantes = h.numeroVacantes,
+                        especificaciones = h.Especificaciones,
+                        activo = h.Activo
+                    }).ToList(),
+                    cliente = new
+                    {
+                        nombrecomercial = r.Cliente.Nombrecomercial,
+                        razonSocial = r.Cliente.RazonSocial,
+                        rfc = r.Cliente.RFC,
+                        giroEmpresa = r.Cliente.GiroEmpresas.giroEmpresa,
+                        actividadEmpresa = r.Cliente.ActividadEmpresas.actividadEmpresa,
+                        direcciones = r.Cliente.direcciones.Select(d => new
+                        {
+                            tipoDireccion = d.TipoDireccion.tipoDireccion,
+                            pais = d.Pais.pais,
+                            estado = d.Estado.estado,
+                            municipio = d.Municipio.municipio,
+                            colonia = d.Colonia.colonia,
+                            calle = d.Calle,
+                            numeroExterior = d.NumeroExterior,
+                            numeroInterior = d.NumeroInterior,
+                            codigoPostal = d.CodigoPostal,
+                            activo = d.Activo,
+                            esPrincipal = d.esPrincipal,
+                        }).ToList(),
+                        telefonos = db.Telefonos
+                                    .Where(t => t.EntidadId == r.ClienteId)
+                                    .Select(t => new {
+                                        tipo = t.TipoTelefono.Tipo,
+                                        clavePais = t.ClavePais,
+                                        claveLada = t.ClaveLada,
+                                        telefono = t.telefono,
+                                        extension = t.Extension,
+                                        activo = t.Activo,
+                                        esPrincipal = t.esPrincipal
+                                    }).ToList(),
+                        contactos = db.Contactos
+                                    .Where(c => c.ClienteId == r.ClienteId)
+                                    .Select(c => new
+                                    {
+                                        nombre = c.Nombre,
+                                        apellidoPaterno = c.ApellidoPaterno,
+                                        apellidoMaterno = c.ApellidoMaterno,
+                                        puesto = c.Puesto,
+                                        infoAdicional = c.InfoAdicional,
+                                        telefonos = db.Telefonos
+                                            .Where(t => t.EntidadId == c.Id)
+                                            .Select(t => new {
+                                                tipo = t.TipoTelefono.Tipo,
+                                                clavePais = t.ClavePais,
+                                                claveLada = t.ClaveLada,
+                                                telefono = t.telefono,
+                                                extension = t.Extension
+                                            })
+                                            .ToList(),
+                                        Email = db.Emails
+                                            .Where(e => e.EntidadId == c.Id)
+                                            .Select(e => new { email = e.email })
+                                            .ToList(),
+                                    }).ToList(),
+
+                    },
+                    tipoReclutamiento = r.TipoReclutamiento.tipoReclutamiento,
+                    claseReclutamiento = r.ClaseReclutamiento.clasesReclutamiento,
+                    tipoContrato = r.ContratoInicial.tipoContrato,
+                    periodoPrueba = r.ContratoInicial.periodoPrueba,
+                    tiempo = r.TiempoContrato.Tiempo,
+                    areaExperiencia = r.Area.areaExperiencia,
+                    genero = r.Genero.genero,
+                    edadMinima = r.EdadMinima,
+                    edadMaxima = r.EdadMaxima,
+                    estadoCivil = r.EstadoCivil.estadoCivil,
+                    sueldoMinimo =  r.SueldoMinimo, 
+                    sueldoMaximo = r.SueldoMaximo,
+                    escolaridades = r.escolardadesPerfil.Select(es => new
+                    {
+                        gradoEstudio = es.Escolaridad.gradoEstudio,
+                        estadoEstudio = es.EstadoEstudio.estadoEstudio
+                    }).ToList(),
+                    aptitudes = r.aptitudesPerfil.Select(a => new
+                    {
+                        aptitud = a.Aptitud.aptitud
+                    }).ToList(),
+                    experiencia = r.Experiencia,
+                    diaCorte = r.DiaCorte.diaSemana,
+                    tipoDeNomina = r.TipoNomina.tipoDeNomina,
+                    diaPago = r.DiaPago.diaSemana,
+                    periodoPago = r.PeriodoPago.periodoPago,
+                    especifique = r.Especifique,
+                    beneficios = r.beneficiosPerfil.Select(bn => new
+                    {
+                        tipoBeneficio = bn.TipoBeneficio.tipoBeneficio,
+                        cantidad = bn.Cantidad,
+                        observaciones = bn.Observaciones,
+                    }).ToList(),
+                    actividades = r.actividadesPerfil.Select(ac => new {
+                        actividades = ac.Actividades
+                    }).ToList(),
+                    observaciones = r.observacionesPerfil.Select(ob => new {
+                        observaciones = ob.Observaciones
+                    }).ToList(),
+                    procesos = r.procesoPerfil.Select(pr => new {
+                        proceso = pr.Proceso
+                    }).ToList(),
+                    documentosCliente = r.documentosCliente.Select(dcr => new
+                    {
+                        documento = dcr.Documento
+                    }).ToList(),
+                    prestacionesCliente = r.prestacionesCliente.Select(pcr => new {
+                        prestamo = pcr.Prestamo
+                    }).ToList(),
+                    psicometriasDamsa = r.psicometriasDamsa.Select(pd => new {
+                        tipoPsicometria = pd.Psicometria.tipoPsicometria,
+                        descripcion = pd.Psicometria.descripcion
+                    }).ToList(),
+                    psicometriasCliente = r.psicometriasCliente.Select(pc => new
+                    {
+                        psicometria = pc.Psicometria,
+                        descripcion = pc.Descripcion
+                    }).ToList(),
+                    competenciasCardinal = r.competenciasCardinalPerfil.Select(cc => new {
+                        competencia = cc.Competencia.competenciaCardinal,
+                        nivel = cc.Nivel
+                    }).ToList(),
+                    competenciasArea = r.competenciasAreaPerfil.Select(ca => new {
+                        competencia = ca.Competencia.competenciaArea,
+                        nivel = ca.Nivel
+                    }).ToList(),
+                    competenciasGerencial = r.competetenciasGerencialPerfil.Select(cg => new {
+                        competencia = cg.Competencia.competenciaGerencial,
+                        nivel = cg.Nivel
+                    }).ToList()
+
+
+                })
+                        .FirstOrDefault(x => x.Id.Equals(Id));
                 return Ok(damfoGetById);
             }
             catch (Exception ex)

@@ -13,4 +13,9 @@ namespace SAGA.API.Dtos
         public ActividadEmpresa ActividadEmpresas { get; set; }
         public string RFC { get; set; }
     }
+
+    public class ClienteCoincidenciaDto
+    {
+        public string Cliente { get; set; }
+    }
 }

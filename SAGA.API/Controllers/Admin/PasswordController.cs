@@ -72,7 +72,7 @@ namespace SAGA.API.Controllers.Admin
                 .ToList();
 
             var IdEntidad = db.Usuarios
-                .Where(e => Id.Contains(e.Id) && e.TipoUsuarioId.Equals(4))
+                .Where(e => Id.Contains(e.Id))
                 .Select(m => m.Id)
                 .FirstOrDefault();
 

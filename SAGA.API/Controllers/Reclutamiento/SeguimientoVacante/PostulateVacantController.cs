@@ -295,6 +295,9 @@ namespace SAGA.API.Controllers
 
                 if(datos.estatusId >= 34 && datos.estatusId <= 37)
                 {
+                    R.Publicado = false;
+                    db.SaveChanges();
+
                     UpdateStatusBolsaFinalizado(datos);
                 }
 
