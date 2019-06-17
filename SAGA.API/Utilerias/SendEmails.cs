@@ -187,10 +187,10 @@ namespace SAGA.API.Utilerias
                         
                         body = inicio;
                         body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>.", Usuario, VBr, Folio);
-                        body = body + string.Format("<br><p>Coincidencias Candidatos:</p>");
 
                         if (Coincidencias.Count > 0)
                         {
+                            body = body + string.Format("<br><p>Coincidencias Candidatos:</p>");
                             body = body + "<table class='table'>";
                             body = body + "<tr><th align=center>Candidato</th><th align=center>Subcategoria</th><th align=center>Rango Salarial</th><th align=center>Edad</th></tr>";
                             for (int i = 0; i < Coincidencias.Count(); i++)
