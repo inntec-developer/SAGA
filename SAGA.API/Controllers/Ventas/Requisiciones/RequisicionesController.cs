@@ -403,8 +403,9 @@ namespace SAGA.API.Controllers
 
                     uids.Add(propietario);
 
+                    var requisId = db.AsignacionRequis.Where(x => uids.Contains(x.GrpUsrId) && !x.GrpUsrId.Equals(x.Requisicion.AprobadorId)).Select(a => a.RequisicionId).ToList();
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId) && !estatusId.Contains(e.EstatusId))
+                   .Where(e => e.Activo.Equals(true) && requisId.Distinct().Contains(e.Id) && !estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -539,8 +540,10 @@ namespace SAGA.API.Controllers
 
                     uids.Add(propietario);
 
+                    var requisId = db.AsignacionRequis.Where(x => uids.Contains(x.GrpUsrId) && !x.GrpUsrId.Equals(x.Requisicion.AprobadorId)).Select(a => a.RequisicionId).ToList();
+
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && uids.Distinct().Contains(e.PropietarioId) && estatusId.Contains(e.EstatusId))
+                   .Where(e => e.Activo.Equals(true) && requisId.Distinct().Contains(e.Id) && estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -613,7 +616,7 @@ namespace SAGA.API.Controllers
                     var Usuarios = db.Usuarios.Where(u => Sucursales.Contains(u.SucursalId)).Select(u => u.Id).ToList();
 
                     var requisicion = db.Requisiciones
-                        .Where(e => e.Activo.Equals(true) && e.TipoReclutamientoId.Equals(tipo))
+                        .Where(e => e.Activo.Equals(true) && e.TipoReclutamientoId.Equals(tipo) && (e.EstatusId.Equals(43) || e.EstatusId.Equals(44)) )
                         .Where(e => Usuarios.Contains(e.PropietarioId))
                         .Select(e => new
                         {
@@ -675,7 +678,7 @@ namespace SAGA.API.Controllers
                 }else
                 {
                     var requisicionMTY = db.Requisiciones
-                       .Where(e => e.Activo.Equals(true) && e.TipoReclutamientoId.Equals(tipo))
+                       .Where(e => e.Activo.Equals(true) && e.TipoReclutamientoId.Equals(tipo) && (e.EstatusId.Equals(43) || e.EstatusId.Equals(44)))
                        .Select(e => new
                        {
                            Id = e.Id,
