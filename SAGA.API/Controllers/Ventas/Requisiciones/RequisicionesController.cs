@@ -334,7 +334,7 @@ namespace SAGA.API.Controllers
         public IHttpActionResult GetRequisiciones(Guid propietario)
         {
             List<Guid> uids = new List<Guid>();
-            int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37 };
+            int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37, 47, 48 };
             try
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(propietario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
@@ -470,7 +470,7 @@ namespace SAGA.API.Controllers
         public IHttpActionResult GetRequisicionesHistorial(Guid propietario)
         {
             List<Guid> uids = new List<Guid>();
-            int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37 };
+            int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37,47,48 };
             try
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(propietario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
@@ -823,7 +823,7 @@ namespace SAGA.API.Controllers
                 //      .ToList();
 
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus) && e.PropietarioId.Equals(ReclutadorId))
+                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus) && e.AprobadorId.Equals(ReclutadorId))
                     .Select(e => new
                     {
                         Id = e.Id,
@@ -2342,6 +2342,7 @@ namespace SAGA.API.Controllers
                     var body = "";
                     foreach (var a in aprobadores)
                     {
+                    
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
                         var email = aux[0].email;
                         var emailSol = aux[0].emailSol;
