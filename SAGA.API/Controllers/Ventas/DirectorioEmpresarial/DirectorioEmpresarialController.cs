@@ -20,6 +20,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial
 
         [HttpGet]
         [Route("getProspectos")]
+        [Authorize]
         public IHttpActionResult GetProspectos()
         {
             try
@@ -43,8 +44,10 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial
             }
             catch(Exception ex) { string msg = ex.Message; return Ok(HttpStatusCode.NotFound); }
         }
+
         [HttpGet]
         [Route("getClientes")]
+        [Authorize]
         public IHttpActionResult GetClientes()
         {
             try

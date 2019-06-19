@@ -293,20 +293,24 @@ namespace SAGA.API.Controllers
                     new SqlParameter("@IdAddress", cr.IdAddress),
                     new SqlParameter("@IdEstatus", cr.IdEstatus),
                     new SqlParameter("@UserAlta", cr.Usuario),
-                    new SqlParameter("@UsuarioId", cr.UsuarioId)
+                    new SqlParameter("@UsuarioId", cr.UsuarioId),
+                    new SqlParameter("@Confidencial", cr.Confidencial)
                 };
 
-                var requi = db.Database.SqlQuery<NewrequiInfo>("exec createRequisicion @Id, @IdAddress, @IdEstatus, @UserAlta, @UsuarioId  ", _params).SingleOrDefault();
+                var requi = db.Database.SqlQuery<NewrequiInfo>("exec createRequisicion @Id, @IdAddress, @IdEstatus, @UserAlta, @UsuarioId, @Confidencial  ", _params).SingleOrDefault();
 
                 Guid RequisicionId = requi.Id;
                 Int64 Folio = requi.Folio;
 
-                
 
-                UpdatePublicarDto UpDto = new UpdatePublicarDto();
-                UpDto.ListaPublicar = null;
-                UpDto.RequiId = RequisicionId.ToString();
-                Dvc.PublicarVacante(UpDto);
+                if (!cr.Confidencial)
+                {
+                    UpdatePublicarDto UpDto = new UpdatePublicarDto();
+                    UpDto.ListaPublicar = null;
+                    UpDto.RequiId = RequisicionId.ToString();
+                    Dvc.PublicarVacante(UpDto);
+                }
+                
 
                 var infoRequi = db.Requisiciones
                     .Where(x => x.Id.Equals(RequisicionId))
@@ -1996,7 +2000,7 @@ namespace SAGA.API.Controllers
         [Route("asignacionRequisiciones")]
         public IHttpActionResult AsginarRequi(AsignarVacanteReclutador requi)
         {
-            db.Database.Log = Console.Write;
+            //db.Database.Log = Console.Write;
             using (DbContextTransaction beginTran = db.Database.BeginTransaction())
             {
                 try
