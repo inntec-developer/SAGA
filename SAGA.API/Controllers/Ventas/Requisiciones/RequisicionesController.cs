@@ -1817,7 +1817,7 @@ namespace SAGA.API.Controllers
 
                     CandidatosFiltro = Candidatos
                         .Where(c => c.GeneroId.Equals(Requi.Genero))
-                        .Where(c => c.EstadoCivilId == Requi.EstadoCivil)
+                        .Where(c => c.EstadoCivilId == Requi.EstadoCivil || c.EstadoCivilId == 0)
                         .Where(c => c.AreaExpId == Requi.Categoria)
                         .Where(c => Requi.Escolaridades.Contains(c.Formaciones.Select(f => f.EstadoEstudioId).FirstOrDefault()))
                         .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo)
@@ -2023,7 +2023,7 @@ namespace SAGA.API.Controllers
                         {
                             Nombre = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + (c.Candidato.ApellidoMaterno != null ? c.Candidato.ApellidoMaterno : ""),
                             Subcategoria = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() != null ? c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
-                            AreaExpId = c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault() != 0 ? c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault() : 0,
+                            AreaExpId = c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() != 0 ? c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() : 0,
                             SueldoMinimo = c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
                             SueldoMaximo = c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() : 0,
                             Genero = c.Candidato.Genero.genero,
@@ -2038,14 +2038,35 @@ namespace SAGA.API.Controllers
                     List<CoincidenciasDto> CandidatosFiltro = new List<CoincidenciasDto>();
 
                     CandidatosFiltro = Candidatos
-                        .Where(c => c.GeneroId.Equals(Requi.Genero))
-                        .Where(c => c.EstadoCivilId == Requi.EstadoCivil)
                         .Where(c => c.AreaExpId == Requi.Categoria)
-                        .Where(c => Requi.Escolaridades.Contains(c.Formaciones.Select(f => f.EstadoEstudioId).FirstOrDefault()))
+                        .ToList();
+
+                    CandidatosFiltro
+                           .Where(c => Requi.Escolaridades.Contains(c.Formaciones.Select(f => f.EstadoEstudioId).FirstOrDefault()))
+                           .ToList();
+
+                    CandidatosFiltro
                         .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo)
+                        .ToList();
+
+                    CandidatosFiltro
                         .Where(c => c.SueldoMaximo <= Requi.SalarioMaximo)
+                        .ToList();
+
+
+                    CandidatosFiltro
                         .Where(c => c.Edad >= Requi.EdadMinima || c.Edad <= Requi.EdadMaxima)
                         .ToList();
+
+                    if (Requi.Genero > 0)
+                    {
+                        CandidatosFiltro.Where(c => c.GeneroId.Equals(Requi.Genero));
+                    }
+
+                    if (Requi.EstadoCivil > 0)
+                    {
+                        CandidatosFiltro.Where(c => c.EstadoCivilId == Requi.EstadoCivil);
+                    }
 
                     db.Entry(requisicion).State = EntityState.Modified;
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
