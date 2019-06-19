@@ -181,21 +181,22 @@ namespace SAGA.API.Utilerias
 
                         
                         body = inicio;
-                        body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>.", Usuario, VBr, Folio);
+                        body = body + string.Format("<br/>El usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>.", Usuario, VBr, Folio);
 
                         if (Coincidencias.Count > 0)
                         {
-                            body = body + string.Format("<br><p>Coincidencias Candidatos:</p>");
+                            body = body + string.Format("<br><p>Te mostramos los siguientes candidatos que coinciden con el perfil de la vacante:</p>");
                             body = body + "<table class='table'>";
                             body = body + "<tr><th align=center>Candidato</th><th align=center>Subcategoria</th><th align=center>Rango Salarial</th><th align=center>Edad</th></tr>";
                             for (int i = 0; i < Coincidencias.Count(); i++)
                             {
-                                body = body + "<tr><td align=center> " + Coincidencias[i].Nombre + "</td><td align=center>" + Coincidencias[i].Subcategoria + "</td><td align=center>" + Coincidencias[i].SueldoMinimo + "-" +  Coincidencias[i].SueldoMaximo + "</td><td align=center>" + Coincidencias[i].Edad + "</td></tr>";
+                                body = body + "<tr><td align=center> " + Coincidencias[i].Nombre + "</td><td align=center>" + Coincidencias[i].Subcategoria + "</td><td align=center>" + Coincidencias[i].SueldoMinimo + " - " +  Coincidencias[i].SueldoMaximo + "</td><td align=center>" + Coincidencias[i].Edad + "</td></tr>";
                             }
                             body = body + "</table>";
                         }
-                        body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de reclutamiento seguido de entidades de reclutamiento, selecciona la opción de vacantes, para dar el seguimiento correspondiente.</p> ";
-                        body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
+                        body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de <b>Reclutamiento</b>, selecciona la opción de <b>Vacantes</b> para dar el seguimiento correspondiente.</p> ";
+                        body = body + "<p>Podrás acceder mediante la siguiente dirección: https://weberp.damsa.com.mx/login" + "</p>";
+                        body = body + "<p>Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx</p><p>Gracias por tu atención. </p><p>Saludos</p>";
                         body = body + "</body></html>";
                     }
                     if (action == "D")
