@@ -42,6 +42,7 @@ namespace SAGA.API.Controllers.Component.Graficas
 
         [HttpGet]
         [Route("vacantesInicio")]
+        [Authorize]
         public IHttpActionResult VacantesInicio(Guid UsuarioId)
         {
             try
@@ -123,6 +124,7 @@ namespace SAGA.API.Controllers.Component.Graficas
 
         [HttpGet]
         [Route("getRequisicionesGPA")]
+        [Authorize]
         public IHttpActionResult GetRequisicionesGPA(string estado, Guid UsuarioId)
         {
             List<Guid> uids = new List<Guid>();

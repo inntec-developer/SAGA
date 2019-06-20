@@ -10,6 +10,7 @@ using System.Web.Http;
 namespace SAGA.API.Controllers
 {
     [RoutePrefix("api/contadores")]
+    [Authorize]
     public class ContadoresController : ApiController
     {
 
@@ -39,7 +40,7 @@ namespace SAGA.API.Controllers
         }
 
 
-        [HttpPost]
+        [HttpGet]
         [Route("perfiles")]
         public IHttpActionResult GetPerfiles()
         {
@@ -168,7 +169,7 @@ namespace SAGA.API.Controllers
         }
 
 
-        [HttpPost]
+        [HttpGet]
         [Route("candidatos")]
         public IHttpActionResult GetCandidatos()
         {
@@ -261,7 +262,7 @@ namespace SAGA.API.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("candidatosEstatus")]
         public IHttpActionResult GetCandidatosEstatus()
         {

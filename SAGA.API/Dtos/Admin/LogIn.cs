@@ -14,6 +14,6 @@ namespace SAGA.API.Dtos
     public class ReturnLogIn
     {
         public string Token { get; set; }
-        public UsuarioDto Usuario { get; set; }
+        public string DataUser { get; set; }
     }
 }

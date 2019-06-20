@@ -5,12 +5,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net.Mail;
-using System.Web;
-using System.Text;
-using System.Web.Http;
 using SAGA.API.Dtos;
-using System.Net;
-using System.Globalization;
 
 namespace SAGA.API.Utilerias
 {
@@ -186,21 +181,22 @@ namespace SAGA.API.Utilerias
 
                         
                         body = inicio;
-                        body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>.", Usuario, VBr, Folio);
+                        body = body + string.Format("<br/>El usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>.", Usuario, VBr, Folio);
 
                         if (Coincidencias.Count > 0)
                         {
-                            body = body + string.Format("<br><p>Coincidencias Candidatos:</p>");
+                            body = body + string.Format("<br><p>Te mostramos los siguientes candidatos que coinciden con el perfil de la vacante:</p>");
                             body = body + "<table class='table'>";
                             body = body + "<tr><th align=center>Candidato</th><th align=center>Subcategoria</th><th align=center>Rango Salarial</th><th align=center>Edad</th></tr>";
                             for (int i = 0; i < Coincidencias.Count(); i++)
                             {
-                                body = body + "<tr><td align=center> " + Coincidencias[i].Nombre + "</td><td align=center>" + Coincidencias[i].Subcategoria + "</td><td align=center>" + Coincidencias[i].SueldoMinimo + "-" +  Coincidencias[i].SueldoMaximo + "</td><td align=center>" + Coincidencias[i].Edad + "</td></tr>";
+                                body = body + "<tr><td align=center> " + Coincidencias[i].Nombre + "</td><td align=center>" + Coincidencias[i].Subcategoria + "</td><td align=center>" + Coincidencias[i].SueldoMinimo + " - " +  Coincidencias[i].SueldoMaximo + "</td><td align=center>" + Coincidencias[i].Edad + "</td></tr>";
                             }
                             body = body + "</table>";
                         }
-                        body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de reclutamiento seguido de entidades de reclutamiento, selecciona la opción de vacantes, para dar el seguimiento correspondiente.</p> ";
-                        body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
+                        body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de <b>Reclutamiento</b>, selecciona la opción de <b>Vacantes</b> para dar el seguimiento correspondiente.</p> ";
+                        body = body + "<p>Podrás acceder mediante la siguiente dirección: https://weberp.damsa.com.mx/login" + "</p>";
+                        body = body + "<p>Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx</p><p>Gracias por tu atención. </p><p>Saludos</p>";
                         body = body + "</body></html>";
                     }
                     if (action == "D")
@@ -225,6 +221,8 @@ namespace SAGA.API.Utilerias
                         body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{1}</big></strong>, fue cancelada.", VBr, Folio);
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
                     }
+
+                    body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>");
 
                     m.Body = body;
                     m.IsBodyHtml = true;
@@ -284,7 +282,8 @@ namespace SAGA.API.Utilerias
                 body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Registrado :</font></td></tr>";
                 body = body + string.Format("<tr bgcolor=\"#FDC613\"><td>{0}<br/>", aux.fecha);
                 body = body + string.Format("<p> Podrás acceder mediante la siguiente dirección: {0} <br/>", webERP);
-                body = body + "Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx </p></td></tr></table></body></html>";
+                body = body + "Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx </p></td></tr></table>";
+                body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p></body></html>");
 
                 m.Body = body;
                 m.IsBodyHtml = true;
@@ -339,7 +338,8 @@ namespace SAGA.API.Utilerias
                 body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Registrado :</font></td></tr>";
                 body = body + string.Format("<tr bgcolor=\"#FDC613\"><td>{0}<br/>",fechaCreacion);
                 body = body + string.Format("<p> Podrás acceder mediante la siguiente dirección: {0} <br/>", webERP);
-                body = body + "Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx </p></td></tr></table></body></html>";
+                body = body + "Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx </p></td></tr></table>";
+                body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p></body></html>");
 
                 m.Body = body;
                 m.IsBodyHtml = true;
@@ -361,7 +361,7 @@ namespace SAGA.API.Utilerias
                 int[] mty = {6,7,10,19,28,24};
                 int[] gdl = {1,3,8,10,11,14,16,18,2,25,26,32};
                 int[] mx = {4,5,9,12,13,15,17,20,21,22,23,27,29,30,31};
-                string GrVtasEmail = "", GVtasEmail = "";
+                string GrVtasEmail = "", GVtasEmail = "", GGEmail = "";
                 List<string> GrVEmails = null;
                 List<string> GVEmails = null;
                 bool isDurango = false;
@@ -471,6 +471,16 @@ namespace SAGA.API.Utilerias
                     isDurango = true;
                 }
                 
+                if(facturacion != null)
+                {
+                    if (facturacion.porcentage < 50)
+                    {
+                        GGEmail = db.Usuarios
+                            .Where(u => u.TipoUsuarioId.Equals(14) && u.Departamento.Clave.Equals("GRTS") && u.Activo.Equals(true))
+                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
+                            .FirstOrDefault();
+                    }
+                }
                 
                 
                 var emailProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid)).Select(x => x.email).FirstOrDefault();
@@ -478,6 +488,7 @@ namespace SAGA.API.Utilerias
                 string body = "";
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
+                m.Priority = MailPriority.High;
                 m.From = new MailAddress(from, "SAGA Inn");
                 body = string.Format("<html><head></head> <body style=\"text-align:justify; font-size:14px; font-family:'calibri'\"><div style =\"margin-left: 5px\">");
                 switch (requi.estatusId)
@@ -510,7 +521,7 @@ namespace SAGA.API.Utilerias
                         break;
                     case 9:
                         m.To.Add(emailProp);
-                        if(!isDurango)
+                        if (!isDurango)
                         {
                             m.CC.Add(GrVtasEmail);
                             m.CC.Add(GVtasEmail);
@@ -536,11 +547,24 @@ namespace SAGA.API.Utilerias
                         m.To.Add(emailProp);
                         break;
                     case 43:
-                        m.To.Add(GrVtasEmail);
-                        m.CC.Add(emailProp);
-                        m.CC.Add(GVtasEmail);
-                        m.Subject = string.Format("Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio {0}.</strong>", requi.folio);
+                        
+                        if (facturacion == null){
+                            m.To.Add(GrVtasEmail);
+                            m.CC.Add(emailProp);
+                            m.CC.Add(GVtasEmail != null ? GVtasEmail : "");
+                            m.Subject = string.Format("[AUTORIZAR FOLIO] Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                            body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio {0}.</strong>", requi.folio);
+                        }
+                        else
+                        {
+                            m.To.Add(GGEmail);
+                            m.CC.Add(GrVtasEmail);
+                            m.CC.Add(emailProp);
+                            m.CC.Add(GVtasEmail);
+                            m.Subject = string.Format("[AUTORIZAR FOLIO] Vacante con Reclutamiento Puro Porcentage menor de 50% {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                            body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Reclutamiento Puro con el número de folio {0}, el cual se esta solicitando una facturación por debajo del 50%. Es necesaria previa autorización para continuar con el proceso. </strong>", requi.folio);
+                        }
+                       
                         break;
                     case 44:
                         m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
@@ -561,7 +585,7 @@ namespace SAGA.API.Utilerias
                             }
                         }
                         m.CC.Add(emailProp);
-                        m.Subject = string.Format("Solicitud de Facturación de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[FACTURAR FOLIO] Solicitud de Facturación de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa, que se requiere factura para el nuevo Reclutamiento Puro con el número de folio {0}.</strong>", requi.folio);
                         break;
                     case 45:
@@ -582,7 +606,7 @@ namespace SAGA.API.Utilerias
                             }
                         }
                         m.CC.Add(emailProp);
-                        m.Subject = string.Format("<strong style=\"color: #159EF7\">Seguimiento de Reclutamiento Puro {0} - {1}.</strong>", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[aUTORIZADA PENDIENTE PAGO] Seguimiento de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">La requisiciones esta autorizada, con un pago pendiente.</strong>");
                         break;
                     case 46:
@@ -603,7 +627,7 @@ namespace SAGA.API.Utilerias
                             }
                         }
                         m.CC.Add(emailProp);
-                        m.Subject = string.Format("Seguimiento de Reclutamiento Puro {0} - {1}.", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[FOLIO ASIGNADO] Seguimiento de Reclutamiento Puro {0} - {1}.", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">La requisición fue asignada al Gerente de Reclutamiento.</strong>");
                         break;
                 }
@@ -632,7 +656,7 @@ namespace SAGA.API.Utilerias
                 body = body + string.Format("</div></div>");
                 body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> Favor de corroborar esta información y dar el seguimeiento correspondiente </strong></label></p>");
                 body = body + string.Format("<p><label><strong style=\"color: #159EF7\">Me despido de usted(es) agradeciendo su atención y enviandole un cordial saludo. </strong></label></p>");
-                body = body + string.Format("<p></p><p><ahref=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>");
+                body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>");
                 body = body + string.Format("</div></body></html>");
                 m.Body = body;
                 m.IsBodyHtml = true;
@@ -640,6 +664,7 @@ namespace SAGA.API.Utilerias
                 smtp.EnableSsl = true;
                 smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
                 smtp.Send(m);
+                m.Dispose();
 
                 return true;
 
@@ -684,28 +709,18 @@ namespace SAGA.API.Utilerias
                        aptitudes = x.aptitudesRequi,
                        beneficios = x.beneficiosRequi,
                        prestaciones = x.prestacionesClienteRequi,
+                       aprobadorId = x.AprobadorId,
                    }).FirstOrDefault();
-
-                //var asignados = db.AsignacionRequis
-                //                .Where(a => a.RequisicionId.Equals(RequisicionId))
-                //                .Select(x => x.GrpUsrId)
-                //                .ToList();
-
-
-                var emailsProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid)).Select(x => x.email).FirstOrDefault();
-
-                //var emailsAsignados = db.Emails.Where(x => asignados.Contains(x.EntidadId)).Select(x => x.email).ToList();
-
+                List<string> Emails = new List<string>();
+                var emailsProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid) || x.EntidadId.Equals(requi.aprobadorId)).Select(x => x.email).ToList();
                 string body = "";
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA Inn");
                 m.To.Add(ConfigurationManager.AppSettings["Medios"].ToString());
-                m.CC.Add(emailsProp);
-                //foreach (var e in emailsAsignados)
-                //{
-                //    m.CC.Add(e.ToString());
-                //}
+                foreach(var e  in Emails){
+                    m.CC.Add(e);
+                }
                 m.Subject = string.Format("Publicacion de Vacante en Redes Sociales {0} - {1}", requi.folio, requi.empresa.ToUpper());
                 body = string.Format("<p style=\"font-size:12px;\">Por este medio se les informa que se ha solicitado publicación en redes sociales la vacante con número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
 
@@ -762,6 +777,7 @@ namespace SAGA.API.Utilerias
 
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong> Favor de corroborar esta información y dar el seguimiento correspondiente. </strong></p>");
                 body = body + string.Format("<p style=\"font-size:12px;\">Me despido de usted agradeciendo su atención y enviándole un cordial saludo.</p>");
+                body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>");
 
                 m.Body = body;
                 m.IsBodyHtml = true;

@@ -25,6 +25,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("addProspecto")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult AddProspecto(ProspectoDto prospecto)
         {
             using (DbContextTransaction beginTran = db.Database.BeginTransaction())
@@ -142,6 +143,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("hacerCliente")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult HacerCliente(HacerClienteDto cliente)
         {
             try
@@ -167,6 +169,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("EditInfoGeneral")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult EditInforGeneral(InfoGeneralDto info)
         {
             try
@@ -197,6 +200,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
         #region Direccion
         [Route("AddDireccionCliente")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult AddDireccionCliente(DireccionClienteDto info)
         {
             try
@@ -234,6 +238,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("EditDireccionCliente")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult EditDireccionCliente(DireccionClienteDto info)
         {
             try
@@ -267,6 +272,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("DeleteDireccionCliente")]
         [HttpGet]
+        [Authorize]
         public IHttpActionResult DeleteDireccionCliente(Guid DireccionId)
         {
             try
@@ -307,6 +313,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("AddTelefonoCliente")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult AddTelefonoCliente(TelefonoClienteDto info)
         {
             try
@@ -354,6 +361,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("EditTelefonoCliente")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult EditTelefonoCliente(TelefonoClienteDto info)
         {
             try
@@ -398,6 +406,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
         }
         [Route("DeleteTelefonoCliente")]
         [HttpGet]
+        [Authorize]
         public IHttpActionResult DeleteTelefonoCliente(Guid TelefonoId)
         {
             try
@@ -415,6 +424,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
         }
         [Route("AddEmailCliente")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult AddEmailCliente(EmailClienteDto info)
         {
             try
@@ -456,6 +466,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("EditEmailCliente")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult EditEmailCliente(EmailClienteDto info)
         {
             try
@@ -494,6 +505,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("DeleteEmailCliente")]
         [HttpGet]
+        [Authorize]
         public IHttpActionResult DeleteEmailCliente(Guid EmailId)
         {
             try
@@ -512,6 +524,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("AddContactoCliente")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult AddContactosCliente(ContactoClienteDto info)
         {
             try
@@ -585,6 +598,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("EditContactoCliente")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult EditContactosCliente(ContactoClienteDto info)
         {
             try
@@ -630,6 +644,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("DeleteContactoCliente")]
         [HttpGet]
+        [Authorize]
         public IHttpActionResult DeleteContactosCliente(Guid ContactoId)
         {
             try
@@ -648,6 +663,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("CRUDTelefonContacto")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult CRUDTelefonoContacto(ContactoTelefonoDto telefono)
         {
             try
@@ -708,6 +724,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("CRUDContactoCorreo")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult CRUDContactoCorreo(ContactoCorreoDto correo)
         {
             try
@@ -756,6 +773,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("getCliente")]
         [HttpGet]
+        [Authorize]
         public IHttpActionResult GetCliente(Guid ClienteId)
         {
             try
@@ -900,6 +918,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
 
         [Route("CoincidenciaCliente")]
         [HttpPost]
+        [Authorize]
         public IHttpActionResult Similitud(ClienteCoincidenciaDto cliente)
         {
             try

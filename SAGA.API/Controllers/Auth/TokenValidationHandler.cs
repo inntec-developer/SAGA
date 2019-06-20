@@ -14,6 +14,7 @@ namespace SAGA.API.Controllers
     public class TokenValidationHandler : DelegatingHandler
     {
         private static bool TryRetrieveToken(HttpRequestMessage request, out string token)
+
         {
             token = null;
             IEnumerable<string> authzHeaders;

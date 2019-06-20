@@ -12,5 +12,6 @@ namespace SAGA.API.Dtos
         public string Usuario { get; set; }
         public Guid UsuarioId { get; set; }
         public int IdEstatus { get; set; }
+        public bool Confidencial { get; set; }
     }
 }
