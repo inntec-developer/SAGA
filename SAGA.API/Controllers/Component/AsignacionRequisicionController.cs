@@ -11,6 +11,7 @@ using System.Web.Http;
 namespace SAGA.API.Controllers.Component
 {
     [RoutePrefix("api/AsignacionRequi")]
+    [Authorize]
     public class AsignacionRequisicionController : ApiController
     {
         private SAGADBContext db;

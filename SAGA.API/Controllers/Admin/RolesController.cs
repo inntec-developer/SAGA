@@ -66,6 +66,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updateRoles")]
+        [Authorize]
         public IHttpActionResult updateRoles(Roles listJson)
         {
             string msj = "Actualizó";
@@ -111,6 +112,7 @@ namespace SAGA.API.Controllers
         }
         [HttpPost]
         [Route("deleteUserRol")]
+        [Authorize]
         public IHttpActionResult DeleteUserRol(RolEntidad indices)
         {
             string msj = "Borró usuario";
@@ -138,6 +140,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("addGroupRol")]
+        [Authorize]
         public IHttpActionResult AddGroupRol(List<RolEntidad> listJson)
         {
             string msj = "Los datos se agregaron con éxito";
@@ -161,6 +164,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getEstructuraRoles")]
+        [Authorize]
         public IHttpActionResult GetEstructuraRoles(int rol)
         {
             var privilegiosRoles = db.Privilegios.Where(x => x.RolId.Equals(rol) & x.Rol.Activo.Equals(true))

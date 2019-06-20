@@ -25,6 +25,7 @@ namespace SAGA.API.Controllers
  
         [HttpPost]
         [Route("addGrupo")]
+        [Authorize]
         public IHttpActionResult AddGrupo(Grupos listJson)
         {
             try
@@ -50,6 +51,7 @@ namespace SAGA.API.Controllers
         }
         [HttpPost]
         [Route("updateActivo")]
+        [Authorize]
         public IHttpActionResult updateActivo(Grupos data)
         {
             try
@@ -73,6 +75,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updateGrupo")]
+        [Authorize]
         public IHttpActionResult updateGrupo(Grupos listJson)
         {
             try
@@ -100,6 +103,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("deleteGrupo")]
+        [Authorize]
         public IHttpActionResult deleteGrupo(Grupos listJson)
         {
             try
@@ -121,6 +125,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("addUserGroup")]
+        [Authorize]
         public IHttpActionResult AddUserGroup(List<GrupoUsuarios> listJson)
         {
             try
@@ -143,6 +148,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getGruposRoles")]
+        [Authorize]
         public IHttpActionResult GetGruposRoles()
         {
             var grupos = db.Grupos.Where(x => x.Activo == true).Select(g => new

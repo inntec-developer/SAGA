@@ -28,6 +28,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("get")]
+        [Authorize]
         public IHttpActionResult getDtosPersonal(Guid user)
         {
             List<PersonasDtos> dts = new List<PersonasDtos>();
@@ -139,6 +140,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getEntidades2")]
+        [Authorize]
         public IHttpActionResult GetEntidades2()
         {
             List<PersonasDtos> data = new List<PersonasDtos>();
@@ -253,6 +255,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getUsuarioByDepa")]
+        [Authorize]
         public IHttpActionResult getDtosByDepa(Guid id)
         {
             List<PersonasDtos> dts = new List<PersonasDtos>();
@@ -279,6 +282,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getUsuarioByGrupo")]
+        [Authorize]
         public IHttpActionResult GetDtosByGrupo(Guid id)
         {
             List<PersonasDtos> data = new List<PersonasDtos>();
@@ -329,6 +333,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getEntidadesByRol")]
+        [Authorize]
         public IHttpActionResult GetDtosByRol(int id)
         {
             List<PersonasDtos> data = new List<PersonasDtos>();
@@ -380,6 +385,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getByTipoUsuario")]
+        [Authorize]
         public IHttpActionResult GetByTipoUsuario(byte tipo)
         {
             try
@@ -515,6 +521,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("sendEmailRegister")]
+        [Authorize]
         public IHttpActionResult SendEmailRegister(PersonaSendEmail Dtos)
         {
             try
@@ -534,6 +541,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("udActivo")]
+        [Authorize]
         public IHttpActionResult UdActivo(Guid id, bool v)
         {
             try
@@ -707,6 +715,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("deleteUserGroup")]
+        [Authorize]
         public IHttpActionResult DeleteUserGroup(GrupoUsuarios indices)
         {
             try

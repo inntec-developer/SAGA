@@ -83,6 +83,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getGrupos")]
+        [Authorize]
         public IHttpActionResult getGrupos()
         {
             PersonalController obj = new PersonalController();
@@ -122,6 +123,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getRoles")]
+        [Authorize]
         public IHttpActionResult getRoles()
         {
             var roles = db.Roles.Where(x => x.Activo).ToList();

@@ -301,6 +301,86 @@ namespace SAGA.API.Controllers
                     UpdateStatusBolsaFinalizado(datos);
                 }
 
+                if (datos.estatusId == 4)
+                {
+                    var requi = db.Requisiciones
+                        .Where(r => r.Id.Equals(datos.requisicionId))
+                        .Select(r => new
+                        {
+                            estado = r.Direccion.EstadoId,
+                            tipoReclutamiento = r.TipoReclutamientoId
+                        }).FirstOrDefault();
+
+                    if (datos.estatusId == 4 && requi.tipoReclutamiento == 1)
+                    {
+                        int[] mty = { 6, 7, 19, 28, 24 };
+                        int[] gdl = { 1, 3, 8, 11, 14, 16, 18, 2, 25, 26, 32 };
+                        int[] mx = { 4, 5, 9, 12, 13, 15, 17, 20, 21, 22, 23, 27, 29, 30, 31 };
+                        Guid GReclutamiento = Guid.NewGuid();
+
+
+                        if (requi.estado != 10)
+                        {
+                            if (gdl.Contains(Convert.ToInt32(requi.estado)))
+                            {
+                                GReclutamiento = db.Usuarios
+                                    .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("RECL") && u.Sucursal.UnidadNegocio.Id.Equals(1) && u.Activo.Equals(true))
+                                    .Select(u => u.Id)
+                                    .FirstOrDefault();
+                            }
+                            if (mx.Contains(Convert.ToInt32(requi.estado)))
+                            {
+                                GReclutamiento = db.Usuarios
+                                    .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("RECL") && u.Sucursal.UnidadNegocio.Id.Equals(2) && u.Activo.Equals(true))
+                                    .Select(u => u.Id)
+                                    .FirstOrDefault();
+                            }
+                            if (mty.Contains(Convert.ToInt32(requi.estado)))
+                            {
+                                GReclutamiento = db.Usuarios
+                                    .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("RECL") && u.Sucursal.UnidadNegocio.Id.Equals(3) && u.Activo.Equals(true))
+                                    .Select(u => u.Id)
+                                    .FirstOrDefault();
+                            }
+
+                            AsignacionRequi agr = new AsignacionRequi();
+                            agr.RequisicionId = datos.requisicionId;
+                            agr.GrpUsrId = GReclutamiento;
+                            agr.CRUD = "";
+                            agr.UsuarioAlta = "SISTEMA";
+                            agr.UsuarioMod = "SISTEMA";
+                            agr.fch_Modificacion = DateTime.Now;
+
+                            db.AsignacionRequis.Add(agr);
+                            db.SaveChanges();
+                        }
+                        else
+                        {
+                            var LGReclutamiento = db.Usuarios
+                            .Where(u => u.TipoUsuarioId.Equals(3)
+                                    && u.Departamento.Clave.Equals("VTAS")
+                                    && (u.Sucursal.UnidadNegocio.Id.Equals(1) || u.Sucursal.UnidadNegocio.Id.Equals(3))
+                                    && u.Activo.Equals(true))
+                            .Select(u => u.Id)
+                            .ToList();
+
+                            foreach (var e in LGReclutamiento)
+                            {
+                                AsignacionRequi agr = new AsignacionRequi();
+                                agr.RequisicionId = datos.requisicionId;
+                                agr.GrpUsrId = e;
+                                agr.CRUD = "";
+                                agr.UsuarioAlta = "SISTEMA";
+                                agr.UsuarioMod = "SISTEMA";
+                                agr.fch_Modificacion = DateTime.Now;
+
+                                db.AsignacionRequis.Add(agr);
+                                db.SaveChanges();
+                            }
+                        }
+                    }
+                }
+
                 return Ok(HttpStatusCode.Created);
             }
             catch (Exception ex)

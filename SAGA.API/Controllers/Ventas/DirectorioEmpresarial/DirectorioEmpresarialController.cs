@@ -20,7 +20,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial
 
         [HttpGet]
         [Route("getProspectos")]
-        [Authorize]
+        
         public IHttpActionResult GetProspectos()
         {
             try
@@ -47,7 +47,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial
 
         [HttpGet]
         [Route("getClientes")]
-        [Authorize]
+        
         public IHttpActionResult GetClientes()
         {
             try

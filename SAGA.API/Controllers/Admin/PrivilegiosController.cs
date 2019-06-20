@@ -13,7 +13,7 @@ using System.Collections;
 namespace SAGA.API.Controllers
 {
     [RoutePrefix("api/admin")]
-    //[Authorize]
+    //
     public class PrivilegiosController : ApiController
     {
         private SAGADBContext db;
@@ -54,6 +54,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getprivilegios")]
+        [Authorize]
         public IHttpActionResult GetPrivilegios2(Guid idUser)
         {
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
@@ -263,6 +264,7 @@ namespace SAGA.API.Controllers
         }
         [HttpPost]
         [Route("modificarPrivilegios")]
+        [Authorize]
         public IHttpActionResult ModificarPrivilegios(List<PrivilegiosDtos> listJson)
         {
             try
