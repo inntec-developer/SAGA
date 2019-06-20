@@ -465,13 +465,13 @@ namespace SAGA.API.Controllers.Reportes
 
             }
             int[] Status = new[] { 34, 35, 36, 37,47,48 };
-            var listaRequi = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF ).Select(e => e.RequisicionId).Distinct().ToList();
-            listaRequi = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).Select(a=>a.Id).ToList();
-          //  var listaRequi = db.EstatusRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF && Status.Contains(e.EstatusId)).Select(e=>e.RequisicionId).ToList();
-          //  var candidatos = db.ProcesoCandidatos.Where(e=> listaRequi.Contains(e.RequisicionId) && Status.Contains(e.EstatusId)).ToList();
+        //    var listaRequi = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF ).Select(e => e.RequisicionId).Distinct().ToList();
+         //   listaRequi = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).Select(a=>a.Id).ToList();
+          var listaRequi = db.EstatusRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF && Status.Contains(e.EstatusId)).Select(e=>e.RequisicionId).ToList().Distinct();
+        
           var candidatos = db.AsignacionRequis.Where(e => listaRequi.Contains(e.RequisicionId)).ToList();
             var recluta = candidatos.Select(e => e.GrpUsrId).Distinct().ToList();
-          //  var requi = candidatos.Select(e => e.RequisicionId).Distinct().ToList();
+       
             var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).ToList();
             var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).ToList();
             //var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).Select(e => new {
@@ -503,9 +503,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     var obj = new proactividad();
                     var listaRequien = vacantes.Select(e => e.Id).ToList();
-                    // var Listacandidato = candidatos.Where(e=>e.ReclutadorId == item.Id).Select(e=>e.RequisicionId).Distinct().ToList();
-                    //   var Listareclutador = candidatos.Where(e => e.ReclutadorId == item.Id && Status.Contains(e.EstatusId)).Select(e => e.RequisicionId).ToList();
-                    var ListaCubierta = db.ProcesoCandidatos.Where(e => e.ReclutadorId == item.Id && e.Fch_Modificacion >= FechaI && e.Fch_Modificacion <= FechaF && e.EstatusId == 24).ToList();
+                    var ListaCubierta = db.ProcesoCandidatos.Where(e => e.ReclutadorId == item.Id && e.EstatusId == 24 && listaRequien.Contains(e.RequisicionId)).ToList();
                     var listaPosicion = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).Select(e=>e.RequisicionId).ToList();
 
                     obj.vacantes = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).ToList().Count();
