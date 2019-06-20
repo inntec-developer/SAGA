@@ -465,10 +465,11 @@ namespace SAGA.API.Controllers.Reportes
 
             }
             int[] Status = new[] { 34, 35, 36, 37,47,48 };
-            var listaRequi = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF ).Select(e => e.RequisicionId).Distinct().ToList();
+            var listaRequi = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF ).Select(e => e.RequisicionId).Distinct().ToList();
+            listaRequi = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).Select(a=>a.Id).ToList();
           //  var listaRequi = db.EstatusRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF && Status.Contains(e.EstatusId)).Select(e=>e.RequisicionId).ToList();
           //  var candidatos = db.ProcesoCandidatos.Where(e=> listaRequi.Contains(e.RequisicionId) && Status.Contains(e.EstatusId)).ToList();
-          var candidatos = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
+          var candidatos = db.AsignacionRequis.Where(e => listaRequi.Contains(e.RequisicionId)).ToList();
             var recluta = candidatos.Select(e => e.GrpUsrId).Distinct().ToList();
           //  var requi = candidatos.Select(e => e.RequisicionId).Distinct().ToList();
             var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).ToList();
@@ -584,8 +585,9 @@ namespace SAGA.API.Controllers.Reportes
 
             }
             int[] Status = new[] { 34, 35, 36, 37,47,48 };
-            var listaRequi = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).Select(e => e.RequisicionId).Distinct().ToList();
-            var candidatos = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
+            var listaRequi = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).Select(e => e.RequisicionId).Distinct().ToList();
+            listaRequi = db.Requisiciones.Where(e => listaRequi.Contains(e.Id)).Select(a => a.Id).ToList();
+            var candidatos = db.AsignacionRequis.Where(e => listaRequi.Contains(e.RequisicionId)).ToList();
             var recluta = candidatos.Select(e => e.GrpUsrId).Distinct().ToList();
             var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id)).ToList();
             var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).ToList();
@@ -690,7 +692,9 @@ namespace SAGA.API.Controllers.Reportes
 
             }
             int[] Status = new[] { 34, 35, 36, 37, 47, 48 };
-            var Requisiciones = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
+            var Requisiciones = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
+
+          //  var Requisiciones = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
             var listaRequi = Requisiciones.Select(e => e.RequisicionId).Distinct().ToList();
             var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id)).ToList();
             var recluta = vacantes.Where(e=>e.AprobadorId != new Guid("00000000-0000-0000-0000-000000000000")).Select(e=>e.AprobadorId).ToList();
@@ -772,6 +776,50 @@ namespace SAGA.API.Controllers.Reportes
                 var algo = eror;
             }
             return Ok("Por el momento el servidor no responde");
+        }
+
+
+        [HttpGet]
+        [Route("candidatos")]
+        public IHttpActionResult candidatos(string fini, string ffin, int edad, int avance, int genero)
+        {
+            DateTime FechaF = DateTime.Now;
+            DateTime FechaI = DateTime.Now;
+            try
+            {
+                if (fini != null)
+                {
+                    FechaI = Convert.ToDateTime(fini);
+                }
+                if (ffin != null)
+                {
+                    FechaF = Convert.ToDateTime(ffin);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            var candidato = db.Candidatos.Where(e => e.fch_Creacion >= FechaI && e.fch_Creacion <= FechaF).ToList();
+
+             var datos = candidato.Where(e=> e.fch_Creacion >= FechaI && e.fch_Creacion <= FechaF).Select(e=> new {
+                e.Id,
+                e.CURP,
+                e.RFC,
+                e.estadoNacimiento.estado,
+                edad = DateTime.Now.Year - e.FechaNacimiento.Value.Year,
+                e.Genero,
+                e.GeneroId,
+                avance = 0
+            }).ToList();
+
+            if(edad != 0)
+            {
+                datos.Where(e => e.edad > edad && e.edad < edad + 5).ToList();
+            }
+            
+          
+            return Ok(datos);
         }
 
         public class proactividad
