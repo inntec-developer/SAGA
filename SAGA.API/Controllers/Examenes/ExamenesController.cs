@@ -13,6 +13,8 @@ using Newtonsoft.Json;
 using System.Data.Entity;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Net.Mail;
+using System.Configuration;
 
 namespace SAGA.API.Controllers
 {
@@ -96,14 +98,14 @@ namespace SAGA.API.Controllers
                                 if (r.file != "")
                                 {
                                     var nom = "Respuestas/_" + R.Id.ToString() + "_" + r.name;
-                                    this.GuardarImagen(nom, r.name, r.type);
+                                    this.GuardarImagen(nom, r.file, r.type);
                                 }
 
                                 R = new Respuestas();
                             }
 
                         }
-                        else if (obj.Pregunta.Tipo == 3)
+                        else if (obj.Pregunta.Tipo == 1)
                         {
                             R.PreguntaId = idP;
                             R.Respuesta = "Es pregunta abierta";
@@ -112,12 +114,12 @@ namespace SAGA.API.Controllers
                             db.Respuestas.Add(R);
                             db.SaveChanges();
 
-                            if (obj.Pregunta.file != "")
-                            {
-                                var nom = "Preguntas/_" + idP.ToString() + "_" + obj.Pregunta.name;
-                                this.GuardarImagen(nom, obj.Pregunta.file, obj.Pregunta.type);
+                            //if (obj.Pregunta.file != "")
+                            //{
+                            //    var nom = "Preguntas/_" + idP.ToString() + "_" + obj.Pregunta.name;
+                            //    this.GuardarImagen(nom, obj.Pregunta.file, obj.Pregunta.type);
 
-                            }
+                            //}
 
                             R = new Respuestas();
                         }
@@ -204,6 +206,35 @@ namespace SAGA.API.Controllers
             return Ok(examenes);
         }
 
+        public string GetImage(string ruta, string nom)
+        {
+            string fullPath;
+
+
+            try
+            {
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath(ruta);
+   
+                string[] fileEntries = Directory.GetFiles(fullPath, nom + "*.*");
+
+                var type = Path.GetExtension(fileEntries[0]);
+                var fileName = Path.GetFileName(fileEntries[0]);
+
+                FileStream fs = new FileStream(fileEntries[0], FileMode.Open, FileAccess.Read);
+                    byte[] bimage = new byte[fs.Length];
+                    fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
+                    fs.Close();
+
+                string img = "data:" + type + ";base64," + Convert.ToBase64String(bimage);
+                return ruta + fileName;
+            }
+            catch(Exception ex)
+            {
+                return "";
+            }
+
+        }
+
         [HttpGet]
         [Route("getExamen")]
         public IHttpActionResult GetExamen(int examenId)
@@ -226,11 +257,22 @@ namespace SAGA.API.Controllers
 
                 }).ToList();
 
-                return Ok(examenes);
+                var mocos = examenes.Select(E => new
+                {
+                    examenId = E.examenId,
+                    nombre = E.nombre,
+                    preguntaId = E.preguntaId,
+                    pregunta = E.pregunta,
+                    file = GetImage("/utilerias/img/Examenes/Preguntas/", "_" + E.preguntaId + "_"),
+                    respuestas = E.respuestas,
+                    tipo = E.tipo,
+                });
+
+                return Ok(mocos);
             }
             catch (Exception ex)
             {
-                return Ok();
+                return Ok(HttpStatusCode.ExpectationFailed);
             }
 
         }
@@ -260,7 +302,21 @@ namespace SAGA.API.Controllers
 
                 }).ToList();
 
-                return Ok(examenes);
+
+                var mocos = examenes.Select(E => new
+                {
+                    examenId = E.examenId,
+                    vBtra = E.vBtra,
+                    folio = E.folio,
+                    nombre = E.nombre,
+                    preguntaId = E.preguntaId,
+                    pregunta = E.pregunta,
+                    file = GetImage("/utilerias/img/Examenes/Preguntas/", "_" + E.preguntaId + "_"),
+                    respuestas = E.respuestas,
+                    tipo = E.tipo,
+                });
+
+                return Ok(mocos);
             }
             catch (Exception ex)
             {
@@ -449,7 +505,11 @@ namespace SAGA.API.Controllers
 
                     RC = new MedicoCandidato();
                 }
+                Guid mocos = resultado[0].ClienteId;
+                var costoExamen = db.ExamenesMedicosCliente.Where(x => x.ClienteId.Equals(mocos) && x.TipoExamenMedicoId.Equals(1)).Select(C => C.Costo).FirstOrDefault();
+                double monto = Convert.ToDouble(costoExamen * resultado.Count());
 
+                this.EnviarEmailMedicos(resultado[0].ClienteId, resultado.Count(), monto);
                 return Ok(HttpStatusCode.OK);
             }
             catch (Exception ex)
@@ -522,5 +582,67 @@ namespace SAGA.API.Controllers
             }).ToList();
             return Ok(resultado);
         }
+
+        public IHttpActionResult EnviarEmailMedicos(Guid clienteId, int num, double monto)
+        {
+            try
+            {
+                var informacion = db.Clientes.Where(x => x.Id.Equals(clienteId)).Select(p => new {
+                    cliente = p.Nombrecomercial,
+                    razon = p.RazonSocial,
+                    estado = p.direcciones.Select(d => d.Estado.estado).FirstOrDefault()
+                }).FirstOrDefault();
+                //var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(informacion.coordinador)).Select(e => e.email).FirstOrDefault();
+                //var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(informacion.solicitante)).Select(e => e.email).FirstOrDefault();
+                //var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi)).Select(A => new
+                //{
+                //    emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
+                //}).ToList();
+
+        
+
+                string email = "bmorales@damsa.com.mx";
+                string body = "";
+                // email = "idelatorre@damsa.com.mx";
+                if (email != "")
+                {
+                    string from = "noreply@damsa.com.mx";
+                    MailMessage m = new MailMessage();
+                    m.From = new MailAddress(from, "SAGA Inn");
+                    m.Subject = "Solicitud de Facturación REACTIVOS MEDICOS";
+
+                    m.To.Add("idelatorre@damsa.com.mx");
+                    //m.Bcc.Add(emailSolicitante);
+                   
+                    m.Bcc.Add("bmorales@damsa.com.mx");
+
+                    body = string.Format("<p>Por este medio se les informa que se requiere facturar #Reactivos M&eacute;dicos al cliente <strong>{0}</strong>.</p>", informacion.cliente);
+                    //body = body + string.Format("<br/><br/><p>Empresa: {0}</p>", informacion.cliente);
+                    body = body + string.Format("<br/><p>Raz&oacute;n Social: {0}</p>", informacion.razon);
+                    body = body + string.Format("<p>Estado: {0}</p>", informacion.estado);
+                    //body = body + string.Format("<p>Puesto: {0}</p>", informacion.vbtra);
+                    body = body + string.Format("<p>N&uacute;mero Reactivos: {0}</p>", num);
+                    body = body + string.Format("<p>Monto a Facturar: ${0} </p>", monto);
+                    body = body + "<br/><br/><br/><p>Favor de corroborar esta informaci&oacute;n y dar el seguimiento correspondiente.</p>";
+                    body = body + "<br/><br/><p>Me despido de usted agradeciendo su atenci&oacute;n y enviandole un cordial saludo.</p>";
+
+                    m.Body = body;
+                    m.IsBodyHtml = true;
+                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                    smtp.EnableSsl = true;
+                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                    smtp.Send(m);
+
+                }
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
     }
+
+    
 }
