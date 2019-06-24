@@ -464,10 +464,11 @@ namespace SAGA.API.Controllers.Reportes
             {
 
             }
+            FechaF = FechaF.AddDays(1);
             int[] Status = new[] { 34, 35, 36, 37,47,48 };
         //    var listaRequi = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF ).Select(e => e.RequisicionId).Distinct().ToList();
          //   listaRequi = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).Select(a=>a.Id).ToList();
-          var listaRequi = db.EstatusRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF && Status.Contains(e.EstatusId)).Select(e=>e.RequisicionId).ToList().Distinct();
+          var listaRequi = db.EstatusRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion < FechaF && Status.Contains(e.EstatusId)).Select(e=>e.RequisicionId).ToList().Distinct();
         
           var candidatos = db.AsignacionRequis.Where(e => listaRequi.Contains(e.RequisicionId)).ToList();
             var recluta = candidatos.Select(e => e.GrpUsrId).Distinct().ToList();
@@ -779,7 +780,7 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("candidatos")]
-        public IHttpActionResult candidatos(string fini, string ffin, int edad, int avance, int genero)
+        public IHttpActionResult candidatos(string fini, string ffin, int edad, int avance, int genero, int estadoID)
         {
             DateTime FechaF = DateTime.Now;
             DateTime FechaI = DateTime.Now;
@@ -800,10 +801,11 @@ namespace SAGA.API.Controllers.Reportes
             }
             var candidato = db.Candidatos.Where(e => e.fch_Creacion >= FechaI && e.fch_Creacion <= FechaF).ToList();
 
-             var datos = candidato.Where(e=> e.fch_Creacion >= FechaI && e.fch_Creacion <= FechaF).Select(e=> new {
+             var datos = candidato.Select(e=> new {
                 e.Id,
                 e.CURP,
                 e.RFC,
+                estadoId = e.estadoNacimiento.Id,
                 e.estadoNacimiento.estado,
                 edad = DateTime.Now.Year - e.FechaNacimiento.Value.Year,
                 e.Genero,
@@ -813,10 +815,20 @@ namespace SAGA.API.Controllers.Reportes
 
             if(edad != 0)
             {
-                datos.Where(e => e.edad > edad && e.edad < edad + 5).ToList();
+                datos.Where(e => e.edad > edad + 1 && e.edad < edad + 6).ToList();
+            }
+
+            if (genero != 0)
+            {
+                datos.Where(e => e.GeneroId == genero).ToList();
+            }
+
+            if (estadoID != 0)
+            {
+                datos.Where(e => e.estadoId == estadoID).ToList();
             }
             
-          
+
             return Ok(datos);
         }
 
