@@ -335,6 +335,115 @@ namespace SAGA.API.Controllers.Reportes
 
 
         [HttpGet]
+        [Route("coordinacion")]
+        public IHttpActionResult coordinacion(string fini, string ffin, string stus)
+        {
+            DateTime FechaF = DateTime.Now;
+            DateTime FechaI = DateTime.Now;
+            try
+            {
+                if (fini != null)
+                {
+                    FechaI = Convert.ToDateTime(fini);
+                }
+                if (ffin != null)
+                {
+                    FechaF = Convert.ToDateTime(ffin);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            var requi = db.Requisiciones.Where(e=>e.fch_Creacion >= FechaI && e.fch_Creacion <= FechaF).ToList();
+           
+
+            var masivo = requi.Where(e=>e.ClaseReclutamientoId == 3).Select(e=> new {
+                e.Id,
+                e.EstatusId
+            }).ToList();
+
+            var operativo = requi.Where(e => e.ClaseReclutamientoId == 2).Select(e => new {
+                e.Id,
+                e.EstatusId
+            }).ToList();
+
+            var ezpeciali = requi.Where(e => e.ClaseReclutamientoId == 1).Select(e => new {
+                e.Id,
+                e.EstatusId
+            }).ToList();
+
+            try
+            {
+                var datos2 = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 2 && e.Id != 5).Select(e => new
+                {
+                    e.Id,
+                    e.Descripcion
+                }).ToList();
+
+                var datos3 = new List<proactividad>();
+                foreach (var item in datos2)
+                {
+                    var obj = new proactividad();
+                    obj.vacantes = item.Id;
+                    obj.nombre = item.Descripcion;
+                    obj.numeropos = masivo.Where(x => x.EstatusId == item.Id).ToList().Count();
+                    obj.porcentaje = operativo.Where(x => x.EstatusId == item.Id).ToList().Count();
+                    obj.puntaje = ezpeciali.Where(x => x.EstatusId == item.Id).ToList().Count();
+                    datos3.Add(obj);
+                }
+
+                var datos = datos3.Select(e => new {
+                    Id = e.vacantes,
+                    Descripcion = e.nombre,
+                    masivo = e.numeropos,
+                    operativo = e.porcentaje,
+                    ezpecial = e.puntaje,
+                }).ToList();
+
+                if (stus != "0" && stus != null)
+                {
+                    var obj = stus.Split(',');
+                    List<int> listaAreglo = new List<int>();
+                    for (int i = 0; i < obj.Count() ; i++)
+                    {
+                        listaAreglo.Add(Convert.ToInt32(obj[i]));
+                    }
+                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
+                    if (obb.Count == 0)
+                    {
+                        datos = datos.Where(e => listaAreglo.Contains(e.Id)).ToList();
+                    }
+                }
+                return Ok(datos);
+            }
+            catch (Exception ex)
+            {
+               var mensaje =  ex.Message;
+               
+            }
+
+           
+            //if (cor != "0" && cor != null)
+            //{
+            //    var obj = cor.Split(',');
+            //    List<int> listaAreglo = new List<int>();
+            //    for (int i = 0; i < obj.Count() - 1; i++)
+            //    {
+            //        listaAreglo.Add(Convert.ToInt32(obj[i]));
+            //    }
+            //    var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+            //    if (obb.Count == 0)
+            //    {
+            //        datos = datos.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
+            //    }
+            //}
+
+            return Ok("El servidor no responde");
+        }
+
+
+        [HttpGet]
         [Route("actividad")]
         public IHttpActionResult actividad(string fini,string ffin,string recl, string cor)
         {
@@ -355,13 +464,14 @@ namespace SAGA.API.Controllers.Reportes
             {
 
             }
-            int[] Status = new[] { 34, 35, 36, 37 };
-            var listaRequi = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF ).Select(e => e.RequisicionId).Distinct().ToList();
-          //  var listaRequi = db.EstatusRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF && Status.Contains(e.EstatusId)).Select(e=>e.RequisicionId).ToList();
-          //  var candidatos = db.ProcesoCandidatos.Where(e=> listaRequi.Contains(e.RequisicionId) && Status.Contains(e.EstatusId)).ToList();
-          var candidatos = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
+            int[] Status = new[] { 34, 35, 36, 37,47,48 };
+        //    var listaRequi = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF ).Select(e => e.RequisicionId).Distinct().ToList();
+         //   listaRequi = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).Select(a=>a.Id).ToList();
+          var listaRequi = db.EstatusRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF && Status.Contains(e.EstatusId)).Select(e=>e.RequisicionId).ToList().Distinct();
+        
+          var candidatos = db.AsignacionRequis.Where(e => listaRequi.Contains(e.RequisicionId)).ToList();
             var recluta = candidatos.Select(e => e.GrpUsrId).Distinct().ToList();
-          //  var requi = candidatos.Select(e => e.RequisicionId).Distinct().ToList();
+       
             var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).ToList();
             var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).ToList();
             //var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).Select(e => new {
@@ -393,9 +503,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     var obj = new proactividad();
                     var listaRequien = vacantes.Select(e => e.Id).ToList();
-                    // var Listacandidato = candidatos.Where(e=>e.ReclutadorId == item.Id).Select(e=>e.RequisicionId).Distinct().ToList();
-                    //   var Listareclutador = candidatos.Where(e => e.ReclutadorId == item.Id && Status.Contains(e.EstatusId)).Select(e => e.RequisicionId).ToList();
-                    var ListaCubierta = db.ProcesoCandidatos.Where(e => e.ReclutadorId == item.Id && e.Fch_Modificacion >= FechaI && e.Fch_Modificacion <= FechaF).ToList();
+                    var ListaCubierta = db.ProcesoCandidatos.Where(e => e.ReclutadorId == item.Id && e.EstatusId == 24 && listaRequien.Contains(e.RequisicionId)).ToList();
                     var listaPosicion = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).Select(e=>e.RequisicionId).ToList();
 
                     obj.vacantes = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).ToList().Count();
@@ -474,9 +582,10 @@ namespace SAGA.API.Controllers.Reportes
             {
 
             }
-            int[] Status = new[] { 34, 35, 36, 37 };
-            var listaRequi = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).Select(e => e.RequisicionId).Distinct().ToList();
-            var candidatos = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
+            int[] Status = new[] { 34, 35, 36, 37,47,48 };
+            var listaRequi = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).Select(e => e.RequisicionId).Distinct().ToList();
+            listaRequi = db.Requisiciones.Where(e => listaRequi.Contains(e.Id)).Select(a => a.Id).ToList();
+            var candidatos = db.AsignacionRequis.Where(e => listaRequi.Contains(e.RequisicionId)).ToList();
             var recluta = candidatos.Select(e => e.GrpUsrId).Distinct().ToList();
             var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id)).ToList();
             var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).ToList();
@@ -503,7 +612,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     var obj = new proactividad();
                     var listaRequien = vacantes.Select(e => e.Id).ToList();
-                    var ListaCubierta = db.ProcesoCandidatos.Where(e => e.ReclutadorId == item.Id && e.Fch_Modificacion >= FechaI && e.Fch_Modificacion <= FechaF).ToList();
+                    var ListaCubierta = db.ProcesoCandidatos.Where(e => e.ReclutadorId == item.Id && e.Fch_Modificacion >= FechaI && e.Fch_Modificacion <= FechaF && e.EstatusId == 24).ToList();
                     var listaPosicion = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).Select(e => e.RequisicionId).ToList();
 
                     obj.vacantes = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).ToList().Count();
@@ -580,8 +689,10 @@ namespace SAGA.API.Controllers.Reportes
             {
 
             }
-            int[] Status = new[] { 34, 35, 36, 37 };
-            var Requisiciones = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
+            int[] Status = new[] { 34, 35, 36, 37, 47, 48 };
+            var Requisiciones = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
+
+          //  var Requisiciones = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
             var listaRequi = Requisiciones.Select(e => e.RequisicionId).Distinct().ToList();
             var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id)).ToList();
             var recluta = vacantes.Where(e=>e.AprobadorId != new Guid("00000000-0000-0000-0000-000000000000")).Select(e=>e.AprobadorId).ToList();
@@ -609,7 +720,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     var obj = new proactividad();
                     var listaRequien = vacantes.Select(e => e.Id).ToList();
-                    var ListaCubierta = db.ProcesoCandidatos.Where(e => e.ReclutadorId == item.Id && e.Fch_Modificacion >= FechaI && e.Fch_Modificacion <= FechaF).ToList();
+                    var ListaCubierta = db.ProcesoCandidatos.Where(e => e.ReclutadorId == item.Id && e.Fch_Modificacion >= FechaI && e.Fch_Modificacion <= FechaF && e.EstatusId == 24).ToList();
                     var listaPosicion = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).Select(e => e.RequisicionId).ToList();
 
                     obj.vacantes = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).ToList().Count();
@@ -665,6 +776,50 @@ namespace SAGA.API.Controllers.Reportes
             return Ok("Por el momento el servidor no responde");
         }
 
+
+        [HttpGet]
+        [Route("candidatos")]
+        public IHttpActionResult candidatos(string fini, string ffin, int edad, int avance, int genero)
+        {
+            DateTime FechaF = DateTime.Now;
+            DateTime FechaI = DateTime.Now;
+            try
+            {
+                if (fini != null)
+                {
+                    FechaI = Convert.ToDateTime(fini);
+                }
+                if (ffin != null)
+                {
+                    FechaF = Convert.ToDateTime(ffin);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            var candidato = db.Candidatos.Where(e => e.fch_Creacion >= FechaI && e.fch_Creacion <= FechaF).ToList();
+
+             var datos = candidato.Where(e=> e.fch_Creacion >= FechaI && e.fch_Creacion <= FechaF).Select(e=> new {
+                e.Id,
+                e.CURP,
+                e.RFC,
+                e.estadoNacimiento.estado,
+                edad = DateTime.Now.Year - e.FechaNacimiento.Value.Year,
+                e.Genero,
+                e.GeneroId,
+                avance = 0
+            }).ToList();
+
+            if(edad != 0)
+            {
+                datos.Where(e => e.edad > edad && e.edad < edad + 5).ToList();
+            }
+            
+          
+            return Ok(datos);
+        }
+
         public class proactividad
         {
             public string nombre { get; set; }
@@ -675,6 +830,7 @@ namespace SAGA.API.Controllers.Reportes
             public int porcentaje { get; set; }
             public Guid id { get; set; }
         }
+   
 
 
         public int PuntajeCalculo(Guid id, List<ProcesoCandidato> lista)

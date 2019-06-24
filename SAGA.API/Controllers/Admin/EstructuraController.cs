@@ -23,6 +23,7 @@ namespace SAGA.API.Controllers.Admin
 
         [HttpGet]
         [Route("GetEstructura")]
+        [Authorize]
         public IHttpActionResult GetEstructura()
         {
             List<PrivilegiosDtos> Tree = new List<PrivilegiosDtos>();

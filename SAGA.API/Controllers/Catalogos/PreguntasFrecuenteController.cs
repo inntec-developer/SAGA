@@ -10,6 +10,7 @@ using System.Web.Http;
 namespace SAGA.API.Controllers
 {
     [RoutePrefix("api/PreguntasFrecuente")]
+    [Authorize]
     public class PreguntasFrecuenteController : ApiController
     {
         private SAGADBContext db = new SAGADBContext();

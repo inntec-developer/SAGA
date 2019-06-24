@@ -19,6 +19,7 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("vcubierta")]
+        
         public IHttpActionResult vcubierta(string usuario)
         {
             Guid id = new Guid(usuario);
@@ -58,6 +59,7 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("vactiva")]
+        
         public IHttpActionResult vactiva(string usuario)
         {
             Guid id = new Guid(usuario);
@@ -110,6 +112,7 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("vporvencer")]
+        
         public IHttpActionResult vporvencer(string usuario)
         {
             Guid id = new Guid(usuario);
@@ -177,6 +180,7 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("vvencida")]
+        
         public IHttpActionResult vvencida(string usuario)
         {
             Guid id = new Guid(usuario);
@@ -197,6 +201,7 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("radial")]
+        
         public IHttpActionResult radial(string usuario)
         {
             Guid id = new Guid(usuario);
@@ -290,6 +295,7 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("resumen")]
+        
         public IHttpActionResult resumen(string usuario)
         {
             Guid id = new Guid(usuario);

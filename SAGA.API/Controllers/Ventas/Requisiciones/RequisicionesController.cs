@@ -38,6 +38,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getAddress")]
+        [Authorize]
         public IHttpActionResult GetAddress(Guid Id)
         {
             try
@@ -78,6 +79,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getById")]
+        [Authorize]
         public IHttpActionResult GetRequisicion(Guid Id)
         {
             try
@@ -238,6 +240,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getByFolio")]
+        [Authorize]
         public IHttpActionResult GetRequisicionFolio(Int64 folio)
         {
             try
@@ -284,6 +287,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("createRequi")]
+        [Authorize]
         public IHttpActionResult Clon(CreateRequiDto cr)
         {
             try
@@ -293,20 +297,24 @@ namespace SAGA.API.Controllers
                     new SqlParameter("@IdAddress", cr.IdAddress),
                     new SqlParameter("@IdEstatus", cr.IdEstatus),
                     new SqlParameter("@UserAlta", cr.Usuario),
-                    new SqlParameter("@UsuarioId", cr.UsuarioId)
+                    new SqlParameter("@UsuarioId", cr.UsuarioId),
+                    new SqlParameter("@Confidencial", cr.Confidencial)
                 };
 
-                var requi = db.Database.SqlQuery<NewrequiInfo>("exec createRequisicion @Id, @IdAddress, @IdEstatus, @UserAlta, @UsuarioId  ", _params).SingleOrDefault();
+                var requi = db.Database.SqlQuery<NewrequiInfo>("exec createRequisicion @Id, @IdAddress, @IdEstatus, @UserAlta, @UsuarioId, @Confidencial  ", _params).SingleOrDefault();
 
                 Guid RequisicionId = requi.Id;
                 Int64 Folio = requi.Folio;
 
-                
 
-                UpdatePublicarDto UpDto = new UpdatePublicarDto();
-                UpDto.ListaPublicar = null;
-                UpDto.RequiId = RequisicionId.ToString();
-                Dvc.PublicarVacante(UpDto);
+                if (!cr.Confidencial)
+                {
+                    UpdatePublicarDto UpDto = new UpdatePublicarDto();
+                    UpDto.ListaPublicar = null;
+                    UpDto.RequiId = RequisicionId.ToString();
+                    Dvc.PublicarVacante(UpDto);
+                }
+                
 
                 var infoRequi = db.Requisiciones
                     .Where(x => x.Id.Equals(RequisicionId))
@@ -467,6 +475,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getRequisicionesHistorial")]
+        [Authorize]
         public IHttpActionResult GetRequisicionesHistorial(Guid propietario)
         {
             List<Guid> uids = new List<Guid>();
@@ -477,7 +486,7 @@ namespace SAGA.API.Controllers
                 if (tipo == 8 || tipo == 3)
                 {
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && !e.Confidencial && estatusId.Contains(e.EstatusId))
+                   .Where(e => !e.Confidencial && estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -530,7 +539,7 @@ namespace SAGA.API.Controllers
                 else if(tipo == 10) //ejecutivo de cuenta
                 {
                    var requisicion = db.Requisiciones
-                  .Where(e => e.Activo.Equals(true) && e.PropietarioId.Equals(propietario) && estatusId.Contains(e.EstatusId))
+                  .Where(e => e.PropietarioId.Equals(propietario) && estatusId.Contains(e.EstatusId))
                   .Select(e => new
                   {
                       Id = e.Id,
@@ -595,7 +604,7 @@ namespace SAGA.API.Controllers
                     var requisId = db.AsignacionRequis.Where(x => uids.Contains(x.GrpUsrId) && !x.GrpUsrId.Equals(x.Requisicion.AprobadorId)).Select(a => a.RequisicionId).ToList();
 
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && requisId.Distinct().Contains(e.Id) && estatusId.Contains(e.EstatusId))
+                   .Where(e => requisId.Distinct().Contains(e.Id) && estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -864,6 +873,7 @@ namespace SAGA.API.Controllers
      
         [HttpGet]
         [Route("getRequiReclutador")]
+        [Authorize]
         public IHttpActionResult GtRequiReclutador(Guid IdUsuario)
         {
             int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37 };
@@ -898,7 +908,7 @@ namespace SAGA.API.Controllers
                             EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
                             EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
                             contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
-                            coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                            coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                             Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                             PropietarioId = e.PropietarioId,
                             AprobadorId = e.AprobadorId,
@@ -964,7 +974,7 @@ namespace SAGA.API.Controllers
                             EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
                             EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
                             contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
-                            coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                            coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                             Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                             PropietarioId = e.PropietarioId,
                             AprobadorId = e.AprobadorId,
@@ -996,6 +1006,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getRequiEstadisticos")]
+        [Authorize]
         public IHttpActionResult GetRequiEstadisticos(Guid IdUsuario)
         {
             try
@@ -1541,6 +1552,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getInformeClientes")]
+        // Seccion que olicita el trakin vacante. 
         public IHttpActionResult GetInformeClientes(string cc)
         {
             try
@@ -1591,6 +1603,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getUltimoEstatus")]
+        [Authorize]
         public IHttpActionResult GetUltimoEstatus(Guid RequisicionId)
         {
             try
@@ -1612,6 +1625,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getDireccionRequisicon")]
+        [Authorize]
         public IHttpActionResult GetDireccionRequisicon(Guid Id)
         {
             try
@@ -1648,6 +1662,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getRutasCamion")]
+        [Authorize]
         public IHttpActionResult GetRutasCamion(Guid Id)
         {
             try
@@ -1672,6 +1687,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("addRutaCamion")]
+        [Authorize]
         public IHttpActionResult AddRutasCamion(RutaCamionDto ruta)
         {
             try
@@ -1695,6 +1711,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updateRutaCamion")]
+        [Authorize]
         public IHttpActionResult UpdateRutasCamion(RutaCamionDto ruta)
         {
             try
@@ -1718,6 +1735,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("deleteRutaCamion")]
+        [Authorize]
         public IHttpActionResult DeleteRutasCamion(RutaCamionDto ruta)
         {
             try
@@ -1737,6 +1755,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("upadateVacantes")]
+        [Authorize]
         public IHttpActionResult UpdateVacantes(HorariosRequi horario)
         {
             try
@@ -1785,6 +1804,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getHorariosRequisicion")]
+        [Authorize]
         public IHttpActionResult GetHorariosRequisicion(Guid Id)
         {
             try
@@ -1825,6 +1845,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updateRequisiciones")]
+        [Authorize]
         public IHttpActionResult UpdateRequi(RequisicionDto requi)
         {
             db.Database.Log = Console.Write;
@@ -1935,6 +1956,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("deleteRequisiciones")]
+        [Authorize]
         public IHttpActionResult DeleteRequi(RequisicionDeleteDto requi)
         {
             try
@@ -1974,6 +1996,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("cancelRequisiciones")]
+        [Authorize]
         public IHttpActionResult CancelRequi(RequisicionDeleteDto requi)
         {
             try
@@ -2016,40 +2039,11 @@ namespace SAGA.API.Controllers
         }
 
         [HttpPost]
-        [Route("reActivarRequisiciones")]
-        public IHttpActionResult ReActivar(RequisicionDeleteDto requi)
-        {
-            try
-            {
-                var requisicion = db.Requisiciones.Find(requi.Id);
-                db.Entry(requisicion).State = EntityState.Modified;
-                requisicion.EstatusId = 5;
-                requisicion.UsuarioMod = requi.UsuarioMod;
-                requisicion.fch_Modificacion = DateTime.Now;
-
-
-                Int64 Folio = requisicion.Folio;
-                Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
-                //Isertar el registro de la rastreabilidad. 
-                rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 3);
-
-                db.SaveChanges();
-
-
-                return Ok(HttpStatusCode.OK);
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                return Ok(HttpStatusCode.NotAcceptable);
-            }
-        }
-
-        [HttpPost]
         [Route("asignacionRequisiciones")]
+        [Authorize]
         public IHttpActionResult AsginarRequi(AsignarVacanteReclutador requi)
         {
-            db.Database.Log = Console.Write;
+            //db.Database.Log = Console.Write;
             using (DbContextTransaction beginTran = db.Database.BeginTransaction())
             {
                 try

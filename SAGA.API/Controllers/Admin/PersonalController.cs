@@ -28,6 +28,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("get")]
+        [Authorize]
         public IHttpActionResult getDtosPersonal(Guid user)
         {
             List<PersonasDtos> dts = new List<PersonasDtos>();
@@ -139,6 +140,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getEntidades2")]
+        [Authorize]
         public IHttpActionResult GetEntidades2()
         {
             List<PersonasDtos> data = new List<PersonasDtos>();
@@ -253,6 +255,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getUsuarioByDepa")]
+        [Authorize]
         public IHttpActionResult getDtosByDepa(Guid id)
         {
             List<PersonasDtos> dts = new List<PersonasDtos>();
@@ -279,6 +282,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getUsuarioByGrupo")]
+        [Authorize]
         public IHttpActionResult GetDtosByGrupo(Guid id)
         {
             List<PersonasDtos> data = new List<PersonasDtos>();
@@ -329,6 +333,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getEntidadesByRol")]
+        [Authorize]
         public IHttpActionResult GetDtosByRol(int id)
         {
             List<PersonasDtos> data = new List<PersonasDtos>();
@@ -380,6 +385,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getByTipoUsuario")]
+        [Authorize]
         public IHttpActionResult GetByTipoUsuario(byte tipo)
         {
             try
@@ -439,55 +445,63 @@ namespace SAGA.API.Controllers
         [Route("addUsuario")]
         public IHttpActionResult AddUsuario(PersonasDtos listJson)
         {
-            try
+            using (DbContextTransaction beginTran = db.Database.BeginTransaction())
             {
-                //var usuario = Mapper.Map<PersonasDtos, Usuarios>(listJson);
-                var usuario = new Usuarios();
+                try
+                {
+                    //var usuario = Mapper.Map<PersonasDtos, Usuarios>(listJson);
+                    var usuario = new Usuarios();
 
-                usuario.Clave = listJson.Clave;
-                usuario.Usuario = listJson.Usuario;
-                usuario.Nombre = listJson.nombre;
-                usuario.ApellidoPaterno = listJson.apellidoPaterno;
-                usuario.ApellidoMaterno = listJson.apellidoMaterno;
-                usuario.emails = listJson.Email;
-                usuario.DepartamentoId = listJson.DepartamentoId;
-                usuario.SucursalId = listJson.OficinaId;
-                usuario.UsuarioAlta = "INNTEC";
-                usuario.TipoUsuarioId = 0;
-                usuario.Password = listJson.Password;
-                usuario.TipoEntidadId = 1;
-                usuario.Foto = listJson.Foto;
+                    usuario.Clave = listJson.Clave;
+                    usuario.Usuario = listJson.Usuario;
+                    usuario.Nombre = listJson.nombre;
+                    usuario.ApellidoPaterno = listJson.apellidoPaterno;
+                    usuario.ApellidoMaterno = listJson.apellidoMaterno;
+                    usuario.emails = listJson.Email;
+                    usuario.DepartamentoId = listJson.DepartamentoId;
+                    usuario.SucursalId = listJson.OficinaId;
+                    usuario.UsuarioAlta = "INNTEC";
+                    usuario.TipoUsuarioId = 0;
+                    usuario.Password = listJson.Password;
+                    usuario.TipoEntidadId = 1;
+                    usuario.Foto = listJson.Foto;
 
-                db.Usuarios.Add(usuario);
-                SendEmaiNewRegistro(listJson);
-                db.SaveChanges();
+                    db.Usuarios.Add(usuario);
+                    SendEmaiNewRegistro(listJson);
+                    db.SaveChanges();
 
-                //Asignar Líder.
-                var lider = new Subordinados();
+                    //Asignar Líder.
+                    if (listJson.liderId != new Guid("00000000-0000-0000-0000-000000000000"))
+                    {
+                        var lider = new Subordinados();
 
-                lider.LiderId = listJson.liderId;
-                lider.UsuarioId = db.Usuarios
-                    .Where(u => u.Usuario.Equals(usuario.Usuario))
-                    .Select(u => u.Id)
-                    .FirstOrDefault();
+                        lider.LiderId = listJson.liderId;
+                        lider.UsuarioId = db.Usuarios
+                            .Where(u => u.Usuario.Equals(usuario.Usuario))
+                            .Select(u => u.Id)
+                            .FirstOrDefault();
 
-                db.Subordinados.Add(lider);
-                db.SaveChanges();
-
-
-                object[] _EncryptPass = {
-                        new SqlParameter("@Clave", listJson.Clave)
-                    };
-
-                var returnData = db.Database.SqlQuery<Int32>("exec sp_EncryptPassworSAGA @Clave", _EncryptPass).FirstOrDefault();
+                        db.Subordinados.Add(lider);
+                        db.SaveChanges();
+                    }
+                    
 
 
-                return Ok(HttpStatusCode.Created);
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                return Ok(HttpStatusCode.ExpectationFailed);
+                    object[] _EncryptPass = {
+                            new SqlParameter("@Clave", listJson.Clave)
+                        };
+
+                    var returnData = db.Database.SqlQuery<Int32>("exec sp_EncryptPassworSAGA @Clave", _EncryptPass).FirstOrDefault();
+
+                    beginTran.Commit();
+                    return Ok(HttpStatusCode.Created);
+                }
+                catch (Exception ex)
+                {
+                    beginTran.Rollback();
+                    string msg = ex.Message;
+                    return Ok(HttpStatusCode.ExpectationFailed);
+                }
             }
 
         }
@@ -507,6 +521,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("sendEmailRegister")]
+        [Authorize]
         public IHttpActionResult SendEmailRegister(PersonaSendEmail Dtos)
         {
             try
@@ -526,6 +541,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("udActivo")]
+        [Authorize]
         public IHttpActionResult UdActivo(Guid id, bool v)
         {
             try
@@ -699,6 +715,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("deleteUserGroup")]
+        [Authorize]
         public IHttpActionResult DeleteUserGroup(GrupoUsuarios indices)
         {
             try
@@ -841,10 +858,11 @@ namespace SAGA.API.Controllers
                         userData.DepartamentoId = Data.DepartamentoId;
                         userData.Departamento = Data.Departamento;
                         var token = TokenGenerator.GenerateTokenJwt(userData);
+                        var dataUser = TokenGenerator.GenerateTokenUser(userData);
 
                         ReturnLogIn returnLogIn = new ReturnLogIn();
                         returnLogIn.Token = token;
-                        returnLogIn.Usuario = userData;
+                        returnLogIn.DataUser = dataUser;
 
                         return Ok(returnLogIn);
                     }

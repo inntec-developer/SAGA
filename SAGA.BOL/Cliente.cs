@@ -36,5 +36,7 @@ namespace SAGA.BOL
         public virtual ICollection<Agencia> Agencias { get; set; }
         public virtual ICollection<Referenciado> Referenciados { get; set; }
         public virtual ICollection<Contacto> Contactos { get; set; }
+
+        public virtual ICollection<ExamenMedicoCliente> ExamenesMedicos { get; set; }
     }
 }

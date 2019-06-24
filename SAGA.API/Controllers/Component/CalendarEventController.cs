@@ -12,6 +12,7 @@ using System.Web.Services.Description;
 namespace SAGA.API.Controllers.Component
 {
     [RoutePrefix("api/CalendarEvent")]
+    [Authorize]
     public class CalendarEventController : ApiController
     {
         private SAGADBContext db;

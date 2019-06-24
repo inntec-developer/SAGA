@@ -21,6 +21,7 @@ namespace SAGA.API.Controllers.Component
 
         [HttpGet]
         [Route("getAlert")]
+        [Authorize]
         public IHttpActionResult GetAlert(Guid Id)
         {
             try
@@ -47,6 +48,7 @@ namespace SAGA.API.Controllers.Component
 
         [HttpGet]
         [Route("getAllAlert")]
+        [Authorize]
         public IHttpActionResult GetAllAlert(Guid Id)
         {
             try
@@ -72,6 +74,7 @@ namespace SAGA.API.Controllers.Component
 
         [HttpGet]
         [Route("deleteAlert")]
+        [Authorize]
         public IHttpActionResult DeleteAlert(Guid Id, bool all)
         {
             try
