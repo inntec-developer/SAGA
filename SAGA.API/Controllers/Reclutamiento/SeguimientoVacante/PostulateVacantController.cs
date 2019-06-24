@@ -18,6 +18,7 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
+using SAGA.API.Utilerias;
 
 namespace SAGA.API.Controllers
 {
@@ -26,9 +27,11 @@ namespace SAGA.API.Controllers
     {
         public SAGADBContext db;
         public Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
+        private SendEmails SendEmail;
         public PostulateVacantController()
         {
             db = new SAGADBContext();
+            SendEmail = new SendEmails();
         }
 
         [HttpPost]
@@ -307,77 +310,39 @@ namespace SAGA.API.Controllers
                         .Where(r => r.Id.Equals(datos.requisicionId))
                         .Select(r => new
                         {
+                            vBtra = r.VBtra,
+                            folio = r.Folio,
                             estado = r.Direccion.EstadoId,
-                            tipoReclutamiento = r.TipoReclutamientoId
+                            tipoReclutamiento = r.TipoReclutamientoId,
+                            prop = db.Entidad
+                                .Where(e => e.Id.Equals(r.PropietarioId)).
+                                Select(x => x.Nombre + "" + x.ApellidoPaterno).FirstOrDefault()
                         }).FirstOrDefault();
 
                     if (datos.estatusId == 4 && requi.tipoReclutamiento == 1)
                     {
-                        int[] mty = { 6, 7, 19, 28, 24 };
-                        int[] gdl = { 1, 3, 8, 11, 14, 16, 18, 2, 25, 26, 32 };
-                        int[] mx = { 4, 5, 9, 12, 13, 15, 17, 20, 21, 22, 23, 27, 29, 30, 31 };
                         Guid GReclutamiento = Guid.NewGuid();
 
-
-                        if (requi.estado != 10)
-                        {
-                            if (gdl.Contains(Convert.ToInt32(requi.estado)))
-                            {
-                                GReclutamiento = db.Usuarios
-                                    .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("RECL") && u.Sucursal.UnidadNegocio.Id.Equals(1) && u.Activo.Equals(true))
-                                    .Select(u => u.Id)
-                                    .FirstOrDefault();
-                            }
-                            if (mx.Contains(Convert.ToInt32(requi.estado)))
-                            {
-                                GReclutamiento = db.Usuarios
-                                    .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("RECL") && u.Sucursal.UnidadNegocio.Id.Equals(2) && u.Activo.Equals(true))
-                                    .Select(u => u.Id)
-                                    .FirstOrDefault();
-                            }
-                            if (mty.Contains(Convert.ToInt32(requi.estado)))
-                            {
-                                GReclutamiento = db.Usuarios
-                                    .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("RECL") && u.Sucursal.UnidadNegocio.Id.Equals(3) && u.Activo.Equals(true))
-                                    .Select(u => u.Id)
-                                    .FirstOrDefault();
-                            }
-
-                            AsignacionRequi agr = new AsignacionRequi();
-                            agr.RequisicionId = datos.requisicionId;
-                            agr.GrpUsrId = GReclutamiento;
-                            agr.CRUD = "";
-                            agr.UsuarioAlta = "SISTEMA";
-                            agr.UsuarioMod = "SISTEMA";
-                            agr.fch_Modificacion = DateTime.Now;
-
-                            db.AsignacionRequis.Add(agr);
-                            db.SaveChanges();
-                        }
-                        else
-                        {
-                            var LGReclutamiento = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(3)
-                                    && u.Departamento.Clave.Equals("VTAS")
-                                    && (u.Sucursal.UnidadNegocio.Id.Equals(1) || u.Sucursal.UnidadNegocio.Id.Equals(3))
-                                    && u.Activo.Equals(true))
+                        
+                        GReclutamiento = db.Usuarios
+                            .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("RECL") && u.Activo.Equals(true))
                             .Select(u => u.Id)
-                            .ToList();
+                            .FirstOrDefault();
 
-                            foreach (var e in LGReclutamiento)
-                            {
-                                AsignacionRequi agr = new AsignacionRequi();
-                                agr.RequisicionId = datos.requisicionId;
-                                agr.GrpUsrId = e;
-                                agr.CRUD = "";
-                                agr.UsuarioAlta = "SISTEMA";
-                                agr.UsuarioMod = "SISTEMA";
-                                agr.fch_Modificacion = DateTime.Now;
+                        AsignacionRequi agr = new AsignacionRequi();
+                        agr.RequisicionId = datos.requisicionId;
+                        agr.GrpUsrId = GReclutamiento;
+                        agr.CRUD = "";
+                        agr.UsuarioAlta = "SISTEMA";
+                        agr.UsuarioMod = "SISTEMA";
+                        agr.fch_Modificacion = DateTime.Now;
 
-                                db.AsignacionRequis.Add(agr);
-                                db.SaveChanges();
-                            }
-                        }
+                        db.AsignacionRequis.Add(agr);
+                        db.SaveChanges();
+
+                        List<AsignacionRequi> asignaciones = new List<AsignacionRequi>();
+                        asignaciones.Add(agr);
+                        SendEmail.ConstructEmail(asignaciones, null, "C", requi.folio, requi.prop, requi.vBtra, null);
                     }
                 }
 

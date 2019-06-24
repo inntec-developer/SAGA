@@ -62,7 +62,7 @@ namespace SAGA.API.Controllers.Component
                         x.Activo,
                         x.Creacion
                     })
-                    .ToList().OrderByDescending(x => x.Creacion);
+                   .OrderByDescending(x => x.Creacion).ToList();
                 return Ok(alertAll);
             }
             catch(Exception ex)

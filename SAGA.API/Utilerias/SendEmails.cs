@@ -490,6 +490,31 @@ namespace SAGA.API.Utilerias
                 body = string.Format("<html><head></head> <body style=\"text-align:justify; font-size:14px; font-family:'calibri'\"><div style =\"margin-left: 5px\">");
                 switch (requi.estatusId)
                 {
+                    case 4:
+                        m.To.Add(emailProp);
+                        if (!isDurango)
+                        {
+                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
+                            m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                        }
+                        else
+                        {
+                            foreach (var e in GrVEmails)
+                            {
+                                m.CC.Add(e);
+                            }
+                            foreach (var e in GVEmails)
+                            {
+                                m.CC.Add(e);
+                            }
+                        };
+                        if (facturada)
+                        {
+                            m.CC.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                        }
+                        m.Subject = string.Format("[ASIGNACióN A GERENTE] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha asignado al gerente de reclutamiento el Reclutamiento Puro con el número de folio {0}, el cual debera tranferirla al coordinador correspondiente. </strong>", requi.folio);
+                        break;
                     case 8:
                         m.To.Add(emailProp);
                         if (!isDurango)

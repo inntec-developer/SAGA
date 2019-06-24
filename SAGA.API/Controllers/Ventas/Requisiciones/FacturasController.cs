@@ -52,7 +52,7 @@ namespace SAGA.API.Controllers.Ventas.Requisiciones
         public IHttpActionResult GetRequisPendientes()
         {
             try {
-                var requis = db.FacturacionPuro.Where(x => x.Requisicion.EstatusId.Equals(43) && x.Porcentaje > 0 && x.Porcentaje < 50).Select(e => new
+                var requis = db.FacturacionPuro.Where(x => x.Requisicion.EstatusId.Equals(46) && x.Porcentaje > 0 && x.Porcentaje < 50).Select(e => new
                 {
                     Id = e.Id,
                     requisicionId = e.RequisicionId,
