@@ -38,6 +38,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getAddress")]
+        [Authorize]
         public IHttpActionResult GetAddress(Guid Id)
         {
             try
@@ -78,6 +79,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getById")]
+        [Authorize]
         public IHttpActionResult GetRequisicion(Guid Id)
         {
             try
@@ -238,6 +240,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getByFolio")]
+        [Authorize]
         public IHttpActionResult GetRequisicionFolio(Int64 folio)
         {
             try
@@ -284,6 +287,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("createRequi")]
+        [Authorize]
         public IHttpActionResult Clon(CreateRequiDto cr)
         {
             try
@@ -471,6 +475,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getRequisicionesHistorial")]
+        [Authorize]
         public IHttpActionResult GetRequisicionesHistorial(Guid propietario)
         {
             List<Guid> uids = new List<Guid>();
@@ -868,6 +873,7 @@ namespace SAGA.API.Controllers
      
         [HttpGet]
         [Route("getRequiReclutador")]
+        [Authorize]
         public IHttpActionResult GtRequiReclutador(Guid IdUsuario)
         {
             int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37 };
@@ -1000,6 +1006,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getRequiEstadisticos")]
+        [Authorize]
         public IHttpActionResult GetRequiEstadisticos(Guid IdUsuario)
         {
             try
@@ -1545,6 +1552,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getInformeClientes")]
+        // Seccion que olicita el trakin vacante. 
         public IHttpActionResult GetInformeClientes(string cc)
         {
             try
@@ -1595,6 +1603,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getUltimoEstatus")]
+        [Authorize]
         public IHttpActionResult GetUltimoEstatus(Guid RequisicionId)
         {
             try
@@ -1616,6 +1625,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getDireccionRequisicon")]
+        [Authorize]
         public IHttpActionResult GetDireccionRequisicon(Guid Id)
         {
             try
@@ -1652,6 +1662,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getRutasCamion")]
+        [Authorize]
         public IHttpActionResult GetRutasCamion(Guid Id)
         {
             try
@@ -1676,6 +1687,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("addRutaCamion")]
+        [Authorize]
         public IHttpActionResult AddRutasCamion(RutaCamionDto ruta)
         {
             try
@@ -1699,6 +1711,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updateRutaCamion")]
+        [Authorize]
         public IHttpActionResult UpdateRutasCamion(RutaCamionDto ruta)
         {
             try
@@ -1722,6 +1735,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("deleteRutaCamion")]
+        [Authorize]
         public IHttpActionResult DeleteRutasCamion(RutaCamionDto ruta)
         {
             try
@@ -1741,6 +1755,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("upadateVacantes")]
+        [Authorize]
         public IHttpActionResult UpdateVacantes(HorariosRequi horario)
         {
             try
@@ -1789,6 +1804,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getHorariosRequisicion")]
+        [Authorize]
         public IHttpActionResult GetHorariosRequisicion(Guid Id)
         {
             try
@@ -1829,6 +1845,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updateRequisiciones")]
+        [Authorize]
         public IHttpActionResult UpdateRequi(RequisicionDto requi)
         {
             db.Database.Log = Console.Write;
@@ -1939,6 +1956,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("deleteRequisiciones")]
+        [Authorize]
         public IHttpActionResult DeleteRequi(RequisicionDeleteDto requi)
         {
             try
@@ -1978,6 +1996,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("cancelRequisiciones")]
+        [Authorize]
         public IHttpActionResult CancelRequi(RequisicionDeleteDto requi)
         {
             try
@@ -2020,37 +2039,8 @@ namespace SAGA.API.Controllers
         }
 
         [HttpPost]
-        [Route("reActivarRequisiciones")]
-        public IHttpActionResult ReActivar(RequisicionDeleteDto requi)
-        {
-            try
-            {
-                var requisicion = db.Requisiciones.Find(requi.Id);
-                db.Entry(requisicion).State = EntityState.Modified;
-                requisicion.EstatusId = 5;
-                requisicion.UsuarioMod = requi.UsuarioMod;
-                requisicion.fch_Modificacion = DateTime.Now;
-
-
-                Int64 Folio = requisicion.Folio;
-                Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
-                //Isertar el registro de la rastreabilidad. 
-                rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.UsuarioMod, 3);
-
-                db.SaveChanges();
-
-
-                return Ok(HttpStatusCode.OK);
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                return Ok(HttpStatusCode.NotAcceptable);
-            }
-        }
-
-        [HttpPost]
         [Route("asignacionRequisiciones")]
+        [Authorize]
         public IHttpActionResult AsginarRequi(AsignarVacanteReclutador requi)
         {
             //db.Database.Log = Console.Write;

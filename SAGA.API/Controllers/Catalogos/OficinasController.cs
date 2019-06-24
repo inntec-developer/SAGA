@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 namespace SAGA.API.Controllers.Catalogos
 {
     [RoutePrefix("api/Oficina")]
+    [Authorize]
     public class OficinasController : ApiController
     {
         private SAGADBContext db = new SAGADBContext();
