@@ -445,7 +445,6 @@ namespace SAGA.API.Controllers
                 var candidatosFac = db.MedicosCandidato.Where(x => clientes.Contains(x.ClienteId)).Select(c => c.CandidatoId).ToList();
 
                 var requis = db.Requisiciones.OrderBy(o => o.fch_Creacion).Where(x => clientes.Contains(x.ClienteId) && x.Activo).GroupBy(g => g.ClienteId).Select(R => new {
-                    requisicionId = R.Select(r => r.Id),
                     clienteId = R.Key,
                     cliente = db.Clientes.Where(x => x.Id.Equals(R.Key)).Select(C => C.Nombrecomercial).FirstOrDefault(),
                     razon = db.Clientes.Where(x => x.Id.Equals(R.Key)).Select(C => C.RazonSocial).FirstOrDefault(),
@@ -457,13 +456,16 @@ namespace SAGA.API.Controllers
                             costo = ee.Costo
                         })
                     ).ToList(),
-                    candidatos = R.Select(r =>
-                        db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(r.Id) && !candidatosFac.Contains(x.CandidatoId)).Select(CC => new
+                    candidatos = R.Where(x => db.ProcesoCandidatos.Where(xx => xx.RequisicionId.Equals(x.Id) && !candidatosFac.Contains(xx.CandidatoId)).Count() > 0).GroupBy(g => g.Id).Select(r => new {
+                        requisicionId = r.Key,
+                        folio = r.Select( f => f.Folio).FirstOrDefault(),
+                        vBtra = r.Select( v => v.VBtra).FirstOrDefault(),
+                        candidatos = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(r.Key) && !candidatosFac.Contains(x.CandidatoId)).Select(CC => new
                         {
                             candidatoId = CC.CandidatoId,
                             nombre = db.Candidatos.Where(x => x.Id.Equals(CC.CandidatoId)).Select(N => N.Nombre + " " + N.ApellidoPaterno + " " + N.ApellidoMaterno).FirstOrDefault(),
                         }).OrderBy(o => o.nombre)
-                    ).ToList()
+                    } ).ToList()
 
                 }).ToList();
 

@@ -481,7 +481,7 @@ namespace SAGA.API.Controllers
                 if (tipo == 8 || tipo == 3)
                 {
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && !e.Confidencial && estatusId.Contains(e.EstatusId))
+                   .Where(e => !e.Confidencial && estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -534,7 +534,7 @@ namespace SAGA.API.Controllers
                 else if(tipo == 10) //ejecutivo de cuenta
                 {
                    var requisicion = db.Requisiciones
-                  .Where(e => e.Activo.Equals(true) && e.PropietarioId.Equals(propietario) && estatusId.Contains(e.EstatusId))
+                  .Where(e => e.PropietarioId.Equals(propietario) && estatusId.Contains(e.EstatusId))
                   .Select(e => new
                   {
                       Id = e.Id,
@@ -599,7 +599,7 @@ namespace SAGA.API.Controllers
                     var requisId = db.AsignacionRequis.Where(x => uids.Contains(x.GrpUsrId) && !x.GrpUsrId.Equals(x.Requisicion.AprobadorId)).Select(a => a.RequisicionId).ToList();
 
                     var requisicion = db.Requisiciones
-                   .Where(e => e.Activo.Equals(true) && requisId.Distinct().Contains(e.Id) && estatusId.Contains(e.EstatusId))
+                   .Where(e => requisId.Distinct().Contains(e.Id) && estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
