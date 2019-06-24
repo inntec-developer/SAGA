@@ -24,6 +24,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getDocDamsa")]
+        [Authorize]
         public IHttpActionResult GetDocDamsa()
         {
             try
@@ -39,6 +40,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getPrestacionesLey")]
+        [Authorize]
         public IHttpActionResult GetPrestacionesLey()
         {
             try
@@ -54,6 +56,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getPaises")]
+        [Authorize]
         public IHttpActionResult GetPaises()
         {
             CandidatosDto Paises = new CandidatosDto();
@@ -67,6 +70,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getDepa")]
+        [Authorize]
         public IHttpActionResult getDepartamento()
         {
             var tu = db.Departamentos.Select(t => new { t.Id, t.Nombre }).OrderBy(x => x.Nombre).ToList();
@@ -75,6 +79,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getTipos")]
+        [Authorize]
         public IHttpActionResult getTiposUsuarios()
         {
             var tu = db.TiposUsuarios.Select(t => new { t.Id, t.Tipo }).ToList();
@@ -132,6 +137,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getPrioridades")]
+        [Authorize]
         public IHttpActionResult GetRPioridad()
         {
             var prioridad = db.Prioridades
@@ -142,6 +148,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getEstatus")]
+        [Authorize]
         public IHttpActionResult getEstatus(int tipoMov)
         {
             var estatus = db.Estatus
@@ -153,6 +160,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getMotivosLiberacion")]
+        [Authorize]
         public IHttpActionResult GetMotivosLiberacion()
         {
             var motivo = db.MotivosLiberacion.Where(m => m.Activo.Equals(true)).ToList();
@@ -161,6 +169,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getTiposActividadesRecl")]
+        [Authorize]
         public IHttpActionResult GetTiposActividadesRecl()
         {
             var actividad = db.TipoActividadReclutador
@@ -171,6 +180,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getTipoTelefono")]
+        [Authorize]
         public IHttpActionResult GetTipoTelefono()
         {
             var tipo = db.TiposTelefonos.ToList();
@@ -179,6 +189,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getTipoDireccion")]
+        [Authorize]
         public IHttpActionResult GetTipoDireccion()
         {
             var tipo = db.TiposDirecciones.ToList();
@@ -191,6 +202,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getGiroEmp")]
+        [Authorize]
         public IHttpActionResult GetGiroEmpresa()
         {
             var giro = db.GirosEmpresas.ToList();
@@ -199,6 +211,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getActividadEmp")]
+        [Authorize]
         public IHttpActionResult GetActivadadEmpresa(int GiroId)
         {
             var Actividad = db.ActividadesEmpresas
@@ -214,6 +227,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getTamanioEmp")]
+        [Authorize]
         public IHttpActionResult GetTamanioEmpresa()
         {
             var tamanio = db.TamanoEmpresas.ToList();
@@ -222,6 +236,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getTipoEmp")]
+        [Authorize]
         public IHttpActionResult GetTipoempresa()
         {
             var tipo = db.TiposEmpresas.ToList();
@@ -230,6 +245,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getTipoBase")]
+        [Authorize]
         public IHttpActionResult GetTipoBase()
         {
             var tipo = db.TiposBases.ToList();
@@ -240,6 +256,7 @@ namespace SAGA.API.Controllers
         #region Localidades
         [HttpGet]
         [Route("getPais")]
+        [Authorize]
         public IHttpActionResult GetPais()
         {
             var pais = db.Paises.Where(x => x.Id.Equals(42)).ToList();
@@ -248,6 +265,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getEstado")]
+        [Authorize]
         public IHttpActionResult GetEstado(int PaisId)
         {
             var estado = db.Estados
@@ -265,6 +283,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getMunicipio")]
+        [Authorize]
         public IHttpActionResult GetMunicipo(int EstadoId)
         {
             var municipio = db.Municipios
@@ -281,6 +300,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getColonia")]
+        [Authorize]
         public IHttpActionResult GetColonias(int MunicipioId)
         {
             var municipio = db.Colonias
@@ -298,6 +318,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getInfoCP")]
+        [Authorize]
         public IHttpActionResult GetInfoCP(string CP)
         {
             var info = db.Colonias
@@ -319,6 +340,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getCatalogos")]
+        [Authorize]
         public IHttpActionResult GetCatalogos()
         {
             var Catalogos = db.Estructuras
@@ -340,6 +362,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getCatalogosComplete")]
+        [Authorize]
         public IHttpActionResult getCatalogosComplete(int IdCatalogo )
         {
             CatalogosDto Catalogo = new CatalogosDto();
@@ -919,6 +942,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("FilterCatalogo")]
+        [Authorize]
         public IHttpActionResult getCatalogofilter(ParamsDto Parametros)
         {
             CatalogosDto Catalogo = new CatalogosDto();
@@ -996,6 +1020,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("postCatalogo")]
+        [Authorize]
         public IHttpActionResult postCatalogos(CatalogosDto Catalogo)
         {
             LogCatalogos log = new LogCatalogos();

@@ -48,6 +48,7 @@ namespace SAGA.API.Controllers.Ventas.Requisiciones
 
         [HttpGet]
         [Route("getRequisPendientes")]
+        [Authorize]
         public IHttpActionResult GetRequisPendientes()
         {
             try {
