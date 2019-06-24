@@ -70,7 +70,6 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getDepa")]
-        [Authorize]
         public IHttpActionResult getDepartamento()
         {
             var tu = db.Departamentos.Select(t => new { t.Id, t.Nombre }).OrderBy(x => x.Nombre).ToList();
