@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using SAGA.API.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,10 +28,11 @@ namespace SAGA.API
                               "application/json"));
             // Web API configuration and services
             var cors = new EnableCorsAttribute("*", "*", "*");
+            //cors.SupportsCredentials = true;
+            config.MessageHandlers.Add(new TokenValidationHandler());
             config.EnableCors(cors);
             // Web API routes+
             config.MapHttpAttributeRoutes();
-
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{action}/{id}",
