@@ -780,10 +780,12 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("candidatos")]
-        public IHttpActionResult candidatos(string fini, string ffin, int edad, int avance, int genero, int estadoID)
+        public IHttpActionResult candidatos(string fini, string ffin, string edad, string genero, string estadoID)
         {
             DateTime FechaF = DateTime.Now;
             DateTime FechaI = DateTime.Now;
+            int Edad = Convert.ToInt32(edad);
+            int Genero = Convert.ToInt32(genero);
             try
             {
                 if (fini != null)
@@ -800,32 +802,54 @@ namespace SAGA.API.Controllers.Reportes
 
             }
             var candidato = db.Candidatos.Where(e => e.fch_Creacion >= FechaI && e.fch_Creacion <= FechaF).ToList();
+            var listcandi = candidato.Select(e => e.Id).ToList();
+            var entidad = db.Entidad.Where(e => listcandi.Contains(e.Id)).ToList();
 
-             var datos = candidato.Select(e=> new {
+            var proceso = candidato.Select(e => new { e.Id, estatuid = db.ProcesoCandidatos.Where(x=>x.CandidatoId == e.Id).ToList().Count < 1? 0: db.ProcesoCandidatos.Where(x => x.CandidatoId == e.Id).FirstOrDefault().EstatusId }).ToList();
+            var consul = proceso.Select(e => new {
                 e.Id,
-                e.CURP,
-                e.RFC,
-                estadoId = e.estadoNacimiento.Id,
+                e.estatuid,
+                nombre = e.estatuid > 0? db.Estatus.Where(x=>x.Id == e.estatuid).FirstOrDefault().Descripcion : "Sin Proceso"
+            }).ToList();
+           
+            var datos = candidato.Select(e => new {
+                e.Id,
+                nombre = entidad.Where(x => e.Id == e.Id).Select(x => x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno).FirstOrDefault(),
+                curp = e.CURP,
+                rfc = e.RFC,
+                estadoid = e.estadoNacimiento.Id,
                 e.estadoNacimiento.estado,
                 edad = DateTime.Now.Year - e.FechaNacimiento.Value.Year,
-                e.Genero,
+                e.Genero.genero,
                 e.GeneroId,
+                estatus = consul.Where(x=>x.Id == e.Id).FirstOrDefault().nombre,
                 avance = 0
             }).ToList();
 
-            if(edad != 0)
+            if(Edad != 0)
             {
-                datos.Where(e => e.edad > edad + 1 && e.edad < edad + 6).ToList();
+                datos.Where(e => e.edad > Edad -1 && e.edad < Edad + 5).ToList();
             }
 
-            if (genero != 0)
+            if (Genero != 0)
             {
-                datos.Where(e => e.GeneroId == genero).ToList();
+                datos.Where(e => e.GeneroId == Genero).ToList();
             }
 
-            if (estadoID != 0)
+            if (estadoID != "0" && estadoID != null)
             {
-                datos.Where(e => e.estadoId == estadoID).ToList();
+                var obj = estadoID.Split(',');
+                List<int> listaAreglo = new List<int>();
+                for (int i = 0; i < obj.Count() - 1; i++)
+                {
+                    listaAreglo.Add(Convert.ToInt32(obj[i]));
+                }
+                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                if (obb.Count == 0)
+                {
+                    datos = datos.Where(e => listaAreglo.Contains(e.estadoid)).ToList();
+
+                }
             }
             
 
