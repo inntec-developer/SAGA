@@ -593,6 +593,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("updateRequiTicket")]
+        [Authorize]
         public IHttpActionResult UpdateRequiTicket(Guid ticketId, Guid requisicionId)
         {
             try
@@ -656,6 +657,7 @@ namespace SAGA.API.Controllers
         }
         [HttpGet]
         [Route("updateStatus")]
+        [Authorize]
         public IHttpActionResult UpdateStatus(Guid ticketId, int estatus, int moduloId)
         {
             try
@@ -691,6 +693,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getFilaTickets")]
+        [Authorize]
         public IHttpActionResult GetFilaTickets(int estatus, Guid reclutadorId)
         {
             try

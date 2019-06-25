@@ -36,6 +36,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("registrarCandidatos")]
+        [Authorize]
         public IHttpActionResult RegistrarCandidatos(List<CandidatosGralDto> datos)
         {
      
