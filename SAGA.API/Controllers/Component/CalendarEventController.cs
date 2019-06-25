@@ -2,17 +2,21 @@
 using SAGA.DAL;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
+using System.Text;
 using System.Web.Http;
 using System.Web.Services.Description;
 
 namespace SAGA.API.Controllers.Component
 {
     [RoutePrefix("api/CalendarEvent")]
-    [Authorize]
+    //[Authorize]
     public class CalendarEventController : ApiController
     {
         private SAGADBContext db;
@@ -76,6 +80,11 @@ namespace SAGA.API.Controllers.Component
                 ce.Activo = true;
                 db.CalendarioEvent.Add(ce);
                 db.SaveChanges();
+
+                var actividad = db.TipoActividadReclutador.Where(x => x.Id.Equals(_event.TipoActividadId)).Select(a => a.Actividad).FirstOrDefault();
+
+                this.AttachmentICS(_event.Start, _event.End, actividad, actividad + " " +_event.Message, "REQUEST", _event.EntidadId, ce.Id);
+
                 return Ok(HttpStatusCode.OK);
 
             }
@@ -107,7 +116,8 @@ namespace SAGA.API.Controllers.Component
                 //db.CalendarioEvent.Add(_event);
                 db.SaveChanges();
 
-
+                var actividad = db.TipoActividadReclutador.Where(x => x.Id.Equals(_Event.TipoActividadId)).Select(a => a.Actividad).FirstOrDefault();
+                this.AttachmentICS(_Event.Start, _Event.End, actividad, actividad + " ACTUALIZADA", "REQUEST", _Event.EntidadId, _Event.Id);
                 return Ok(HttpStatusCode.OK);
             }
             catch(Exception ex)
@@ -127,6 +137,10 @@ namespace SAGA.API.Controllers.Component
                 var r = db.CalendarioEvent.Find(_Event.Id);
                 db.Entry(r).State = EntityState.Deleted;
                 db.SaveChanges();
+
+                var actividad = db.TipoActividadReclutador.Where(x => x.Id.Equals(_Event.TipoActividadId)).Select(a => a.Actividad).FirstOrDefault();
+                this.AttachmentICS(_Event.Start, _Event.End, actividad + " CANCELADA", actividad + " CANCELADA", "CANCEL", _Event.EntidadId, _Event.Id);
+
                 return Ok(HttpStatusCode.OK);
             }
             catch(Exception ex)
@@ -154,6 +168,76 @@ namespace SAGA.API.Controllers.Component
                 string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
+        }
+
+        public IHttpActionResult AttachmentICS(DateTime start, DateTime end, string title, string msg, string method, Guid entidadId, Guid eventId)
+        {
+            string DateFormat = "yyyyMMddTHHmm00";
+
+            string from = "noreply@damsa.com.mx";
+            MailMessage m = new MailMessage();
+            m.From = new MailAddress(from, "SAGA INN");
+            m.Subject = title;
+
+            var email = db.Usuarios.Where(x => x.Id.Equals(entidadId)).Select(mail => mail.emails.Select(x => x.email).FirstOrDefault()).FirstOrDefault();
+
+            m.To.Add(email);
+            //m.Bcc.Add("idelatorre@damsa.com.mx");
+            m.Body = msg;
+
+            DateTime s = start.ToUniversalTime();
+            DateTime e = end.ToUniversalTime();
+            StringBuilder str = new StringBuilder();
+            str.AppendLine("BEGIN:VCALENDAR");
+            str.AppendLine("PRODID:-//Schedule a Meeting");
+            str.AppendLine("VERSION:2.0");
+            str.AppendLine("METHOD:" + method);
+            str.AppendLine("CREATED:" + DateTime.Now.ToUniversalTime().ToString(DateFormat));
+            str.AppendLine("BEGIN:VEVENT");
+            str.AppendLine("DTSTART:" + s.ToUniversalTime().ToString(DateFormat));
+            str.AppendLine("DTSTAMP:" + DateTime.Now.ToUniversalTime().ToString(DateFormat));
+            str.AppendLine(string.Format("DTEND:{0}", e.ToUniversalTime().ToString(DateFormat)));
+            //str.AppendLine("LOCATION: " + "DAMSA");
+            str.AppendLine(string.Format("UID:{0}", eventId));
+            str.AppendLine(string.Format("DESCRIPTION:{0}", m.Body));
+            str.AppendLine(string.Format("X-ALT-DESC;FMTTYPE=text/html:{0}", m.Body));
+            str.AppendLine(string.Format("SUMMARY:{0}", m.Subject + " " + msg));
+            //str.AppendLine(string.Format("ORGANIZER;CN=\"{0}\";MAILTO:{1}", "SAGA INN", m.From.Address));
+
+            //str.AppendLine(string.Format("ATTENDEE;CN=\"{0}\";RSVP=TRUE:mailto:{1}", m.To[0].DisplayName, m.To[0].Address));
+            if (method == "REQUEST")
+            {
+                str.AppendLine("BEGIN:VALARM");
+                str.AppendLine("TRIGGER:-PT15M");
+                str.AppendLine("ACTION:DISPLAY");
+                str.AppendLine("DESCRIPTION:Reminder");
+                str.AppendLine("END:VALARM");
+            }
+
+            str.AppendLine("END:VEVENT");
+            str.AppendLine("END:VCALENDAR");
+
+            byte[] byteArray = Encoding.ASCII.GetBytes(str.ToString());
+            MemoryStream stream = new MemoryStream(byteArray);
+
+            Attachment attach = new Attachment(stream, "event" + DateTime.Now.ToUniversalTime().ToString(DateFormat) + ".ics");
+
+            m.Attachments.Add(attach);
+
+            System.Net.Mime.ContentType contype = new System.Net.Mime.ContentType("text/calendar");
+            contype.Parameters.Add("method", method);
+            //  contype.Parameters.Add("name", "Meeting.ics");
+            AlternateView avCal = AlternateView.CreateAlternateViewFromString(str.ToString(), contype);
+            m.AlternateViews.Add(avCal);
+
+            //Now sending a mail with attachment ICS file.      
+
+            SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+            smtp.EnableSsl = true;
+            smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+            smtp.Send(m);
+
+            return Ok();
         }
     }
 }
