@@ -21,5 +21,6 @@ namespace SAGA.API.Dtos
         public Guid DepartamentoId { get; set; }
         public string Departamento { get; set; }
         public List<PrivilegiosDtos> Privilegios { get; set; }
+        public bool Activo { get; set; }
     }
 }

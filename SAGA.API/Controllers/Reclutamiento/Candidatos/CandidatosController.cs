@@ -193,9 +193,10 @@ namespace SAGA.API.Controllers
                         Reubicacion = c.Candidato.puedeRehubicarse,
                         TpVehiculo = c.Candidato.tieneVehiculoPropio,
                         Formaciones = c.Formaciones.Select(f => f.GradoEstudioId).ToList(),
-                        Estatus = db.ProcesoCandidatos.OrderByDescending(p => p.Fch_Modificacion).Where(p => p.CandidatoId.Equals(c.CandidatoId)).Select(p => p.Estatus.Descripcion).FirstOrDefault()
+                        Estatus = db.ProcesoCandidatos.OrderByDescending(p => p.Fch_Modificacion).Where(p => p.CandidatoId.Equals(c.CandidatoId)).Select(p => p.Estatus.Descripcion).FirstOrDefault(),
+                        fch_Creacion = db.AspNetUsers.Where(a => a.IdPersona.Equals(c.CandidatoId)).Select(a => a.fch_Creacion).FirstOrDefault()
 
-                    }).ToList();
+                    }).OrderByDescending(c => c.fch_Creacion).ToList();
 
                 // Revisamos cada filtro que se envio para armar de nuevo la consulta.
                 if (Filtros.IdPais > 0)
@@ -462,7 +463,35 @@ namespace SAGA.API.Controllers
                     .Where(e => perfiles.Contains(e.PerfilCandidatoId))
                     .Select(e => e.PerfilCandidatoId)
                     .ToList();
+
+                var Nombre = db.PerfilCandidato
+                    .Where(e => perfiles.Contains(e.Id))
+                    .Where(e => 
+                        palabraClave.Contains(e.Candidato.Nombre.ToLower()) ||
+                        palabraClave.Contains(e.Candidato.ApellidoPaterno.ToLower()) ||
+                        palabraClave.Contains(e.Candidato.ApellidoMaterno.ToLower()) ||
+                        palabraClave.Contains(e.Candidato.RFC.ToLower())
+                    )
+                    .Select(e => e.Id)
+                    .ToList();
+
+                //if(palabraClave.Length <= 10 && (palabraClave.Contains("/") || palabraClave.Contains("-")))
+                //{
+                //    string date = palabraClave.Replace("-", "/");
+                //    string Date = Convert.ToDateTime(date).ToString("yyyy/MM/dd");
+                //    var Nacimiento = db.PerfilCandidato
+                //    .Where(e => perfiles.Contains(e.Id))
+                //    .Where(e =>
+                //        e.Candidato.FechaNacimiento.ToString().Contains(Date)
+                //    )
+                //    .Select(e => e.Id)
+                //    .ToList();
+                //}
+
+
                 var filtros = Aboutme.Union(Descripcion).ToList().Distinct();
+                if (Nombre.Count > 0)
+                    filtros = filtros.Union(Nombre).ToList().Distinct();
                 
                 var encontrados = db.PerfilCandidato
                 .Where(x => filtros.Contains(x.Id))

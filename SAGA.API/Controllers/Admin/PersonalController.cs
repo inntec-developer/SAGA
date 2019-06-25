@@ -409,7 +409,7 @@ namespace SAGA.API.Controllers
         [Route("getLideres")]
         public IHttpActionResult GetLideres()
         {
-            List<int> idsLider = new List<int>() { 3, 4, 5 };
+            List<int> idsLider = new List<int>() { 3, 4, 5, 12, 13, 14 };
             try
             {
                 var lideres = db.Usuarios.Where(x => x.Activo && idsLider.Contains(x.TipoUsuarioId)).Select(L => new
@@ -820,7 +820,7 @@ namespace SAGA.API.Controllers
                     };
 
                 var Data = db.Database.SqlQuery<UsuarioDto>("exec sp_LoginSagaERP @Email, @Password", _LoginSaga).FirstOrDefault();
-                if (Data != null)
+                 if (Data != null)
                 {
                     object[] _params = {
                         new SqlParameter("@CLAVE", Data.Clave)
@@ -830,7 +830,7 @@ namespace SAGA.API.Controllers
                      */
                     var activo = db.Database.SqlQuery<Int32>("exec sp_ValidatorLogin @CLAVE", _params).FirstOrDefault();
 
-                    if (activo > 0)
+                    if (activo > 0 && Data.Activo)
                     {
                         
                         userData.Id = Data.Id;

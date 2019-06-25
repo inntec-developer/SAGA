@@ -173,6 +173,7 @@ namespace SAGA.API.Controllers
                             tipoDeNomina = r.TipoNomina.tipoDeNomina,
                             diaPago = r.DiaPago.diaSemana,
                             periodoPago = r.PeriodoPago.periodoPago,
+                            periodoPagoId = r.PeriodoPagoId,
                             especifique = r.Especifique,
                             direccionId = r.DireccionId,
                             beneficios = r.beneficiosRequi.Select(bn => new

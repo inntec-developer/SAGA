@@ -30,5 +30,10 @@ namespace SAGA.BOL
         public int? Activo { get; set; }
         public DateTime? UltimoInicio { get; set; }
         public DateTime? FechaEnvioEmail { get; set; }
+        public string UsuarioAlta { get; set; }
+        public string UsuarioMod { get; set; }
+        public Nullable<System.DateTime> fch_Modificacion { get; set; }
+        public Nullable<System.DateTime> fch_Creacion { get; set; }
+
     }
 }

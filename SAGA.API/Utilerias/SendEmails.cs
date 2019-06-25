@@ -118,23 +118,23 @@ namespace SAGA.API.Utilerias
                 List<Guid> grp = new List<Guid>();
                 foreach (AsignacionRequi asg in asignaciones)
                 {
-                    grpUser = db.GruposUsuarios.Where(x => x.GrupoId.Equals(asg.GrpUsrId)).ToList();
-                    foreach (var grps in grpUser)
-                    {
-                        grp = GetGrupo(grps.EntidadId, grp);
-                    }
+                    //grpUser = db.GruposUsuarios.Where(x => x.GrupoId.Equals(asg.GrpUsrId)).ToList();
+                    //foreach (var grps in grpUser)
+                    //{
+                    //    grp = GetGrupo(grps.EntidadId, grp);
+                    //}
 
-                    if (grpUser.Count() > 0)
-                    {
-                        var emails = checkEmails(grp).Distinct();
-                    }
-                    else
-                    {
+                    //if (grpUser.Count() > 0)
+                    //{
+                    //    var emails = checkEmails(grp).Distinct();
+                    //}
+                    //else
+                    //{
                         var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(asg.GrpUsrId)).Select(x => x.email).FirstOrDefault();
                         if (sendEmail != null)
                             AddEmail.Add(sendEmail);
 
-                    }
+                    //}
                 }
 
                 if (NotChange != null)
@@ -143,16 +143,17 @@ namespace SAGA.API.Utilerias
                     {
                         foreach (AsignacionRequi nc in NotChange)
                         {
-                            grpUserNotChange = db.GruposUsuarios.Where(x => x.GrupoId.Equals(nc.GrpUsrId)).ToList();
-                            if (grpUserNotChange.Count() > 0)
-                            {
-                                var emails = EmailsNotChange(grpUserNotChange).Distinct();
-                            }
-                            else
-                            {
+                            //grpUserNotChange = db.GruposUsuarios.Where(x => x.GrupoId.Equals(nc.GrpUsrId)).ToList();
+                            //if (grpUserNotChange.Count() > 0)
+                            //{
+                            //    var emails = EmailsNotChange(grpUserNotChange).Distinct();
+                            //}
+                            //else
+                            //{
                                 var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(nc.GrpUsrId)).Select(x => x.email).FirstOrDefault();
-                                emailNoChange.Add(sendEmail);
-                            }
+                                if (sendEmail != null)
+                                    emailNoChange.Add(sendEmail);
+                            //}
                         }
                     }
                 }
