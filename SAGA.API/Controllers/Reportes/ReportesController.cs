@@ -303,13 +303,22 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("estatus")]
-        public IHttpActionResult Estatus()
+        public IHttpActionResult Estatus(string bandera)
         {
             var datos = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 2 && e.Id != 5).Select(e => new
             {
                 e.Descripcion,
                 e.Id
             }).ToList();
+
+            if (bandera == "1")
+            {
+                datos = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 19 && e.Id != 5).Select(e => new
+                {
+                    e.Descripcion,
+                    e.Id
+                }).ToList();
+            }
            
            
            datos.Insert(0 ,new { Descripcion = "Todos", Id = 0 });
@@ -780,7 +789,7 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("candidatos")]
-        public IHttpActionResult candidatos(string fini, string ffin, string edad, string genero, string estadoID)
+        public IHttpActionResult candidatos(string fini, string ffin, string edad, string genero, string estadoID, string estatus)
         {
             DateTime FechaF = DateTime.Now;
             DateTime FechaI = DateTime.Now;
@@ -822,18 +831,19 @@ namespace SAGA.API.Controllers.Reportes
                 edad = DateTime.Now.Year - e.FechaNacimiento.Value.Year,
                 e.Genero.genero,
                 e.GeneroId,
+                estatusid = consul.Where(x => x.Id == e.Id).FirstOrDefault().estatuid,
                 estatus = consul.Where(x=>x.Id == e.Id).FirstOrDefault().nombre,
                 avance = 0
             }).ToList();
 
             if(Edad != 0)
             {
-                datos.Where(e => e.edad > Edad -1 && e.edad < Edad + 5).ToList();
+               datos = datos.Where(e => e.edad > Edad -1 && e.edad < Edad + 5).ToList();
             }
 
             if (Genero != 0)
             {
-                datos.Where(e => e.GeneroId == Genero).ToList();
+               datos = datos.Where(e => e.GeneroId == Genero).ToList();
             }
 
             if (estadoID != "0" && estadoID != null)
@@ -851,7 +861,22 @@ namespace SAGA.API.Controllers.Reportes
 
                 }
             }
-            
+
+            if (estatus != "0" && estatus != null)
+            {
+                var obj = estatus.Split(',');
+                List<int> listaAreglo = new List<int>();
+                for (int i = 0; i < obj.Count() - 1; i++)
+                {
+                    listaAreglo.Add(Convert.ToInt32(obj[i]));
+                }
+                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                if (obb.Count == 0)
+                {
+                    datos = datos.Where(e => listaAreglo.Contains(e.estatusid)).ToList();
+                }
+            }
+
 
             return Ok(datos);
         }
