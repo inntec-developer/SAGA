@@ -842,6 +842,7 @@ namespace SAGA.API.Controllers
                         userData.TipoUsuarioId = Data.TipoUsuarioId;
                         userData.Tipo = Data.Tipo;
                         userData.Sucursal = Data.Sucursal;
+                        userData.UnidadNegocioId = Data.UnidadNegocioId;
                         var lider = db.Subordinados.Where(s => s.UsuarioId.Equals(Data.Id)).Select(l => new { nombre = l.Lider.Nombre + " " + l.Lider.ApellidoPaterno + " " + l.Lider.ApellidoMaterno, id = l.LiderId }).FirstOrDefault();
                         if(lider != null)
                         {

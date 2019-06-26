@@ -66,6 +66,8 @@ namespace SAGA.API.Controllers.Ventas.Requisiciones
                     PrioridadId = e.Requisicion.PrioridadId,
                     EstatusOrden = e.Requisicion.Estatus.Orden,
                     SueldoMaximo = e.Requisicion.SueldoMaximo,
+                    SueldoMinimo = e.Requisicion.SueldoMinimo,
+                    TipoReclutamiento = e.Requisicion.TipoReclutamiento.tipoReclutamiento,
                     razon = e.Requisicion.Cliente.RazonSocial,
                     Cliente = e.Requisicion.Cliente.Nombrecomercial,
                     Vacantes = e.Requisicion.horariosRequi.Count() > 0 ? e.Requisicion.horariosRequi.Sum(h => h.numeroVacantes) : 0,
