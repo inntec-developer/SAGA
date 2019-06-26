@@ -51,21 +51,21 @@ namespace SAGA.API.Controllers.Component.Graficas
                 var DateActivas = DateTime.Now.AddDays(3);
 
                 var TipoUsuario = db.Usuarios.Where(u => u.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
-                if (TipoUsuario == 8)
+                if (TipoUsuario == 8 || TipoUsuario == 3 || TipoUsuario == 12 || TipoUsuario == 13 || TipoUsuario == 14)
                 {
                     var Vigentes = db.Requisiciones
                         .Where(r => r.Activo.Equals(true))
                         .Where(r => r.fch_Cumplimiento > DateActivas)
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(r => estatus.Contains(r.EstatusId) && !r.Confidencial)
                         .Count();
                     var PorVencer = db.Requisiciones
                         .Where(r => r.Activo.Equals(true))
                         .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(r => estatus.Contains(r.EstatusId) && !r.Confidencial)
                         .Count();
                     var vencidas = db.Requisiciones.Where(r => r.Activo.Equals(true))
                         .Where(r => r.fch_Cumplimiento < DateTime.Now)
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(r => estatus.Contains(r.EstatusId) && !r.Confidencial)
                         .Count();
 
                     vr.Vigentes = Vigentes;
@@ -133,14 +133,14 @@ namespace SAGA.API.Controllers.Component.Graficas
             try
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
-                if (tipo == 8)
+                if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
                 {
                     if (estado == "Vigentes")
                     {
                         var requisicion = db.Requisiciones
                         .Where(r => r.Activo.Equals(true))
                         .Where(r => r.fch_Cumplimiento > DateActivas)
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(r => estatus.Contains(r.EstatusId) && !r.Confidencial)
                        .Select(e => new
                        {
                            Id = e.Id,
@@ -169,7 +169,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                         var requisicion = db.Requisiciones
                         .Where(r => r.Activo.Equals(true))
                         .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(r => estatus.Contains(r.EstatusId) && !r.Confidencial)
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -199,7 +199,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                         var requisicion = db.Requisiciones
                         .Where(r => r.Activo.Equals(true))
                         .Where(r => r.fch_Cumplimiento < DateTime.Now)
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(r => estatus.Contains(r.EstatusId) && !r.Confidencial)
                         .Select(e => new
                         {
                             Id = e.Id,
