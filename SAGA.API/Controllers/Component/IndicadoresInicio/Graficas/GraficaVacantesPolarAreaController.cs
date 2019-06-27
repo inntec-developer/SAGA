@@ -763,8 +763,10 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Masivo")
                     {
+                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
                         var requisicion = db.Requisiciones
                         .Where(e => e.Activo == true && e.ClaseReclutamientoId == 3)
+                        .Where(r => requis.Contains(r.Id) && EstatusList.Contains(r.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -789,8 +791,10 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Operativo")
                     {
+                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
                         var requisicion = db.Requisiciones
                         .Where(e => e.Activo == true && e.ClaseReclutamientoId == 2)
+                         .Where(r => requis.Contains(r.Id) && EstatusList.Contains(r.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -815,8 +819,10 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Especial")
                     {
+                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
                         var requisicion = db.Requisiciones
                         .Where(e => e.Activo == true && e.ClaseReclutamientoId == 1)
+                         .Where(r => requis.Contains(r.Id) && EstatusList.Contains(r.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,

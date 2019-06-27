@@ -316,10 +316,12 @@ namespace SAGA.API.Controllers.Reportes
             var listaRequi = db.EstatusRequisiciones.Where(e => Status.Contains(e.EstatusId)).Select(e => e.RequisicionId).ToList().Distinct();
 
             var candidatos = db.AsignacionRequis.Where(e => listaRequi.Contains(e.RequisicionId)).ToList();
-            var recluta = candidatos.Select(e => e.GrpUsrId).Distinct().ToList();
-
+            var recluta = candidatos.Select(e => new { e.GrpUsrId }).Distinct().ToList();
             var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).ToList();
-            var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).ToList();
+            var aprovador = vacantes.Select(e => e.AprobadorId).ToList();
+            recluta = recluta.Where(e => !aprovador.Contains(e.GrpUsrId)).ToList();
+            var recluta2 = recluta.Select(e => e.GrpUsrId).ToList();
+            var datos = db.Usuarios.Where(e => recluta2.Contains(e.Id)).ToList();
             try
             {
 
@@ -371,7 +373,26 @@ namespace SAGA.API.Controllers.Reportes
         [Route("Coordinacion")]
         public IHttpActionResult Coordinacion(string usuario)
         {
-            var requi = db.Requisiciones.ToList();
+            Guid id = new Guid(usuario);
+
+            var ListaUsuario = new List<Guid>();
+            ListaUsuario.Add(id);
+            var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
+            if (arbol.Count > 0)
+            {
+                ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
+                foreach (var item in arbol)
+                {
+                    var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
+                    if (hijos.Count > 0)
+                    {
+                        ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                    }
+                }
+            }
+            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+            int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
+            var requi = db.Requisiciones.Where(e=> asigna.Contains(e.Id) && EstatusList.Contains(e.EstatusId)).ToList();
             var masivo = requi.Where(e => e.ClaseReclutamientoId == 3 && e.Activo == true).Select(e => new {
                 e.Id,
                 e.EstatusId
