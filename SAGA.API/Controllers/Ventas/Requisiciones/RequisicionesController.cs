@@ -2361,9 +2361,10 @@ namespace SAGA.API.Controllers
                     var aprobadores = datos.Select(x => x.aprobadorId).Distinct().ToList();
 
                     var inicio = "<html><head><style>td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:9pt;color:Black;font-family:'calibri';} " +
-                                 "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>RECLUTADOR</th><th align=center>COORDINADOR</th><th align=center>CUB/VAC</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th></tr>";
+                                 "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>SOLICITA</th><th align=center>COORDINADOR</th><th align=center>CUB/VAC</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th><th align=center>ASIGNADA A</th></tr>";
 
                     var body = "";
+                    string reclutadoresList = "";
                     foreach (var a in aprobadores)
                     {
                     
@@ -2377,9 +2378,32 @@ namespace SAGA.API.Controllers
                         m.Bcc.Add("bmorales@damsa.com.mx");
                         foreach (var r in aux)
                         {
+                            var reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id) && !x.GrpUsrId.Equals(r.aprobadorId)).Select(rec => new
+                            {
+                                nombre = db.Usuarios.Where(x => x.Id.Equals(rec.GrpUsrId)).Select(N => N.Nombre + " " + N.ApellidoPaterno + " " + N.ApellidoMaterno).FirstOrDefault()
+                            }).ToList();
+
+                            if (reclutadores.Count() > 1)
+                            {
+                                reclutadoresList = "<ul>";
+                                foreach (var rs in reclutadores)
+                                {
+                                    reclutadoresList = reclutadoresList + "<li>" + rs.nombre + "</li>";
+                                }
+                                reclutadoresList = reclutadoresList + "</ul>";
+                            }
+                            else if (reclutadores.Count() == 1)
+                            {
+                                reclutadoresList = reclutadores[0].nombre;
+                            }
+                            else
+                            {
+                                reclutadoresList = "SIN ASIGNAR";
+                            }
+
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
-                                                       "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td><td align=center>{10}</td></tr>",
-                                                       r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.cubiertas.ToString() + "/" + r.vacantes.ToString(), r.estatus, r.fch_Modificacion);
+                                                       "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td><td align=center>{10}</td><td>{11}</td></tr>",
+                                                       r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.cubiertas.ToString() + "/" + r.vacantes.ToString(), r.estatus, r.fch_Modificacion, reclutadoresList);
                         }
 
                         body = inicio + body + "</table></body></html><br/>";
@@ -2396,8 +2420,6 @@ namespace SAGA.API.Controllers
                         m.Bcc.Clear();
 
                     }
-
-         
                 }
                 return Ok(HttpStatusCode.OK);
 
@@ -2429,9 +2451,10 @@ namespace SAGA.API.Controllers
                     var aprobadores = datos.Select(x => x.aprobadorId).Distinct().ToList();
 
                     var inicio = "<html><head><style>td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:9pt;color:Black;font-family:'calibri';} " +
-                                                "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>RECLUTADOR</th><th align=center>COORDINADOR</th><th align=center>CUB/VAC</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th></tr>";
+                                                "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>SOLICITA</th><th align=center>COORDINADOR</th><th align=center>CUB/VAC</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th><th>ASIGNADA A</th></tr>";
 
                     var body = "";
+                    string reclutadoresList = "";
                     foreach (var a in aprobadores)
                     {
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
@@ -2441,12 +2464,34 @@ namespace SAGA.API.Controllers
                         m.Bcc.Add("idelatorre@damsa.com.mx");
                         m.Bcc.Add("mventura@damsa.com.mx");
                         m.Bcc.Add("bmorales@damsa.com.mx");
-
                         foreach (var r in aux)
                         {
+                            var reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id) && !x.GrpUsrId.Equals(r.aprobadorId)).Select(rec => new
+                            {
+                                nombre = db.Usuarios.Where(x => x.Id.Equals(rec.GrpUsrId)).Select(N => N.Nombre + " " + N.ApellidoPaterno + " " + N.ApellidoMaterno).FirstOrDefault()
+                            }).ToList();
+
+                            if(reclutadores.Count() > 1)
+                            {
+                                reclutadoresList = reclutadoresList + "<ul>";
+                                foreach (var rs in reclutadores)
+                                {
+                                    reclutadoresList = reclutadoresList + "<li>" + rs.nombre + "</li>";
+                                }
+                                reclutadoresList = "</ul>";
+                            }
+                            else if(reclutadores.Count() == 1)
+                            {
+                                reclutadoresList = reclutadores[0].nombre;
+                            }
+                            else
+                            {
+                                reclutadoresList = "SIN ASIGNAR";
+                            }
+
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
-                                                       "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td><td align=center>{10}</td></tr>",
-                                                       r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.cubiertas.ToString() + "/" + r.vacantes.ToString(), r.estatus, r.fch_Modificacion);
+                                                       "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td><td align=center>{10}</td><td align=center>{11}</td></tr>",
+                                                       r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.cubiertas.ToString() + "/" + r.vacantes.ToString(), r.estatus, r.fch_Modificacion, reclutadoresList);
                         }
 
                         body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
@@ -2473,7 +2518,6 @@ namespace SAGA.API.Controllers
             {
                 string msg = ex.Message;
                 return Ok(HttpStatusCode.ExpectationFailed);
-
             }
 
         }
@@ -2498,9 +2542,10 @@ namespace SAGA.API.Controllers
 
 
                     var inicio = "<html><head><style>td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:9pt;color:Black;font-family:'calibri';} " +
-                                                "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>RECLUTADOR</th><th align=center>COORDINADOR</th><th align=center>CUB/VAC</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th></tr>";
+                                                "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>SOLICITA</th><th align=center>COORDINADOR</th><th align=center>CUB/VAC</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th><th align=center>ASIGNADA A</th></tr>";
 
                     var body = "";
+                    string reclutadoresList = "";
                     foreach (var a in aprobadores)
                     {
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
@@ -2510,12 +2555,34 @@ namespace SAGA.API.Controllers
                         m.Bcc.Add("idelatorre@damsa.com.mx");
                         m.Bcc.Add("mventura@damsa.com.mx");
                         m.Bcc.Add("bmorales@damsa.com.mx");
-
                         foreach (var r in aux)
                         {
+                            var reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id) && !x.GrpUsrId.Equals(r.aprobadorId)).Select(rec => new
+                            {
+                                nombre = db.Usuarios.Where(x => x.Id.Equals(rec.GrpUsrId)).Select(N => N.Nombre + " " + N.ApellidoPaterno + " " + N.ApellidoMaterno).FirstOrDefault()
+                            }).ToList();
+
+                            if (reclutadores.Count() > 1)
+                            {
+                                reclutadoresList = reclutadoresList + "<ul>";
+                                foreach (var rs in reclutadores)
+                                {
+                                    reclutadoresList = reclutadoresList + "<li>" + rs.nombre + "</li>";
+                                }
+                                reclutadoresList = "</ul>";
+                            }
+                            else if (reclutadores.Count() == 1)
+                            {
+                                reclutadoresList = reclutadores[0].nombre;
+                            }
+                            else
+                            {
+                                reclutadoresList = "SIN ASIGNAR";
+                            }
+
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
-                                                       "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td><td align=center>{10}</td></tr>",
-                                                       r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.cubiertas.ToString() + "/" + r.vacantes.ToString(), r.estatus, r.fch_Modificacion);
+                                                       "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td><td align=center>{10}</td><td align=center>{11}</td></tr>",
+                                                       r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.cubiertas.ToString() + "/" + r.vacantes.ToString(), r.estatus, r.fch_Modificacion, reclutadoresList);
                         }
 
                         body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
@@ -2565,9 +2632,10 @@ namespace SAGA.API.Controllers
                     var aprobadores = datos.Select(x => x.aprobadorId).Distinct().ToList();
 
                     var inicio = "<html><head><style>td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:9pt;color:Black;font-family:'calibri';} " +
-                                                "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>RECLUTADOR</th><th align=center>COORDINADOR</th><th align=center>CUB/VAC</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th></tr>";
+                                                "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA ALTA</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>SOLICITA</th><th align=center>COORDINADOR</th><th align=center>CUB/VAC</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th><th align=center>ASIGNADA A</th></tr>";
 
                     var body = "";
+                    string reclutadoresList = "";
                     foreach (var a in aprobadores)
                     {
                         var aux = datos.Where(x => x.aprobadorId.Equals(a)).ToList();
@@ -2577,12 +2645,34 @@ namespace SAGA.API.Controllers
                         m.Bcc.Add("idelatorre@damsa.com.mx");
                         m.Bcc.Add("mventura@damsa.com.mx");
                         m.Bcc.Add("bmorales@damsa.com.mx");
-
                         foreach (var r in aux)
                         {
+                            var reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id) && !x.GrpUsrId.Equals(r.aprobadorId)).Select(rec => new
+                            {
+                                nombre = db.Usuarios.Where(x => x.Id.Equals(rec.GrpUsrId)).Select(N => N.Nombre + " " + N.ApellidoPaterno + " " + N.ApellidoMaterno).FirstOrDefault()
+                            }).ToList();
+
+                            if (reclutadores.Count() > 1)
+                            {
+                                reclutadoresList = reclutadoresList + "<ul>";
+                                foreach (var rs in reclutadores)
+                                {
+                                    reclutadoresList = reclutadoresList + "<li>" + rs.nombre + "</li>";
+                                }
+                                reclutadoresList = "</ul>";
+                            }
+                            else if (reclutadores.Count() == 1)
+                            {
+                                reclutadoresList = reclutadores[0].nombre;
+                            }
+                            else
+                            {
+                                reclutadoresList = "SIN ASIGNAR";
+                            }
+
                             body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
-                                                       "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td><td align=center>{10}</td></tr>",
-                                                       r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.cubiertas.ToString() + "/" + r.vacantes.ToString(), r.estatus, r.fch_Modificacion);
+                                                       "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td><td align=center>{9}</td><td align=center>{10}</td><td>{11}</td></tr>",
+                                                       r.dias, r.Folio, r.VBtra, r.fch_Aprobacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.aprobador, r.cubiertas.ToString() + "/" + r.vacantes.ToString(), r.estatus, r.fch_Modificacion, reclutadoresList);
                         }
 
                         body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";

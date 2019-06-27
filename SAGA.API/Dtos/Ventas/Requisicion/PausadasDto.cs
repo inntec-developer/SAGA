@@ -7,6 +7,7 @@ namespace SAGA.API.Dtos
 {
     public class PausadasDto
     {
+        public Guid Id { get; set; }
         public int dias { get; set; }
         public string email { get; set; }
         public string emailSol { get; set; }
