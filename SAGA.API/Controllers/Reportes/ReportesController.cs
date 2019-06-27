@@ -529,7 +529,7 @@ namespace SAGA.API.Controllers.Reportes
                     try
                     {
                         obj.cubiertas = ListaCubierta.Count();
-                        obj.puntaje = PuntajeCalculo(item.Id, ListaCubierta);
+                        obj.puntaje = new Calculo().PuntajeCalculo(item.Id, ListaCubierta);
                        
                     }
                     catch (Exception)
@@ -891,32 +891,60 @@ namespace SAGA.API.Controllers.Reportes
             public int porcentaje { get; set; }
             public Guid id { get; set; }
         }
-   
 
-
-        public int PuntajeCalculo(Guid id, List<ProcesoCandidato> lista)
+        public class Calculo
         {
-            int total = 0;
-            var requi = lista.Where(e=>e.ReclutadorId == id).Select(e => e.RequisicionId).ToList();
-            try
+            public int PuntajeCalculo(Guid id, List<ProcesoCandidato> lista)
             {
-                var datos = db.PonderacionRequisiciones.Where(e => requi.Contains(e.RequisicionId)).Select(e => new
+                using (SAGADBContext dbs = new SAGADBContext())
                 {
-                    e.RequisicionId,
-                    e.Ponderacion
-                }).ToList();
-                var ponderacion = datos.Select(e => new
-                {
-                    puntos = lista.Where(a => a.RequisicionId == e.RequisicionId).ToList().Count() * e.Ponderacion
-                }).ToList();
-                total = ponderacion.Sum(e => e.puntos);
+                    int total = 0;
+                    var requi = lista.Where(e => e.ReclutadorId == id).Select(e => e.RequisicionId).ToList();
+                    try
+                    {
+                        var datos = dbs.PonderacionRequisiciones.Where(e => requi.Contains(e.RequisicionId)).Select(e => new
+                        {
+                            e.RequisicionId,
+                            e.Ponderacion
+                        }).ToList();
+                        var ponderacion = datos.Select(e => new
+                        {
+                            puntos = lista.Where(a => a.RequisicionId == e.RequisicionId).ToList().Count() * e.Ponderacion
+                        }).ToList();
+                        total = ponderacion.Sum(e => e.puntos);
+                    }
+                    catch (Exception)
+                    {
+                        total = 0;
+                    }
+                    return total;
+                }
             }
-            catch (Exception)
-            {
-                total = 0;
-            }
-           
-            return total;
         }
+
+        //public int PuntajeCalculo(Guid id, List<ProcesoCandidato> lista)
+        //{
+        //    int total = 0;
+        //    var requi = lista.Where(e=>e.ReclutadorId == id).Select(e => e.RequisicionId).ToList();
+        //    try
+        //    {
+        //        var datos = db.PonderacionRequisiciones.Where(e => requi.Contains(e.RequisicionId)).Select(e => new
+        //        {
+        //            e.RequisicionId,
+        //            e.Ponderacion
+        //        }).ToList();
+        //        var ponderacion = datos.Select(e => new
+        //        {
+        //            puntos = lista.Where(a => a.RequisicionId == e.RequisicionId).ToList().Count() * e.Ponderacion
+        //        }).ToList();
+        //        total = ponderacion.Sum(e => e.puntos);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        total = 0;
+        //    }
+           
+        //    return total;
+        //}
     }
 }
