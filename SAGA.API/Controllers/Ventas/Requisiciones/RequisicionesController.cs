@@ -572,15 +572,15 @@ namespace SAGA.API.Controllers
                 }
                 else
                 {
-                    //if (db.Subordinados.Count(x => x.LiderId.Equals(propietario)) > 0)
-                    //{
-                    //    var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(propietario) && x.LiderId.Equals(propietario)).Select(u => u.UsuarioId).ToList();
+                    if (db.Subordinados.Count(x => x.LiderId.Equals(propietario)) > 0)
+                    {
+                        var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(propietario) && x.LiderId.Equals(propietario)).Select(u => u.UsuarioId).ToList();
 
-                    //    uids = GetSub(ids, uids);
+                        uids = GetSub(ids, uids);
 
-                    //}
+                    }
 
-                    //uids.Add(propietario);
+                    uids.Add(propietario);
 
                     var requisId = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(propietario) && !x.GrpUsrId.Equals(x.Requisicion.AprobadorId)).Select(a => a.RequisicionId).ToList();
 
