@@ -386,17 +386,40 @@ namespace SAGA.API.Controllers
         [HttpGet]
         [Route("getByTipoUsuario")]
         [Authorize]
-        public IHttpActionResult GetByTipoUsuario(byte tipo)
+        public IHttpActionResult GetByTipoUsuario(string depto)
         {
             try
             {
-                var usuarios = db.Usuarios.Where(x => x.Activo && x.TipoUsuarioId.Equals(tipo)).Select(L => new
+                switch (depto)
                 {
-                    id = L.Id,
-                    nombre = L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno
-                }).OrderBy(o => o.nombre).ToList();
+                    case "Vtas":
+                        // Ventas - Requisiciones
+                        /*
+                          *  Ejecutivos 
+                          *  Liedere de Ejecutivos
+                         */
+                        var ventas = db.Usuarios.Where(x => x.Activo && (x.TipoUsuarioId.Equals(10) || x.TipoUsuarioId.Equals(5)) && x.Departamento.AreaId.Equals(7)).Select(L => new
+                        {
+                            id = L.Id,
+                            nombre = L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno
+                        }).OrderBy(o => o.nombre).ToList();
+                        return Ok(ventas);
+                    case "Recl":
+                        // Reclutamiento - Vacantes
+                        /*
+                         * Coordinadores
+                         * Lideres de Reclutamiento.                 
+                         */
+                        var reclutamiento = db.Usuarios.Where(x => x.Activo && (x.TipoUsuarioId.Equals(4) || x.TipoUsuarioId.Equals(5)) && x.Departamento.AreaId.Equals(16)).Select(L => new
+                        {
+                            id = L.Id,
+                            nombre = L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno
+                        }).OrderBy(o => o.nombre).ToList();
 
-                return Ok(usuarios);
+                        return Ok(reclutamiento);
+                    default:
+                            return Ok(HttpStatusCode.NotFound);
+                }
             }
             catch (Exception ex)
             {
