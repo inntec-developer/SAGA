@@ -2040,8 +2040,12 @@ namespace SAGA.API.Controllers
                         .Select(c => new CoincidenciasDto
                         {
                             Nombre = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + (c.Candidato.ApellidoMaterno != null ? c.Candidato.ApellidoMaterno : ""),
-                            Subcategoria = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() != null ? c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
-                            AreaExpId = c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() != 0 ? c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() : 0,
+                            Subcategoria = db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() != 0 ? 
+                                           db.AreasInteres.Where(x => x.Id.Equals(c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault())).Select(s => s.areaInteres).FirstOrDefault() : "",
+                            AreaExpId = db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() != 0 ?
+                                        db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() : 0,
+                            //Subcategoria = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() != null ? c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
+                            //AreaExpId = c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() != 0 ? c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() : 0,
                             SueldoMinimo = c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
                             SueldoMaximo = c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() : 0,
                             Genero = c.Candidato.Genero.genero,
