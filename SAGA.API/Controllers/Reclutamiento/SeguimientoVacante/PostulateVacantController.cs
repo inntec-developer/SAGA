@@ -34,6 +34,22 @@ namespace SAGA.API.Controllers
             SendEmail = new SendEmails();
         }
 
+        [HttpGet]
+        [Route("validarEmailCandidato")]
+        [Authorize]
+        public IHttpActionResult ValidarEmailCandidato(string email)
+        {
+            var e = db.Emails.Where(x => x.email.Equals(email)).Count();
+
+            if(e == 0)
+            {
+                return Ok(HttpStatusCode.OK);
+            }
+            else
+            {
+                return Ok(HttpStatusCode.Found);
+            }
+        }
         [HttpPost]
         [Route("registrarCandidatos")]
         [Authorize]
