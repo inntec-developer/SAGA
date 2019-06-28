@@ -131,6 +131,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getPostulate")]
+        [Authorize]
         public IHttpActionResult GetPostulate(Guid VacanteId)
         {
             // Si el candidato es NR se queda atorado en proceso candidato ???
@@ -155,6 +156,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getProceso")]
+        [Authorize]
         public IHttpActionResult GetProceso(Guid VacanteId, Guid ReclutadorId)
         {
             try
@@ -284,6 +286,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updateStatusVacante")]
+        [Authorize]
         public IHttpActionResult UpdateStatusVacante(ProcesoDto datos)
         {
             try
@@ -358,6 +361,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("updateStatus")]
+        [Authorize]
         public IHttpActionResult UpdateStatus(ProcesoDto datos)
         {
             FoliosIncidenciasController obj = new FoliosIncidenciasController();
@@ -493,6 +497,7 @@ namespace SAGA.API.Controllers
         }
         [HttpPost]
         [Route("updateStatusBolsa")]
+        [Authorize]
         public IHttpActionResult UpdateStatusBolsa(ProcesoDto datos)
         {
             try
@@ -664,6 +669,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("sendEmailCandidato")]
+        [Authorize]
         public IHttpActionResult SendEmailCandidato(ProcesoDto datos)
         {
             var path = "~/logo/logo.png";
@@ -855,6 +861,7 @@ namespace SAGA.API.Controllers
         //falta mensaje
         [HttpPost]
         [Route("sendEmailsNoContratado")]
+        [Authorize]
         public IHttpActionResult SendEmailsNoContratados(List<ProcesoDto> datos)
         {
             var path = "~/utilerias/img/logo/logo.png";

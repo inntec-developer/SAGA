@@ -1286,6 +1286,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getConteoVacante")]
+        [Authorize]
         public IHttpActionResult GetConteoVacante(Guid RequisicionId, Guid ClienteId)
         {
             try
