@@ -316,7 +316,7 @@ namespace SAGA.API.Controllers.Reportes
 
             var datos = db.ProcesoCandidatos.Where(e=> ListaUsuario.Contains(e.ReclutadorId)).ToList();
             var capta = datos.Select(e => e.CandidatoId).Distinct().ToList();
-            var contra = datos.Where(e => e.EstatusId == 24).ToList();
+            var contra = datos.Where(e => e.EstatusId == 24).Distinct().ToList();
             var obj = new
             {
                 captado = capta.Count(),
