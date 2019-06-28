@@ -168,6 +168,7 @@ namespace SAGA.API.Controllers
             {
                 RastreabilidadMes RM = new RastreabilidadMes();
                 Transferencias Transf = new Transferencias();
+                RequisicionesController rc = new RequisicionesController();
                 
                 string descripcion = "";
                 Guid usuarioAux;
@@ -177,7 +178,10 @@ namespace SAGA.API.Controllers
                     aprobadorId = r.AprobadorId,
                     coordinador = db.Usuarios.Where(x => x.Id.Equals(r.AprobadorId)).Select( U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(),
                     propietarioId = r.PropietarioId,
-                    solicitante = db.Usuarios.Where(x => x.Id.Equals(r.PropietarioId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault()
+                    solicitante = db.Usuarios.Where(x => x.Id.Equals(r.PropietarioId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(),
+                    tipoReclutamientoId =r.TipoReclutamientoId,
+                    estatusId = r.EstatusId,
+                    VBtra = r.VBtra
                 }).ToList();
 
                 var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
@@ -217,19 +221,35 @@ namespace SAGA.API.Controllers
                     var R = db.Requisiciones.Find(requi);
                     if (tipo == 1)
                     {
-                        db.Entry(R).Property(r => r.AprobadorId).IsModified = true;
-                        R.AprobadorId = coorId;
+                        if (datos[0].estatusId == 4 && datos[0].tipoReclutamientoId == 1)
+                        {
+                            List<AsignacionRequi> ar = new List<AsignacionRequi>();
+                            var asg = new AsignacionRequi
+                            {
+                                RequisicionId = requi,
+                                GrpUsrId = coorId,
+                                CRUD = "",
+                                UsuarioAlta = RM.UsuarioMod,
+                                UsuarioMod = RM.UsuarioMod,
+                                fch_Modificacion = DateTime.Now
+                            };
+                            ar.Add(asg);
+                            rc.AlterAsignacionRequi(ar,requi, datos[0].folio, asg.UsuarioAlta, datos[0].VBtra, null);
+                        }
+                        else
+                        {
+                            db.Entry(R).Property(r => r.AprobadorId).IsModified = true;
+                            R.AprobadorId = coorId;
+                            db.SaveChanges();
+                        }
+                        
                     }
                     else
                     {
                         db.Entry(R).Property(r => r.PropietarioId).IsModified = true;
                         R.PropietarioId = coorId;
+                        db.SaveChanges();
                     }
-
-                    db.SaveChanges();
-
-          
-
                     trans.Commit();
 
                     this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno ).FirstOrDefault(), descripcion);

@@ -68,10 +68,10 @@ namespace SAGA.API.Controllers
                 int Folios = 0;
 
                 int[] estatus = { 4, 5, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 44, 46 };
-                if (user.TipoUsuarioId == 8)
+                if (user.TipoUsuarioId == 8 || user.TipoUsuarioId == 3 || user.TipoUsuarioId == 12 || user.TipoUsuarioId == 13 || user.TipoUsuarioId == 14)
                 {
                     Folios = db.Requisiciones
-                        .Where( r => estatus.Contains(r.EstatusId))
+                        .Where( r => estatus.Contains(r.EstatusId) && !r.Confidencial)
                         .Count();
                 }
                 else
@@ -115,10 +115,10 @@ namespace SAGA.API.Controllers
                 int TotalVacantes = 0;
 
                 int[] estatus = { 4, 5, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 44, 46 };
-                if (user.TipoUsuarioId == 8)
+                if (user.TipoUsuarioId == 8 || user.TipoUsuarioId == 3 || user.TipoUsuarioId == 12 || user.TipoUsuarioId == 13 || user.TipoUsuarioId == 14)
                 {
                     var vacantes = db.Requisiciones
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(r => estatus.Contains(r.EstatusId) && !r.Confidencial)
                         .Select(r => new
                         {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
@@ -198,10 +198,10 @@ namespace SAGA.API.Controllers
                 int TotalContratados = 0;
 
                 int[] estatus = { 4, 5, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 44, 46 };
-                if (user.TipoUsuarioId == 8)
+                if (user.TipoUsuarioId == 8 || user.TipoUsuarioId == 3 || user.TipoUsuarioId == 12 || user.TipoUsuarioId == 13 || user.TipoUsuarioId == 14)
                 {
                     var vacantes = db.Requisiciones
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(r => estatus.Contains(r.EstatusId) && !r.Confidencial)
                         .Select(r => new
                         {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,

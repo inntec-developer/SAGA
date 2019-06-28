@@ -180,7 +180,6 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("vvencida")]
-        
         public IHttpActionResult vvencida(string usuario)
         {
             Guid id = new Guid(usuario);
@@ -294,8 +293,130 @@ namespace SAGA.API.Controllers.Reportes
         }
 
         [HttpGet]
+        [Route("captadocontra")]
+        public IHttpActionResult captadoContra(string usuario)
+        {
+            var datos = db.ProcesoCandidatos.ToList();
+            var capta = datos.Select(e => e.CandidatoId).Distinct().ToList();
+            var contra = datos.Where(e => e.EstatusId == 24).ToList();
+            var obj = new
+            {
+                captado = capta.Count(),
+                contratado = contra.Count()
+            };
+            return Ok(obj);
+        }
+
+        [HttpGet]
+        [Route("productividad")]
+        public IHttpActionResult productividad(string usuario)
+        {
+            
+            int[] Status = new[] { 34, 35, 36, 37, 47, 48 };
+            var listaRequi = db.EstatusRequisiciones.Where(e => Status.Contains(e.EstatusId)).Select(e => e.RequisicionId).ToList().Distinct();
+
+            var candidatos = db.AsignacionRequis.Where(e => listaRequi.Contains(e.RequisicionId)).ToList();
+            var recluta = candidatos.Select(e => new { e.GrpUsrId }).Distinct().ToList();
+            var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).ToList();
+            var aprovador = vacantes.Select(e => e.AprobadorId).ToList();
+            recluta = recluta.Where(e => !aprovador.Contains(e.GrpUsrId)).ToList();
+            var recluta2 = recluta.Select(e => e.GrpUsrId).ToList();
+            var datos = db.Usuarios.Where(e => recluta2.Contains(e.Id)).ToList();
+            try
+            {
+
+                List<ReportesController.proactividad> ProActi = new List<ReportesController.proactividad>();
+
+                foreach (var item in datos)
+                {
+                    var obj = new ReportesController.proactividad();
+                    var listaRequien = vacantes.Select(e => e.Id).ToList();
+                    var ListaCubierta = db.ProcesoCandidatos.Where(e => e.ReclutadorId == item.Id && e.EstatusId == 24 && listaRequien.Contains(e.RequisicionId)).ToList();
+                    var listaPosicion = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).Select(e => e.RequisicionId).ToList();
+
+                    obj.vacantes = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).ToList().Count();
+                    try
+                    {
+                        obj.numeropos = db.HorariosRequis.Where(x => listaPosicion.Contains(x.RequisicionId)).Sum(x => x.numeroVacantes);
+                    }
+                    catch (Exception)
+                    {
+                        obj.numeropos = 0;
+                    }
+
+                    try
+                    {
+                        obj.cubiertas = ListaCubierta.Count();
+                        obj.puntaje = new ReportesController.Calculo().PuntajeCalculo(item.Id, ListaCubierta);
+
+                    }
+                    catch (Exception)
+                    {
+                        obj.cubiertas = 0;
+                    }
+                    obj.nombre = item.Nombre + " " + item.ApellidoPaterno + " " + item.ApellidoMaterno;
+                    obj.id = item.Id;
+
+                    ProActi.Add(obj);
+                }
+                var datal = ProActi.ToList();
+                return Ok(datal);
+            }
+            catch (Exception eror)
+            {
+                var algo = eror;
+            }
+            return Ok("Por el momento el servidor no responde");
+        }
+
+        [HttpGet]
+        [Route("Coordinacion")]
+        public IHttpActionResult Coordinacion(string usuario)
+        {
+            Guid id = new Guid(usuario);
+
+            var ListaUsuario = new List<Guid>();
+            ListaUsuario.Add(id);
+            var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
+            if (arbol.Count > 0)
+            {
+                ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
+                foreach (var item in arbol)
+                {
+                    var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
+                    if (hijos.Count > 0)
+                    {
+                        ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                    }
+                }
+            }
+            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+            int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
+            var requi = db.Requisiciones.Where(e=> asigna.Contains(e.Id) && EstatusList.Contains(e.EstatusId)).ToList();
+            var masivo = requi.Where(e => e.ClaseReclutamientoId == 3 && e.Activo == true).Select(e => new {
+                e.Id,
+                e.EstatusId
+            }).ToList();
+
+            var operativo = requi.Where(e => e.ClaseReclutamientoId == 2 && e.Activo == true).Select(e => new {
+                e.Id,
+                e.EstatusId
+            }).ToList();
+
+            var ezpeciali = requi.Where(e => e.ClaseReclutamientoId == 1 && e.Activo == true).Select(e => new {
+                e.Id,
+                e.EstatusId
+            }).ToList();
+                var datos = new {
+                    masivo = masivo.Count,
+                    operativo = operativo.Count,
+                    ezpecial = ezpeciali.Count,
+                };
+                return Ok(datos);
+        }
+
+        [HttpGet]
         [Route("resumen")]
-        
         public IHttpActionResult resumen(string usuario)
         {
             Guid id = new Guid(usuario);

@@ -364,7 +364,8 @@ namespace SAGA.API.Controllers.Reportes
             {
 
             }
-            var requi = db.Requisiciones.Where(e=>e.fch_Creacion >= FechaI && e.fch_Creacion <= FechaF).ToList();
+            FechaF = FechaF.AddDays(1);
+            var requi = db.Requisiciones.Where(e=>e.fch_Modificacion >= FechaI && e.fch_Modificacion < FechaF).ToList();
            
 
             var masivo = requi.Where(e=>e.ClaseReclutamientoId == 3).Select(e=> new {
@@ -480,10 +481,12 @@ namespace SAGA.API.Controllers.Reportes
           var listaRequi = db.EstatusRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion < FechaF && Status.Contains(e.EstatusId)).Select(e=>e.RequisicionId).ToList().Distinct();
         
           var candidatos = db.AsignacionRequis.Where(e => listaRequi.Contains(e.RequisicionId)).ToList();
-            var recluta = candidatos.Select(e => e.GrpUsrId).Distinct().ToList();
-       
+            var recluta = candidatos.Select(e => new { e.GrpUsrId }).Distinct().ToList();
             var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).ToList();
-            var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).ToList();
+            var aprovador = vacantes.Select(e => e.AprobadorId).ToList();
+            recluta = recluta.Where(e => !aprovador.Contains(e.GrpUsrId)).ToList();
+            var recluta2 = recluta.Select(e => e.GrpUsrId).ToList();
+            var datos = db.Usuarios.Where(e => recluta2.Contains(e.Id)).ToList();
             //var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).Select(e => new {
             //    e.Id,
             //    vacantes = db.HorariosRequis.Where(x => candidatos.Where(a => a.ReclutadorId == e.Id).Select(a => a.RequisicionId).Contains(x.RequisicionId)).Sum(x => x.numeroVacantes),
@@ -529,7 +532,7 @@ namespace SAGA.API.Controllers.Reportes
                     try
                     {
                         obj.cubiertas = ListaCubierta.Count();
-                        obj.puntaje = PuntajeCalculo(item.Id, ListaCubierta);
+                        obj.puntaje = new Calculo().PuntajeCalculo(item.Id, ListaCubierta);
                        
                     }
                     catch (Exception)
@@ -592,13 +595,17 @@ namespace SAGA.API.Controllers.Reportes
             {
 
             }
+            FechaF = FechaF.AddDays(1);
             int[] Status = new[] { 34, 35, 36, 37,47,48 };
-            var listaRequi = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).Select(e => e.RequisicionId).Distinct().ToList();
+            var listaRequi = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion < FechaF).Select(e => e.RequisicionId).Distinct().ToList();
             listaRequi = db.Requisiciones.Where(e => listaRequi.Contains(e.Id)).Select(a => a.Id).ToList();
             var candidatos = db.AsignacionRequis.Where(e => listaRequi.Contains(e.RequisicionId)).ToList();
-            var recluta = candidatos.Select(e => e.GrpUsrId).Distinct().ToList();
-            var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id)).ToList();
-            var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).ToList();
+            var recluta = candidatos.Select(e => new { e.GrpUsrId }).Distinct().ToList();
+            var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id) && Status.Contains(e.EstatusId)).ToList();
+            var aprovador = vacantes.Select(e => e.AprobadorId).ToList();
+            recluta = recluta.Where(e => !aprovador.Contains(e.GrpUsrId)).ToList();
+            var recluta2 = recluta.Select(e => e.GrpUsrId).ToList();
+            var datos = db.Usuarios.Where(e => recluta2.Contains(e.Id)).ToList();
             try
             {
 
@@ -699,11 +706,12 @@ namespace SAGA.API.Controllers.Reportes
             {
 
             }
+            FechaF = FechaF.AddDays(1);
             int[] Status = new[] { 34, 35, 36, 37, 47, 48 };
-            var Requisiciones = db.InformeRequisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
+            var Requisiciones = db.Requisiciones.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion < FechaF).ToList();
 
           //  var Requisiciones = db.AsignacionRequis.Where(e => e.fch_Modificacion >= FechaI && e.fch_Modificacion <= FechaF).ToList();
-            var listaRequi = Requisiciones.Select(e => e.RequisicionId).Distinct().ToList();
+            var listaRequi = Requisiciones.Select(e => e.Id).Distinct().ToList();
             var vacantes = db.Requisiciones.Where(e => listaRequi.Contains(e.Id)).ToList();
             var recluta = vacantes.Where(e=>e.AprobadorId != new Guid("00000000-0000-0000-0000-000000000000")).Select(e=>e.AprobadorId).ToList();
             var datos = db.Usuarios.Where(e => recluta.Contains(e.Id)).ToList();
@@ -728,15 +736,31 @@ namespace SAGA.API.Controllers.Reportes
 
                 foreach (var item in datos)
                 {
+
+                    var ListaUsuario = new List<Guid>();
+                    ListaUsuario.Add(item.Id);
+                    var arbol = db.Subordinados.Where(e => e.LiderId == item.Id).ToList();
+                    if (arbol.Count > 0)
+                    {
+                        ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
+                        foreach (var item2 in arbol)
+                        {
+                            var hijos = db.Subordinados.Where(e => e.LiderId == item2.UsuarioId).ToList();
+                            if (hijos.Count > 0)
+                            {
+                                ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                            }
+                        }
+                    }
                     var obj = new proactividad();
-                    var listaRequien = vacantes.Select(e => e.Id).ToList();
-                    var ListaCubierta = db.ProcesoCandidatos.Where(e => e.ReclutadorId == item.Id && e.Fch_Modificacion >= FechaI && e.Fch_Modificacion <= FechaF && e.EstatusId == 24).ToList();
-                    var listaPosicion = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).Select(e => e.RequisicionId).ToList();
+                    var listaRequien = vacantes.Where(e => e.AprobadorId == item.Id).Select(e => e.Id).ToList();
+                    var ListaCubierta = db.ProcesoCandidatos.Where(e => ListaUsuario.Contains(e.ReclutadorId) && listaRequien.Contains(e.RequisicionId) && e.EstatusId == 24).ToList();
+                   // var listaPosicion = db.HorariosRequis.Where(e => listaRequien.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes); //db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
 
                     obj.vacantes = db.AsignacionRequis.Where(e => listaRequien.Contains(e.RequisicionId) && e.GrpUsrId == item.Id).ToList().Count();
                     try
                     {
-                        obj.numeropos = db.HorariosRequis.Where(x => listaPosicion.Contains(x.RequisicionId)).Sum(x => x.numeroVacantes);
+                        obj.numeropos = db.HorariosRequis.Where(x => listaRequien.Contains(x.RequisicionId)).Sum(x => x.numeroVacantes);
                     }
                     catch (Exception)
                     {
@@ -810,7 +834,8 @@ namespace SAGA.API.Controllers.Reportes
             {
 
             }
-            var candidato = db.Candidatos.Where(e => e.fch_Creacion >= FechaI && e.fch_Creacion <= FechaF).ToList();
+            FechaF = FechaF.AddDays(1);
+            var candidato = db.Candidatos.Where(e => e.fch_Creacion >= FechaI && e.fch_Creacion < FechaF).ToList();
             var listcandi = candidato.Select(e => e.Id).ToList();
             var entidad = db.Entidad.Where(e => listcandi.Contains(e.Id)).ToList();
 
@@ -823,7 +848,7 @@ namespace SAGA.API.Controllers.Reportes
            
             var datos = candidato.Select(e => new {
                 e.Id,
-                nombre = entidad.Where(x => e.Id == e.Id).Select(x => x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno).FirstOrDefault(),
+                nombre = entidad.Where(x => x.Id == e.Id).Select(x => x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno).FirstOrDefault(),
                 curp = e.CURP,
                 rfc = e.RFC,
                 estadoid = e.estadoNacimiento.Id,
@@ -891,32 +916,60 @@ namespace SAGA.API.Controllers.Reportes
             public int porcentaje { get; set; }
             public Guid id { get; set; }
         }
-   
 
-
-        public int PuntajeCalculo(Guid id, List<ProcesoCandidato> lista)
+        public class Calculo
         {
-            int total = 0;
-            var requi = lista.Where(e=>e.ReclutadorId == id).Select(e => e.RequisicionId).ToList();
-            try
+            public int PuntajeCalculo(Guid id, List<ProcesoCandidato> lista)
             {
-                var datos = db.PonderacionRequisiciones.Where(e => requi.Contains(e.RequisicionId)).Select(e => new
+                using (SAGADBContext dbs = new SAGADBContext())
                 {
-                    e.RequisicionId,
-                    e.Ponderacion
-                }).ToList();
-                var ponderacion = datos.Select(e => new
-                {
-                    puntos = lista.Where(a => a.RequisicionId == e.RequisicionId).ToList().Count() * e.Ponderacion
-                }).ToList();
-                total = ponderacion.Sum(e => e.puntos);
+                    int total = 0;
+                    var requi = lista.Where(e => e.ReclutadorId == id).Select(e => e.RequisicionId).ToList();
+                    try
+                    {
+                        var datos = dbs.PonderacionRequisiciones.Where(e => requi.Contains(e.RequisicionId)).Select(e => new
+                        {
+                            e.RequisicionId,
+                            e.Ponderacion
+                        }).ToList();
+                        var ponderacion = datos.Select(e => new
+                        {
+                            puntos = lista.Where(a => a.RequisicionId == e.RequisicionId).ToList().Count() * e.Ponderacion
+                        }).ToList();
+                        total = ponderacion.Sum(e => e.puntos);
+                    }
+                    catch (Exception)
+                    {
+                        total = 0;
+                    }
+                    return total;
+                }
             }
-            catch (Exception)
-            {
-                total = 0;
-            }
-           
-            return total;
         }
+
+        //public int PuntajeCalculo(Guid id, List<ProcesoCandidato> lista)
+        //{
+        //    int total = 0;
+        //    var requi = lista.Where(e=>e.ReclutadorId == id).Select(e => e.RequisicionId).ToList();
+        //    try
+        //    {
+        //        var datos = db.PonderacionRequisiciones.Where(e => requi.Contains(e.RequisicionId)).Select(e => new
+        //        {
+        //            e.RequisicionId,
+        //            e.Ponderacion
+        //        }).ToList();
+        //        var ponderacion = datos.Select(e => new
+        //        {
+        //            puntos = lista.Where(a => a.RequisicionId == e.RequisicionId).ToList().Count() * e.Ponderacion
+        //        }).ToList();
+        //        total = ponderacion.Sum(e => e.puntos);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        total = 0;
+        //    }
+           
+        //    return total;
+        //}
     }
 }
