@@ -46,12 +46,16 @@ namespace SAGA.API.Controllers.Reportes
             var cubiertaParcialmente = datos.Where(e => e.EstatusId == 35).ToList();
             var cubiertaMedios = datos.Where(e => e.EstatusId == 36).ToList();
             var cCliente = datos.Where(e => e.EstatusId == 37).ToList();
+            var cpromocion = datos.Where(e => e.EstatusId == 47).ToList();
+            var coperaciones = datos.Where(e => e.EstatusId == 48).ToList();
             var obj = new {
                 cubiertas = cubierta.Count,
                 Parcialmente = cubiertaParcialmente.Count,
                 medios = cubiertaMedios.Count,
                 cubiertacliente = cCliente.Count,
-                total = 0 + cubierta.Count + cubiertaParcialmente.Count + cubiertaMedios.Count + cCliente.Count
+                promocion = cpromocion.Count,
+                opera = coperaciones.Count,
+                total = 0 + cubierta.Count + cubiertaParcialmente.Count + cubiertaMedios.Count + cCliente.Count +coperaciones.Count + cpromocion.Count
             };
             return Ok(obj);
         }
