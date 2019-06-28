@@ -694,14 +694,48 @@ namespace SAGA.API.Controllers
         [HttpGet]
         [Route("getFilaTickets")]
         [Authorize]
-        public IHttpActionResult GetFilaTickets(int estatus, Guid reclutadorId)
-        {
+        public IHttpActionResult GetFilaTickets(int modulo, Guid reclutadorId)
+        { //estatus 1 espera 2 en atencion 3 examene
+            //modulo 1 atender 2 citas 3 examenes
             try
             {
-                if (estatus == 3 || estatus == 1)
-                {
+                if(modulo == 2)
+                {//movimientos oslo citas 
+                    var fila = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && x.MovimientoId.Equals(1)).Select(t => new
+                    {
+                        ticketId = t.Id,
+                        ticket = t.Numero,
+                        candidatoId = t.CandidatoId,
+                        requisicionId = t.RequisicionId,
+                        movimientoId = t.MovimientoId,
+                        moduloId = t.ModuloId,
+                        fch_Creacion = t.fch_Creacion,
+                        fch_Estatus = db.TicketsReclutador.Where(x => x.TicketId.Equals(t.Id)).Select(F => F.fch_Final).FirstOrDefault(),
+                        fch_cita = db.CalendarioCandidato.Where(x => x.CandidatoId.Equals(t.CandidatoId)).Count() > 0 ? db.CalendarioCandidato.Where(x => x.CandidatoId.Equals(t.CandidatoId)).Select(f => f.Fecha).FirstOrDefault() : DateTime.Now,
+                        tiempo = 0
+                    }).ToList();
 
-                    var fila = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(estatus)).Select(t => new
+                    var tickets = from items in fila
+                                  select new
+                                  {
+                                      ticketId = items.ticketId,
+                                      ticket = items.ticket,
+                                      candidatoId = items.candidatoId,
+                                      requisicionId = items.requisicionId,
+                                      movimientoId = items.movimientoId,
+                                      moduloId = items.moduloId,
+                                      fch_Creacion = items.fch_Estatus,
+                                      fch_cita = items.fch_cita,
+                                      tiempo = Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0) //(DateTime.Now - items.fch_Estatus).TotalMinutes > 60 ? Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes / 60, 0) : Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0)
+                                  };
+
+
+                    return Ok(tickets);
+                }
+                else if (modulo == 3)
+                {//si estan en examene sacar todos
+
+                    var fila = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(3)).Select(t => new
                     {
                         ticketId = t.Id,
                         ticket = t.Numero,
@@ -736,7 +770,7 @@ namespace SAGA.API.Controllers
                 {
                     var requis = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId)).Select(r => r.RequisicionId).ToList();
 
-                    var fila = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(estatus) && requis.Contains(x.Requisicion.Id)).Select(t => new
+                    var fila = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && requis.Contains(x.Requisicion.Id)).Select(t => new
                     {
                         ticketId = t.Id,
                         ticket = t.Numero,
