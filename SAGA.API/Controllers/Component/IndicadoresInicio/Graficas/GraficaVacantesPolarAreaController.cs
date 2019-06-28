@@ -704,7 +704,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Captado")
                     {
-                        var datos = db.ProcesoCandidatos.ToList();
+                        var datos = db.ProcesoCandidatos.Where(e=> uids.Distinct().Contains(e.ReclutadorId)).ToList();
                         var capta = datos.Select(e => e.RequisicionId).Distinct().ToList();
 
                         var requisicion = db.Requisiciones
@@ -734,7 +734,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Contratado")
                     {
-                        var datos = db.ProcesoCandidatos.Where(e => e.EstatusId == 24).ToList();
+                        var datos = db.ProcesoCandidatos.Where(e => uids.Distinct().Contains(e.ReclutadorId) && e.EstatusId == 24).ToList();
                         var capta = datos.Select(e => e.RequisicionId).Distinct().ToList();
 
                         var requisicion = db.Requisiciones

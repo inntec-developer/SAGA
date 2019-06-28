@@ -296,7 +296,25 @@ namespace SAGA.API.Controllers.Reportes
         [Route("captadocontra")]
         public IHttpActionResult captadoContra(string usuario)
         {
-            var datos = db.ProcesoCandidatos.ToList();
+            Guid id = new Guid(usuario);
+
+            var ListaUsuario = new List<Guid>();
+            ListaUsuario.Add(id);
+            var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
+            if (arbol.Count > 0)
+            {
+                ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
+                foreach (var item in arbol)
+                {
+                    var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
+                    if (hijos.Count > 0)
+                    {
+                        ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                    }
+                }
+            }
+
+            var datos = db.ProcesoCandidatos.Where(e=> ListaUsuario.Contains(e.ReclutadorId)).ToList();
             var capta = datos.Select(e => e.CandidatoId).Distinct().ToList();
             var contra = datos.Where(e => e.EstatusId == 24).ToList();
             var obj = new
