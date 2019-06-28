@@ -391,7 +391,14 @@ namespace SAGA.API.Controllers
                 }
                 else
                 {
+                    
                     Guid Requi = new Guid(ListadoJson.RequiId);
+                    var listas = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
+                    if (listas.Count > 1)
+                    {
+                        var obj2 = new { Mensaje = mensaje, Bandera = bandera };
+                        return Ok(obj2);
+                    }
                     var CfgRequi = db.CfgRequi.ToList();
                     var datos2 = db.Estructuras.Where(a => a.Activo == true
                                                       && a.TipoEstructuraId == 8
