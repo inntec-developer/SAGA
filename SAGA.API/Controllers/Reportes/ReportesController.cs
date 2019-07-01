@@ -175,7 +175,7 @@ namespace SAGA.API.Controllers.Reportes
 
             if (trcl != "0" && trcl != null)
             {
-                var obj = sol.Split(',');
+                var obj = trcl.Split(',');
                 List<int> listaAreglo = new List<int>();
                 for (int i = 0; i < obj.Count() - 1; i++)
                 {
