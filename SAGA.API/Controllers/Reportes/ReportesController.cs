@@ -54,7 +54,7 @@ namespace SAGA.API.Controllers.Reportes
             var requi = datos2.Select(e => e.Id).ToList();
       //      var aprobador = datos2.Select(e => new { e.AprobadorId, e.Id }).ToList();
             var nombreReclu = db.AsignacionRequis.Where(a => requi.Contains(a.RequisicionId)).Select(a => new { a.RequisicionId, a.GrpUsrId, Nombre = db.Usuarios.Where(e=>e.Id == a.GrpUsrId).FirstOrDefault().Nombre.ToUpper() +" "+ db.Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + db.Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoMaterno.ToUpper() }).ToList();
-           // var nombreReclu = db.Usuarios.Where(x => lago.Contains(x.Id)).Select(x => new { x.Nombre,x.Id }).ToList();
+            // var nombreReclu = db.Usuarios.Where(x => lago.Contains(x.Id)).Select(x => new { x.Nombre,x.Id }).ToList();
             //var cadenas = nombreReclu.Where(b => b.Id == new Guid("2217b0f2-5a6e-e811-80e1-9e274155325e")).Select(b => b.Nombre).ToList();
             //String.Join(String.Empty, cadenas.ToArray());
 
@@ -71,7 +71,7 @@ namespace SAGA.API.Controllers.Reportes
                 empresa = e.Cliente.Nombrecomercial.ToUpper(),
                 e.ClienteId,
                 e.AprobadorId,
-                cordinador2 = db.Usuarios.Where(x=>x.Usuario == e.Aprobador).ToList().Count > 0? db.Usuarios.Where(x => e.Aprobador.Contains(x.Usuario)).Select(x=>x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno).FirstOrDefault().ToUpper() : "",
+                cordinador2 = db.Usuarios.Where(x => x.Usuario == e.Aprobador).ToList().Count > 0 ? db.Usuarios.Where(x => e.Aprobador.Contains(x.Usuario)).Select(x => x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno).FirstOrDefault().ToUpper() : "",
                 nombreApellido = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper() + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoMaterno.ToUpper(),
                 propietario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper(),
                 Usuario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Usuario,
@@ -80,6 +80,7 @@ namespace SAGA.API.Controllers.Reportes
                 numero = e.horariosRequi.Sum(a => a.numeroVacantes),
                 e.EstatusId,
                 e.TipoReclutamientoId,
+        //        asignacionid = nombreReclu.Where(b => b.RequisicionId == e.Id && b.GrpUsrId != e.AprobadorId).Select(a=> new { a.GrpUsrId}).FirstOrDefault().GrpUsrId,
                 tipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
                 clasesReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
                 e.ClaseReclutamientoId,
@@ -169,7 +170,10 @@ namespace SAGA.API.Controllers.Reportes
                 var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
                 if (obb.Count == 0)
                 {
-                    datos = datos.Where(e => listaAreglo.Contains(e.AprobadorId)).ToList();
+                    var requiID = datos.Select(x => x.Id).ToList();
+                    var asigna = db.AsignacionRequis.Where(e => requiID.Contains(e.RequisicionId)).ToList();
+                    var requien = asigna.Where(e => listaAreglo.Contains(e.GrpUsrId)).Select(x=>x.RequisicionId).ToList();
+                    datos = datos.Where(e => listaAreglo.Contains(e.AprobadorId) || requien.Contains(e.Id)).ToList();
                 }
             }
 
@@ -288,7 +292,7 @@ namespace SAGA.API.Controllers.Reportes
 
             if (cor == "1")
             {
-                Status = new[] { 4 };
+                Status = new[] { 4,5 };
             }
             var datos = db.Usuarios.Where(e => e.Activo == true && Status.Contains(e.TipoUsuarioId)).Select(e => new
             {
