@@ -594,6 +594,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getvacantesdtl")]
+        [Authorize]
         public IHttpActionResult GetVacantesdtl(Guid IdVacante)
         {
             var vacantesdtl = db.Requisiciones

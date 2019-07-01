@@ -22,6 +22,7 @@ namespace SAGA.API.Controllers.Reclutamiento.SeguimientoVacante
 
         [HttpGet]
         [Route("getvacantesdtl")]
+        [Authorize]
         public IHttpActionResult GetVacantesdtl(Guid VacanteId)
         {
             DetailDto Details = new DetailDto();

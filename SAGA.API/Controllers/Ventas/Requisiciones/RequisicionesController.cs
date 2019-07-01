@@ -481,6 +481,7 @@ namespace SAGA.API.Controllers
         public IHttpActionResult GetRequisicionesHistorial(Guid propietario)
         {
             List<Guid> uids = new List<Guid>();
+            bool isAsignado = false;
             int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37,47,48 };
             try
             {
@@ -519,6 +520,7 @@ namespace SAGA.API.Controllers
                 }
                 else if(tipo == 10) //ejecutivo de cuenta
                 {
+                  
                    var requisicion = db.Requisiciones
                   .Where(e => e.PropietarioId.Equals(propietario) && estatusId.Contains(e.EstatusId))
                   .Select(e => new
@@ -584,8 +586,13 @@ namespace SAGA.API.Controllers
 
                     var requisId = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(propietario) && !x.GrpUsrId.Equals(x.Requisicion.AprobadorId)).Select(a => a.RequisicionId).ToList();
 
+                    if (requisId.Count > 0)
+                    {
+                        isAsignado = true;
+                    }
+
                     var requisicion = db.Requisiciones
-                   .Where(e => requisId.Distinct().Contains(e.Id) && estatusId.Contains(e.EstatusId) || uids.Contains(e.AprobadorId) || uids.Contains(e.PropietarioId))
+                   .Where(e => requisId.Distinct().Contains(e.Id) && estatusId.Contains(e.EstatusId) && (uids.Contains(e.AprobadorId) || uids.Contains(e.PropietarioId) || isAsignado))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -626,6 +633,7 @@ namespace SAGA.API.Controllers
         }
         [HttpGet]
         [Route("getRequisicionesTipo")]
+        [Authorize]
         public IHttpActionResult GetRequisicionesPuro(Guid propietario, int tipo)
         {
             try
@@ -1325,6 +1333,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getInformeVacantes")]
+        [Authorize]
         public IHttpActionResult GetInformeVacantes(Guid reclutadorId)
         {
             try
@@ -1686,6 +1695,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getHorariosRequiConteo")]
+        [Authorize]
         public IHttpActionResult GetHorariosRequiConteo(Guid requisicionId)
         {
             try
@@ -1845,10 +1855,6 @@ namespace SAGA.API.Controllers
                 if (requisicion.Publicado)
                     requisicion.Publicado = false;
 
-                db.AsignacionRequis.RemoveRange(asignados);
-
-
-
                 Int64 Folio = requisicion.Folio;
                 string VBra = requisicion.VBtra;
                 Guid trazabilidadId = db.TrazabilidadesMes.Where(x => x.Folio.Equals(Folio)).Select(x => x.Id).FirstOrDefault();
@@ -1881,13 +1887,10 @@ namespace SAGA.API.Controllers
                 requisicion.EstatusId = 8;
                 requisicion.Aprobada = false;
                 requisicion.Aprobador = string.Empty;
-                requisicion.AprobadorId = new Guid("00000000-0000-0000-0000-000000000000");
                 requisicion.UsuarioMod = requi.UsuarioMod;
                 requisicion.fch_Modificacion = DateTime.Now;
                 if (requisicion.Publicado)
                     requisicion.Publicado = false;
-                if(asignados.Count > 0)
-                    db.AsignacionRequis.RemoveRange(asignados);
 
 
 
