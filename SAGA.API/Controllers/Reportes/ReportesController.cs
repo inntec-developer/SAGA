@@ -152,7 +152,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     listaAreglo.Add(Convert.ToInt32(obj[i]));
                 }
-                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                 if (obb.Count == 0)
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
@@ -185,7 +185,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     listaAreglo.Add(Convert.ToInt32(obj[i]));
                 }
-                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                 if (obb.Count == 0)
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.TipoReclutamientoId)).ToList();
