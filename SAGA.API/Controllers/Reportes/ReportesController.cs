@@ -152,7 +152,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     listaAreglo.Add(Convert.ToInt32(obj[i]));
                 }
-                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                 if (obb.Count == 0)
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
@@ -185,7 +185,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     listaAreglo.Add(Convert.ToInt32(obj[i]));
                 }
-                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                 if (obb.Count == 0)
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.TipoReclutamientoId)).ToList();
@@ -290,10 +290,63 @@ namespace SAGA.API.Controllers.Reportes
             
             int[] Status = new[] { 1, 2, 3, 5, 6 };
 
+            //Cordinadores
             if (cor == "1")
             {
-                Status = new[] { 4,5 };
+                var reclutamiento = new Guid("67B220CE-F9D2-E811-80EB-9E274155325E"); 
+                Guid[] depa = new[] { reclutamiento };
+                var lider = db.Usuarios.Where(e => e.TipoUsuarioId == 5 && depa.Contains(e.DepartamentoId)).Select(e => new
+                {
+                    Nombre = e.Nombre + " " + e.ApellidoPaterno,
+                    e.Id,
+                    e.Usuario
+                }).OrderBy(x => x.Nombre).ToList();
+
+                var datos2 = db.Usuarios.Where(e => e.Activo == true && e.TipoUsuarioId == 4).Select(e => new
+                {
+                    Nombre = e.Nombre + " " + e.ApellidoPaterno,
+                    e.Id,
+                    e.Usuario
+                }).OrderBy(x => x.Nombre).ToList();
+
+                foreach (var item in lider)
+                {
+                    datos2.Insert(0, new { Nombre = item.Nombre, Id = item.Id, Usuario = item.Usuario });
+                }
+                datos2 = datos2.OrderBy(e => e.Nombre).ToList();
+                datos2.Insert(0, new { Nombre = "Todos", Id = new Guid("00000000-0000-0000-0000-000000000000"), Usuario = "0" });
+                return Ok(datos2);
             }
+            //Solicitantes
+            if (cor == "2")
+            {
+                var ventas = new Guid("924B7E74-8857-E811-80E1-9E274155325E");
+                var adPersonal = new Guid("9F4B7E74-8857-E811-80E1-9E274155325E");
+                Guid[] depa = new[] { ventas, adPersonal };
+                var lider = db.Usuarios.Where(e => e.TipoUsuarioId == 5 && depa.Contains(e.DepartamentoId)).Select(e => new
+                {
+                    Nombre = e.Nombre + " " + e.ApellidoPaterno,
+                    e.Id,
+                    e.Usuario
+                }).OrderBy(x => x.Nombre).ToList();
+
+                var datos2 = db.Usuarios.Where(e => e.Activo == true && e.TipoUsuarioId == 10).Select(e => new
+                {
+                    Nombre = e.Nombre + " " + e.ApellidoPaterno,
+                    e.Id,
+                    e.Usuario
+                }).OrderBy(x => x.Nombre).ToList();
+
+                foreach (var item in lider)
+                {
+                    datos2.Insert(0, new { Nombre = item.Nombre, Id = item.Id, Usuario = item.Usuario });
+                }
+                datos2 = datos2.OrderBy(e => e.Nombre).ToList();
+                datos2.Insert(0, new { Nombre = "Todos", Id = new Guid("00000000-0000-0000-0000-000000000000"), Usuario = "0" });
+                return Ok(datos2);
+            }
+
+
             var datos = db.Usuarios.Where(e => e.Activo == true && Status.Contains(e.TipoUsuarioId)).Select(e => new
             {
                 Nombre = e.Nombre + " "+ e.ApellidoPaterno,

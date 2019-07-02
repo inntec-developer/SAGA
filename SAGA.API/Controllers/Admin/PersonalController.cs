@@ -398,7 +398,7 @@ namespace SAGA.API.Controllers
                           *  Ejecutivos 
                           *  Liedere de Ejecutivos
                          */
-                        var ventas = db.Usuarios.Where(x => x.Activo && (x.TipoUsuarioId.Equals(10) || x.TipoUsuarioId.Equals(5)) && x.Departamento.AreaId.Equals(7)).Select(L => new
+                        var ventas = db.Usuarios.Where(x => x.Activo && (x.TipoUsuarioId.Equals(10) || x.TipoUsuarioId.Equals(5)) && (x.Departamento.AreaId.Equals(7) || x.Departamento.AreaId.Equals(11))).Select(L => new
                         {
                             id = L.Id,
                             nombre = L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno
@@ -417,6 +417,20 @@ namespace SAGA.API.Controllers
                         }).OrderBy(o => o.nombre).ToList();
 
                         return Ok(reclutamiento);
+
+                    case "Ejv-Recl":
+                        // Reclutamiento - Vacantes
+                        /*
+                         * Lideres de Reclutamiento.     
+                         * ejecutivos de reclutamiento            
+                         */
+                        var ejvRecl = db.Usuarios.Where(x => x.Activo && (x.TipoUsuarioId.Equals(11)) && x.Departamento.AreaId.Equals(16)).Select(L => new
+                        {
+                            id = L.Id,
+                            nombre = L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno
+                        }).OrderBy(o => o.nombre).ToList();
+
+                        return Ok(ejvRecl);
                     default:
                             return Ok(HttpStatusCode.NotFound);
                 }
