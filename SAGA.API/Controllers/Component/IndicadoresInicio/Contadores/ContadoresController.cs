@@ -71,7 +71,9 @@ namespace SAGA.API.Controllers
                 if (user.TipoUsuarioId == 8 || user.TipoUsuarioId == 3 || user.TipoUsuarioId == 12 || user.TipoUsuarioId == 13 || user.TipoUsuarioId == 14)
                 {
                     Folios = db.Requisiciones
-                        .Where( r => estatus.Contains(r.EstatusId) && !r.Confidencial)
+                        .Where(e => e.Activo
+                            && !e.Confidencial
+                            && estatus.Contains(e.EstatusId))
                         .Count();
                 }
                 else
@@ -86,15 +88,21 @@ namespace SAGA.API.Controllers
 
                     uids.Add(user.Id);
 
-                    var requis = db.AsignacionRequis
-                        .OrderByDescending(e => e.Id)
-                        .Where(a => uids.Distinct().Contains(a.GrpUsrId))
-                        .Select(a => a.RequisicionId)
-                        .ToList();
+                    var asignadas = db.AsignacionRequis
+                        .Where(x => uids.Contains(x.GrpUsrId)
+                        && estatus.Contains(x.Requisicion.EstatusId))
+                        .Select(a => a.RequisicionId).ToList();
+
+
+                    var requis = db.Requisiciones
+                   .Where(e => (uids.Contains(e.AprobadorId) || uids.Contains(e.PropietarioId))
+                   && estatus.Contains(e.EstatusId))
+                   .Select(a => a.Id).ToList();
+
+                    var AllRequis = requis.Union(asignadas);
 
                     Folios = db.Requisiciones
-                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(user.Id))
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(e => AllRequis.Distinct().Contains(e.Id))
                         .Count(); 
                 }
 
@@ -118,7 +126,9 @@ namespace SAGA.API.Controllers
                 if (user.TipoUsuarioId == 8 || user.TipoUsuarioId == 3 || user.TipoUsuarioId == 12 || user.TipoUsuarioId == 13 || user.TipoUsuarioId == 14)
                 {
                     var vacantes = db.Requisiciones
-                        .Where(r => estatus.Contains(r.EstatusId) && !r.Confidencial)
+                        .Where(e => e.Activo
+                            && !e.Confidencial
+                            && estatus.Contains(e.EstatusId))
                         .Select(r => new
                         {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
@@ -140,15 +150,23 @@ namespace SAGA.API.Controllers
 
                     uids.Add(user.Id);
 
-                    var requis = db.AsignacionRequis
-                        .OrderByDescending(e => e.Id)
-                        .Where(a => uids.Distinct().Contains(a.GrpUsrId))
-                        .Select(a => a.RequisicionId)
-                        .ToList();
+                    var asignadas = db.AsignacionRequis
+                            .OrderByDescending(e => e.Id)
+                            .Where(a => uids.Distinct().Contains(a.GrpUsrId)
+                                && estatus.Contains(a.Requisicion.EstatusId))
+                            .Select(a => a.RequisicionId)
+                            .Distinct()
+                            .ToList();
+
+                    var requis = db.Requisiciones
+                    .Where(e => (uids.Contains(e.AprobadorId) || uids.Contains(e.PropietarioId))
+                        && estatus.Contains(e.EstatusId))
+                    .Select(a => a.Id).ToList();
+
+                    var AllRequis = requis.Union(asignadas);
 
                     var vacantes = db.Requisiciones
-                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(user.Id))
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(e => AllRequis.Distinct().Contains(e.Id))
                          .Select(r => new
                          {
                              Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
@@ -201,7 +219,9 @@ namespace SAGA.API.Controllers
                 if (user.TipoUsuarioId == 8 || user.TipoUsuarioId == 3 || user.TipoUsuarioId == 12 || user.TipoUsuarioId == 13 || user.TipoUsuarioId == 14)
                 {
                     var vacantes = db.Requisiciones
-                        .Where(r => estatus.Contains(r.EstatusId) && !r.Confidencial)
+                        .Where(e => e.Activo
+                            && !e.Confidencial
+                            && estatus.Contains(e.EstatusId))
                         .Select(r => new
                         {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
@@ -226,15 +246,23 @@ namespace SAGA.API.Controllers
 
                     uids.Add(user.Id);
 
-                    var requis = db.AsignacionRequis
-                        .OrderByDescending(e => e.Id)
-                        .Where(a => uids.Distinct().Contains(a.GrpUsrId))
-                        .Select(a => a.RequisicionId)
-                        .ToList();
+                    var asignadas = db.AsignacionRequis
+                            .OrderByDescending(e => e.Id)
+                            .Where(a => uids.Distinct().Contains(a.GrpUsrId)
+                                && estatus.Contains(a.Requisicion.EstatusId))
+                            .Select(a => a.RequisicionId)
+                            .Distinct()
+                            .ToList();
+
+                    var requis = db.Requisiciones
+                    .Where(e => (uids.Contains(e.AprobadorId) || uids.Contains(e.PropietarioId))
+                        && estatus.Contains(e.EstatusId))
+                    .Select(a => a.Id).ToList();
+
+                    var AllRequis = requis.Union(asignadas);
 
                     var vacantes = db.Requisiciones
-                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(user.Id))
-                        .Where(r => estatus.Contains(r.EstatusId))
+                        .Where(e => AllRequis.Distinct().Contains(e.Id))
                          .Select(r => new
                          {
                              Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
