@@ -39,9 +39,9 @@ namespace SAGA.API.Controllers.Reportes
                 }
             }
 
-            DateTime fecha = DateTime.Now.AddMonths(-3);
+         //   DateTime fecha = DateTime.Now.AddMonths(-3);
             var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
-            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.PropietarioId)).ToList();
+            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.PropietarioId) && e.Activo == true).ToList();
             var cubierta = datos.Where(e => e.EstatusId == 34).ToList();
             var cubiertaParcialmente = datos.Where(e => e.EstatusId == 35).ToList();
             var cubiertaMedios = datos.Where(e => e.EstatusId == 36).ToList();
