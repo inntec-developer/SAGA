@@ -835,9 +835,10 @@ namespace SAGA.API.Controllers.Component.Graficas
                     else if (estado == "Masivo")
                     {
                         int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
-                        var requisicion = db.Requisiciones
-                        .Where(e => e.Activo == true && e.ClaseReclutamientoId == 3)
-                        .Where(r => requis.Contains(r.Id) && EstatusList.Contains(r.EstatusId))
+                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
+                        var requisicion = datos
+                        .Where(e => e.ClaseReclutamientoId == 3 && EstatusList.Contains(e.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -863,9 +864,10 @@ namespace SAGA.API.Controllers.Component.Graficas
                     else if (estado == "Operativo")
                     {
                         int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
-                        var requisicion = db.Requisiciones
-                        .Where(e => e.Activo == true && e.ClaseReclutamientoId == 2)
-                         .Where(r => requis.Contains(r.Id) && EstatusList.Contains(r.EstatusId))
+                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
+                        var requisicion = datos
+                        .Where(e => e.ClaseReclutamientoId == 2 && EstatusList.Contains(e.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -891,9 +893,10 @@ namespace SAGA.API.Controllers.Component.Graficas
                     else if (estado == "Especial")
                     {
                         int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
-                        var requisicion = db.Requisiciones
-                        .Where(e => e.Activo == true && e.ClaseReclutamientoId == 1)
-                         .Where(r => requis.Contains(r.Id) && EstatusList.Contains(r.EstatusId))
+                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
+                        var requisicion = datos
+                        .Where(e => e.ClaseReclutamientoId == 1 && EstatusList.Contains(e.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
