@@ -442,8 +442,8 @@ namespace SAGA.API.Controllers
                     folio = p.Folio,
                     vbtra = p.VBtra
                 }).FirstOrDefault();
-                //var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
-                //var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
+                var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
+                var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
                 var emailAnt = db.Emails.Where(x => x.EntidadId.Equals(antId)).Select(e => e.email).FirstOrDefault();
                 var emailAct= db.Emails.Where(x => x.EntidadId.Equals(actId)).Select(e => e.email).FirstOrDefault();
 
@@ -469,7 +469,9 @@ namespace SAGA.API.Controllers
 
                     //m.To.Add("idelatorre@damsa.com.mx");
                     m.To.Add(emailAnt);
-                    m.Bcc.Add(emailAct);
+                    //m.Bcc.Add(emailAct); //no esta llegando
+                    m.Bcc.Add(emailCoord);
+                    m.Bcc.Add(emailSolicitante);
                     foreach (var e in asignados)
                     {
                         m.Bcc.Add(e.emails.ToString());
