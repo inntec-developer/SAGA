@@ -145,7 +145,7 @@ namespace SAGA.API.Controllers
                     trans.Commit();
 
                     var descripcion = "Se realizó una transferencia del usuario " + db.Usuarios.Where(x => x.Id.Equals(reclutadorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault() + " a " + db.Usuarios.Where(x => x.Id.Equals(reclutadorId2)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault() + " se transfirieron " + datos.Count() + " candidatos en proceso";
-                    this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(), descripcion);
+                    this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(), descripcion, reclutadorId, reclutadorId2);
 
                 }
                 catch (Exception ex)
@@ -252,7 +252,7 @@ namespace SAGA.API.Controllers
                     }
                     trans.Commit();
 
-                    this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno ).FirstOrDefault(), descripcion);
+                    this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno ).FirstOrDefault(), descripcion, usuarioAux, coorId);
 
                 }
                 catch(Exception ex)
@@ -429,7 +429,7 @@ namespace SAGA.API.Controllers
             }
         }
 
-        public IHttpActionResult EnviarEmailTransfer(Guid requi, string usuario, string desc)
+        public IHttpActionResult EnviarEmailTransfer(Guid requi, string usuario, string desc, Guid antId, Guid actId)
         {
 
             FolioIncidencia obj = new FolioIncidencia();
@@ -442,9 +442,12 @@ namespace SAGA.API.Controllers
                     folio = p.Folio,
                     vbtra = p.VBtra
                 }).FirstOrDefault();
-                var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
-                var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
-                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi)).Select(A => new
+                //var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
+                //var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
+                var emailAnt = db.Emails.Where(x => x.EntidadId.Equals(antId)).Select(e => e.email).FirstOrDefault();
+                var emailAct= db.Emails.Where(x => x.EntidadId.Equals(actId)).Select(e => e.email).FirstOrDefault();
+
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && x.GrpUsrId != antId && x.GrpUsrId != actId).Select(A => new
                 {
                     emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
                 }).ToList();
@@ -457,22 +460,22 @@ namespace SAGA.API.Controllers
 
 
                 string body = "";
-                if (emailSolicitante != "")
+                if (emailAnt != "")
                 {
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
                     m.Subject = "Transferencia de Requisición";
 
-                    m.To.Add("idelatorre@damsa.com.mx");
-                    //m.To.Add(emailCoord);
-                    //m.Bcc.Add(emailSolicitante);
-                    //foreach (var e in asignados)
-                    //{
-                    //    m.Bcc.Add(e.emails.ToString());
-                    //}
+                    //m.To.Add("idelatorre@damsa.com.mx");
+                    m.To.Add(emailAnt);
+                    m.Bcc.Add(emailAct);
+                    foreach (var e in asignados)
+                    {
+                        m.Bcc.Add(e.emails.ToString());
+                    }
 
-                    m.Bcc.Add("bmorales@damsa.com.mx");
+                    m.Bcc.Add("idelatorre@damsa.com.mx");
 
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
