@@ -62,12 +62,12 @@ namespace SAGA.API.Controllers.Ventas.Requisiciones
                     fch_Cumplimiento = e.Requisicion.fch_Cumplimiento,
                     Estatus = e.Requisicion.Estatus.Descripcion,
                     EstatusId = e.Requisicion.EstatusId,
-                    Prioridad = e.Requisicion.Prioridad.Descripcion,
-                    PrioridadId = e.Requisicion.PrioridadId,
+                    //Prioridad = e.Requisicion.Prioridad.Descripcion,
+                    //PrioridadId = e.Requisicion.PrioridadId,
                     EstatusOrden = e.Requisicion.Estatus.Orden,
                     SueldoMaximo = e.Requisicion.SueldoMaximo,
                     SueldoMinimo = e.Requisicion.SueldoMinimo,
-                    TipoReclutamiento = e.Requisicion.TipoReclutamiento.tipoReclutamiento,
+                    //TipoReclutamiento = e.Requisicion.TipoReclutamiento.tipoReclutamiento,
                     razon = e.Requisicion.Cliente.RazonSocial,
                     Cliente = e.Requisicion.Cliente.Nombrecomercial,
                     Vacantes = e.Requisicion.horariosRequi.Count() > 0 ? e.Requisicion.horariosRequi.Sum(h => h.numeroVacantes) : 0,
@@ -77,10 +77,10 @@ namespace SAGA.API.Controllers.Ventas.Requisiciones
                     PerContratado = e.PerContratado,
                     MontoContratado = e.MontoContratado,
                     Propietario = db.Usuarios.Where(x => x.Id.Equals(e.Requisicion.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
-                    reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.Requisicion.AprobadorId)).Select(a => new
-                    {
-                        reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
-                    }).Distinct().ToList(),
+                    //reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.Requisicion.AprobadorId)).Select(a => new
+                    //{
+                    //    reclutador = db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
+                    //}).Distinct().ToList(),
                     //ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
                 }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.fch_Modificacion).ToList();
 
