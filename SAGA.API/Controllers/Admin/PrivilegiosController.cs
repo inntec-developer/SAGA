@@ -175,7 +175,7 @@ namespace SAGA.API.Controllers
 
             roles.Distinct();
 
-            var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId) && x.Rol.Activo && x.Estructura.Activo)
+            var privilegiosRoles = db.Privilegios.Where(x => roles.Contains(x.RolId) && x.Rol.Activo && x.Estructura.Activo && x.Estructura.TipoEstructuraId <= 4)
                    .Select(P => new
                    {
                        RolId = P.RolId,

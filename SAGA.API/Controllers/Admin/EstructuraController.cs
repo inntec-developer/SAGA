@@ -28,13 +28,15 @@ namespace SAGA.API.Controllers.Admin
         {
             List<PrivilegiosDtos> Tree = new List<PrivilegiosDtos>();
 
-            Tree = db.Estructuras.Where(e => e.Id > 1 && e.Activo == true).Select(ee => new PrivilegiosDtos()
+            Tree = db.Estructuras.Where(e => e.Id > 1 && e.Activo == true && e.TipoEstructuraId <= 4).Select(ee => new PrivilegiosDtos()
             {
                 Id = ee.Id,
                 IdPadre = ee.IdPadre,
                 Nombre = ee.Nombre,
                 TipoEstructuraId = ee.TipoEstructuraId,
-                Orden = ee.Orden
+                Orden = ee.Orden,
+                Accion = ee.Accion,
+                Descripcion = ee.Descripcion
             }).OrderBy(o => o.Orden).ToList();
 
 
@@ -45,7 +47,9 @@ namespace SAGA.API.Controllers.Admin
                 Nombre = ee.Nombre,
                 Children = GetChild(Tree, ee.Id),
                 TipoEstructuraId = ee.TipoEstructuraId,
-                Orden = ee.Orden
+                Orden = ee.Orden,
+                Accion = ee.Accion,
+                Descripcion = ee.Descripcion
             }).OrderBy(o=>o.Orden).ToList();
 
             return Ok(nodes);
@@ -63,7 +67,9 @@ namespace SAGA.API.Controllers.Admin
                         IdPadre = c.IdPadre,
                         Children = GetChild(tree, c.Id),
                         TipoEstructuraId = c.TipoEstructuraId,
-                        Orden = c.Orden
+                        Orden = c.Orden,
+                        Accion = c.Accion,
+                        Descripcion = c.Descripcion
                     }).OrderBy(o=>o.Orden)
                     .ToList();
         }

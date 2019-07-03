@@ -593,11 +593,11 @@ namespace SAGA.API.Controllers.Component.Graficas
                         }).OrderBy(x => x.fch_Cumplimiento).ToList();
                         //OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
                         return Ok(requisicion);
-                    }else if (estado == "Cubiertas parcialmente")
+                    }else if (estado == "Parcialmente")
                     {
-                        var requisicion = db.Requisiciones
-                        .Where(e => e.Activo.Equals(true))
-                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
+                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
+                        var requisicion = datos
                         .Where(r => r.EstatusId == 35)
                         .Select(e => new
                         {
@@ -626,9 +626,9 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Cubiertas")
                     {
-                        var requisicion = db.Requisiciones
-                        .Where(e => e.Activo.Equals(true))
-                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
+                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
+                        var requisicion = datos
                         .Where(r => r.EstatusId == 34)
                         .Select(e => new
                         {
@@ -657,9 +657,9 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Cubiertas por medios")
                     {
-                        var requisicion = db.Requisiciones
-                        .Where(e => e.Activo.Equals(true))
-                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
+                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
+                        var requisicion = datos
                         .Where(r => r.EstatusId == 36)
                         .Select(e => new
                         {
@@ -686,11 +686,11 @@ namespace SAGA.API.Controllers.Component.Graficas
 
 
                     }
-                    else if (estado == "Cubiertas por el cliente")
+                    else if (estado == "Por el Cliente")
                     {
-                        var requisicion = db.Requisiciones
-                        .Where(e => e.Activo.Equals(true))
-                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
+                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
+                        var requisicion = datos
                         .Where(r => r.EstatusId == 37)
                         .Select(e => new
                         {
@@ -717,9 +717,9 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Promocion Interna")
                     {
-                        var requisicion = db.Requisiciones
-                        .Where(e => e.Activo.Equals(true))
-                        .Where(r => requis.Contains(r.Id) || r.PropietarioId.Equals(UsuarioId))
+                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
+                        var requisicion = datos
                         .Where(r => r.EstatusId == 47)
                         .Select(e => new
                         {
