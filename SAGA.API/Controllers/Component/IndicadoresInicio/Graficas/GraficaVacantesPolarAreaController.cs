@@ -105,7 +105,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     var AllRequis = requis.Union(asignadas);
 
                     var VigentesR = db.Requisiciones
-                        .Where(r => r.fch_Cumplimiento > DateActivas)
+                        .Where(r => r.fch_Cumplimiento >= DateActivas)
                         .Where(e => AllRequis.Distinct().Contains(e.Id))
                         .Count();
 
