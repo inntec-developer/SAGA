@@ -167,7 +167,7 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult GetEstructuraRoles(int rol)
         {
-            var privilegiosRoles = db.Privilegios.Where(x => x.RolId.Equals(rol) & x.Rol.Activo.Equals(true))
+            var privilegiosRoles = db.Privilegios.Where(x => x.RolId.Equals(rol) & x.Rol.Activo.Equals(true) & x.Estructura.TipoEstructuraId <= 4)
             .Select(P => new PrivilegiosDtos()
             {
                 RolId = P.RolId,

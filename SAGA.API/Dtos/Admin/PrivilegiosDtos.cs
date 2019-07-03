@@ -25,5 +25,6 @@ namespace SAGA.API.Dtos
         public string Icono { get; set; }
         public int Orden { get; set; }
         public ICollection<PrivilegiosDtos> Children { get; set; }
+        public string Descripcion { get; set; }
     }
 }
