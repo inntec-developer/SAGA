@@ -323,10 +323,18 @@ namespace SAGA.API.Controllers
                     {
                         x.Id,
                         x.Folio,
+                        x.VBtra,
                         x.EstatusId,
                         x.horariosRequi,
-                        x.TipoReclutamientoId
+                        x.TipoReclutamientoId,
                     }).FirstOrDefault();
+
+                var email = db.Emails
+                    .Where(e => e.EntidadId.Equals(cr.UsuarioId))
+                    .Select(e => e.email)
+                    .FirstOrDefault();
+
+                SendEmail.EmailNuevaRequisicion(infoRequi.Folio, infoRequi.VBtra, email);
 
                 return Ok(infoRequi);
             }

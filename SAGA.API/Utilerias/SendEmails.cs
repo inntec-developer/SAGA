@@ -30,6 +30,41 @@ namespace SAGA.API.Utilerias
             grpUserNotChange = new List<GrupoUsuarios>();
         }
 
+        public void EmailNuevaRequisicion(Int64 Folio, string VBtra, string email)
+        {
+            try
+            {
+                string body = "";
+                string from = "noreply@damsa.com.mx";
+                MailMessage m = new MailMessage();
+                m.Priority = MailPriority.High;
+                m.From = new MailAddress(from, "SAGA Inn");
+
+                m.To.Add(email);
+                m.Subject = string.Format("[NUEVA] Requisición {0}", Folio);
+                var inicio = "<html><head><style>td { border: solid #2471A3 1px; padding-left:5px; padding-right:5px;padding-top:1px; padding-bottom:1px;font-size:9pt; color: #3498DB;font-family:'calibri'; width: 25%; text-align: left; vertical-align: top; border-spacing: 0; border-collapse: collapse;} ";
+                inicio = inicio + "p { font - family:'calibri'; } th { font - family:'calibri'; width: 25 %; text - align: left; vertical - align: top; border: solid blue 1px; border - spacing: 0; border - collapse: collapse; background: #3498DB; color:white;}";
+                inicio = inicio + "h3 { font - family:'calibri'; } table { width: 100 %; }</style></head><body style =\"text-align:center; font-family:'calibri'; font-size:10pt;\"><br><br><p> Nueva Requisición:</p>";
+
+                body = inicio;
+                body = body + string.Format("<p>Se comunica de la manera más atenta que has generado una nueva requisición con el folio {0} – {1}, el cual es necesario que se le dé el seguimiento correspondiente. </p>", Folio, VBtra);
+                body = body + string.Format("<p>Sin más por el momento, me despido, saludos cordiales.</p>");
+                body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>");
+                body = body + string.Format("<p><small>Favor de no responder este mensaje, ya que solo es de carácter informativo y son enviados automáticamente por el sistema </small></p>");
+                m.Body = body;
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                smtp.EnableSsl = true;
+                smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                smtp.Send(m);
+
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+            }
+        }
+
         /*Recupera la lista de E-mail a la cual se le mandara correo electrónico, en caso de que encuentre una Célula/Grupo este recorrerá los 
          * Usuarios que estén dentro de las mismas, sin importar cuentas células encuentre, este seguirá repitiendo hasta buscar en la Ultima celular/grupo.
          */
