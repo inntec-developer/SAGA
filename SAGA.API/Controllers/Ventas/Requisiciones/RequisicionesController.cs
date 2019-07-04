@@ -1083,7 +1083,7 @@ namespace SAGA.API.Controllers
                 //Stopwatch stopwatch = new Stopwatch();
 
                 //stopwatch.Start();
-                List<int> estatus = new List<int> { 6, 7, 29, 30, 33, 38 };
+                List<int> estatus = new List<int> { 6, 7,8,9, 29, 30, 33, 38 };
                 var vacantes = db.Database.SqlQuery<ReporteGeneralDto>("dbo.ReporteGeneral");
 
 
@@ -1132,13 +1132,30 @@ namespace SAGA.API.Controllers
                     }
                 }
 
-                //stopwatch.Stop();
-                //TimeSpan ts = stopwatch.Elapsed;
+                DateTime FechaF = DateTime.Now;
+                DateTime FechaI = DateTime.Now;
+                try
+                {
+                    if (fini != null)
+                    {
+                        FechaI = Convert.ToDateTime(fini);
+                    }
+                    if (ffin != null)
+                    {
+                        FechaF = Convert.ToDateTime(ffin);
+                    }
+                }
+                catch (Exception error)
+                {
+                    string errorf = error.Message;
+                }
+                //  FechaF = FechaF.AddDays(1);
+                
                 var asig = vacantes.Select(e => e.Id).ToList();
                 var requi = db.Requisiciones.Where(e => asig.Contains(e.Id)).ToList();
-
-
-                var objeto = vacantes.OrderByDescending(o => o.fch_Creacion).Select(e => new
+                
+                var objeto = vacantes.Where(e => e.fch_Creacion > FechaI.AddDays(-1)
+                    && e.fch_Creacion < FechaF.AddDays(1)).OrderByDescending(o => o.fch_Creacion).Select(e => new
                 {
                     Id = e.Id,
                     Folio = e.Folio,
@@ -1146,7 +1163,6 @@ namespace SAGA.API.Controllers
                     reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a =>
                         db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                                        ).ToList(),
-
                     sucursal = e.RazonSocial.ToUpper(),
                     Cliente = e.Nombrecomercial.ToUpper(),
                     estado = e.estado.ToUpper(),
@@ -1175,7 +1191,6 @@ namespace SAGA.API.Controllers
                           c.fch_Creacion + " " + c.Comentario.ToUpper()).ToList(),
                     comentarios_solicitante = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.PropietarioId) && !x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
                     c.fch_Creacion + " " + c.Comentario.ToUpper()).ToList(),
-
                     comentarios_reclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && !x.ReclutadorId.Equals(e.AprobadorId) && !x.ReclutadorId.Equals(e.PropietarioId)).GroupBy(g => g.ReclutadorId).Select(c => new
                     {
 
@@ -1187,34 +1202,8 @@ namespace SAGA.API.Controllers
                         }).ToList()
                     }).ToList()
                 });
-
-
-
-                DateTime FechaF = DateTime.Now;
-                DateTime FechaI = DateTime.Now;
-                try
-                {
-                    if (fini != null)
-                    {
-                        FechaI = Convert.ToDateTime(fini);
-                    }
-                    if (ffin != null)
-                    {
-                        FechaF = Convert.ToDateTime(ffin);
-                    }
-                }
-                catch (Exception error)
-                {
-                    string errorf = error.Message;
-                }
-                //  FechaF = FechaF.AddDays(1);
-
-                var datos3 = objeto.ToList();
-
-
-                var datos = objeto.Where(e => e.fch_Solicitud > FechaI.AddDays(-1)
-                    && e.fch_Solicitud < FechaF.AddDays(1) ).ToList();
-
+                
+                
                 if (stus != "0" && stus != null)
                 {
                     var obj = stus.Split(',');
@@ -1226,13 +1215,13 @@ namespace SAGA.API.Controllers
                     var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                     if (obb.Count == 0)
                     {
-                        datos = datos.Where(e => listaAreglo.Contains(e.EstatusId)).ToList();
+                        objeto = objeto.Where(e => listaAreglo.Contains(e.EstatusId)).ToList();
                     }
                 }
 
                 if (clave != null)
                 {
-                    datos = datos.Where(e => e.VBtra.ToLower().Contains(clave.ToLower())).ToList();
+                    objeto = objeto.Where(e => e.VBtra.ToLower().Contains(clave.ToLower())).ToList();
                 }
 
                 if (sol != "0" && sol != null)
@@ -1246,7 +1235,7 @@ namespace SAGA.API.Controllers
                     var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
                     if (obb.Count == 0)
                     {
-                        datos = datos.Where(e => listaAreglo.Contains(e.Usuario)).ToList();
+                        objeto = objeto.Where(e => listaAreglo.Contains(e.Usuario)).ToList();
                     }
                 }
 
@@ -1261,7 +1250,7 @@ namespace SAGA.API.Controllers
                     var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
                     if (obb.Count == 0)
                     {
-                        datos = datos.Where(e => listaAreglo.Contains(e.ClienteId)).ToList();
+                        objeto = objeto.Where(e => listaAreglo.Contains(e.ClienteId)).ToList();
                     }
                 }
 
@@ -1276,7 +1265,7 @@ namespace SAGA.API.Controllers
                     var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
                     if (obb.Count == 0)
                     {
-                        datos = datos.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
+                        objeto = objeto.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
                     }
                 }
 
@@ -1291,7 +1280,7 @@ namespace SAGA.API.Controllers
                     var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
                     if (obb.Count == 0)
                     {
-                        datos = datos.Where(e => listaAreglo.Contains(e.TipoReclutamientoId)).ToList();
+                        objeto = objeto.Where(e => listaAreglo.Contains(e.TipoReclutamientoId)).ToList();
                     }
                 }
 
@@ -1307,7 +1296,7 @@ namespace SAGA.API.Controllers
                     if (obb.Count == 0)
                     {
                         var asigna = db.AsignacionRequis.Where(e => listaAreglo.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
-                        datos = datos.Where(e => asigna.Contains(e.Id)).ToList();
+                        objeto = objeto.Where(e => asigna.Contains(e.Id)).ToList();
                     }
                 }
 
@@ -1359,10 +1348,10 @@ namespace SAGA.API.Controllers
                             }
                         }
                         estado = estado.Distinct().ToList();
-                        datos = datos.Where(e => estado.Contains(e.EstadoId)).ToList();
+                        objeto = objeto.Where(e => estado.Contains(e.EstadoId)).ToList();
                     }
                 }
-                return Ok(datos);
+                return Ok(objeto);
             }
             catch (Exception ex)
             {

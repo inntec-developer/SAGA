@@ -51,12 +51,16 @@ namespace SAGA.API.Controllers.Reportes
              datos2 = db.Requisiciones.Where(e => e.fch_Modificacion >= FechaI
              && e.fch_Modificacion <= FechaF && e.Confidencial == false).OrderByDescending(e => e.fch_Modificacion).ToList();
             }
+
+            var Usuarios = db.Usuarios;
             var requi = datos2.Select(e => e.Id).ToList();
       //      var aprobador = datos2.Select(e => new { e.AprobadorId, e.Id }).ToList();
-            var nombreReclu = db.AsignacionRequis.Where(a => requi.Contains(a.RequisicionId)).Select(a => new { a.RequisicionId, a.GrpUsrId, Nombre = db.Usuarios.Where(e=>e.Id == a.GrpUsrId).FirstOrDefault().Nombre.ToUpper() +" "+ db.Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + db.Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoMaterno.ToUpper() }).ToList();
+            var nombreReclu = db.AsignacionRequis.Where(a => requi.Contains(a.RequisicionId)).Select(a => new { a.RequisicionId, a.GrpUsrId, Nombre = Usuarios.Where(e=>e.Id == a.GrpUsrId).FirstOrDefault().Nombre.ToUpper() +" "+ Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoMaterno.ToUpper() }).ToList();
             // var nombreReclu = db.Usuarios.Where(x => lago.Contains(x.Id)).Select(x => new { x.Nombre,x.Id }).ToList();
             //var cadenas = nombreReclu.Where(b => b.Id == new Guid("2217b0f2-5a6e-e811-80e1-9e274155325e")).Select(b => b.Nombre).ToList();
             //String.Join(String.Empty, cadenas.ToArray());
+
+            
 
             var datos = datos2.Select(e => new
             {
@@ -71,10 +75,10 @@ namespace SAGA.API.Controllers.Reportes
                 empresa = e.Cliente.Nombrecomercial.ToUpper(),
                 e.ClienteId,
                 e.AprobadorId,
-                cordinador2 = db.Usuarios.Where(x => x.Usuario == e.Aprobador).ToList().Count > 0 ? db.Usuarios.Where(x => e.Aprobador.Contains(x.Usuario)).Select(x => x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno).FirstOrDefault().ToUpper() : "",
-                nombreApellido = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper() + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoMaterno.ToUpper(),
-                propietario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper(),
-                Usuario = db.Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Usuario,
+                cordinador2 = Usuarios.Where(x => x.Usuario == e.Aprobador).ToList().Count > 0 ? Usuarios.Where(x => e.Aprobador.Contains(x.Usuario)).Select(x => x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno).FirstOrDefault().ToUpper() : "",
+                nombreApellido = Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper() + " " + Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoMaterno.ToUpper(),
+                propietario = Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper(),
+                Usuario = Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Usuario,
                 Estado = e.Direccion.Estado.estado.ToUpper(),
                 e.Direccion.EstadoId,
                 numero = e.horariosRequi.Sum(a => a.numeroVacantes),
