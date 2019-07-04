@@ -493,7 +493,7 @@ namespace SAGA.API.Controllers
 
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
-                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, realiz&oacute una transferencia vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", user.nombre, propietario.vbtra, propietario.folio);
+                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, realiz&oacute; una transferencia vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", user.nombre, propietario.vbtra, propietario.folio);
                     body = body + string.Format("<p>{0}</p>", desc);
                     body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                     body = body + "</body></html>";
