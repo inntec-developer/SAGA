@@ -145,7 +145,7 @@ namespace SAGA.API.Controllers
                     trans.Commit();
 
                     var descripcion = "Se realizó una transferencia del usuario " + db.Usuarios.Where(x => x.Id.Equals(reclutadorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault() + " a " + db.Usuarios.Where(x => x.Id.Equals(reclutadorId2)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault() + " se transfirieron " + datos.Count() + " candidatos en proceso";
-                    this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(), descripcion, reclutadorId, reclutadorId2);
+                    this.EnviarEmailTransfer(requi, usuario, descripcion, reclutadorId, reclutadorId2);
 
                 }
                 catch (Exception ex)
@@ -252,7 +252,7 @@ namespace SAGA.API.Controllers
                     }
                     trans.Commit();
 
-                    this.EnviarEmailTransfer(requi, db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno ).FirstOrDefault(), descripcion, usuarioAux, coorId);
+                    this.EnviarEmailTransfer(requi, usuario, descripcion, usuarioAux, coorId);
 
                 }
                 catch(Exception ex)
@@ -429,38 +429,45 @@ namespace SAGA.API.Controllers
             }
         }
 
-        public IHttpActionResult EnviarEmailTransfer(Guid requi, string usuario, string desc, Guid antId, Guid actId)
+        public IHttpActionResult EnviarEmailTransfer(Guid requi, Guid usuario, string desc, Guid antId, Guid actId)
         {
 
             FolioIncidencia obj = new FolioIncidencia();
             //revisar para sacar solo la de pausa
             try
             {
+                List<Guid> ids = new List<Guid>();
                 var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
                     coordinador = p.AprobadorId,
                     solicitante = p.PropietarioId,
                     folio = p.Folio,
                     vbtra = p.VBtra
                 }).FirstOrDefault();
-                var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
-                var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
-                var emailAnt = db.Emails.Where(x => x.EntidadId.Equals(antId)).Select(e => e.email).FirstOrDefault();
-                var emailAct= db.Emails.Where(x => x.EntidadId.Equals(actId)).Select(e => e.email).FirstOrDefault();
 
-                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && x.GrpUsrId != antId && x.GrpUsrId != actId).Select(A => new
+                ids.Add(propietario.coordinador);
+                ids.Add(propietario.solicitante);
+                ids.Add(antId);
+                ids.Add(actId);
+
+                var emails = db.Emails.Where(x => ids.Distinct().Contains(x.EntidadId)).Select(e => e.email).ToArray();
+                //var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
+                //var emailAnt = db.Emails.Where(x => x.EntidadId.Equals(antId)).Select(e => e.email).FirstOrDefault();
+                //var emailAct= db.Emails.Where(x => x.EntidadId.Equals(actId)).Select(e => e.email).FirstOrDefault();
+
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && !ids.Distinct().Contains(x.GrpUsrId)).Select(A => new
                 {
                     emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
                 }).ToList();
 
-                //var usuario = db.Usuarios.Where(x => x.Id.Equals(coor)).Select(n => new
-                //{
-                //    nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
-                //    email = n.emails.Select(ee => ee.email).FirstOrDefault()
-                //}).FirstOrDefault();
+                var user = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(n => new
+                {
+                    nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
+                    email = n.emails.Select(ee => ee.email).FirstOrDefault()
+                }).FirstOrDefault();
 
 
                 string body = "";
-                if (emailAnt != "")
+                if (emails.Length > 0)
                 {
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
@@ -468,10 +475,15 @@ namespace SAGA.API.Controllers
                     m.Subject = "Transferencia de Requisición";
 
                     //m.To.Add("idelatorre@damsa.com.mx");
-                    m.To.Add(emailAnt);
+                    m.To.Add(user.email);
                     //m.Bcc.Add(emailAct); //no esta llegando
-                    m.Bcc.Add(emailCoord);
-                    m.Bcc.Add(emailSolicitante);
+                    //m.Bcc.Add(emailCoord);
+                    //m.Bcc.Add(emailSolicitante);
+                    foreach (var e in emails)
+                    {
+                        m.Bcc.Add(e.ToString());
+                    }
+
                     foreach (var e in asignados)
                     {
                         m.Bcc.Add(e.emails.ToString());
@@ -481,7 +493,7 @@ namespace SAGA.API.Controllers
 
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
-                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, realiz&oacute una transferencia vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", usuario, propietario.vbtra, propietario.folio);
+                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, realiz&oacute; una transferencia vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", user.nombre, propietario.vbtra, propietario.folio);
                     body = body + string.Format("<p>{0}</p>", desc);
                     body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                     body = body + "</body></html>";

@@ -144,6 +144,34 @@ namespace SAGA.API.Controllers.Component.Graficas
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
                 if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
                 {
+                    if (estado == "Todas")
+                    {
+                        var requisicion = db.Requisiciones
+                        .Where(r => r.Activo.Equals(true)
+                        && estatus.Contains(r.EstatusId)
+                        && !r.Confidencial)
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            Folio = e.Folio,
+                            fch_Creacion = e.fch_Creacion,
+                            fch_Cumplimiento = e.fch_Cumplimiento,
+                            Cliente = e.Cliente.Nombrecomercial.ToUpper(),
+                            VBtra = e.VBtra.ToUpper(),
+                            Estatus = e.Estatus.Descripcion.ToUpper(),
+                            EstatusId = e.EstatusId,
+                            EstatusOrden = e.Estatus.Orden,
+                            Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
+                            Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                            Confidencial = e.Confidencial,
+                            coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                            Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
+                            reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                               db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
+                            ).Distinct().ToList()
+                        }).OrderBy(x => x.fch_Cumplimiento).ToList();
+                        return Ok(requisicion);
+                    }
                     if (estado == "Vigentes")
                     {
                         var requisicion = db.Requisiciones
@@ -509,6 +537,32 @@ namespace SAGA.API.Controllers.Component.Graficas
                     .Select(a => a.Id).ToList();
 
                     var AllRequis = requis.Union(asignadas);
+                    if(estado == "Todas")
+                    {
+                        var requisicion = db.Requisiciones
+                        .Where(e => AllRequis.Distinct().Contains(e.Id))
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            Folio = e.Folio,
+                            fch_Creacion = e.fch_Creacion,
+                            fch_Cumplimiento = e.fch_Cumplimiento,
+                            Cliente = e.Cliente.Nombrecomercial.ToUpper(),
+                            VBtra = e.VBtra.ToUpper(),
+                            Estatus = e.Estatus.Descripcion.ToUpper(),
+                            EstatusId = e.EstatusId,
+                            EstatusOrden = e.Estatus.Orden,
+                            Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
+                            Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                            Confidencial = e.Confidencial,
+                            coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                            Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
+                            reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                               db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
+                            ).Distinct().ToList()
+                        }).OrderBy(x => x.fch_Cumplimiento).ToList();
+                        return Ok(requisicion);
+                    }
 
                     if (estado == "Vigentes")
                     {
