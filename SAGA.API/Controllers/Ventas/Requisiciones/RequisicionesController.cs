@@ -1256,13 +1256,13 @@ namespace SAGA.API.Controllers
 
                 if (cor != "0" && cor != null)
                 {
-                    var obj = sol.Split(',');
+                    var obj = cor.Split(',');
                     List<int> listaAreglo = new List<int>();
                     for (int i = 0; i < obj.Count() - 1; i++)
                     {
                         listaAreglo.Add(Convert.ToInt32(obj[i]));
                     }
-                    var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                     if (obb.Count == 0)
                     {
                         objeto = objeto.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
