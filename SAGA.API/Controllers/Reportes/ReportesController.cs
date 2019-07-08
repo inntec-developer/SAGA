@@ -292,7 +292,7 @@ namespace SAGA.API.Controllers.Reportes
         public IHttpActionResult Usuario(string cor)
         {
             
-            int[] Status = new[] { 1, 2, 3, 5, 6 };
+            int[] Status = new[] { 1, 2, 3, 5, 6, 11 };
 
             //Cordinadores
             if (cor == "1")
