@@ -556,8 +556,8 @@ namespace SAGA.API.Controllers
                    {
                        Id = e.Id,
                        VBtra = e.VBtra.ToUpper(),
-                       TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento.ToUpper(),
-                       tipoReclutamientoId = e.TipoReclutamientoId,
+                       claseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
+                       claseReclutamientoId = e.ClaseReclutamientoId,
                        SueldoMinimo = e.SueldoMinimo,
                        fch_Creacion = e.fch_Creacion,
                        fch_Modificacion = e.fch_Modificacion,
