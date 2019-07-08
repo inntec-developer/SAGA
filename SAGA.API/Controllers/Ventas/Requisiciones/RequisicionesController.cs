@@ -543,7 +543,6 @@ namespace SAGA.API.Controllers
         public IHttpActionResult GetRequisicionesHistorial(Guid propietario)
         {
             List<Guid> uids = new List<Guid>();
-            bool isAsignado = false;
             int[] estatusId =  { 8, 9, 34, 35, 36, 37,47,48 };
             try
             {
@@ -1751,7 +1750,22 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var horarios = db.HorariosRequis.Where(x => x.RequisicionId.Equals(Id)).ToList();
+                var horarios = db.HorariosRequis
+                        .Where(x => x.RequisicionId.Equals(Id))
+                        .Select(x => new
+                        {
+                            Id = x.Id,
+                            RequisicionId = x.RequisicionId,
+                            Nombre = x.Nombre,
+                            DeDia = x.deDia,
+                            ADia = x.aDia,
+                            deHora = x.deHora,
+                            aHora = x.aHora,
+                            numeroVacantes = x.numeroVacantes,
+                            especificacaiones = x.Especificaciones,
+                            activo = x.Activo
+                        })
+                        .ToList();
                 return Ok(horarios);
             }
             catch (Exception ex)
