@@ -300,6 +300,41 @@ namespace SAGA.API.Controllers
 
         }
 
+        [HttpGet]
+        [Route("getCandidatosCubiertos")]
+        [Authorize]
+        public IHttpActionResult GetCandidatosCubiertos(Guid requisicionId)
+        {
+            try
+            {
+                var candidatos = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(requisicionId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
+                {
+                    candidatoId = c.CandidatoId,
+                    horarioId = c.HorarioId,
+                    horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
+                    informacion = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
+                    {
+                        nombre = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
+                        edad = p.FechaNacimiento,
+                        rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
+                        curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
+                        nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
+                        paisNacimiento = p.PaisNacimientoId,
+                        estadoNacimiento = p.EstadoNacimientoId,
+                        municipioNacimiento = p.MunicipioNacimientoId,
+                        localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
+                        genero = p.GeneroId == 1 ? "Hombre" : "Mujer"
+                    }).FirstOrDefault()
+                });
+                    
+                return Ok(candidatos);
+            }
+            catch
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+        }
         [HttpPost]
         [Route("updateStatusVacante")]
         [Authorize]
