@@ -292,7 +292,7 @@ namespace SAGA.API.Controllers.Reportes
         public IHttpActionResult Usuario(string cor)
         {
             
-            int[] Status = new[] { 1, 2, 3, 5, 6 };
+            int[] Status = new[] { 1, 2, 3, 5, 6, 11 };
 
             //Cordinadores
             if (cor == "1")
@@ -566,7 +566,7 @@ namespace SAGA.API.Controllers.Reportes
                     {
                         listaAreglo.Add(Convert.ToInt32(obj[i]));
                     }
-                    var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                     if (obb.Count == 0)
                     {
                         vacantes = vacantes.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
@@ -679,7 +679,7 @@ namespace SAGA.API.Controllers.Reportes
                     {
                         listaAreglo.Add(Convert.ToInt32(obj[i]));
                     }
-                    var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                     if (obb.Count == 0)
                     {
                         vacantes = vacantes.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
@@ -793,7 +793,7 @@ namespace SAGA.API.Controllers.Reportes
                     {
                         listaAreglo.Add(Convert.ToInt32(obj[i]));
                     }
-                    var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                     if (obb.Count == 0)
                     {
                         vacantes = vacantes.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
