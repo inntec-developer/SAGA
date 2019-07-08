@@ -1997,7 +1997,7 @@ namespace SAGA.API.Controllers
                 {
                     var requisicion = db.Requisiciones.Find(requi.Id);
 
-                    // Requisicon a coincidir.
+                    // Requisicion a coincidir.
                     var Requi = db.Requisiciones
                              .Where(r => r.Folio == requisicion.Folio)
                              .Select(r => new
@@ -2046,16 +2046,12 @@ namespace SAGA.API.Controllers
                            .ToList();
 
                     CandidatosFiltro
-                        .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo)
+                        .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo && c.SueldoMinimo <= Requi.SalarioMaximo 
+                                 || c.SueldoMaximo >= Requi.SalarioMinimo && c.SueldoMaximo <= Requi.SalarioMaximo)
                         .ToList();
 
                     CandidatosFiltro
-                        .Where(c => c.SueldoMaximo <= Requi.SalarioMaximo)
-                        .ToList();
-
-
-                    CandidatosFiltro
-                        .Where(c => c.Edad >= Requi.EdadMinima || c.Edad <= Requi.EdadMaxima)
+                        .Where(c => c.Edad >= Requi.EdadMinima && c.Edad <= Requi.EdadMaxima)
                         .ToList();
 
                     if (Requi.Genero > 0)
