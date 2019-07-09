@@ -48,6 +48,7 @@ namespace SAGA.API.Dtos
         public List<TiemposContratoDto> TiemposContrato { get; set; }
         public List<DocDamsaDto> DocDamsa { get; set; }
         public List<PrestacionesdeLeyDto> PrestacionesLey { get; set; }
+        public List<RolesDto> Roles { get; set; }
         #endregion
         #region Reclutamiento
         #endregion

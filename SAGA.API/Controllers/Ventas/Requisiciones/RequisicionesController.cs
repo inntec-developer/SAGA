@@ -1847,22 +1847,47 @@ namespace SAGA.API.Controllers
                                 GeneroId = c.Candidato.GeneroId,
                                 EstadoCivil = c.Candidato.EstadoCivil.estadoCivil,
                                 EstadoCivilId = c.Candidato.EstadoCivilId.Value > 0 ? c.Candidato.EstadoCivilId.Value : 0,
-                                Formaciones = c.Formaciones.ToList(),
+                                FormacionId = c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault(),
+                                Formaciones = c.Formaciones.Select(x => x.GradosEstudio.gradoEstudio).FirstOrDefault(),
                                 Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year
                             })
                             .ToList();
 
-                        
-
                         CandidatosFiltro = Candidatos
-                            .Where(c => c.GeneroId.Equals(Requi.Genero))
-                            .Where(c => c.EstadoCivilId == Requi.EstadoCivil || c.EstadoCivilId == 0)
-                            .Where(c => c.AreaExpId == Requi.Categoria)
-                            .Where(c => Requi.Escolaridades.Contains(c.Formaciones.Select(f => f.EstadoEstudioId).FirstOrDefault()))
-                            .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo)
-                            .Where(c => c.SueldoMaximo <= Requi.SalarioMaximo)
-                            .Where(c => c.Edad >= Requi.EdadMinima || c.Edad <= Requi.EdadMaxima)
+                                    .Where(c => c.AreaExpId == Requi.Categoria).ToList();
+
+                        CandidatosFiltro = CandidatosFiltro
+                               .Where(c => Requi.Escolaridades.Contains(c.FormacionId))
+                               .ToList();
+
+                        CandidatosFiltro = CandidatosFiltro
+                            .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo && c.SueldoMinimo <= Requi.SalarioMaximo
+                                     || c.SueldoMaximo >= Requi.SalarioMinimo && c.SueldoMaximo <= Requi.SalarioMaximo)
                             .ToList();
+
+                        CandidatosFiltro = CandidatosFiltro
+                            .Where(c => c.Edad >= Requi.EdadMinima && c.Edad <= Requi.EdadMaxima)
+                            .ToList();
+
+                        if (Requi.Genero > 0)
+                        {
+                            CandidatosFiltro = CandidatosFiltro.Where(c => c.GeneroId.Equals(Requi.Genero)).ToList();
+                        }
+
+                        if (Requi.EstadoCivil > 0)
+                        {
+                            CandidatosFiltro = CandidatosFiltro.Where(c => c.EstadoCivilId == Requi.EstadoCivil).ToList();
+                        }
+
+                        //CandidatosFiltro = Candidatos
+                        //    .Where(c => c.GeneroId.Equals(Requi.Genero))
+                        //    .Where(c => c.EstadoCivilId == Requi.EstadoCivil || c.EstadoCivilId == 0)
+                        //    .Where(c => c.AreaExpId == Requi.Categoria)
+                        //    .Where(c => Requi.Escolaridades.Contains(c.FormacionId))
+                        //    .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo)
+                        //    .Where(c => c.SueldoMaximo <= Requi.SalarioMaximo)
+                        //    .Where(c => c.Edad >= Requi.EdadMinima || c.Edad <= Requi.EdadMaxima)
+                        //    .ToList();
                     }
                     else
                     {
@@ -2027,7 +2052,8 @@ namespace SAGA.API.Controllers
                             GeneroId = c.Candidato.GeneroId > 0 ? c.Candidato.GeneroId : 0,
                             EstadoCivil = c.Candidato.EstadoCivil.estadoCivil,
                             EstadoCivilId = c.Candidato.EstadoCivilId.Value > 0 ? c.Candidato.EstadoCivilId.Value : 0,
-                            Formaciones = c.Formaciones.ToList(),
+                            FormacionId = c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault(),
+                            Formaciones = c.Formaciones.Select(x => x.GradosEstudio.gradoEstudio).FirstOrDefault(),
                             Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year
                         })
                         .ToList();
@@ -2038,27 +2064,27 @@ namespace SAGA.API.Controllers
                         .Where(c => c.AreaExpId == Requi.Categoria)
                         .ToList();
 
-                    CandidatosFiltro
-                           .Where(c => Requi.Escolaridades.Contains(c.Formaciones.Select(f => f.EstadoEstudioId).FirstOrDefault()))
+                    CandidatosFiltro = CandidatosFiltro
+                           .Where(c => Requi.Escolaridades.Contains(c.FormacionId))
                            .ToList();
 
-                    CandidatosFiltro
+                    CandidatosFiltro = CandidatosFiltro
                         .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo && c.SueldoMinimo <= Requi.SalarioMaximo 
                                  || c.SueldoMaximo >= Requi.SalarioMinimo && c.SueldoMaximo <= Requi.SalarioMaximo)
                         .ToList();
 
-                    CandidatosFiltro
+                    CandidatosFiltro = CandidatosFiltro
                         .Where(c => c.Edad >= Requi.EdadMinima && c.Edad <= Requi.EdadMaxima)
                         .ToList();
 
                     if (Requi.Genero > 0)
                     {
-                        CandidatosFiltro.Where(c => c.GeneroId.Equals(Requi.Genero));
+                       CandidatosFiltro = CandidatosFiltro.Where(c => c.GeneroId.Equals(Requi.Genero)).ToList();
                     }
 
                     if (Requi.EstadoCivil > 0)
                     {
-                        CandidatosFiltro.Where(c => c.EstadoCivilId == Requi.EstadoCivil);
+                        CandidatosFiltro =  CandidatosFiltro.Where(c => c.EstadoCivilId == Requi.EstadoCivil).ToList();
                     }
 
                     db.Entry(requisicion).State = EntityState.Modified;

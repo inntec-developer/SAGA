@@ -17,7 +17,9 @@ namespace SAGA.API.Dtos
         public int GeneroId { get; set; }
         public string EstadoCivil { get; set; }
         public int EstadoCivilId { get; set; }
-        public List<Formacion> Formaciones { get; set; }
+        public string Formaciones { get; set; }
+        public int FormacionId { get; set; }
         public int Edad { get; set; }
     }
+
 }

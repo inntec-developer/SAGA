@@ -530,6 +530,20 @@ namespace SAGA.API.Controllers
 
                     break;
 
+                case 44: // Roles
+
+                    Catalogo.Roles = db.Roles
+                        .Select(a => new RolesDto
+                        {
+                            Id = a.Id,
+                            Rol = a.Rol,
+                            Activo = a.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    break;
+
                 #endregion
 
                 #region Reclutamiento
