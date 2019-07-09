@@ -13,6 +13,7 @@ namespace SAGA.API.Dtos
         public string emailSol { get; set; }
         public string VBtra { get; set; }
         public Int64 Folio { get; set; }
+        public DateTime fch_Creacion { get; set; }
         public DateTime fch_Aprobacion { get; set; }
         public DateTime fch_Cumplimiento { get; set; }
         public string Cliente { get; set; }
