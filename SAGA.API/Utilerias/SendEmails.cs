@@ -202,6 +202,22 @@ namespace SAGA.API.Utilerias
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
 
+                    string Escolaridades = string.Empty;
+
+                    var index = Coincidencias[0].Requisicion.EscolaridadesDesc.Count()-1;
+
+                    for (int e = 0; e < Coincidencias[0].Requisicion.EscolaridadesDesc.Count(); e++)
+                    {
+                        if (e < index)
+                        {
+                            Escolaridades = Escolaridades + Coincidencias[0].Requisicion.EscolaridadesDesc[e] + ", ";
+                        }
+                        else
+                        {
+                            Escolaridades = Escolaridades + Coincidencias[0].Requisicion.EscolaridadesDesc[e];
+                        }
+                    }
+
                     foreach (string x in distintEmails)
                     {
                         m.To.Add(x.ToString());
@@ -220,9 +236,10 @@ namespace SAGA.API.Utilerias
                         body = inicio;
                         body = body + string.Format("<br/>El usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big><a href=\"{3}/login/{2}\">{2}</a></big></strong>.", Usuario, VBr, Folio, sitioWeb);
 
-                        if (Coincidencias != null) 
+                        if (Coincidencias != null)
                         {
-                            body = body + string.Format("<br><p>Te mostramos los siguientes candidatos que coinciden con el perfil de la vacante:</p>");
+                            body = body + string.Format("<br><p>Los siguientes candidatos coinciden para <b>Categoría</b> ("+Coincidencias[0].Requisicion.CategoriaDesc+"), <b>Salario</b> ($"+Coincidencias[0].Requisicion.SalarioMinimo+"- $"+Coincidencias[0].Requisicion.SalarioMaximo+"), <b>Genero</b> ("+Coincidencias[0].Requisicion.GeneroDesc+"),");
+                            body = body + string.Format(" <b>Edad:</b> (" + Coincidencias[0].Requisicion.EdadMinima + "-" + Coincidencias[0].Requisicion.EdadMaxima + "), <b>Estado civil</b> (" + Coincidencias[0].Requisicion.EstadoCivilDesc + "), <b>Escolaridad</b> ("+Escolaridades+")</p>");
                             body = body + "<table class='table'>";
                             body = body + "<tr><th align=center>Candidato</th><th align=center>Subcategoria</th><th align=center>Rango Salarial</th><th align=center>Edad</th></tr>";
                             for (int i = 0; i < Coincidencias.Count(); i++)
