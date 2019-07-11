@@ -1228,6 +1228,26 @@ namespace SAGA.API.Controllers
 
                         break;
 
+                    case 44: // Roles
+
+                        Roles roles = new Roles();
+
+                        roles.Rol = Catalogo.Roles[0].Rol;
+                        roles.Activo = Catalogo.Roles[0].Activo;
+
+                        log.CatalogoId = Catalogo.Catalogos.Id;
+                        log.TpMov = "N";
+                        log.Usuario = Catalogo.Usuario;
+                        log.FechaAct = DateTime.UtcNow;
+                        log.Campo = "";
+
+                        db.LogCatalogos.Add(log);
+
+                        db.Roles.Add(roles);
+                        db.SaveChanges();
+
+                        break;
+
                     #endregion
 
                     #region Reclutamiento
@@ -1943,6 +1963,26 @@ namespace SAGA.API.Controllers
 
                         break;
 
+                    case 44: // Roles
+
+                        Roles roles = new Roles();
+
+                        roles.Id = Catalogo.Roles[0].Id;
+                        roles.Rol = Catalogo.Roles[0].Rol;
+                        roles.Activo = Catalogo.Roles[0].Activo;
+
+                        logm.CatalogoId = Catalogo.Catalogos.Id;
+                        logm.TpMov = "M";
+                        logm.Usuario = Catalogo.Usuario;
+                        logm.FechaAct = DateTime.UtcNow;
+                        logm.Campo = "";
+
+                        db.LogCatalogos.Add(logm);
+
+                        db.Entry(roles).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+
+                        break;
 
                     #endregion
 

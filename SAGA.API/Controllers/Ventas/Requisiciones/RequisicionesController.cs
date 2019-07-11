@@ -2036,21 +2036,33 @@ namespace SAGA.API.Controllers
                     // Requisicion a coincidir.
                     var Requi = db.Requisiciones
                              .Where(r => r.Folio == requisicion.Folio)
-                             .Select(r => new
+                             .Select(r => new RequisicionCoin
                              {
                                  Categoria = r.Area.Id,
+                                 CategoriaDesc = r.Area.areaExperiencia,
                                  SalarioMinimo = r.SueldoMinimo,
                                  SalarioMaximo = r.SueldoMaximo,
                                  Genero = r.GeneroId,
+                                 GeneroDesc = r.Genero.genero,
                                  EdadMinima = r.EdadMinima,
                                  EdadMaxima = r.EdadMaxima,
                                  EstadoCivil = r.EstadoCivilId,
-                                 Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList()
+                                 EstadoCivilDesc = r.EstadoCivil.estadoCivil,
+                                 Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList(),
+                                 EscolaridadesDesc = r.escolaridadesRequi.Select(e => e.Escolaridad.gradoEstudio).ToList()
                              })
                             .FirstOrDefault();
 
+                    // Candidatos Activos
+                    var Activos = db.AspNetUsers
+                        .Where(c => c.Activo == 0)
+                        .OrderBy(c => c.UltimoInicio)
+                        .Select(c => c.IdPersona)
+                        .ToList();
+
                     // Candidatos con todas las coincidencias.
                     var Candidatos = db.PerfilCandidato
+                        .Where(c => Activos.Contains(c.CandidatoId))
                         .Select(c => new CoincidenciasDto
                         {
                             Nombre = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + (c.Candidato.ApellidoMaterno != null ? c.Candidato.ApellidoMaterno : ""),
@@ -2068,8 +2080,26 @@ namespace SAGA.API.Controllers
                             EstadoCivilId = c.Candidato.EstadoCivilId.Value > 0 ? c.Candidato.EstadoCivilId.Value : 0,
                             FormacionId = c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault(),
                             Formaciones = c.Formaciones.Select(x => x.GradosEstudio.gradoEstudio).FirstOrDefault(),
-                            Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year
-                        })
+                            Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year,
+                            Requisicion = db.Requisiciones
+                             .Where(r => r.Folio == requisicion.Folio)
+                             .Select(r => new RequisicionCoin
+                             {
+                                 Categoria = r.Area.Id,
+                                 CategoriaDesc = r.Area.areaExperiencia,
+                                 SalarioMinimo = r.SueldoMinimo,
+                                 SalarioMaximo = r.SueldoMaximo,
+                                 Genero = r.GeneroId,
+                                 GeneroDesc = r.Genero.genero,
+                                 EdadMinima = r.EdadMinima,
+                                 EdadMaxima = r.EdadMaxima,
+                                 EstadoCivil = r.EstadoCivilId,
+                                 EstadoCivilDesc = r.EstadoCivil.estadoCivil,
+                                 Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList(),
+                                 EscolaridadesDesc = r.escolaridadesRequi.Select(e => e.Escolaridad.gradoEstudio).ToList()
+                             })
+                            .FirstOrDefault()
+                })
                         .ToList();
 
                     List<CoincidenciasDto> CandidatosFiltro = new List<CoincidenciasDto>();
@@ -2100,6 +2130,9 @@ namespace SAGA.API.Controllers
                     {
                         CandidatosFiltro =  CandidatosFiltro.Where(c => c.EstadoCivilId == Requi.EstadoCivil).ToList();
                     }
+
+                    // Solo tomamos el top 5 de candidatos que coinciderion.
+                    CandidatosFiltro = CandidatosFiltro.Take(5).ToList();
 
                     db.Entry(requisicion).State = EntityState.Modified;
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
