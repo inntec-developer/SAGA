@@ -808,7 +808,7 @@ namespace SAGA.API.Controllers
             {
                 string mensaje = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
-            }
+            }   
         }
 
      
@@ -817,7 +817,7 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult GtRequiReclutador(Guid IdUsuario)
         {
-            int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37 };
+            int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37, 47, 48 };
             try
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(IdUsuario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
