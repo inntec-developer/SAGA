@@ -103,11 +103,12 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     listaAreglo.Add(Convert.ToInt32(obj[i]));
                 }
-                var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
-                if (obb.Count == 0)
-                {
-                    datos = datos.Where(e => listaAreglo.Contains(e.EstatusId)).ToList();
-                }
+                datos = datos.Where(e => listaAreglo.Contains(e.EstatusId)).ToList();
+                //var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
+                //if (obb.Count == 0)
+                //{
+                //    datos = datos.Where(e => listaAreglo.Contains(e.EstatusId)).ToList();
+                //}
             }
 
             if (clave != null)
@@ -366,23 +367,46 @@ namespace SAGA.API.Controllers.Reportes
         [Route("estatus")]
         public IHttpActionResult Estatus(string bandera)
         {
+            int[] ActivosList = new[] { 4, 6, 7, 29, 30, 31,32,33,38,39 };
+            int[] CubiertosList = new[] { 34, 35, 36, 37, 47, 48 };
+            int[] OtrosList = new[] { 8, 9, 43, 44, 45, 46 };
+
+            if (bandera == "2")
+            {
+                
+                var dato = new
+                {
+                    activos = db.Estatus.Where(x => ActivosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList(),
+                    cubiertos = db.Estatus.Where(x => CubiertosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList(),
+                    otros = db.Estatus.Where(x => OtrosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList()
+                };
+                return Ok(dato);
+            }
+
+            //var datos = new
+            //{
+            //    activos = db.Estatus.Where(x => ActivosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList(),
+            //    cubiertos = db.Estatus.Where(x => CubiertosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList(),
+            //    otros = db.Estatus.Where(x => OtrosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList()
+            //};
+
             var datos = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 2 && e.Id != 5).Select(e => new
             {
                 e.Descripcion,
-                e.Id
+                e.Id,
             }).ToList();
 
             if (bandera == "1")
             {
-                datos = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 19 && e.Id != 5).Select(e => new
+                var datos2 = db.Estatus.Where(e => e.Activo == true && e.TipoMovimiento == 19 && e.Id != 5).Select(e => new
                 {
                     e.Descripcion,
-                    e.Id
+                    e.Id,
                 }).ToList();
+                datos2.Insert(0, new { Descripcion = "Todos", Id = 0 });
+                return Ok(datos2);
             }
            
-           
-           datos.Insert(0 ,new { Descripcion = "Todos", Id = 0 });
             return Ok(datos);
         }
 

@@ -19,6 +19,7 @@ namespace SAGA.API.Utilerias
         List<GrupoUsuarios> grpUserNotChange;
         IEnumerable<string> distintEmails;
         string emailString = string.Empty;
+        string sitioWeb = ConfigurationManager.AppSettings["WEBERP"];
 
         public SendEmails()
         {
@@ -47,7 +48,7 @@ namespace SAGA.API.Utilerias
                 inicio = inicio + "h3 { font - family:'calibri'; } table { width: 100 %; }</style></head><body style =\"text-align:center; font-family:'calibri'; font-size:10pt;\"><br><br><p> Nueva Requisición:</p>";
 
                 body = inicio;
-                body = body + string.Format("<p>Se comunica de la manera más atenta que has generado una nueva requisición con el folio {0} – {1}, el cual es necesario que se le dé el seguimiento correspondiente. </p>", Folio, VBtra);
+                body = body + string.Format("<p>Se comunica de la manera más atenta que has generado una nueva requisición con el folio <a href=\"{0}/login/{1}\">{1}</a> – {2}, el cual es necesario que se le dé el seguimiento correspondiente. </p>", sitioWeb, Folio, VBtra);
                 body = body + string.Format("<p>Sin más por el momento, me despido, saludos cordiales.</p>");
                 body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>");
                 body = body + string.Format("<p><small>Favor de no responder este mensaje, ya que solo es de carácter informativo y son enviados automáticamente por el sistema </small></p>");
@@ -201,6 +202,22 @@ namespace SAGA.API.Utilerias
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
 
+                    string Escolaridades = string.Empty;
+
+                    var index = Coincidencias[0].Requisicion.EscolaridadesDesc.Count()-1;
+
+                    for (int e = 0; e < Coincidencias[0].Requisicion.EscolaridadesDesc.Count(); e++)
+                    {
+                        if (e < index)
+                        {
+                            Escolaridades = Escolaridades + Coincidencias[0].Requisicion.EscolaridadesDesc[e] + ", ";
+                        }
+                        else
+                        {
+                            Escolaridades = Escolaridades + Coincidencias[0].Requisicion.EscolaridadesDesc[e];
+                        }
+                    }
+
                     foreach (string x in distintEmails)
                     {
                         m.To.Add(x.ToString());
@@ -217,11 +234,12 @@ namespace SAGA.API.Utilerias
 
                         
                         body = inicio;
-                        body = body + string.Format("<br/>El usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big>{2}</big></strong>.", Usuario, VBr, Folio);
+                        body = body + string.Format("<br/>El usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big><a href=\"{3}/login/{2}\">{2}</a></big></strong>.", Usuario, VBr, Folio, sitioWeb);
 
-                        if (Coincidencias.Count > 0)
+                        if (Coincidencias != null)
                         {
-                            body = body + string.Format("<br><p>Te mostramos los siguientes candidatos que coinciden con el perfil de la vacante:</p>");
+                            body = body + string.Format("<br><p>Los siguientes candidatos coinciden para <b>Categoría</b> ("+Coincidencias[0].Requisicion.CategoriaDesc+"), <b>Salario</b> ($"+Coincidencias[0].Requisicion.SalarioMinimo+"- $"+Coincidencias[0].Requisicion.SalarioMaximo+"), <b>Genero</b> ("+Coincidencias[0].Requisicion.GeneroDesc+"),");
+                            body = body + string.Format(" <b>Edad:</b> (" + Coincidencias[0].Requisicion.EdadMinima + "-" + Coincidencias[0].Requisicion.EdadMaxima + "), <b>Estado civil</b> (" + Coincidencias[0].Requisicion.EstadoCivilDesc + "), <b>Escolaridad</b> ("+Escolaridades+")</p>");
                             body = body + "<table class='table'>";
                             body = body + "<tr><th align=center>Candidato</th><th align=center>Subcategoria</th><th align=center>Rango Salarial</th><th align=center>Edad</th></tr>";
                             for (int i = 0; i < Coincidencias.Count(); i++)
@@ -239,14 +257,14 @@ namespace SAGA.API.Utilerias
                     {
                         m.Subject = "Des-asignación  de Requisicion";
                         body = "<p>Des-asignación  de Requisición:</p>";
-                        body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha desasignado de la vacante <strong>{1}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{2}</big></strong>.", Usuario, VBr, Folio);
+                        body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha desasignado de la vacante <strong>{1}</strong> la cual se encuentra en la requisición FOLIO: <strong><big><a href=\"{3}/login/{2}\">{2}</a></big></strong>.", Usuario, VBr, Folio, sitioWeb);
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
                     }
                     if (action == "RD")
                     {
                         m.Subject = "Eliminación de Requisicion";
                         body = "<p>Eliminación de Requisición:</p>";
-                        body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{1}</big></strong>, fue eliminada.", VBr, Folio);
+                        body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big><a href=\"{2}/login/{1}\">{1}</a></big></strong>, fue eliminada.", VBr, Folio, sitioWeb);
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
                     }
 
@@ -254,7 +272,7 @@ namespace SAGA.API.Utilerias
                     {
                         m.Subject = "Cancelación de Requisicion";
                         body = "<p>Cancelación de Requisición:</p>";
-                        body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big>{1}</big></strong>, fue cancelada.", VBr, Folio);
+                        body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big><a href=\"{2}/login/{1}\">{1}</a></big></strong>, fue cancelada.", VBr, Folio, sitioWeb);
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
                     }
 
@@ -549,7 +567,7 @@ namespace SAGA.API.Utilerias
                             m.CC.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
                         }
                         m.Subject = string.Format("[ASIGNACióN A GERENTE] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha asignado al gerente de reclutamiento el Reclutamiento Puro con el número de folio {0}, el cual debera tranferirla al coordinador correspondiente. </strong>", requi.folio);
+                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha asignado al gerente de reclutamiento el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>, el cual debera tranferirla al coordinador correspondiente. </strong>", requi.folio, sitioWeb);
                         break;
                     case 8:
                         m.To.Add(emailProp);
@@ -574,7 +592,7 @@ namespace SAGA.API.Utilerias
                             m.CC.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
                         }
                         m.Subject = string.Format("Cancelación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha cancelado el Reclutamiento Puro con el número de folio {0}</strong>", requi.folio);
+                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha cancelado el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a></strong>", requi.folio, sitioWeb);
                         break;
                     case 9:
                         m.To.Add(emailProp);
@@ -600,7 +618,7 @@ namespace SAGA.API.Utilerias
                             m.CC.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
                         }
                         m.Subject = string.Format("Eliminación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha elimino el Reclutamiento Puro con el número de folio {0}.</strong>", requi.folio);
+                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha elimino el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>.</strong>", requi.folio, sitioWeb);
                         m.To.Add(emailProp);
                         break;
                     case 43:
@@ -623,7 +641,7 @@ namespace SAGA.API.Utilerias
                         }
                         m.CC.Add(emailProp);
                         m.Subject = string.Format("[AUTORIZAR FOLIO] Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio {0}.</strong>", requi.folio);
+                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb,requi.folio);
                         break;
                     case 44:
                         m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
@@ -645,7 +663,7 @@ namespace SAGA.API.Utilerias
                         }
                         m.CC.Add(emailProp);
                         m.Subject = string.Format("[FACTURAR FOLIO] Solicitud de Facturación de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa, que se requiere factura para el nuevo Reclutamiento Puro con el número de folio {0}.</strong>", requi.folio);
+                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa, que se requiere factura para el nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb, requi.folio);
                         break;
                     case 45:
                         if (!isDurango)
@@ -665,7 +683,7 @@ namespace SAGA.API.Utilerias
                             }
                         }
                         m.CC.Add(emailProp);
-                        m.Subject = string.Format("[aUTORIZADA PENDIENTE PAGO] Seguimiento de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[AUTORIZADA PENDIENTE PAGO] Seguimiento de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">La requisiciones esta autorizada, con un pago pendiente.</strong>");
                         break;
                     case 46:
@@ -688,7 +706,7 @@ namespace SAGA.API.Utilerias
                         }
                         m.CC.Add(emailProp);
                         m.Subject = string.Format("[AUTORIZAR FOLIO] Vacante con Reclutamiento Puro Porcentage menor de 50% {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Reclutamiento Puro con el número de folio {0}, el cual se esta solicitando una facturación por debajo del 50%. Es necesaria previa autorización para continuar con el proceso. </strong>", requi.folio);
+                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>, el cual se esta solicitando una facturación por debajo del 50%. Es necesaria previa autorización para continuar con el proceso. </strong>",sitioWeb, requi.folio);
                         break;
                 }
                 
@@ -782,7 +800,7 @@ namespace SAGA.API.Utilerias
                     m.CC.Add(e);
                 }
                 m.Subject = string.Format("Publicacion de Vacante en Redes Sociales {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                body = string.Format("<p style=\"font-size:12px;\">Por este medio se les informa que se ha solicitado publicación en redes sociales la vacante con número de folio <strong><a href=\"https://weberp.damsa.com.mx\">{0}</a></strong>:</p>", requi.folio);
+                body = string.Format("<p style=\"font-size:12px;\">Por este medio se les informa que se ha solicitado publicación en redes sociales la vacante con número de folio <a href=\"{0}/login/{1}\">{1}</a></a></strong>:</p>",sitioWeb, requi.folio);
 
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> OFICIO: </strong><label>{0}</label></p>", Oficio);
                 body = body + string.Format("<p style=\"font-size:12px;\"><strong style=\"color: #0049FF\"> FECHA SOLICITUD: </strong><label>{0}</label></p>", requi.fch_Creacion);

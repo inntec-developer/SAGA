@@ -24,4 +24,10 @@ namespace SAGA.API.Dtos
         public Guid Id { get; set; }
         public Int64 Folio { get; set; }
     }
+
+    public class RequiUNDto
+    {
+        public string EstadoVacante { get; set; }
+        public string UnidadNegocio { get; set; }
+    }
 }
