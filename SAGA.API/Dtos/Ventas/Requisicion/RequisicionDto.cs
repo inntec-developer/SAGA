@@ -30,4 +30,11 @@ namespace SAGA.API.Dtos
         public string EstadoVacante { get; set; }
         public string UnidadNegocio { get; set; }
     }
+
+    public class SendEmailNuevaRequiDto
+    {
+        public string Email { get; set; }
+        public Int64 Folio { get; set; }
+        public string VBtra { get; set; }
+    }
 }

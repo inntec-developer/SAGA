@@ -466,11 +466,16 @@ namespace SAGA.API.Controllers
 
                 var Nombre = db.PerfilCandidato
                     .Where(e => perfiles.Contains(e.Id))
-                    .Where(e => 
-                        palabraClave.Contains(e.Candidato.Nombre.ToLower()) ||
-                        palabraClave.Contains(e.Candidato.ApellidoPaterno.ToLower()) ||
-                        palabraClave.Contains(e.Candidato.ApellidoMaterno.ToLower()) ||
-                        palabraClave.Contains(e.Candidato.RFC.ToLower())
+                    .Where(e =>
+                        e.Candidato.Nombre.ToLower().Contains(palabraClave) ||
+                        e.Candidato.ApellidoPaterno.ToLower().Contains(palabraClave) ||
+                        e.Candidato.ApellidoMaterno.ToLower().Contains(palabraClave) ||
+                        e.Candidato.RFC.ToLower().Contains(palabraClave)
+
+                        //palabraClave.Contains(e.Candidato.Nombre.ToLower()) ||
+                        //palabraClave.Contains(e.Candidato.ApellidoPaterno.ToLower()) ||
+                        //palabraClave.Contains(e.Candidato.ApellidoMaterno.ToLower()) ||
+                        //palabraClave.Contains(e.Candidato.RFC.ToLower())
                     )
                     .Select(e => e.Id)
                     .ToList();

@@ -198,31 +198,35 @@ namespace SAGA.API.Utilerias
                 if (distintEmails.Count() > 0)
                 {
                     string body = string.Empty;
+                    string Escolaridades = string.Empty;
                     string from = ConfigurationManager.AppSettings["ToEmail"];
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
 
-                    string Escolaridades = string.Empty;
-
-                    var index = Coincidencias[0].Requisicion.EscolaridadesDesc.Count()-1;
-
-                    for (int e = 0; e < Coincidencias[0].Requisicion.EscolaridadesDesc.Count(); e++)
+                    if (Coincidencias != null)
                     {
-                        if (e < index)
-                        {
-                            Escolaridades = Escolaridades + Coincidencias[0].Requisicion.EscolaridadesDesc[e] + ", ";
-                        }
-                        else
-                        {
-                            Escolaridades = Escolaridades + Coincidencias[0].Requisicion.EscolaridadesDesc[e];
-                        }
-                    }
+                        
 
+                        var index = Coincidencias[0].Requisicion.EscolaridadesDesc.Count() - 1;
+
+                        for (int e = 0; e < Coincidencias[0].Requisicion.EscolaridadesDesc.Count(); e++)
+                        {
+                            if (e < index)
+                            {
+                                Escolaridades = Escolaridades + Coincidencias[0].Requisicion.EscolaridadesDesc[e] + ", ";
+                            }
+                            else
+                            {
+                                Escolaridades = Escolaridades + Coincidencias[0].Requisicion.EscolaridadesDesc[e];
+                            }
+                        }
+
+                        
+                    }
                     foreach (string x in distintEmails)
                     {
                         m.To.Add(x.ToString());
                     }
-
                     if (action == "C")
                     {
 
@@ -790,13 +794,16 @@ namespace SAGA.API.Utilerias
                        aprobadorId = x.AprobadorId,
                    }).FirstOrDefault();
                 List<string> Emails = new List<string>();
-                var emailsProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid) || x.EntidadId.Equals(requi.aprobadorId)).Select(x => x.email).ToList();
+                Emails = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid) || x.EntidadId.Equals(requi.aprobadorId)).Select(x => x.email).ToList();
                 string body = "";
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA Inn");
                 m.To.Add(ConfigurationManager.AppSettings["Medios"].ToString());
-                foreach(var e  in Emails){
+                m.To.Add(ConfigurationManager.AppSettings["Medios2"].ToString());
+                m.To.Add(ConfigurationManager.AppSettings["Medios3"].ToString());
+                m.To.Add(ConfigurationManager.AppSettings["Medios4"].ToString());
+                foreach (var e  in Emails){
                     m.CC.Add(e);
                 }
                 m.Subject = string.Format("Publicacion de Vacante en Redes Sociales {0} - {1}", requi.folio, requi.empresa.ToUpper());
