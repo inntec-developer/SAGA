@@ -82,6 +82,8 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult GetRequisicion(Guid Id)
         {
+            TimeSpan stop;
+            TimeSpan start = new TimeSpan(DateTime.Now.Ticks);
             try
             {
                 if (Id != null)
@@ -223,6 +225,8 @@ namespace SAGA.API.Controllers
 
                         })
                         .FirstOrDefault(x => x.Id.Equals(Id));
+                    stop = new TimeSpan(DateTime.Now.Ticks);
+                    Console.WriteLine(stop.Subtract(start).TotalMilliseconds);
                     return Ok(requisicion);
                 }
                 else
@@ -307,16 +311,6 @@ namespace SAGA.API.Controllers
                 Guid RequisicionId = requi.Id;
                 Int64 Folio = requi.Folio;
 
-
-                if (!cr.Confidencial)
-                {
-                    UpdatePublicarDto UpDto = new UpdatePublicarDto();
-                    UpDto.ListaPublicar = null;
-                    UpDto.RequiId = RequisicionId.ToString();
-                    Dvc.PublicarVacante(UpDto);
-                }
-                
-
                 var infoRequi = db.Requisiciones
                     .Where(x => x.Id.Equals(RequisicionId))
                     .Select(x => new
@@ -327,14 +321,7 @@ namespace SAGA.API.Controllers
                         x.EstatusId,
                         x.horariosRequi,
                         x.TipoReclutamientoId,
-                    }).FirstOrDefault();
-
-                var email = db.Emails
-                    .Where(e => e.EntidadId.Equals(cr.UsuarioId))
-                    .Select(e => e.email)
-                    .FirstOrDefault();
-
-                SendEmail.EmailNuevaRequisicion(infoRequi.Folio, infoRequi.VBtra, email);
+                    }).FirstOrDefault();              
 
                 return Ok(infoRequi);
             }
@@ -1833,16 +1820,6 @@ namespace SAGA.API.Controllers
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
                     requisicion.PrioridadId = requi.PrioridadId;
                     requisicion.Confidencial = requi.Confidencial;
-                    //if (requi.EstatusId ==  46 && requi.AsignacionRequi.Count() > 0)
-                    //{
-                    //    requisicion.EstatusId = 4;
-                    //}
-                    //else
-                    //{
-                    //    db.Entry(requisicion).Property(x => x.EstatusId).IsModified = false;
-                    //    //requisicion.EstatusId = requi.EstatusId;
-                    //}
-
                     requisicion.fch_Modificacion = DateTime.Now;
                     requisicion.UsuarioMod = requi.Usuario;
                     if (requi.AsignacionRequi.Count() > 1)
@@ -1892,16 +1869,6 @@ namespace SAGA.API.Controllers
                         {
                             CandidatosFiltro = CandidatosFiltro.Where(c => c.EstadoCivilId == Requi.EstadoCivil).ToList();
                         }
-
-                        //CandidatosFiltro = Candidatos
-                        //    .Where(c => c.GeneroId.Equals(Requi.Genero))
-                        //    .Where(c => c.EstadoCivilId == Requi.EstadoCivil || c.EstadoCivilId == 0)
-                        //    .Where(c => c.AreaExpId == Requi.Categoria)
-                        //    .Where(c => Requi.Escolaridades.Contains(c.FormacionId))
-                        //    .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo)
-                        //    .Where(c => c.SueldoMaximo <= Requi.SalarioMaximo)
-                        //    .Where(c => c.Edad >= Requi.EdadMinima || c.Edad <= Requi.EdadMaxima)
-                        //    .ToList();
                     }
                     else
                     {
@@ -2811,7 +2778,42 @@ namespace SAGA.API.Controllers
                 string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
+        }
 
+        [HttpPost]
+        [Route("senEmailNuevaRequi")]
+        public IHttpActionResult SenEmailNuevaRequi(SendEmailNuevaRequiDto sendEmail)
+        {
+            try
+            {
+                SendEmail.EmailNuevaRequisicion(sendEmail.Folio, sendEmail.VBtra, sendEmail.Email);
+                return Ok();
+
+            }catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpGet]
+        [Route("publicarNuevaRequi")]
+        public IHttpActionResult PublicarNuevaRequi(Guid Id)
+        {
+            try
+            {
+                UpdatePublicarDto UpDto = new UpdatePublicarDto();
+                UpDto.ListaPublicar = null;
+                UpDto.RequiId = Id.ToString();
+                Dvc.PublicarVacante(UpDto);
+                return Ok();
+
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
         }
     }
 }

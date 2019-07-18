@@ -404,10 +404,10 @@ namespace SAGA.API.Controllers
                     //usuario, candidato, motivo, vbtra, folio
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
-                    body = body + string.Format("<label>Informaci&oacute;n de candidato en Posible NR</label><p> Se comunica que el usuario / reclutador {0},report&oacute; un incidente al siguiente candidato: </p>", usuario.nombre);
+                    body = body + string.Format("<label>Informaci&oacute;n de candidato en Posible NR</label><p> Se comunica que el usuario / reclutador {0}, report&oacute; un incidente al siguiente candidato: </p>", usuario.nombre);
                     body = body + "<table style=\"width: 75%; background-color: #f1f1c1; border-spacing: 10px;\"><tr><th>Folio:</th><th>Vacante</th><th>Candidato</th><th>Motivo</th><th>Comentario</th></tr>";
                     body = body + string.Format("<tr><td style=\"color:green; text-align: center;\">{0}</td><td style=\"text-align: center;\">{1}</td><td style=\"text-align: center;\">{2}</td><td style=\"color:red; text-align: center;\">{3}</td><td style=\"text-align: center;\">{4}</td></tr></table>", folio, vbtra, candidato, motivo, comentario);
-                    body = body + "<p>Para validar y dar seguimineto a la informaci&oacute;n reportada ser&aacute; necesario ingresar a:<p/> ";
+                    body = body + "<p>Para validar y dar seguimiento a la informaci&oacute;n reportada ser&aacute; necesario ingresar a:<p/> ";
                     body = body + "<ol><li>Secci&oacute;n de Reclutamiento.</li><li>Posteriormente en Vacantes.</li><li>Dar clic en bot&oacute;n Incidente, en la parte superior.</li><li>Identificar Candidato y agregar comentario de resultado.</li><li>Aceptar o Rechazar la solicitud.</li></ol>";
                     body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                     body = body + "</body></html>";
