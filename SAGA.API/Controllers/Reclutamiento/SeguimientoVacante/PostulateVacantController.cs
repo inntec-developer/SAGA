@@ -50,99 +50,163 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.Found);
             }
         }
+        [HttpGet]
+        [Route("validarTelCandidato")]
+        [Authorize]
+        public IHttpActionResult ValidarTelCandidato(string lada, string telefono)
+        {
+            var e = db.Telefonos.Where(x => x.ClaveLada.Equals(lada) && x.telefono.Equals(telefono)).Count();
+
+            if (e == 0)
+            {
+                return Ok(HttpStatusCode.OK);
+            }
+            else
+            {
+                return Ok(HttpStatusCode.Found);
+            }
+        }
         [HttpPost]
         [Route("registrarCandidatos")]
         [Authorize]
         public IHttpActionResult RegistrarCandidatos(List<CandidatosGralDto> datos)
         {
-     
-                var candidato = new Candidato();
+            var candidato = new Candidato();
+            List<Guid> candidatosIds = new List<Guid>();
+            CandidatosInfo obj = new CandidatosInfo();
+            ProcesoCandidato proceso = new ProcesoCandidato();
+            PerfilCandidato PC = new PerfilCandidato();
+            ProcesoDto PCDto = new ProcesoDto();
 
-                CandidatosInfo obj = new CandidatosInfo();
-                ProcesoCandidato proceso = new ProcesoCandidato();
-                PerfilCandidato PC = new PerfilCandidato();
-                ProcesoDto PCDto = new ProcesoDto();
-
-                foreach (var r in datos)
+            foreach (var r in datos)
+            {
+                var tran = db.Database.BeginTransaction();
+                try
                 {
-                    var tran = db.Database.BeginTransaction();
-                    try
+                    AspNetUsers usuario = new AspNetUsers();
+                    var username = "";
+                    var pass = r.Nombre.Substring(0, 1).ToLower() + r.ApellidoPaterno.Trim().ToLower();
+                    if(pass.Length < 7)
                     {
-                   
-                        candidato.CURP = r.Curp;
-                        candidato.Nombre = r.Nombre;
-                        candidato.ApellidoPaterno = r.ApellidoPaterno;
-                        candidato.ApellidoMaterno = r.ApellidoMaterno;
+                        pass.PadLeft(7, '0');
+                    }
+                    if (r.OpcionRegistro == 1)
+                    {
+                        username = r.Email[0].email.ToString();
+                    }
+                    else
+                    {
+                        username = r.Telefono[0].ClaveLada.ToString() + r.Telefono[0].telefono.ToString();
+                    }
+                    usuario.Id = Guid.NewGuid().ToString();
+                    usuario.PhoneNumber = r.Telefono[0].telefono.ToString();
+                    usuario.Clave = "00000";
+                    usuario.Pasword = pass;
+                    usuario.RegistroClave = DateTime.Now;
+                    usuario.PhoneNumberConfirmed = false;
+                    usuario.EmailConfirmed = true;
+                    usuario.LockoutEnabled = false;
+                    usuario.AccessFailedCount = 0;
+                    usuario.Email = r.Email[0].email.ToString();
+                    usuario.UserName = username;
+                    usuario.Activo = 0;
+
+                    db.AspNetUsers.Add(usuario);
+                    db.SaveChanges();
+
+                    var add = db.Database.ExecuteSqlCommand("spEncriptarPasword @id", new SqlParameter("id", usuario.Id));
+
+                    candidato.CURP = r.Curp;
+                    candidato.Nombre = r.Nombre;
+                    candidato.ApellidoPaterno = r.ApellidoPaterno;
+                    candidato.ApellidoMaterno = r.ApellidoMaterno;
+                       
+                    candidato.PaisNacimientoId = 42;
+                    candidato.EstadoNacimientoId = r.EstadoNacimientoId;
+                    candidato.MunicipioNacimientoId = 0;
+                        
+                    candidato.GeneroId = r.GeneroId;
+                    candidato.TipoEntidadId = 2;
+                    candidato.FechaNacimiento = r.FechaNac;
+
+                    if(r.OpcionRegistro == 1)
+                    {
                         candidato.emails = r.Email;
-                        candidato.PaisNacimientoId = 42;
-                        candidato.EstadoNacimientoId = r.EstadoNacimientoId;
-                        candidato.MunicipioNacimientoId = 0;
-                        candidato.telefonos = r.Telefono;
-                        candidato.GeneroId = r.GeneroId;
-                        candidato.TipoEntidadId = 2;
-                        candidato.FechaNacimiento = r.FechaNac;
-
-                        db.Candidatos.Add(candidato);
-                        db.SaveChanges();
-
-                        PC.CandidatoId = candidato.Id;
-                        PC.Estatus = 41;
-
-                        db.PerfilCandidato.Add(PC);
-
-                        db.SaveChanges();
-
-                        var horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(r.requisicionId)).Select(h => h.Id).FirstOrDefault();
-
-                        proceso.CandidatoId = candidato.Id;
-                        proceso.RequisicionId = r.requisicionId;
-                        proceso.Folio = db.Requisiciones.Where(x => x.Id.Equals(r.requisicionId)).Select(R => R.Folio).FirstOrDefault();
-                        proceso.Reclutador = "SIN ASIGNAR";
-                        proceso.ReclutadorId = r.reclutadorId;
-                        proceso.EstatusId = 24;
-                        proceso.TpContrato = 0;
-                        proceso.HorarioId = horario;
-                        proceso.Fch_Modificacion = DateTime.Now;
-                        proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
-                        proceso.TipoMediosId = 2;
-
-                        db.ProcesoCandidatos.Add(proceso);
-                        db.SaveChanges();
-
-                        obj.CandidatoId = candidato.Id;
-                        obj.CURP = r.Curp;
-                        obj.RFC = "SIN ASIGNAR";
-                        obj.NSS = "SIN ASIGNAR";
-                        obj.FechaNacimiento = r.FechaNac;
-                        obj.Nombre = r.Nombre;
-                        obj.ApellidoPaterno = r.ApellidoPaterno;
-                        obj.ApellidoMaterno = r.ApellidoMaterno;
-                        obj.PaisNacimientoId = 42;
-                        obj.EstadoNacimientoId = r.EstadoNacimientoId;
-                        obj.MunicipioNacimientoId = 0;
-                        obj.GeneroId = r.GeneroId;
-                        obj.ReclutadorId = r.reclutadorId;
-
-                        obj.fch_Modificacion = DateTime.Now;
-                        obj.fch_Modificacion.ToUniversalTime();
-
-                        db.CandidatosInfo.Add(obj);
-                        db.SaveChanges();
-
-                        tran.Commit();
-
-                        candidato = new Candidato();
-                        PC = new PerfilCandidato();
-                        proceso = new ProcesoCandidato();
-                        obj = new CandidatosInfo();
                     }
-                    catch
+                    else
                     {
-                        tran.Rollback();
-                        return Ok(HttpStatusCode.ExpectationFailed);
+                        candidato.telefonos = r.Telefono;
                     }
+
+                    db.Candidatos.Add(candidato);
+                    db.SaveChanges();
+
+                    PC.CandidatoId = candidato.Id;
+                    PC.Estatus = 41;
+
+                    db.PerfilCandidato.Add(PC);
+
+                    db.SaveChanges();
+
+                    var t = db.AspNetUsers.Find(usuario.Id);
+                    db.Entry(t).Property(x => x.IdPersona).IsModified = true;
+
+                    t.IdPersona = candidato.Id;
+                    db.SaveChanges();
+
+                    var horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(r.requisicionId)).Select(h => h.Id).FirstOrDefault();
+
+                    proceso.CandidatoId = candidato.Id;
+                    proceso.RequisicionId = r.requisicionId;
+                    proceso.Folio = db.Requisiciones.Where(x => x.Id.Equals(r.requisicionId)).Select(R => R.Folio).FirstOrDefault();
+                    proceso.Reclutador = "SIN ASIGNAR";
+                    proceso.ReclutadorId = r.reclutadorId;
+                    proceso.EstatusId = 24;
+                    proceso.TpContrato = 0;
+                    proceso.HorarioId = horario;
+                    proceso.Fch_Modificacion = DateTime.Now;
+                    proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
+                    proceso.TipoMediosId = 2;
+
+                    db.ProcesoCandidatos.Add(proceso);
+                    db.SaveChanges();
+
+                    obj.CandidatoId = candidato.Id;
+                    obj.CURP = r.Curp;
+                    obj.RFC = "SIN ASIGNAR";
+                    obj.NSS = "SIN ASIGNAR";
+                    obj.FechaNacimiento = r.FechaNac;
+                    obj.Nombre = r.Nombre;
+                    obj.ApellidoPaterno = r.ApellidoPaterno;
+                    obj.ApellidoMaterno = r.ApellidoMaterno;
+                    obj.PaisNacimientoId = 42;
+                    obj.EstadoNacimientoId = r.EstadoNacimientoId;
+                    obj.MunicipioNacimientoId = 0;
+                    obj.GeneroId = r.GeneroId;
+                    obj.ReclutadorId = r.reclutadorId;
+
+                    obj.fch_Modificacion = DateTime.Now;
+                    obj.fch_Modificacion.ToUniversalTime();
+
+                    db.CandidatosInfo.Add(obj);
+                    db.SaveChanges();
+
+                    tran.Commit();
+
+                    candidatosIds.Add(candidato.Id);
+
+                    candidato = new Candidato();
+                    PC = new PerfilCandidato();
+                    proceso = new ProcesoCandidato();
+                    obj = new CandidatosInfo();
                 }
-            return Ok(HttpStatusCode.OK);
+                catch
+                {
+                    tran.Rollback();
+                    return Ok(HttpStatusCode.ExpectationFailed);
+                }
+             }
+            return Ok(candidatosIds);
         }
 
         [HttpGet]
@@ -184,6 +248,7 @@ namespace SAGA.API.Controllers
                     {
                         Id = c.Id,
                         folio = c.Folio,
+                        tipoReclutamientoId = c.Requisicion.TipoReclutamientoId,
                         candidatoId = c.CandidatoId,
                         estatus = c.Estatus.Descripcion,
                         estatusId = c.EstatusId,
@@ -241,6 +306,7 @@ namespace SAGA.API.Controllers
                     {
                         Id = c.Id,
                         folio = c.Folio,
+                        tipoReclutamientoId = c.Requisicion.TipoReclutamientoId,
                         candidatoId = c.CandidatoId,
                         estatus = c.Estatus.Descripcion,
                         estatusId = c.EstatusId,
@@ -907,6 +973,98 @@ namespace SAGA.API.Controllers
 
             //
        
+        }
+
+        [HttpPost]
+        [Route("sendEmailContratados")]
+        [Authorize]
+        public IHttpActionResult SendEmailContratados(List<Guid> datos)
+        {
+            string fullPath = "http://192.168.8.124:333/logo/logo.png";
+
+            string body = "";
+            string usuario = "";
+            try
+            {
+                SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["SAGADB"].ConnectionString);
+                SqlCommand cmd = new SqlCommand();
+
+                foreach (var r in datos)
+                {
+
+                    cmd.CommandText = "SELECT * FROM sist.AspNetUsers WHERE IdPersona=@candidatoId";
+                    cmd.Parameters.AddWithValue("@candidatoId", r);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Connection = conn;
+
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            usuario = reader["UserName"].ToString();
+                        }
+                    }
+
+
+                    conn.Close();
+
+                    usuario = "bmorales@damsa.com.mx";
+
+                    var D = db.Candidatos.Where(x => x.Id.Equals(r)).Select(n => new
+                    {
+                        nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
+                        vacante = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(r) && x.EstatusId.Equals(24)).Select(P => P.Requisicion.VBtra).FirstOrDefault()
+                    }).FirstOrDefault();
+
+                    if (usuario != "")
+                    {
+                        string from = "noreply@damsa.com.mx";
+                        MailMessage m = new MailMessage();
+                        m.From = new MailAddress(from, "DAMSA");
+                        m.Subject = "Bolsa de Trabajo DAMSA";
+
+                        if (usuario.Contains("@"))
+                        {
+                            m.To.Add(usuario);
+                            m.CC.Add("idelatorre@damsa.com.mx");
+                            m.CC.Add("mventura@damsa.com.mx");
+                            body = "<html><head></head><body style=\"text-align:center; font-size:14px; font-family:'calibri'\">";
+                            body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
+                            body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", D.nombre);
+                            body = body + "<br/><br/><h1>¡Felicidades!</h1>";
+                            body = body + string.Format("<p>Eres uno(a) de los/las contratados para la vacante <h1 style=\"color:#3366cc;\">{0}</h1></p>", D.vacante);
+                            body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font style:\"text-decoration:none\"; color=\"#5d9cec\">{0}</font></p>", usuario);
+                            body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
+                            body = body + "</body></html>";
+
+                            m.Body = body;
+                            m.IsBodyHtml = true;
+                            SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                            smtp.EnableSsl = true;
+                            smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                            smtp.Send(m);
+
+                            //var msj = new SqlParameter("@msj", body);
+                            //var email = new SqlParameter("@email", usuario);
+                            //var result = db.Database.ExecuteSqlCommand("dbo.sp_SendEmail @msj = {0}, @email = {1}", "body", "usuario");
+                        }
+                        else
+                        {
+                            return Ok(EnviarSMS(usuario, D.vacante, 24));
+                        }
+                    }
+                }
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+            //
+
         }
 
         //falta mensaje

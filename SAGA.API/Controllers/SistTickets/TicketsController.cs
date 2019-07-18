@@ -12,6 +12,15 @@ using System.Data.SqlClient;
 using SAGA.API.Dtos;
 using SAGA.API.Utilerias;
 using SAGA.API.Dtos.SistTickets;
+using System.Configuration;
+using System.Net.Mail;
+using Infobip.Api.Model.Sms.Mt.Send;
+using Infobip.Api.Model.Sms.Mt.Send.Textual;
+using Infobip.Api.Client;
+using Infobip.Api.Config;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Text;
 
 namespace SAGA.API.Controllers
 {
@@ -489,7 +498,7 @@ namespace SAGA.API.Controllers
                 }
                 else
                 {
-                    username = datos.Telefono[0].telefono.ToString();
+                    username = datos.Telefono[0].ClaveLada.ToString() + datos.Telefono[0].telefono.ToString();
                 }
                 usuario.Id = Guid.NewGuid().ToString();
                 usuario.PhoneNumber = datos.Telefono[0].telefono.ToString();
@@ -548,6 +557,16 @@ namespace SAGA.API.Controllers
                 login.username = username;
                 login.pass = pass;
 
+                if(datos.OpcionRegistro == 1)
+                {
+                    this.SendEmailRegistro(datos, pass);
+                }
+                else
+                {
+                    var tel = datos.Telefono[0].ClaveLada.ToString() + datos.Telefono[0].telefono.ToString();
+                    var mocos = this.EnviarSMS(tel, username, pass);
+                }
+
                 return Ok(login);
             }
             catch (Exception ex)
@@ -556,6 +575,78 @@ namespace SAGA.API.Controllers
             }
         }
 
+        public void SendEmailRegistro(CandidatosGralDto dtos, string pass)
+        {
+            try
+            {
+                string body = "";
+                string email = dtos.Email[0].email;
+       
+                string from = "noreply@damsa.com.mx";
+                MailMessage m = new MailMessage();
+                m.From = new MailAddress(from, "Bolsa de Trabajo DAMSA");
+                m.Subject = "Datos de Registro a Bolsa de Trabajo DAMSA";
+                m.To.Add("bmorales@damsa.com.mx");
+            
+
+                m.Subject = "Tu acceso a Bolsa de Trabajo DAMSA está listo!";
+                body = "<html><body><table width=\"80%\" style=\"font-family:'calibri'\">";
+                body = body + "<tr><th bgcolor=\"#044464\" style=\"color:white; text-align:left;\">Se creó una nueva cuenta para BOLSA TRABAJO DAMSA </th></ tr>";
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Usuario:</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td>{0}</td></tr>", email);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Nombre :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} {1} {2} </td></tr>", dtos.Nombre, dtos.ApellidoPaterno, dtos.ApellidoMaterno);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Correo :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", email);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Contraseña :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", pass);
+                body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Registrado :</font></td></tr>";
+                body = body + string.Format("<tr bgcolor=\"#FDC613\"><td>{0}<br/>", DateTime.Now.ToShortDateString());
+                body = body + "<p> Podrás acceder mediante la siguiente dirección: https://www.damsa.com.mx/bt <br/>";
+                body = body + "Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx </p></td></tr></table>";
+                body = body + "</body></html>";
+
+                m.Body = body;
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                smtp.EnableSsl = true;
+                smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                smtp.Send(m);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+            }
+        }
+
+        public async Task<IHttpActionResult> EnviarSMS(string telefono, string usuario, string pass)
+        {
+            Regex reg = new Regex("[^a-zA-Z0-9] ");
+            List<string> Destino = new List<string>(1) { ConfigurationManager.AppSettings["Lada"] + telefono };
+            BasicAuthConfiguration BASIC_AUTH_CONFIGURATION = new BasicAuthConfiguration(ConfigurationManager.AppSettings["BaseUrl"], ConfigurationManager.AppSettings["UserInfobip"], ConfigurationManager.AppSettings["PassInfobip"]);
+
+            SendSingleTextualSms smsClient = new SendSingleTextualSms(BASIC_AUTH_CONFIGURATION);
+
+          
+                string texto = "Datos de acceso a Bolsa Trabajo DAMSA: Usuario: " + usuario + " Contraseña: " + pass + " Da click https://www.damsa.com.mx/bt para cambiar contraseña y actualizar tu perfil";
+                texto = texto.Normalize(NormalizationForm.FormD);
+                texto = reg.Replace(texto, " ");
+
+                SMSTextualRequest request = new SMSTextualRequest
+                {
+                    From = "DAMSA",
+                    To = Destino,
+                    Text = ConfigurationManager.AppSettings["NameAppMsj"] + texto
+
+                };
+
+                SMSResponse smsResponse = await smsClient.ExecuteAsync(request); // Manda el mensaje con código.
+
+                SMSResponseDetails sentMessageInfo = smsResponse.Messages[0];
+
+             
+            return Ok(HttpStatusCode.Created);
+        }
 
         [HttpGet]
         [Route("loginBolsa")]
