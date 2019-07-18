@@ -158,9 +158,7 @@ namespace SAGA.API.Controllers
                 Usuario = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Usuario).FirstOrDefault(),
                 Descripcion = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(x => string.IsNullOrEmpty(x.Descripcion) ? "" : x.Descripcion).FirstOrDefault(),
                 Departamento = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
-                Emails = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
-                    email = e.email
-                }),
+                Emails = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => string.IsNullOrEmpty(e.email) ? "SIN REGISTRO" : e.email).FirstOrDefault(),
                 grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
                 {
                     Id = g.GrupoId,
@@ -210,9 +208,7 @@ namespace SAGA.API.Controllers
                 Usuario = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Usuario).FirstOrDefault(),
                 Descripcion = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(x => string.IsNullOrEmpty(x.Descripcion) ? "" : x.Descripcion).FirstOrDefault(),
                 Departamento = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
-                Emails = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => new {
-                    email = e.email
-                }),
+                Emails = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => e.email).FirstOrDefault(),
                 grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
                 {
                     Id = g.GrupoId,
