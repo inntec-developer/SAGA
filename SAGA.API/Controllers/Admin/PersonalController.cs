@@ -85,7 +85,7 @@ namespace SAGA.API.Controllers
                                                                                                                                                             .Select(L => L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno).FirstOrDefault(),
                     oficinaId = u.SucursalId,
                     oficina = u.Sucursal.Nombre,
-                    activo = u.Activo
+                    activo = u.Activo ? 1 : 0
 
                 }).OrderBy(o => o.nombre).ToList();
 
@@ -539,6 +539,32 @@ namespace SAGA.API.Controllers
 
         }
 
+        [HttpGet]
+        [Route("deleteUsuario")]
+        [Authorize]
+        public IHttpActionResult DeleteUsuario(Guid entidadId)
+        {
+            using (DbContextTransaction beginTran = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    var t = db.Entidad.Find(entidadId);
+                    db.Entry(t).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+
+                    beginTran.Commit();
+                    return Ok(HttpStatusCode.OK);
+                }
+                catch (Exception ex)
+                {
+                    beginTran.Rollback();
+                    string msg = ex.Message;
+                    return Ok(HttpStatusCode.ExpectationFailed);
+                }
+            }
+
+        }
         public void SendEmaiNewRegistro(PersonasDtos Dtos)
         {
             try
