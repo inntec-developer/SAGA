@@ -154,7 +154,7 @@ namespace SAGA.DAL
         public DbSet<Transferencias> Transferencias { get; set; }
         public DbSet<TiposTransferencias> TiposTransferencias { get; set; }
         public DbSet<TipoExamenMedico> TiposExamenMedico { get; set; }
-
+        public DbSet<VertionSistem> VertionSistem { get; set; }
 
         ///modulo admin 
         public DbSet<Usuarios> Usuarios { get; set; }
@@ -311,6 +311,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new SubordinadosMap().ToTable("Subordinados"));
             modelBuilder.Configurations.Add(new UnidadesNegociosMap().ToTable("UnidadesNegocios"));
             modelBuilder.Configurations.Add(new TipoExamenMedicoMap().ToTable("TiposExamenesMedicos"));
+            
 
             //Catalogos
             modelBuilder.Configurations.Add(new CatalogosMap().ToTable("Catalogos"));
@@ -337,6 +338,9 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new TiposTransferenciasMap().ToTable("TiposTransferencias"));
 
             modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
+
+            //Tabla de Versiones del Sistema.
+            modelBuilder.Configurations.Add(new VertionSistemMap().ToTable("VertionSistem"));
             #endregion
 
             #region BolsaTrabajo_BTra
@@ -1391,6 +1395,19 @@ namespace SAGA.DAL
                 Property(x => x.Resultado).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
+            }
+        }
+
+        public class VertionSistemMap : EntityTypeConfiguration<VertionSistem>
+        {
+            public VertionSistemMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Version).HasMaxLength(50).IsRequired(); 
+                Property(x => x.Descripcion).IsOptional();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.Liberada).IsRequired();
             }
         }
 

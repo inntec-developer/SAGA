@@ -65,8 +65,8 @@ namespace SAGA.API.Controllers
                                                 CodigoPostal = direccion.CodigoPostal,
                                                 NumeroExterior = direccion.NumeroExterior,
                                                 NumeroInterior = direccion.NumeroInterior
-
                                             }).ToList();
+
                 return Ok(DamfoDto.Damfo290Address);
 
             }
@@ -1749,7 +1749,7 @@ namespace SAGA.API.Controllers
                             deHora = x.deHora,
                             aHora = x.aHora,
                             numeroVacantes = x.numeroVacantes,
-                            especificacaiones = x.Especificaciones,
+                            especificaciones = x.Especificaciones,
                             activo = x.Activo
                         })
                         .ToList();
