@@ -350,6 +350,7 @@ namespace SAGA.API.Controllers
             try
             {
                 Ticket ticket = new Ticket();
+                string nombre = "";
                 ticket.CandidatoId = candidatoId;
                     //new Guid("1FD57341-F35D-E811-80E1-9E274155325E"); //pablo
                 //ticket.CandidatoId = new Guid("F66DA23E-9D69-E811-80E1-9E274155325E"); //coni
@@ -385,9 +386,18 @@ namespace SAGA.API.Controllers
                     obj2.RequisicionId = requisicionId;
 
                     O.ApartarCandidato(obj2);
-                    
+
+                    nombre = db.Candidatos.Where(x => x.Id.Equals(candidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
                 }
-                return Ok(ticket.Numero);
+
+                GenerarTicket GT = new GenerarTicket();
+                GT.TicketNo = ticket.Numero;
+                GT.Nombre = nombre;
+                GT.print();
+
+                var data = new List<string>() { ticket.Numero, nombre };
+
+                return Ok(data);
 
             }
             catch (Exception ex)
