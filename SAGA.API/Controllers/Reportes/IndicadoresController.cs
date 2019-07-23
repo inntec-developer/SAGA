@@ -106,6 +106,15 @@ namespace SAGA.API.Controllers.Reportes
             int cubierto = proseso.Where(e => e.EstatusId == 24).Distinct().ToList().Count;
             int faltante = proseso.Select(e => e.CandidatoId).Distinct().ToList().Count;
             faltante = numeropos - cubierto;
+            
+            var apartado = proseso.Where(e => e.EstatusId == 12).Distinct().ToList();
+            var cita = proseso.Where(e => e.EstatusId == 17 && e.EstatusId == 16).Distinct().ToList();
+            var entrevista = proseso.Where(e => e.EstatusId == 18).Distinct().ToList();
+            int[] evaID = new[] { 13, 14, 15 };
+            var evaluacion = proseso.Where(e => evaID.Contains(e.EstatusId)).Distinct().ToList();
+            var finalista = proseso.Where(e => e.EstatusId == 21).Distinct().ToList();
+            var entrevistacliente = proseso.Where(e => e.EstatusId == 22).Distinct().ToList();
+            var finalistacliente = proseso.Where(e => e.EstatusId == 23).Distinct().ToList();
 
             var obj = new {
                 total = Nuevo + Aprobada + Publicada + BusCandidatos + EnvCliente + NuBusqueda + Socioeconomicos + Espera + Pausada + Garantia,
@@ -121,7 +130,14 @@ namespace SAGA.API.Controllers.Reportes
                 Garantia = Garantia,
                 numeropos = numeropos,
                 cubierto = cubierto,
-                faltante = faltante
+                faltante = faltante,
+                apartado = apartado.Count,
+                cita = cita.Count,
+                entrevista = entrevista.Count,
+                evaluacion = evaluacion.Count,
+                finalista = finalista.Count,
+                entrecliente = entrevistacliente.Count,
+                fincliente = finalistacliente.Count
             };
             return Ok(obj);
         }
@@ -441,10 +457,20 @@ namespace SAGA.API.Controllers.Reportes
                 e.Id,
                 e.EstatusId
             }).ToList();
-                var datos = new {
+            var masivolist = masivo.Select(x => x.Id).ToList();
+            var operativolist = operativo.Select(x => x.Id).ToList();
+            var especiallist = ezpeciali.Select(x => x.Id).ToList();
+            int masivopos = db.HorariosRequis.Where(e => masivolist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
+            int operativopos = db.HorariosRequis.Where(e => operativolist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
+            int especialpos = db.HorariosRequis.Where(e => especiallist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
+
+            var datos = new {
                     masivo = masivo.Count,
+                    masivopos = masivopos,
                     operativo = operativo.Count,
+                    operativopos = operativopos,
                     ezpecial = ezpeciali.Count,
+                    especialpos = especialpos,
                 };
                 return Ok(datos);
         }
