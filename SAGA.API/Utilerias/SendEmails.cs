@@ -203,7 +203,7 @@ namespace SAGA.API.Utilerias
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
 
-                    if (Coincidencias != null)
+                    if (Coincidencias != null && Coincidencias.Count() > 0)
                     {
                         
 
@@ -240,7 +240,7 @@ namespace SAGA.API.Utilerias
                         body = inicio;
                         body = body + string.Format("<br/>El usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big><a href=\"{3}/login/{2}\">{2}</a></big></strong>.", Usuario, VBr, Folio, sitioWeb);
 
-                        if (Coincidencias != null)
+                        if (Coincidencias != null && Coincidencias.Count() > 0)
                         {
                             body = body + string.Format("<br><p>Los siguientes candidatos coinciden para <b>Categoría</b> ("+Coincidencias[0].Requisicion.CategoriaDesc+"), <b>Salario</b> ($"+Coincidencias[0].Requisicion.SalarioMinimo+"- $"+Coincidencias[0].Requisicion.SalarioMaximo+"), <b>Genero</b> ("+Coincidencias[0].Requisicion.GeneroDesc+"),");
                             body = body + string.Format(" <b>Edad:</b> (" + Coincidencias[0].Requisicion.EdadMinima + "-" + Coincidencias[0].Requisicion.EdadMaxima + "), <b>Estado civil</b> (" + Coincidencias[0].Requisicion.EstadoCivilDesc + "), <b>Escolaridad</b> ("+Escolaridades+")</p>");
@@ -569,6 +569,8 @@ namespace SAGA.API.Utilerias
                         if (facturada)
                         {
                             m.CC.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                            m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
+                            m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
                         }
                         m.Subject = string.Format("[ASIGNACióN A GERENTE] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha asignado al gerente de reclutamiento el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>, el cual debera tranferirla al coordinador correspondiente. </strong>", requi.folio, sitioWeb);
@@ -594,6 +596,8 @@ namespace SAGA.API.Utilerias
                         if (facturada)
                         {
                             m.CC.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                            m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
+                            m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
                         }
                         m.Subject = string.Format("Cancelación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha cancelado el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a></strong>", requi.folio, sitioWeb);
@@ -619,7 +623,9 @@ namespace SAGA.API.Utilerias
                         
                         if (facturada)
                         {
-                            m.CC.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                            m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                            m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
+                            m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
                         }
                         m.Subject = string.Format("Eliminación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha elimino el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>.</strong>", requi.folio, sitioWeb);
@@ -649,6 +655,8 @@ namespace SAGA.API.Utilerias
                         break;
                     case 44:
                         m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                        m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
+                        m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
                         if (!isDurango)
                         {
                             m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
@@ -721,7 +729,7 @@ namespace SAGA.API.Utilerias
                     body = body + string.Format("<p><label><strong style=\"color: #159EF7\">FACTURAR: </strong>{0}%</label></p>", facturacion.porcentage);
                     body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO A FACTURAR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.monto));
                     body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> AL CUBRIR: </strong>{0} %</label><p>", facturacion.perContratado);
-                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO AL CUMBRIR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.montoContratado));
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO AL CUBRIR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.montoContratado));
                     body = body + string.Format("</div></div>");
                 }
                

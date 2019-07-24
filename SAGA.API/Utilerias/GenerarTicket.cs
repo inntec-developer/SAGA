@@ -4,7 +4,6 @@ using System.Linq;
 using System.Web;
 using System.Drawing.Printing;
 using System.Drawing;
-using System.Printing;
 namespace SAGA.API.Utilerias
 {
     public class GenerarTicket
