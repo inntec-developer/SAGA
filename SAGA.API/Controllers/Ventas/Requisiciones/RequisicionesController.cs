@@ -922,7 +922,7 @@ namespace SAGA.API.Controllers
                             asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
                                db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
-                            ).Distinct().ToList(),
+                            ).ToList(),
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion.ToUpper() + " - ") + c.Comentario.ToUpper()).ToList(),
                             Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null,
                             Ponderacion = db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).Select( p => new

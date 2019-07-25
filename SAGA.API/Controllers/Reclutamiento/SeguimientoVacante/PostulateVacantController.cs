@@ -417,7 +417,7 @@ namespace SAGA.API.Controllers
                 //R.AprobadorId = datos.ReclutadorId;
                 db.SaveChanges();
 
-                if(datos.estatusId >= 34 && datos.estatusId <= 37)
+                if(datos.estatusId >= 34 && datos.estatusId <= 37 || datos.estatusId == 47 || datos.estatusId == 48)
                 {
                     R.Publicado = false;
                     db.SaveChanges();
