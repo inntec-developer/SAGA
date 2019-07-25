@@ -272,72 +272,97 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                DateTime endDate = DateTime.Now.AddDays(1);
+                GenerarTicket GT = new GenerarTicket();
+                var mocos = GT.FindPrinter("EPSON TM-T20II Receipt");
 
-                var cita = (from items in db.CalendarioCandidato
-                           where items.Folio.Equals(folio) 
-                           select new { id= items.Id, activa = items.Estatus, fecha = items.Fecha, requisicionId = items.RequisicionId, candidatoId = items.CandidatoId }).ToList();
-
-                if (cita.Count() > 0 && cita[0].fecha.Date == DateTime.Now.Date)
+                if (!mocos.IsNotAvailable)
                 {
-                    if (cita[0].activa == 1)
+                    if (!mocos.IsOutOfPaper)
                     {
-                        if (cita[0].fecha.Date < endDate.Date && cita[0].fecha.Date >= DateTime.Now.Date && cita[0].fecha.Hour + 1 > DateTime.Now.Hour)
+                        DateTime endDate = DateTime.Now.AddDays(1);
+
+                        var cita = (from items in db.CalendarioCandidato
+                                    where items.Folio.Equals(folio)
+                                    select new { id = items.Id, activa = items.Estatus, fecha = items.Fecha, requisicionId = items.RequisicionId, candidatoId = items.CandidatoId }).ToList();
+
+                        if (cita.Count() > 0 && cita[0].fecha.Date == DateTime.Now.Date)
                         {
+                            if (cita[0].activa == 1)
+                            {
+                                if (cita[0].fecha.Date < endDate.Date && cita[0].fecha.Date >= DateTime.Now.Date && cita[0].fecha.Hour + 1 > DateTime.Now.Hour)
+                                {
 
-                            //if ((cita.fecha - DateTime.Now).TotalMinutes <= -15 || (cita.fecha - DateTime.Now).TotalMinutes >= 15)
-                            //var cita = db.CalendarioCandidato.Where(x => x.Folio.Equals(folio)).Select(T => new
-                            //{
-                            //    requisicionId = T.RequisicionId,
-                            //    candidatoId = T.CandidatoId
-                            //}).FirstOrDefault();
+                                    //if ((cita.fecha - DateTime.Now).TotalMinutes <= -15 || (cita.fecha - DateTime.Now).TotalMinutes >= 15)
+                                    //var cita = db.CalendarioCandidato.Where(x => x.Folio.Equals(folio)).Select(T => new
+                                    //{
+                                    //    requisicionId = T.RequisicionId,
+                                    //    candidatoId = T.CandidatoId
+                                    //}).FirstOrDefault();
 
-                            //if (cita != null)
-                            //{
-                            Ticket ticket = new Ticket();
-                            ticket.CandidatoId = cita[0].candidatoId;
-                            ticket.RequisicionId = cita[0].requisicionId;
-                            ticket.MovimientoId = 1;
-                            ticket.ModuloId = 1;
-                            ticket.Estatus = 1;
+                                    //if (cita != null)
+                                    //{
+                                    Ticket ticket = new Ticket();
+                                    ticket.CandidatoId = cita[0].candidatoId;
+                                    ticket.RequisicionId = cita[0].requisicionId;
+                                    ticket.MovimientoId = 1;
+                                    ticket.ModuloId = 1;
+                                    ticket.Estatus = 1;
 
-                            var num = db.Tickets.Where(x => x.RequisicionId.Equals(ticket.RequisicionId) && x.MovimientoId.Equals(1)).Count();
+                                    var num = db.Tickets.Where(x => x.RequisicionId.Equals(ticket.RequisicionId) && x.MovimientoId.Equals(1)).Count() + 1;
 
-                            var f = db.Requisiciones.Where(x => x.Id.Equals(ticket.RequisicionId)).Select(ff => ff.Folio).FirstOrDefault().ToString();
+                                    var f = db.Requisiciones.Where(x => x.Id.Equals(ticket.RequisicionId)).Select(ff => ff.Folio).FirstOrDefault().ToString();
 
-                            ticket.Numero = "CC-" + f.Substring(f.Length - 4, 4) + '-' + num.ToString().PadLeft(3, '0');
+                                    ticket.Numero = "CC-" + f.Substring(f.Length - 4, 4) + '-' + num.ToString().PadLeft(3, '0');
 
-                            db.Tickets.Add(ticket);
+                                    db.Tickets.Add(ticket);
 
-                            db.SaveChanges();
+                                    db.SaveChanges();
 
-                            var folioCita = db.CalendarioCandidato.Find(cita[0].id);
+                                    var folioCita = db.CalendarioCandidato.Find(cita[0].id);
 
-                            db.Entry(folioCita).Property(x => x.Estatus).IsModified = true;
+                                    db.Entry(folioCita).Property(x => x.Estatus).IsModified = true;
 
-                            folioCita.Estatus = 0;
+                                    folioCita.Estatus = 0;
 
-                            db.SaveChanges();
+                                    db.SaveChanges();
 
-                            return Ok(ticket.Numero);
+                                    var nombre = db.Candidatos.Where(x => x.Id.Equals(ticket.CandidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
+
+                                    GT.TicketNo = ticket.Numero;
+                                    GT.Nombre = nombre;
+                                    GT.print();
+
+                                    var data = new List<string>() { ticket.Numero, nombre };
+
+                                    return Ok(data);
+                                }
+                                else
+                                {
+                                    return Ok(HttpStatusCode.NoContent); //204 se perdío la cita por la hora
+                                }
+                            }
+                            else
+                            {
+                                return Ok(HttpStatusCode.OK); //ya se imprimio ticket para esa cita
+                            }
                         }
                         else
                         {
-                            return Ok(HttpStatusCode.NoContent); //204 se perdío la cita por la hora
+                            return Ok(HttpStatusCode.NotFound); //404 no se encontró la cita
+
                         }
                     }
                     else
                     {
-                        return Ok(HttpStatusCode.OK); //ya se imprimio ticket para esa cita
+                        return Ok(HttpStatusCode.Conflict); //sin papel
                     }
                 }
                 else
                 {
-                    return Ok(HttpStatusCode.NotFound); //404 no se encontró la cita
-                 
+                    return Ok(HttpStatusCode.BadGateway); //apagada
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
@@ -349,55 +374,72 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                Ticket ticket = new Ticket();
-                string nombre = "";
-                ticket.CandidatoId = candidatoId;
-                    //new Guid("1FD57341-F35D-E811-80E1-9E274155325E"); //pablo
-                //ticket.CandidatoId = new Guid("F66DA23E-9D69-E811-80E1-9E274155325E"); //coni
-                ticket.RequisicionId = requisicionId;
-                ticket.MovimientoId = 2;
-                ticket.ModuloId = 1;
-                ticket.Estatus = 1;
-
-                var num = db.Tickets.Where(x => x.RequisicionId.Equals(requisicionId) && x.MovimientoId.Equals(2)).Count();
-
-                var folio = db.Requisiciones.Where(x => x.Id.Equals(requisicionId)).Select(f => f.Folio).FirstOrDefault().ToString();
-
-                ticket.Numero = "SC-" + folio.Substring(folio.Length - 4, 4) + '-' + num.ToString().PadLeft(3, '0');
-             
-                db.Tickets.Add(ticket);
-
-                db.SaveChanges();
-
-                if(candidatoId != auxID)
-                {
-                    Postulacion obj = new Postulacion();
-                    obj.CandidatoId = candidatoId;
-                    obj.fch_Postulacion = DateTime.Now;
-                    obj.RequisicionId = requisicionId;
-                    obj.StatusId = 1;
-
-                    db.Postulaciones.Add(obj);
-                    db.SaveChanges();
-
-                    InfoCandidatoController O = new InfoCandidatoController();
-                    ProcesoCandidato obj2 = new ProcesoCandidato();
-                    obj2.CandidatoId = candidatoId;
-                    obj2.RequisicionId = requisicionId;
-
-                    O.ApartarCandidato(obj2);
-
-                    nombre = db.Candidatos.Where(x => x.Id.Equals(candidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
-                }
-
                 GenerarTicket GT = new GenerarTicket();
-                GT.TicketNo = ticket.Numero;
-                GT.Nombre = nombre;
-                GT.print();
+                var mocos = GT.FindPrinter("EPSON TM-T20II Receipt");
 
-                var data = new List<string>() { ticket.Numero, nombre };
+                if (!mocos.IsNotAvailable)
+                {
+                    if (!mocos.IsOutOfPaper)
+                    {
+                        Ticket ticket = new Ticket();
+                        string nombre = "";
+                        ticket.CandidatoId = candidatoId;
+                        //new Guid("1FD57341-F35D-E811-80E1-9E274155325E"); //pablo
+                        //ticket.CandidatoId = new Guid("F66DA23E-9D69-E811-80E1-9E274155325E"); //coni
+                        ticket.RequisicionId = requisicionId;
+                        ticket.MovimientoId = 2;
+                        ticket.ModuloId = 1;
+                        ticket.Estatus = 1;
 
-                return Ok(data);
+                        var num = db.Tickets.Where(x => x.RequisicionId.Equals(requisicionId) && x.MovimientoId.Equals(2)).Count() + 1;
+
+                        var folio = db.Requisiciones.Where(x => x.Id.Equals(requisicionId)).Select(f => f.Folio).FirstOrDefault().ToString();
+
+                        ticket.Numero = "SC-" + folio.Substring(folio.Length - 4, 4) + '-' + num.ToString().PadLeft(3, '0');
+
+                        db.Tickets.Add(ticket);
+
+                        db.SaveChanges();
+
+                        if (candidatoId != auxID)
+                        {
+                            Postulacion obj = new Postulacion();
+                            obj.CandidatoId = candidatoId;
+                            obj.fch_Postulacion = DateTime.Now;
+                            obj.RequisicionId = requisicionId;
+                            obj.StatusId = 1;
+
+                            db.Postulaciones.Add(obj);
+                            db.SaveChanges();
+
+                            InfoCandidatoController O = new InfoCandidatoController();
+                            ProcesoCandidato obj2 = new ProcesoCandidato();
+                            obj2.CandidatoId = candidatoId;
+                            obj2.RequisicionId = requisicionId;
+
+                            O.ApartarCandidato(obj2);
+
+                            nombre = db.Candidatos.Where(x => x.Id.Equals(candidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
+                        }
+
+
+                        GT.TicketNo = ticket.Numero;
+                        GT.Nombre = nombre;
+                        GT.print();
+
+                        var data = new List<string>() { ticket.Numero, nombre };
+
+                        return Ok(data);
+                    }
+                    else
+                    {
+                        return Ok(HttpStatusCode.Conflict); //sin papel
+                    }
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.BadGateway); //apagada
+                }
 
             }
             catch (Exception ex)
@@ -1281,7 +1323,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                List<int> estatus = new List<int> { 34, 35, 36, 37 };
+                List<int> estatus = new List<int> { 8, 9, 34, 35, 36, 37, 47, 48 };
 
                 Guid mocos = new Guid("1FF62A23-3664-E811-80E1-9E274155325E");
                 var usuarios = db.Usuarios.Where(x => x.SucursalId.Equals(mocos)).Select(U => U.Id).ToList();
