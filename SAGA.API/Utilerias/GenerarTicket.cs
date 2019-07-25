@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Drawing.Printing;
 using System.Drawing;
+using System.Printing;
+
 namespace SAGA.API.Utilerias
 {
     public class GenerarTicket
@@ -13,6 +15,7 @@ namespace SAGA.API.Utilerias
 
         public void print()
         {
+            
             PrintDocument recordDoc = new PrintDocument();
             recordDoc.DocumentName = "Customer Receipt";
             recordDoc.PrintPage += new PrintPageEventHandler(this.PrintPage); //function below
@@ -27,6 +30,20 @@ namespace SAGA.API.Utilerias
 
 
         }
+
+        public PrintQueue FindPrinter(string printerName)
+        {
+            var printers = new PrintServer().GetPrintQueues();
+            foreach (var printer in printers)
+            {
+                if (printer.FullName == printerName)
+                {
+                    return printer;
+                }
+            }
+            return LocalPrintServer.GetDefaultPrintQueue();
+        }
+
         void PrintPage(object sender, PrintPageEventArgs e)
         {
             float x = 10;

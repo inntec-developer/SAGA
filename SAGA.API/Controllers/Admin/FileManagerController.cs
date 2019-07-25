@@ -100,6 +100,46 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("getBGArte")]
+        public IHttpActionResult GetBGArte()
+        {
+            var path = "~/utilerias/img/ArteRequi/BG";
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
+
+            if (!Directory.Exists(fullPath))
+            {
+                Directory.CreateDirectory(fullPath);
+                return Ok(0);
+            }
+            else
+            {
+                DirectoryInfo folderInfo = new DirectoryInfo(fullPath);
+                List<string> extensions = folderInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly).Select(x => x.FullName).ToList();
+
+
+                var files = folderInfo.GetFiles(
+                        "*.*",
+                        SearchOption.AllDirectories).Select(x => new
+                        {
+                            fullPath = x.FullName,
+                            nom = x.Name,
+                            ext = x.Extension,
+                            size = (long)x.Length / 1024,
+                            fc = x.LastWriteTime.ToShortDateString()
+                        }).OrderByDescending(o => o.fc);
+
+                var egrp = extensions.Select(file => Path.GetExtension(file).TrimStart('.').ToLower())
+                         .GroupBy(x => x, (ext, extCnt) => new
+                         {
+                             Extension = ext,
+                             Count = extCnt.Count()
+                         });
+                return Ok(files);
+            }
+
+        }
+
+        [HttpGet]
         [Route("downloadFiles")]
         public HttpResponseMessage DownloadFiles(string file)
         {
