@@ -5,6 +5,7 @@ using System.Web;
 using System.Drawing.Printing;
 using System.Drawing;
 using System.Printing;
+using System.IO;
 
 namespace SAGA.API.Utilerias
 {
@@ -34,8 +35,10 @@ namespace SAGA.API.Utilerias
         public PrintQueue FindPrinter(string printerName)
         {
             var printers = new PrintServer().GetPrintQueues();
+            
             foreach (var printer in printers)
             {
+                
                 if (printer.FullName == printerName)
                 {
                     return printer;
@@ -103,6 +106,35 @@ namespace SAGA.API.Utilerias
             e.Graphics.DrawString(text, drawFontArial10Regular, drawBrush, new RectangleF(x, y, width, height), drawFormatCenter);
             y += e.Graphics.MeasureString(text, drawFontArial10Regular).Height;
 
+        }
+        public string GetTempPath()
+        {
+            string path = System.Environment.GetEnvironmentVariable("TEMP");
+            if (!path.EndsWith("\\")) path += "\\";
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/Escritorio/");
+            return fullPath;
+        }
+
+        public void LogMessageToFile(string msg)
+        {
+            //if (!File.Exists(GetTempPath() + "MelinaLog.txt"))
+            //{
+            //    System.IO.StreamWriter sw = System.IO.File.Create(GetTempPath() + "MelinaLog.txt");
+            //}  StreamWriter stwriter = File.CreateText(path);
+
+            StreamWriter stwriter = File.CreateText(GetTempPath() + "MelinaLog.txt");
+            //System.IO.StreamWriter stwriter = System.IO.File.AppendText(
+            //    GetTempPath() + "MelinaLog.txt");
+            try
+            {
+                string logLine = System.String.Format(
+                    "{0:G}: {1}.", System.DateTime.Now, msg);
+                stwriter.WriteLine(logLine);
+            }
+            finally
+            {
+                stwriter.Close();
+            }
         }
     }
 }

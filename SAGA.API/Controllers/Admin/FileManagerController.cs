@@ -11,6 +11,8 @@ using System.Reflection;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using SAGA.API.Dtos;
+using SAGA.API.Dtos.Admin;
 
 namespace SAGA.API.Controllers
 {
@@ -139,6 +141,33 @@ namespace SAGA.API.Controllers
 
         }
 
+        [HttpPost]
+        [Route("guardarArte")]
+        public IHttpActionResult GuardarArte(ArteDto Arte)
+        {
+            try
+            {
+                string x = Arte.arte.Replace("data:image/png;base64,", "");
+                byte[] imageBytes = Convert.FromBase64String(x);
+                MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+                ms.Write(imageBytes, 0, imageBytes.Length);
+                System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
+
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/Arte/" + Arte.requisicionId.ToString() + ".png");
+
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
+
+                image.Save(fullPath);
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+
         [HttpGet]
         [Route("downloadFiles")]
         public HttpResponseMessage DownloadFiles(string file)
@@ -259,7 +288,7 @@ namespace SAGA.API.Controllers
 
             try
             {
-                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/user/" + ruta);
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/" + ruta);
             }
             catch
             {

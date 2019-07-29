@@ -21,6 +21,7 @@ using Infobip.Api.Config;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Text;
+using System.IO;
 
 namespace SAGA.API.Controllers
 {
@@ -376,7 +377,7 @@ namespace SAGA.API.Controllers
             {
                 GenerarTicket GT = new GenerarTicket();
                 var mocos = GT.FindPrinter("EPSON TM-T20II Receipt");
-
+                GT.LogMessageToFile(mocos.Location);
                 if (!mocos.IsNotAvailable)
                 {
                     if (!mocos.IsOutOfPaper)
@@ -444,7 +445,7 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
-                return Ok(HttpStatusCode.ExpectationFailed);
+                return Ok(ex.Message);
             }
         }
 
@@ -1317,6 +1318,38 @@ namespace SAGA.API.Controllers
             return Ok(vacantes);
 
         }
+
+        public string ValidarArte(string requisicionId)
+        {
+            DirectoryInfo folderInfo = new DirectoryInfo(System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/Arte"));
+            List<string> extensions = folderInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly).Select(x => x.FullName).ToList();
+
+
+            var files = folderInfo.GetFiles(
+                    "*.*",
+                    SearchOption.AllDirectories).Select(x => new
+                    {
+                        fullPath = x.FullName,
+                        nom = x.Name,
+                        sinext = x.Name.Remove(x.Name.IndexOf('.')),
+                        ext = x.Extension,
+                        size = (long)x.Length / 1024,
+                        fc = x.LastWriteTime.ToShortDateString()
+                    }).OrderByDescending(o => o.fc);
+
+            string arte = files.Where(x => x.sinext.Equals(requisicionId)).Select(a => a.nom).FirstOrDefault();
+
+            if(arte != null)
+            {
+                arte = "img/ArteRequi/Arte/" + arte;
+            }
+            var egrp = extensions.Select(file => Path.GetExtension(file).TrimStart('.').ToLower())
+                     .GroupBy(x => x, (ext, extCnt) => new
+                     {   Extension = ext,
+                         Count = extCnt.Count()
+                     });
+            return arte;
+        }
         [HttpGet]
         [Route("getVacantes")]
         public IHttpActionResult GetVacantes()
@@ -1342,21 +1375,34 @@ namespace SAGA.API.Controllers
                         //domicilio_trabajo = e.Direccion.Calle + " " + e.Direccion.NumeroExterior + " " + e.Direccion.Colonia.colonia + " " + e.Direccion.Municipio.municipio + " " + e.Direccion.Estado.estado,
                         //Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         VBtra = e.VBtra,
-                        requisitos = e.DAMFO290.escolardadesPerfil.Select(esc => esc.Escolaridad.gradoEstudio),
-                        Actividades = e.DAMFO290.actividadesPerfil.Select(a => a.Actividades),
-                        aptitudes = e.DAMFO290.aptitudesPerfil.Select(ap => ap.Aptitud.aptitud),
+                        //requisitos = e.DAMFO290.escolardadesPerfil.Select(esc => esc.Escolaridad.gradoEstudio),
+                        //Actividades = e.DAMFO290.actividadesPerfil.Select(a => a.Actividades),
+                        //aptitudes = e.DAMFO290.aptitudesPerfil.Select(ap => ap.Aptitud.aptitud),
                         experiencia = e.Experiencia, 
                         categoria = e.Area.areaExperiencia,
                         icono = e.Area.Icono,
                         areaId = e.AreaId,
-                        cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0
+                        cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0,
+         
                     }).ToList();
 
-  
 
-                return Ok(vacantes);
+                var v = vacantes.Select(e => new
+                {
+                    Id = e.Id,
+                    estatus = e.estatus,
+                    Folio = e.Folio,
+                    VBtra = e.VBtra,
+                    experiencia = e.experiencia,
+                    categoria = e.categoria,
+                    icono = e.icono,
+                    areaId = e.areaId,
+                    cubierta = e.cubierta,
+                    arte = this.ValidarArte(e.Id.ToString())
+                }).ToList();
 
-           
+
+                return Ok(v);
 
             }
             catch (Exception ex)
