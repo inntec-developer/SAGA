@@ -30,7 +30,7 @@ namespace SAGA.API.Controllers.Component
 
             var asignacion = db.Grupos.OrderBy(x => x.Nombre)
                 .Where(g => g.Activo.Equals(true) && entidad.Contains(g.Id))
-                .Where(g => (g.TipoGrupoId > 0 && g.TipoGrupoId <= 5) || g.TipoGrupoId == 10)
+                .Where(g => (g.TipoGrupoId > 3 && g.TipoGrupoId <= 5) || g.TipoGrupoId == 10)
                 .Select(g => new
                 {
                     id = g.Id,
@@ -60,11 +60,12 @@ namespace SAGA.API.Controllers.Component
         public IHttpActionResult GetUserGroupL()
 
         {
+            int[] tipoUsuario = { };
             var rol = db.Privilegios.Where(p => p.EstructuraId.Equals(130)).Select(x => x.RolId).ToList();
             var entidad = db.RolEntidades.Where(x => rol.Contains(x.RolId)).Select(x => x.EntidadId).ToList();
 
             var asignacion = db.Grupos.OrderBy(x => x.Nombre)
-               .Where(g => g.Activo.Equals(true) && (g.TipoGrupoId > 0 && g.TipoGrupoId <= 6) || g.TipoGrupoId == 11 && entidad.Contains(g.Id))
+               .Where(g => g.Activo.Equals(true) && (g.TipoGrupoId == 11 || g.TipoGrupoId == 5) && entidad.Contains(g.Id))
                .Select(g => new
                {
                    id = g.Id,
