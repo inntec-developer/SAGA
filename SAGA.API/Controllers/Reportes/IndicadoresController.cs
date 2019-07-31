@@ -104,7 +104,7 @@ namespace SAGA.API.Controllers.Reportes
 
             var proseso = db.ProcesoCandidatos.Where(e => ListaUsuario.Contains(e.ReclutadorId)).ToList();
             int cubierto = proseso.Where(e => e.EstatusId == 24).Distinct().ToList().Count;
-            int faltante = proseso.Select(e => e.CandidatoId).Distinct().ToList().Count;
+            int faltante = 0;
             faltante = numeropos - cubierto;
             
             var apartado = proseso.Where(e => e.EstatusId == 12).Distinct().ToList();
@@ -329,7 +329,7 @@ namespace SAGA.API.Controllers.Reportes
         public IHttpActionResult captadoContra(string usuario)
         {
             Guid id = new Guid(usuario);
-
+           
             var ListaUsuario = new List<Guid>();
             ListaUsuario.Add(id);
             var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
@@ -349,12 +349,32 @@ namespace SAGA.API.Controllers.Reportes
             var datos = db.ProcesoCandidatos.Where(e=> ListaUsuario.Contains(e.ReclutadorId)).ToList();
             var capta = datos.Select(e => e.CandidatoId).Distinct().ToList();
             var contra = datos.Where(e => e.EstatusId == 24).Distinct().ToList();
-            var obj = new
+            int[] rango = new[] { 1, 2, 3, 4, 5, 6 };
+        //    int[] enviados = new[] { 1, 2, 3, 4, 5, 6 };
+            int mes = 0;
+            DateTime fechaInicio = DateTime.Now;
+            DateTime fechaFinal = DateTime.Now;
+            List<ReportesController.proactividad> Captados = new List<ReportesController.proactividad>();
+            foreach (var item in rango)
             {
-                captado = capta.Count(),
-                contratado = contra.Count()
-            };
-            return Ok(obj);
+                var obj = new ReportesController.proactividad();
+                obj.porcentaje = mes;
+                obj.nombre = DateTime.Now.AddMonths(mes).ToString("MMMM");
+                fechaInicio = new DateTime(fechaInicio.Year, fechaInicio.AddMonths(mes).Month, 1);
+                fechaFinal = new DateTime(fechaFinal.Year, fechaFinal.AddMonths(1 + mes).Month, 1);
+                fechaFinal = new DateTime(fechaInicio.Year, fechaInicio.Month, fechaFinal.AddDays(-1).Day);
+                var MesLista = datos.Where(e => e.Fch_Modificacion >= fechaInicio && e.Fch_Modificacion <= fechaFinal).ToList();
+                obj.numeropos = MesLista.Select(e => e.CandidatoId).Distinct().Count();
+                obj.puntaje = MesLista.Where(e => e.EstatusId == 22 && e.EstatusId == 23).Select(e => e.CandidatoId).Distinct().Count();
+                obj.cubiertas = MesLista.Where(e => e.EstatusId == 24).Select(e => e.CandidatoId).Distinct().Count();
+                Captados.Add(obj);
+                mes--;
+            }
+
+            Captados = Captados.OrderBy(e=>e.porcentaje).ToList();
+
+
+            return Ok(Captados);
         }
 
         [HttpGet]
