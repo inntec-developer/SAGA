@@ -63,7 +63,7 @@ namespace SAGA.API.Controllers.Reportes
                
                 var lista = new Dtos.Reporte.IndicadorDto();
                 lista.nombre = DateTime.Now.AddMonths(mes).ToString("MMMM");
-                fechaInicio = new DateTime(fechaInicio.Year, fechaInicio.AddMonths(mes).Month, 1);
+                fechaInicio = new DateTime(fechaInicio.Year, DateTime.Now.AddMonths(mes).Month, 1);
                 fechaFinal = new DateTime(fechaInicio.Year, fechaInicio.Month, fechaInicio.AddMonths(1).AddDays(-1).Day);
                 asigna = datos.Where(e => e.Fch_Modificacion >= fechaInicio && e.Fch_Modificacion <= fechaFinal).Select(e => e.RequisicionId).ToList();
                 lista.id = mes;
@@ -424,6 +424,7 @@ namespace SAGA.API.Controllers.Reportes
             var capta = datos.Select(e => e.CandidatoId).Distinct().ToList();
             var contra = datos.Where(e => e.EstatusId == 24).Distinct().ToList();
             int[] rango = new[] { 1, 2, 3, 4, 5, 6,7 };
+            int dia = 0;
         //    int[] enviados = new[] { 1, 2, 3, 4, 5, 6 };
             int mes = 0;
             DateTime fechaInicio = DateTime.Now;
@@ -434,12 +435,12 @@ namespace SAGA.API.Controllers.Reportes
                 var obj = new ReportesController.proactividad();
                 obj.porcentaje = mes;
                 obj.nombre = DateTime.Now.AddMonths(mes).ToString("MMMM");
-                fechaInicio = new DateTime(fechaInicio.Year, fechaInicio.AddMonths(mes).Month, 1);
-                fechaFinal = new DateTime(fechaFinal.Year, fechaFinal.AddMonths(1 + mes).Month, 1);
-                fechaFinal = new DateTime(fechaInicio.Year, fechaInicio.Month, fechaFinal.AddDays(-1).Day);
+                fechaInicio = new DateTime(fechaInicio.Year, DateTime.Now.AddMonths(mes).Month, 1);
+                dia = fechaInicio.AddMonths(1).AddDays(-1).Day;
+                fechaFinal = new DateTime(fechaInicio.Year, fechaInicio.Month,dia);
                 var MesLista = datos.Where(e => e.Fch_Modificacion >= fechaInicio && e.Fch_Modificacion <= fechaFinal).ToList();
                 obj.numeropos = MesLista.Select(e => e.CandidatoId).Distinct().Count();
-                obj.puntaje = MesLista.Where(e => e.EstatusId == 22 && e.EstatusId == 23 && e.EstatusId == 24).Select(e => e.CandidatoId).Distinct().Count();
+                obj.puntaje = MesLista.Where(e => e.EstatusId == 22 || e.EstatusId == 23 || e.EstatusId == 24).Select(e => e.CandidatoId).Distinct().Count();
                 obj.cubiertas = MesLista.Where(e => e.EstatusId == 24).Select(e => e.CandidatoId).Distinct().Count();
                 Captados.Add(obj);
                 mes--;
