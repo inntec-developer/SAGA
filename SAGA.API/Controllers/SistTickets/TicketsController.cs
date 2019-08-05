@@ -274,8 +274,8 @@ namespace SAGA.API.Controllers
             try
             {
                 GenerarTicket GT = new GenerarTicket();
-                var mocos = GT.FindPrinter("EPSON TM-T20II Receipt");
-
+                var mocos = GT.FindPrinter();
+                
                 if (!mocos.IsNotAvailable)
                 {
                     if (!mocos.IsOutOfPaper)
@@ -376,10 +376,12 @@ namespace SAGA.API.Controllers
             try
             {
                 GenerarTicket GT = new GenerarTicket();
-                var mocos = GT.FindPrinter("EPSON TM-T20II Receipt");
-                GT.LogMessageToFile(mocos.Location);
+                var mocos = GT.FindPrinter(); //"EPSON TM-T20II Receipt"
+                GT.TicketNo = "666";
+                GT.LogMessageToFile(mocos.IsNotAvailable.ToString());
                 if (!mocos.IsNotAvailable)
                 {
+                    GT.LogMessageToFile(mocos.IsOutOfPaper.ToString());
                     if (!mocos.IsOutOfPaper)
                     {
                         Ticket ticket = new Ticket();
@@ -1382,6 +1384,7 @@ namespace SAGA.API.Controllers
                         categoria = e.Area.areaExperiencia,
                         icono = e.Area.Icono,
                         areaId = e.AreaId,
+
                         cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0,
          
                     }).ToList();
@@ -1398,7 +1401,9 @@ namespace SAGA.API.Controllers
                     icono = e.icono,
                     areaId = e.areaId,
                     cubierta = e.cubierta,
-                    arte = this.ValidarArte(e.Id.ToString())
+                    arte = this.ValidarArte(e.Id.ToString()),
+                    //fsarte = this.GetImage(e.Id.ToString())
+
                 }).ToList();
 
 
@@ -1410,6 +1415,39 @@ namespace SAGA.API.Controllers
                 string mensaje = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
+
+        }
+
+        public FileStream GetImage(string nom)
+        {
+            string fullPath;
+            FileStream fs = null;
+            //try
+            //{
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/Utilerias/img/ArteRequi/Arte/");
+
+                string[] fileEntries = Directory.GetFiles(fullPath, nom + "*.*");
+
+            if (fileEntries.Length > 0)
+            {
+                var type = Path.GetExtension(fileEntries[0]);
+                var fileName = Path.GetFileName(fileEntries[0]);
+
+                fs = new FileStream(fileEntries[0], FileMode.Open, FileAccess.Read);
+                byte[] bimage = new byte[fs.Length];
+                fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
+                fs.Close();
+
+                string img = "data:" + type + ";base64," + Convert.ToBase64String(bimage);
+
+            }
+            
+            return fs;
+            //}
+            //catch (Exception ex)
+            //{
+
+            //}
 
         }
 

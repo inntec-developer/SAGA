@@ -6,6 +6,9 @@ using System.Drawing.Printing;
 using System.Drawing;
 using System.Printing;
 using System.IO;
+using System.Web.Services;
+using System.Diagnostics;
+using System.Configuration;
 
 namespace SAGA.API.Utilerias
 {
@@ -16,34 +19,52 @@ namespace SAGA.API.Utilerias
 
         public void print()
         {
-            
-            PrintDocument recordDoc = new PrintDocument();
-            recordDoc.DocumentName = "Customer Receipt";
-            recordDoc.PrintPage += new PrintPageEventHandler(this.PrintPage); //function below
-            recordDoc.PrintController = new StandardPrintController(); //hides status dialog popup
-                                                                       //Comment if debugging 
-            PrinterSettings ps = new PrinterSettings();
-            ps.PrinterName = "EPSON TM-T20II Receipt";
-            recordDoc.PrinterSettings = ps;
-            recordDoc.Print();
-       
-            recordDoc.Dispose();
+            try
+            {
+                PrintDocument recordDoc = new PrintDocument();
+                recordDoc.DocumentName = "Customer Receipt";
+
+                recordDoc.PrintPage += new PrintPageEventHandler(this.PrintPage); //function below
+                                                                                  // recordDoc.PrintController = new StandardPrintController(); //hides status dialog popup
+                                                                                  //Comment if debugging 
+                var imp = FindPrinter();
+
+                LogMessageToFile(imp.FullName);
+                LogMessageToFile(imp.IsNotAvailable.ToString());
+                PrinterSettings ps = new PrinterSettings();
+
+                ps.PrinterName = imp.FullName;
+                recordDoc.PrinterSettings = ps;
+                recordDoc.Print();
+
+                recordDoc.Dispose();
+            }
+            catch (Exception ex)
+            {
+                LogMessageToFile(ex.Message);
+            }
 
 
         }
 
-        public PrintQueue FindPrinter(string printerName)
+        public PrintQueue FindPrinter()
         {
+            var queue = new LocalPrintServer().GetPrintQueue("EPSON TM-T20II Receipt");
+            var queueStatus = queue.QueueStatus;
+            LogMessageToFile(queueStatus.ToString());
+            //"EPSON TM-T20II Receipt"
             var printers = new PrintServer().GetPrintQueues();
-            
+
             foreach (var printer in printers)
             {
-                
-                if (printer.FullName == printerName)
+                LogMessageToFile(printer.FullName);
+
+                if (printer.FullName == "EPSON TM-T20II Receipt")
                 {
                     return printer;
                 }
             }
+
             return LocalPrintServer.GetDefaultPrintQueue();
         }
 
@@ -105,13 +126,13 @@ namespace SAGA.API.Utilerias
             text = "Visítenos en: bolsa.damsa.com.mx";
             e.Graphics.DrawString(text, drawFontArial10Regular, drawBrush, new RectangleF(x, y, width, height), drawFormatCenter);
             y += e.Graphics.MeasureString(text, drawFontArial10Regular).Height;
-
+            LogMessageToFile(this.TicketNo);
         }
         public string GetTempPath()
         {
             string path = System.Environment.GetEnvironmentVariable("TEMP");
             if (!path.EndsWith("\\")) path += "\\";
-            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/Escritorio/");
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("/Utilerias/");
             return fullPath;
         }
 
@@ -122,14 +143,14 @@ namespace SAGA.API.Utilerias
             //    System.IO.StreamWriter sw = System.IO.File.Create(GetTempPath() + "MelinaLog.txt");
             //}  StreamWriter stwriter = File.CreateText(path);
 
-            StreamWriter stwriter = File.CreateText(GetTempPath() + "MelinaLog.txt");
-            //System.IO.StreamWriter stwriter = System.IO.File.AppendText(
-            //    GetTempPath() + "MelinaLog.txt");
+            //StreamWriter stwriter = File.CreateText(GetTempPath() + "MelinaLog.txt");
+            System.IO.StreamWriter stwriter = System.IO.File.AppendText(
+                GetTempPath() + "MelinaLog.txt");
             try
             {
                 string logLine = System.String.Format(
                     "{0:G}: {1}.", System.DateTime.Now, msg);
-                stwriter.WriteLine(logLine);
+                stwriter.WriteLine(logLine);    
             }
             finally
             {

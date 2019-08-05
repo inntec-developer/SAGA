@@ -18,7 +18,7 @@ namespace SAGA.API.Controllers
     public class FoliosIncidenciasController : ApiController
     {
         private SAGADBContext db;
-
+        public Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
         public FoliosIncidenciasController()
         {
             db = new SAGADBContext();
@@ -123,8 +123,19 @@ namespace SAGA.API.Controllers
                     db.RastreabilidadMes.Add(RM);
                     db.SaveChanges();
 
-                    var A = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && x.GrpUsrId.Equals(reclutadorId)).Select(ID => ID.Id).FirstOrDefault();
-                    if(A != null)
+                 
+                    foreach (var p in datos) //nuevo reclutador
+                    {
+                        var PC = db.ProcesoCandidatos.Find(p.id);
+
+                        db.Entry(PC).Property(r => r.ReclutadorId).IsModified = true;
+                        PC.ReclutadorId = reclutadorId2;
+
+                        db.SaveChanges();
+                    }
+
+                    var A = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && x.GrpUsrId.Equals(reclutadorId)).Select(ID => ID.Id).FirstOrDefault(); //elimino reclutador
+                    if (A != null)
                     {
                         var AID = db.AsignacionRequis.Find(A);
                         db.Entry(AID).State = EntityState.Deleted;
@@ -132,13 +143,16 @@ namespace SAGA.API.Controllers
                         db.SaveChanges();
                     }
 
-                    foreach (var p in datos)
+                    var B = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && x.GrpUsrId.Equals(reclutadorId2)).Select(ID => ID.Id).FirstOrDefault(); //nuevo reclutador
+                    if (B == auxID)
                     {
-                        var PC = db.ProcesoCandidatos.Find(p.id);
+                        AsignacionRequi AR = new AsignacionRequi();
+                        AR.RequisicionId = requi;
+                        AR.GrpUsrId = reclutadorId2;
+                        AR.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
+                        AR.UsuarioAlta = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
 
-                        db.Entry(PC).Property(r => r.ReclutadorId).IsModified = true;
-                        PC.ReclutadorId = reclutadorId2;
-
+                        db.AsignacionRequis.Add(AR);
                         db.SaveChanges();
                     }
 
