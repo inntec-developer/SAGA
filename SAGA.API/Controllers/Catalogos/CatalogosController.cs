@@ -23,6 +23,503 @@ namespace SAGA.API.Controllers
         #region Catalogos
 
         [HttpGet]
+        [Route("getCatalogoForId")]
+        public IHttpActionResult GetCatalgoForId(int IdCatalogo)
+        {
+            switch (IdCatalogo)
+            {
+                #region Sistemas
+                case 6: // Tipo de telefonos
+
+                    var TpTelefono = db.TiposTelefonos
+                        .Where(x => x.Activo.Equals(true))
+                        .Select(t => new TpTelefonosDto
+                        {
+                            Id = t.Id,
+                            Tipo = t.Tipo,
+                            Activo = t.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TpTelefono);
+
+                case 7: // Estados Civiles
+
+                    var EstadoCivil = db.EstadosCiviles
+                        .Where(x => x.Activo.Equals(true))
+                        .Select(t => new EstadoCivilDto
+                        {
+                            Id = t.Id,
+                            estadoCivil = t.estadoCivil,
+                            Activo = t.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(EstadoCivil);
+
+                case 41: // Tipo de usuario
+
+                    var TpUsuario = db.TiposUsuarios
+                        .Select(t => new TpUsuarioDto
+                        {
+                            Id = t.Id,
+                            tipo = t.Tipo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TpUsuario);
+
+                case 42: // Departamentos
+
+                    var Departamentos = db.Departamentos
+                        .Select(d => new
+                        {
+                            Id = d.Id,
+                            nombre = d.Nombre,
+                            Area = d.AreaId,
+                            clave = d.Clave,
+                            orden = d.Orden
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(Departamentos);
+
+                case 43: // Areas
+
+                    var Areas = db.Areas
+                        .Select(a => new AreaDto
+                        {
+                            Id = a.Id,
+                            Nombre = a.Nombre,
+                            Clave = a.Clave,
+                            Orden = a.Orden
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(Areas);
+
+                case 44: // Roles
+
+                    var Roles = db.Roles
+                        .Where(x => x.Activo.Equals(true))
+                        .Select(a => new RolesDto
+                        {
+                            Id = a.Id,
+                            Rol = a.Rol,
+                            Activo = a.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(Roles);
+
+                #endregion
+
+                #region Reclutamiento
+                case 34: // Escolaridades
+
+                    var Escolaridades = db.GradosEstudios
+                        .Select(e => new EscolaridadesDto
+                        {
+                            Id = e.Id,
+                            gradoEstudio = e.gradoEstudio
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(Escolaridades);
+
+                case 35: // Nivel estudios
+
+                    var Nivel = db.Niveles
+                        .Select(e => new NivelDto
+                        {
+                            Id = e.Id,
+                            nivel = e.nivel
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(Nivel);
+
+                case 36: // Medios
+
+                    var Medio = db.Medios
+                        .Where(x => x.Activo.Equals(true))
+                        .Select(e => new MedioDto
+                        {
+                            Id = e.Id,
+                            Nombre = e.Nombre,
+                            Activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(Medio);
+
+                case 37: // Idiomas
+
+                    var Idioma = db.Idiomas
+                        .Where(x => x.Activo.Equals(true))
+                        .Select(e => new IdiomaDto
+                        {
+                            Id = e.Id,
+                            idioma = e.idioma,
+                            activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(Idioma);
+
+                case 38: // Discapacidades
+
+                    var Discapacidad = db.TiposDiscapacidades
+                        .Select(e => new DiscapacidadDto
+                        {
+                            Id = e.Id,
+                            tipoDiscapacidad = e.tipoDiscapacidad,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(Discapacidad);
+
+                case 39: // Tipo Licencia
+
+                    var TipoLicencia = db.TiposLicencias
+                        .Select(e => new TipoLicenciaDto
+                        {
+                            Id = e.Id,
+                            Descripcion = e.Descripcion,
+                            tipoLicencia = e.tipoLicencia,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TipoLicencia);
+
+                case 40: // Tipo Examen
+
+                    var TipoExamen = db.TipoExamen
+                        .Where(x => x.Activo.Equals(true))
+                        .Select(e => new TipoExamenDto
+                        {
+                            Id = e.Id,
+                            Nombre = e.Nombre,
+                            Descripcion = e.Descripcion,
+                            Activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TipoExamen);
+
+                #endregion
+
+                #region Ventas
+                case 8: // Giro del cliente
+
+                    var GiroEmpresa = db.GirosEmpresas
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            giroEmpresa = e.giroEmpresa,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(GiroEmpresa);
+
+                case 9: // Actividad cliente
+
+                    var ActividadEmpresa = db.ActividadesEmpresas
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            actividadEmpresa = e.actividadEmpresa,
+                            GiroEmpresa = e.GiroEmpresaId,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(ActividadEmpresa);
+
+                case 10: // Tamaño de empresa
+
+                    var TamanoEmpresa = db.TamanoEmpresas
+                        .Select(e => new TamanoEmpresaDto
+                        {
+                            Id = e.Id,
+                            tamanoEmpresa = e.tamanoEmpresa,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TamanoEmpresa);
+
+                case 11: // Tipo base
+
+                    var TiposBase = db.TiposBases
+                        .Select(e => new TiposBasesDto
+                        {
+                            Id = e.Id,
+                            tipoBase = e.tipoBase,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TiposBase);
+
+                case 16: // Perfil puesto
+
+                    var PerfilExperiencia = db.PerfilExperiencia
+                        .Select(e => new PerfilExpDto
+                        {
+                            Id = e.Id,
+                            perfilExperiencia = e.perfilExperiencia,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(PerfilExperiencia);
+
+                case 17: // Aptitudes
+
+                    var Aptitud = db.Aptitudes
+                        .Select(e => new AptitudDto
+                        {
+                            Id = e.Id,
+                            aptitud = e.aptitud,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.aptitud)
+                        .ToList();
+
+                    return Ok(Aptitud);
+
+                case 18: // Categorias
+
+                    var AreaExperiencia = db.AreasExperiencia
+                        .Where(x => x.Activo.Equals(true))
+                        .Select(e => new AreaExpDto
+                        {
+                            Id = e.Id,
+                            areaExperiencia = e.areaExperiencia,
+                            Icono = e.Icono,
+                            Activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(AreaExperiencia);
+
+                case 19: // Subcategorias
+
+                    
+                    var AreaInteres = db.AreasInteres
+                        .Where(x => x.Activo.Equals(true))
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            AreaExperienciaId = e.AreaExperienciaId,
+                            areaInteres = e.areaInteres,
+                            Activo = e.Activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+
+                    return Ok(AreaInteres);
+
+                case 20: // Jornada Loboral
+
+                    var JornadaLaboral = db.JornadasLaborales
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            Jornada = e.Jornada,
+                            VariosHorarios = e.VariosHorarios,
+                            Orden = e.Orden,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(JornadaLaboral);
+
+                case 21: // Modalidad Loboral
+
+                    var TipoModalidad = db.TiposModalidades
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            Modalidad = e.Modalidad,
+                            Orden = e.Orden,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TipoModalidad);
+
+                case 22: // Psicometrias
+
+                    var TipoPsicometria = db.TiposPsicometrias
+                        .Select(e => new TiposPiscoDto
+                        {
+                            Id = e.Id,
+                            tipoPsicometria = e.tipoPsicometria,
+                            descripcion = e.descripcion,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TipoPsicometria);
+
+                case 23: // Días de la semana
+
+                    var DiasSemana = db.DiasSemanas
+                        .Select(e => new DiasSemanaDto
+                        {
+                            Id = e.Id,
+                            diaSemana = e.diaSemana,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(DiasSemana);
+
+                case 24: // Tipos de nomina
+
+                    var TipoNomina = db.TiposNominas
+                        .Select(e => new TpNominaDto
+                        {
+                            Id = e.Id,
+                            tipoDeNomina = e.tipoDeNomina,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TipoNomina);
+
+                case 26: // Periodos de pago
+
+                    var PeriodoPago = db.PeriodosPagos
+                        .Select(e => new PeriodoPagoDto
+                        {
+                            Id = e.Id,
+                            periodoPago = e.periodoPago,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(PeriodoPago);
+
+                case 27: // Beneficios
+
+                    var BeneficioPerfil = db.TiposBeneficios
+                        .Select(e => new BeneficiosPerfilDto
+                        {
+                            Id = e.Id,
+                            tipoBeneficio = e.tipoBeneficio,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(BeneficioPerfil); 
+
+                case 28: // Tipo de contrato
+
+                    var TipoContrato = db.TiposContrato
+                        .Select(e => new TipoContratoDto
+                        {
+                            Id = e.Id,
+                            tipoContrato = e.tipoContrato,
+                            periodoPrueba = e.periodoPrueba,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TipoContrato);
+
+                case 29: // Tiempos contrato
+
+                    var TiemposContrato = db.TiemposContratos
+                        .Select(e => new TiemposContratoDto
+                        {
+                            Id = e.Id,
+                            Tiempo = e.Tiempo,
+                            Orden = e.Orden,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(TiemposContrato);
+
+                case 31: // Documentos DAMSA
+
+                    var DocDamsa = db.DocumentosDamsa
+                        .Select(e => new DocDamsaDto
+                        {
+                            Id = e.Id,
+                            documentoDamsa = e.documentoDamsa,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(DocDamsa);
+
+                case 32: // Prestaciones Ley
+
+                    var PrestacionesLey = db.PrestacionesLey
+                        .Select(e => new PrestacionesdeLeyDto
+                        {
+                            Id = e.Id,
+                            prestacionLey = e.prestacionLey,
+                            activo = e.activo
+                        })
+                        .OrderBy(c => c.Id)
+                        .ToList();
+
+                    return Ok(PrestacionesLey);
+                case 45: // Estados Estudio
+                    var EstadosEstudio = db.EstadosEstudios
+                        .Select(e => new EstadoEstudioDto
+                        {
+                            Id = e.Id,
+                            Nivel = e.estadoEstudio
+                        }).ToList();
+                    return Ok(EstadosEstudio);
+                #endregion
+
+                default:
+                    break;
+            }
+            return Ok(HttpStatusCode.NotFound);
+        }
+
+        [HttpGet]
         [Route("getDocDamsa")]
         [Authorize]
         public IHttpActionResult GetDocDamsa()

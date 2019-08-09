@@ -28,4 +28,13 @@ namespace SAGA.API.Dtos
         public int JornadaLaboralId { get; set; }
         public int TipoModalidadId { get; set; }
     }
+
+    public class EscoPerfilDto
+    {
+        public Guid Id { get; set; }
+        public int EscolaridadId { get; set; }
+        public int EstadoEstudioId { get; set; }
+        public Guid Damfo290Id { get; set; }
+        public string Usuario { get; set; }
+    }
 }

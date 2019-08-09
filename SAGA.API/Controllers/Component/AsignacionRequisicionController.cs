@@ -42,7 +42,7 @@ namespace SAGA.API.Controllers.Component
                                             .Select(x => x.EntidadId)
                                             .ToList()).Contains(u.Id) )
                                 .Where(u =>  u.Activo.Equals(true))
-                                .Where(u => (u.TipoUsuarioId > 2 && u.TipoUsuarioId <= 5) || u.TipoUsuarioId == 11)
+                                .Where(u => (u.TipoUsuarioId > 3 && u.TipoUsuarioId <= 5) || u.TipoUsuarioId == 10)
                                 .Select(u => new UsuariosDto
                                 {
                                     Id = u.Id,
@@ -72,20 +72,22 @@ namespace SAGA.API.Controllers.Component
                    nombre = g.Nombre,
                    usuarios = db.Usuarios
                                .Where(u => (db.GruposUsuarios
-                                           .Where(x => x.GrupoId.Equals(g.Id))
-                                           .Where(x => x.Entidad.TipoEntidadId.Equals(1))
-                                           .Select(x => x.EntidadId)
-                                           .ToList()).Contains(u.Id))
-                                           .Where(u => u.Activo.Equals(true))
-                                .Where(u => (u.TipoUsuarioId > 3 && u.TipoUsuarioId <= 6) || u.TipoUsuarioId.Equals(11))
-                               .Select(u => new UsuariosDto
-                               {
-                                   Id = u.Id,
-                                   Nombre = u.Nombre + " " + u.ApellidoPaterno,
-                                   Usuario = u.Usuario,
-                                   Email = db.Emails.Where(e => e.EntidadId.Equals(u.Id)).Select(e => e.email).FirstOrDefault(),
-                                   TipoUsuario = u.TipoUsuario.Tipo
-                               }).ToList()
+                                            .Where(x => x.GrupoId.Equals(g.Id))
+                                            .Where(x => x.Entidad.TipoEntidadId.Equals(1))
+                                            .Select(x => x.EntidadId)
+                                            .ToList()
+                                           ).Contains(u.Id)
+                                     )
+                                .Where(u => u.Activo.Equals(true))
+                                .Where(u => (u.TipoUsuarioId == 11 || u.TipoUsuarioId == 5) || u.TipoUsuarioId.Equals(11))
+                                .Select(u => new UsuariosDto
+                                {
+                                    Id = u.Id,
+                                    Nombre = u.Nombre + " " + u.ApellidoPaterno,
+                                    Usuario = u.Usuario,
+                                    Email = db.Emails.Where(e => e.EntidadId.Equals(u.Id)).Select(e => e.email).FirstOrDefault(),
+                                    TipoUsuario = u.TipoUsuario.Tipo
+                                }).ToList()
                }).ToList();
             return Ok(asignacion);
         }

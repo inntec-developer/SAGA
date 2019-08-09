@@ -93,6 +93,12 @@ namespace SAGA.API.Controllers
                         telefonos = db.Telefonos
                                     .Where(t => t.EntidadId == r.ClienteId)
                                     .Select(t => new {
+                                        Calle = db.DireccionesTelefonos
+                                            .Where(dt => dt.TelefonoId.Equals(t.Id)).FirstOrDefault() != null ?
+                                            db.DireccionesTelefonos
+                                            .Where(dt => dt.TelefonoId.Equals(t.Id))
+                                            .Select(dt => dt.Direccion.Calle + " No. " + dt.Direccion.NumeroExterior + " C.P. " + dt.Direccion.CodigoPostal)
+                                            .FirstOrDefault() : "Sin Registro",
                                         tipo = t.TipoTelefono.Tipo,
                                         clavePais = t.ClavePais,
                                         claveLada = t.ClaveLada,
@@ -105,6 +111,11 @@ namespace SAGA.API.Controllers
                                     .Where(c => c.ClienteId == r.ClienteId)
                                     .Select(c => new
                                     {
+                                        Calle = db.DireccionesContactos
+                                                    .Where(dc => dc.ContactoId.Equals(c.Id)).FirstOrDefault() != null ? db.DireccionesContactos
+                                                    .Where(dc => dc.ContactoId.Equals(c.Id))
+                                                    .Select(dc => dc.Direccion.Calle + " No. " + dc.Direccion.NumeroExterior + " C.P. " + dc.Direccion.CodigoPostal)
+                                                    .FirstOrDefault() : "Sin Registro",
                                         nombre = c.Nombre,
                                         apellidoPaterno = c.ApellidoPaterno,
                                         apellidoMaterno = c.ApellidoMaterno,

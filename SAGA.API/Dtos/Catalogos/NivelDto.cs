@@ -10,4 +10,11 @@ namespace SAGA.API.Dtos
         public byte Id { get; set; }
         public string nivel { get; set; }
     }
+
+    public class EstadoEstudioDto
+    {
+        public int Id { get; set; }
+        public string Nivel { get; set; }
+    }
+
 }
