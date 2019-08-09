@@ -19,5 +19,6 @@ namespace SAGA.API.Dtos.SistTickets
         public int Cubierta { get; set; }
         public string Arte { get; set; }
         public FileStream fsarte { get; set; }
+        public Guid candidatoId { get; set; }
     }
 }

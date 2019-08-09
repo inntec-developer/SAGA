@@ -273,6 +273,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
+
                 GenerarTicket GT = new GenerarTicket();
                 var mocos = GT.FindPrinter();
                 
@@ -333,7 +334,7 @@ namespace SAGA.API.Controllers
                                     GT.Nombre = nombre;
                                     GT.print();
 
-                                    var data = new List<string>() { ticket.Numero, nombre };
+                                    var data = new TicketDto() { numero = ticket.Numero, nombre = nombre };
 
                                     return Ok(data);
                                 }
@@ -369,34 +370,34 @@ namespace SAGA.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("ticketSinCita")]
-        public IHttpActionResult TicketSinCita(Guid requisicionId, Guid candidatoId)
+        public IHttpActionResult TicketSinCita(DescVacantesDto datos)
         {
             try
             {
-                GenerarTicket GT = new GenerarTicket();
-                var mocos = GT.FindPrinter(); //"EPSON TM-T20II Receipt"
-                GT.TicketNo = "666";
-                GT.LogMessageToFile(mocos.IsNotAvailable.ToString());
-                if (!mocos.IsNotAvailable)
-                {
-                    GT.LogMessageToFile(mocos.IsOutOfPaper.ToString());
-                    if (!mocos.IsOutOfPaper)
-                    {
+                //GenerarTicket GT = new GenerarTicket();
+                //var mocos = GT.FindPrinter(); //"EPSON TM-T20II Receipt"
+                //GT.TicketNo = "666";
+                //GT.LogMessageToFile(mocos.IsNotAvailable.ToString());
+                //if (!mocos.IsNotAvailable)
+                //{
+                //    GT.LogMessageToFile(mocos.IsOutOfPaper.ToString());
+                //    if (!mocos.IsOutOfPaper)
+                //    {
                         Ticket ticket = new Ticket();
                         string nombre = "";
-                        ticket.CandidatoId = candidatoId;
+                        ticket.CandidatoId = datos.candidatoId;
                         //new Guid("1FD57341-F35D-E811-80E1-9E274155325E"); //pablo
                         //ticket.CandidatoId = new Guid("F66DA23E-9D69-E811-80E1-9E274155325E"); //coni
-                        ticket.RequisicionId = requisicionId;
+                        ticket.RequisicionId = datos.Id;
                         ticket.MovimientoId = 2;
                         ticket.ModuloId = 1;
                         ticket.Estatus = 1;
 
-                        var num = db.Tickets.Where(x => x.RequisicionId.Equals(requisicionId) && x.MovimientoId.Equals(2)).Count() + 1;
+                        var num = db.Tickets.Where(x => x.RequisicionId.Equals(datos.Id) && x.MovimientoId.Equals(2)).Count() + 1;
 
-                        var folio = db.Requisiciones.Where(x => x.Id.Equals(requisicionId)).Select(f => f.Folio).FirstOrDefault().ToString();
+                        var folio = db.Requisiciones.Where(x => x.Id.Equals(datos.Id)).Select(f => f.Folio).FirstOrDefault().ToString();
 
                         ticket.Numero = "SC-" + folio.Substring(folio.Length - 4, 4) + '-' + num.ToString().PadLeft(3, '0');
 
@@ -404,12 +405,12 @@ namespace SAGA.API.Controllers
 
                         db.SaveChanges();
 
-                        if (candidatoId != auxID)
+                        if (datos.candidatoId != auxID)
                         {
                             Postulacion obj = new Postulacion();
-                            obj.CandidatoId = candidatoId;
+                            obj.CandidatoId = datos.candidatoId;
                             obj.fch_Postulacion = DateTime.Now;
-                            obj.RequisicionId = requisicionId;
+                            obj.RequisicionId = datos.Id;
                             obj.StatusId = 1;
 
                             db.Postulaciones.Add(obj);
@@ -417,32 +418,30 @@ namespace SAGA.API.Controllers
 
                             InfoCandidatoController O = new InfoCandidatoController();
                             ProcesoCandidato obj2 = new ProcesoCandidato();
-                            obj2.CandidatoId = candidatoId;
-                            obj2.RequisicionId = requisicionId;
+                            obj2.CandidatoId = datos.candidatoId;
+                            obj2.RequisicionId = datos.Id;
 
                             O.ApartarCandidato(obj2);
 
-                            nombre = db.Candidatos.Where(x => x.Id.Equals(candidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
+                            nombre = db.Candidatos.Where(x => x.Id.Equals(datos.candidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
                         }
 
-
-                        GT.TicketNo = ticket.Numero;
-                        GT.Nombre = nombre;
-                        GT.print();
-
-                        var data = new List<string>() { ticket.Numero, nombre };
-
+                        //GT.TicketNo = ticket.Numero;
+                        //GT.Nombre = nombre;
+                        //GT.print();
+                        var data = new TicketDto() { numero = ticket.Numero, nombre = nombre };
+                      
                         return Ok(data);
-                    }
-                    else
-                    {
-                        return Ok(HttpStatusCode.Conflict); //sin papel
-                    }
-                }
-                else
-                {
-                    return Ok(HttpStatusCode.BadGateway); //apagada
-                }
+                //    }
+                //    else
+                //    {
+                //        return Ok(HttpStatusCode.Conflict); //sin papel
+                //    }
+                //}
+                //else
+                //{
+                //    return Ok(HttpStatusCode.BadGateway); //apagada
+                //}
 
             }
             catch (Exception ex)
@@ -703,21 +702,20 @@ namespace SAGA.API.Controllers
             return Ok(HttpStatusCode.Created);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("loginBolsa")]
-        public IHttpActionResult LoginBolsa(string usuario, string pass)
+        public IHttpActionResult LoginBolsa(LoginDto datos)
         {
             try
             {
-
-                var p = db.AspNetUsers.Where(x => x.UserName.Equals(usuario)).Select(U => new { id = U.Id, personaId = U.IdPersona, password = U.Pasword,
-                        usuario = db.Entidad.Where(x => x.Id.Equals(U.IdPersona)).Select(u => u.Nombre + " " + u.ApellidoPaterno + " " + u.ApellidoMaterno).FirstOrDefault()
+                var p = db.AspNetUsers.Where(x => x.UserName.Equals(datos.username)).Select(U => new { id = U.IdPersona, userId = U.Id, pass = U.Pasword,
+                        nombre = db.Entidad.Where(x => x.Id.Equals(U.IdPersona)).Select(u => u.Nombre + " " + u.ApellidoPaterno + " " + u.ApellidoMaterno).FirstOrDefault()
                 }).ToList();
                 
                 if(p.Count > 0)
                 {
-                    var pd = db.Database.SqlQuery<String>("dbo.spDesencriptarPasword @id", new SqlParameter("id", p[0].id)).FirstOrDefault();
-                    if(pd.Equals(pass))
+                    var pd = db.Database.SqlQuery<String>("dbo.spDesencriptarPasword @id", new SqlParameter("id", p[0].userId)).FirstOrDefault();
+                    if(pd.Equals(datos.pass))
                     {
                         return Ok(p);
                     }
@@ -757,6 +755,7 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
+
         [HttpGet]
         [Route("updateCandidatoTicket")]
         public IHttpActionResult UpdateCandidatoTicket(Guid ticketId, Guid candidatoId)
@@ -1343,7 +1342,10 @@ namespace SAGA.API.Controllers
 
             if(arte != null)
             {
+                GenerarTicket GT = new GenerarTicket();
+               
                 arte = "img/ArteRequi/Arte/" + arte;
+                GT.LogMessageToFile(arte);
             }
             var egrp = extensions.Select(file => Path.GetExtension(file).TrimStart('.').ToLower())
                      .GroupBy(x => x, (ext, extCnt) => new
