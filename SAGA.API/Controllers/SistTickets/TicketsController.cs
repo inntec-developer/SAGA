@@ -1342,10 +1342,11 @@ namespace SAGA.API.Controllers
 
             if(arte != null)
             {
-                GenerarTicket GT = new GenerarTicket();
-               
-                arte = "img/ArteRequi/Arte/" + arte;
-                GT.LogMessageToFile(arte);
+              arte = "img/ArteRequi/Arte/" + arte;
+            }
+            else
+            {
+                arte = "img/ArteRequi/Arte/32e64737-1499-e911-8993-b2aad340f890.png";
             }
             var egrp = extensions.Select(file => Path.GetExtension(file).TrimStart('.').ToLower())
                      .GroupBy(x => x, (ext, extCnt) => new
@@ -1354,6 +1355,7 @@ namespace SAGA.API.Controllers
                      });
             return arte;
         }
+
         [HttpGet]
         [Route("getVacantes")]
         public IHttpActionResult GetVacantes()
@@ -1392,7 +1394,7 @@ namespace SAGA.API.Controllers
                     }).ToList();
 
 
-                var v = vacantes.Select(e => new
+                var v = vacantes.Where(x => x.cubierta > 0).Select(e => new
                 {
                     Id = e.Id,
                     estatus = e.estatus,
@@ -1408,6 +1410,45 @@ namespace SAGA.API.Controllers
 
                 }).ToList();
 
+
+                return Ok(v);
+
+            }
+            catch (Exception ex)
+            {
+                string mensaje = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+
+        }
+
+        [HttpGet]
+        [Route("filtrarCategorias")]
+        public IHttpActionResult FiltrarCategorias(int areaId)
+        {
+            try
+            {
+                List<int> estatus = new List<int> { 8, 9, 34, 35, 36, 37, 47, 48 };
+
+                Guid mocos = new Guid("1FF62A23-3664-E811-80E1-9E274155325E");
+                var usuarios = db.Usuarios.Where(x => x.SucursalId.Equals(mocos)).Select(U => U.Id).ToList();
+                var requis = db.AsignacionRequis.Where(x => usuarios.Contains(x.GrpUsrId)).Select(R => R.RequisicionId).ToArray();
+
+                var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
+                    .Where(e => e.Activo && !e.Confidencial && !estatus.Contains(e.EstatusId) && requis.Contains(e.Id) && e.AreaId.Equals(areaId))
+                    .Select(e => new
+                    {
+                        Id = e.Id,
+                        cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0,
+                    }).ToList();
+
+
+                var v = vacantes.Where(x => x.cubierta > 0).Select(e => new
+                {
+                    Id = e.Id,
+                    cubierta = e.cubierta,
+                    arte = this.ValidarArte(e.Id.ToString())
+                }).ToList();
 
                 return Ok(v);
 
