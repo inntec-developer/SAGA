@@ -293,7 +293,7 @@ namespace SAGA.API.Controllers.Reportes
         public IHttpActionResult Usuario(string cor)
         {
             
-            int[] Status = new[] { 1, 2, 3, 5, 6, 11 };
+            int[] Tipo = new[] { 11 };
 
             //Cordinadores
             if (cor == "1")
@@ -352,7 +352,7 @@ namespace SAGA.API.Controllers.Reportes
             }
 
 
-            var datos = db.Usuarios.Where(e => e.Activo == true && Status.Contains(e.TipoUsuarioId)).Select(e => new
+            var datos = db.Usuarios.Where(e => e.Activo == true && Tipo.Contains(e.TipoUsuarioId)).Select(e => new
             {
                 Nombre = e.Nombre + " "+ e.ApellidoPaterno,
                 e.Id,
@@ -937,7 +937,7 @@ namespace SAGA.API.Controllers.Reportes
             var consul = proceso.Select(e => new {
                 e.Id,
                 e.estatuid,
-                nombre = e.estatuid > 0? db.Estatus.Where(x=>x.Id == e.estatuid).FirstOrDefault().Descripcion : "Sin Proceso"
+                nombre = e.estatuid > 0? db.Estatus.Where(x=>x.Id == e.estatuid).FirstOrDefault().Descripcion : "DISPONIBLE"
             }).ToList();
            
             var datos = candidato.Select(e => new {
