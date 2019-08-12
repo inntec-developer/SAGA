@@ -176,7 +176,8 @@ namespace SAGA.API.Controllers.Reportes
             var Activalista = datos.Where(e => EstatusList.Contains(e.EstatusId)).Select(e=>e.Id).ToList();
             int numeropos = db.HorariosRequis.Where(x => Activalista.Contains(x.RequisicionId)).Sum(x => x.numeroVacantes);
 
-            var proseso = db.ProcesoCandidatos.Where(e => ListaUsuario.Contains(e.ReclutadorId)).ToList();
+            var requien = datos.Where(e=> EstatusList.Contains(e.EstatusId)).Select(e => e.Id).ToList();
+            var proseso = db.ProcesoCandidatos.Where(e => requien.Contains(e.RequisicionId)).ToList();
             int cubierto = proseso.Where(e => e.EstatusId == 24).Distinct().ToList().Count;
             int faltante = 0;
             faltante = numeropos - cubierto;
