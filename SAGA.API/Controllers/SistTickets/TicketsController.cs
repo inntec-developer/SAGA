@@ -574,7 +574,7 @@ namespace SAGA.API.Controllers
 
                 var candidato = new Candidato();
 
-                candidato.CURP = CalcularCURP(datos);
+                candidato.CURP = datos.Curp;
                 candidato.Nombre = datos.Nombre;
                 candidato.ApellidoPaterno = datos.ApellidoPaterno;
                 candidato.ApellidoMaterno = datos.ApellidoMaterno;
@@ -911,11 +911,10 @@ namespace SAGA.API.Controllers
 
                     return Ok(tickets);
                 }
-                else
+                else if(modulo == 1)
                 {
-                    var requis = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId)).Select(r => r.RequisicionId).ToList();
-
-                    var fila = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && requis.Contains(x.Requisicion.Id)).Select(t => new
+                  
+                    var fila = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1)).Select(t => new
                     {
                         ticketId = t.Id,
                         ticket = t.Numero,
@@ -926,7 +925,7 @@ namespace SAGA.API.Controllers
                         fch_Creacion = t.fch_Creacion,
                         fch_cita = db.CalendarioCandidato.Where(x => x.CandidatoId.Equals(t.CandidatoId)).Count() > 0 ? db.CalendarioCandidato.Where(x => x.CandidatoId.Equals(t.CandidatoId)).Select(f => f.Fecha).FirstOrDefault() : DateTime.Now,
                         tiempo = 0
-                }).ToList();
+                    }).ToList();
 
 
                     //(DateTime.Now.Minute - t.fch_Creacion.Minute) > 0 ? (DateTime.Now.Minute - t.fch_Creacion.Minute) : 0
@@ -946,6 +945,41 @@ namespace SAGA.API.Controllers
 
                     return Ok(tickets);
 
+                }
+                else
+                {
+                    var requis = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId)).Select(r => r.RequisicionId).ToList();
+
+                    var fila = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && requis.Contains(x.Requisicion.Id)).Select(t => new
+                    {
+                        ticketId = t.Id,
+                        ticket = t.Numero,
+                        candidatoId = t.CandidatoId,
+                        requisicionId = t.RequisicionId,
+                        movimientoId = t.MovimientoId,
+                        moduloId = t.ModuloId,
+                        fch_Creacion = t.fch_Creacion,
+                        fch_cita = db.CalendarioCandidato.Where(x => x.CandidatoId.Equals(t.CandidatoId)).Count() > 0 ? db.CalendarioCandidato.Where(x => x.CandidatoId.Equals(t.CandidatoId)).Select(f => f.Fecha).FirstOrDefault() : DateTime.Now,
+                        tiempo = 0
+                    }).ToList();
+
+
+                    //(DateTime.Now.Minute - t.fch_Creacion.Minute) > 0 ? (DateTime.Now.Minute - t.fch_Creacion.Minute) : 0
+                    var tickets = from items in fila
+                                  select new
+                                  {
+                                      ticketId = items.ticketId,
+                                      ticket = items.ticket,
+                                      candidatoId = items.candidatoId,
+                                      requisicionId = items.requisicionId,
+                                      movimientoId = items.movimientoId,
+                                      moduloId = items.moduloId,
+                                      fch_Creacion = items.fch_Creacion,
+                                      fch_cita = items.fch_cita,
+                                      tiempo = Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0) //(DateTime.Now - items.fch_Creacion).TotalMinutes > 60 ? Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes / 60, 0).ToString() + " h.": Math.Round((DateTime.Now - items.fch_Creacion).TotalMinutes, 0).ToString() + " min."
+                                  };
+
+                    return Ok(tickets);
                 }
             }
             catch(Exception ex)
@@ -990,49 +1024,91 @@ namespace SAGA.API.Controllers
 
             try
             {
-               var requiReclutador = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId)).Select(r => r.RequisicionId).ToList();
-
-                var concita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && requiReclutador.Contains(x.RequisicionId) && x.MovimientoId.Equals(1))
-                .Select(t => new
+                if (ModuloId == 1)
                 {
-                    ticketId = t.Id,
-                    ticket = t.Numero,
-                    candidatoId = t.CandidatoId,
-                    movimientoId = t.MovimientoId,
-                    tiempoCita = t.fch_Creacion.Minute - DateTime.Now.Minute
-                }).FirstOrDefault();
+                    var concita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && x.MovimientoId.Equals(1))
+                 .Select(t => new
+                 {
+                     ticketId = t.Id,
+                     ticket = t.Numero,
+                     candidatoId = t.CandidatoId,
+                     movimientoId = t.MovimientoId,
+                     tiempoCita = t.fch_Creacion.Minute - DateTime.Now.Minute
+                 }).FirstOrDefault();
 
-                if (concita == null)
-                {
-                    var sincita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && requiReclutador.Contains(x.RequisicionId) && x.MovimientoId.Equals(2)).Select(t => new
+                    if (concita == null)
                     {
-                        ticketId = t.Id,
-                        ticket = t.Numero,
-                        candidatoId = t.CandidatoId,
-                        requisicionId = t.RequisicionId,
-                        movimientoId = t.MovimientoId,
-                        tiempoCita = t.fch_Creacion.Minute - DateTime.Now.Minute
-                    }).FirstOrDefault();
+                        var sincita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && x.MovimientoId.Equals(2)).Select(t => new
+                        {
+                            ticketId = t.Id,
+                            ticket = t.Numero,
+                            candidatoId = t.CandidatoId,
+                            requisicionId = t.RequisicionId,
+                            movimientoId = t.MovimientoId,
+                            tiempoCita = t.fch_Creacion.Minute - DateTime.Now.Minute
+                        }).FirstOrDefault();
 
-                    if (sincita == null)
-                    {
-                        return Ok(HttpStatusCode.ExpectationFailed);
+                        if (sincita == null)
+                        {
+                            return Ok(HttpStatusCode.ExpectationFailed);
+                        }
+                        else
+                        {
+                            this.InsertTicketRecl(sincita.ticketId, reclutadorId, ModuloId);
+                            return Ok(sincita.ticketId);
+                        }
                     }
                     else
                     {
-                        this.InsertTicketRecl(sincita.ticketId, reclutadorId, ModuloId);
-                        return Ok(sincita.ticketId);
+                        this.InsertTicketRecl(concita.ticketId, reclutadorId, ModuloId);
+                        return Ok(concita.ticketId);
                     }
                 }
                 else
                 {
-                    this.InsertTicketRecl(concita.ticketId, reclutadorId, ModuloId);
-                    return Ok(concita.ticketId);
+                    var requiReclutador = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId)).Select(r => r.RequisicionId).ToList();
+
+                    var concita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && requiReclutador.Contains(x.RequisicionId) && x.MovimientoId.Equals(1))
+                    .Select(t => new
+                    {
+                        ticketId = t.Id,
+                        ticket = t.Numero,
+                        candidatoId = t.CandidatoId,
+                        movimientoId = t.MovimientoId,
+                        tiempoCita = t.fch_Creacion.Minute - DateTime.Now.Minute
+                    }).FirstOrDefault();
+
+                    if (concita == null)
+                    {
+                        var sincita = db.Tickets.OrderBy(f => f.fch_Creacion).Where(x => x.Estatus.Equals(1) && requiReclutador.Contains(x.RequisicionId) && x.MovimientoId.Equals(2)).Select(t => new
+                        {
+                            ticketId = t.Id,
+                            ticket = t.Numero,
+                            candidatoId = t.CandidatoId,
+                            requisicionId = t.RequisicionId,
+                            movimientoId = t.MovimientoId,
+                            tiempoCita = t.fch_Creacion.Minute - DateTime.Now.Minute
+                        }).FirstOrDefault();
+
+                        if (sincita == null)
+                        {
+                            return Ok(HttpStatusCode.ExpectationFailed);
+                        }
+                        else
+                        {
+                            this.InsertTicketRecl(sincita.ticketId, reclutadorId, ModuloId);
+                            return Ok(sincita.ticketId);
+                        }
+                    }
+                    else
+                    {
+                        this.InsertTicketRecl(concita.ticketId, reclutadorId, ModuloId);
+                        return Ok(concita.ticketId);
+                    }
+
+
+                    //    var result = this.GetTicketsReclutador(ticket.ticketId, reclutadorId);
                 }
-
-
-                //    var result = this.GetTicketsReclutador(ticket.ticketId, reclutadorId);
-
 
 
             }
@@ -1344,15 +1420,15 @@ namespace SAGA.API.Controllers
             {
               arte = "img/ArteRequi/Arte/" + arte;
             }
-            else
-            {
-                arte = "img/ArteRequi/Arte/32e64737-1499-e911-8993-b2aad340f890.png";
-            }
-            var egrp = extensions.Select(file => Path.GetExtension(file).TrimStart('.').ToLower())
-                     .GroupBy(x => x, (ext, extCnt) => new
-                     {   Extension = ext,
-                         Count = extCnt.Count()
-                     });
+            //else
+            //{
+            //    arte = "img/ArteRequi/Arte/32e64737-1499-e911-8993-b2aad340f890.png";
+            //}
+            //var egrp = extensions.Select(file => Path.GetExtension(file).TrimStart('.').ToLower())
+            //         .GroupBy(x => x, (ext, extCnt) => new
+            //         {   Extension = ext,
+            //             Count = extCnt.Count()
+            //         });
             return arte;
         }
 

@@ -258,7 +258,7 @@ namespace SAGA.API.Controllers
                         {
                             nombre = p.Nombre == null ? "" : p.Nombre,
                             apellidoPaterno = p.ApellidoPaterno,
-                            apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "" : p.ApellidoMaterno,
+                            apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
                             edad = p.FechaNacimiento,
                             rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
                             curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
