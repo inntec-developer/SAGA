@@ -548,13 +548,29 @@ namespace SAGA.API.Controllers
             {
                 try
                 {
-                    var t = db.Entidad.Find(entidadId);
-                    db.Entry(t).State = EntityState.Deleted;
+                    var a = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(entidadId)).Count();
+                    if (a == 0)
+                    {
 
-                    db.SaveChanges();
+                        var S = db.Subordinados.Where(x => x.UsuarioId.Equals(entidadId)).Select(id => id.Id).FirstOrDefault();
+                        var s = db.Subordinados.Find(S);
 
-                    beginTran.Commit();
-                    return Ok(HttpStatusCode.OK);
+                        db.Entry(s).State = EntityState.Deleted;
+                        db.SaveChanges();
+
+                        var t = db.Entidad.Find(entidadId);
+                        db.Entry(t).State = EntityState.Deleted;
+
+                        db.SaveChanges();
+
+                        beginTran.Commit();
+                        return Ok(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        beginTran.Dispose();
+                        return Ok(HttpStatusCode.ExpectationFailed);
+                    }
                 }
                 catch (Exception ex)
                 {
