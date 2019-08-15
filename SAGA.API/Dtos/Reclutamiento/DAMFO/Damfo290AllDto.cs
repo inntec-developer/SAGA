@@ -37,4 +37,55 @@ namespace SAGA.API.Dtos
         public Guid Damfo290Id { get; set; }
         public string Usuario { get; set; }
     }
+
+    public class BenPerfilDto
+    {
+        public Guid Id { get; set; }
+        public int TipoBeneficioId { get; set; }
+        public float Cantidad { get; set; }
+        public string Observaciones { get; set; }
+        public Guid DAMFO290Id { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
+
+    public class HrsPerfilDto
+    {
+        public Guid Id { get; set; }
+        public string Nombre { get; set; }
+        public byte deDiaId { get; set; }
+        public byte aDiaId { get; set; }
+        public DateTime deHora { get; set; }
+        public DateTime aHora { get; set; }
+        public byte numeroVacantes { get; set; }
+        public string Especificaciones { get; set; }
+        public bool Activo { get; set; }
+        public Guid DAMFO290Id { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
+    public class ActPerfilDto
+    {
+        public Guid Id { get; set; }
+        public string  Actividad { get; set; }
+        public Guid DAMFO290Id { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
+    public class ObsPerfilDto
+    {
+        public Guid Id { get; set; }
+        public string Observaciones { get; set; }
+        public Guid DAMFO290Id { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
+    public class PstDamsaDto
+    {
+        public Guid Id { get; set; }
+        public int PsicometriaId { get; set; }
+        public Guid DAMFO290Id { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
 }
