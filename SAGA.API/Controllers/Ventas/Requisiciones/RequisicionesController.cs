@@ -1487,7 +1487,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var clave = db.RelacionClientesSistemas.Where(x => x.Clave_Empresa.Equals(cc)).Select(CC => CC.Id).ToList().Distinct();
+                var clave = db.RelacionClientesSistemas.Where(x => x.Clave_Unica.Equals(cc)).Select(CC => CC.Id).ToList().Distinct();
                 var asig = db.Requisiciones
                     .OrderByDescending(e => e.Id)
                     .Where(a => clave.Contains(a.ClienteId))
