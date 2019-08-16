@@ -3,6 +3,7 @@ using SAGA.BOL;
 using SAGA.DAL;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -37,13 +38,13 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         c.Nombrecomercial,
                         c.RFC,
                         c.GiroEmpresas.giroEmpresa,
-                        c.ActividadEmpresas.actividadEmpresa                        
+                        c.ActividadEmpresas.actividadEmpresa
                     })
                     .ToList();
 
                 return Ok(clientes);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string mesg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
@@ -60,7 +61,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                     .Where(d => d.Id.Equals(PerfilId))
                     .Select(d => new
                     {
-                        Id= d.Id,
+                        Id = d.Id,
                         ClienteId = d.ClienteId,
                         RazonSocial = d.Cliente.RazonSocial,
                         Nombrecomercial = d.Cliente.Nombrecomercial,
@@ -153,12 +154,12 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                                             .ToList(),
                                     }).ToList(),
 
-                    
+
                     }).FirstOrDefault();
 
                 return Ok(info);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
@@ -208,7 +209,66 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                 .FirstOrDefault();
                 return Ok(perfil);
             }
-            catch(Exception ex)
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpGet]
+        [Route("getAnexosPerfil")]
+        public IHttpActionResult GetAnexosPerfil(Guid PerfilId)
+        {
+            try
+            {
+                var anexos = db.DAMFO290
+                    .Where(p => p.Id.Equals(PerfilId))
+                    .Select(p => new
+                    {
+                        Beneficios = p.beneficiosPerfil.Select(b => new
+                        {
+                            id = b.Id,
+                            tipoBeneficio = b.TipoBeneficio.tipoBeneficio,
+                            cantidad = b.Cantidad,
+                            observaciones = b.Observaciones,
+                            tipoBeneficioId = b.TipoBeneficioId,
+                        }).ToList(),
+                        Horarios = p.horariosPerfil.Select(h => new {
+                            id = h.Id,
+                            horario = h.Nombre,
+                            deDia = h.deDia.diaSemana,
+                            aDia = h.aDia.diaSemana,
+                            deDiaId = h.deDiaId,
+                            aDiaId = h.aDiaId,
+                            deHora = h.deHora,
+                            aHora = h.aHora,
+                            vacantes = h.numeroVacantes,
+                            especificaciones = h.Especificaciones,
+                            activo = h.Activo,
+                        }).ToList(),
+                        Actividades = p.actividadesPerfil.Select(a => new
+                        {
+                            id = a.Id,
+                            actividad = a.Actividades
+                        }).ToList(),
+                        Observaciones = p.observacionesPerfil.Select(o => new
+                        {
+                            id = o.Id,
+                            observacion = o.Observaciones
+                        }).ToList(),
+                        PsicometriasD = p.psicometriasDamsa.Select(d => new
+                        {
+                            id = d.Id,
+                            psicometriaId = d.PsicometriaId,
+                            psicometria = d.Psicometria.tipoPsicometria,
+                            descripcion = d.Psicometria.descripcion
+                        }).ToList()
+                    })
+                    .FirstOrDefault();
+                return Ok(anexos);
+            }
+            catch (Exception ex)
             {
                 string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
@@ -241,12 +301,352 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                     .FirstOrDefault();
                 return Ok(escoID);
             }
-            catch(Exception ex)
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpPost]
+        [Route("editEscolaridad")]
+        public IHttpActionResult EditEscolaridades(EscoPerfilDto esco)
+        {
+            try
+            {
+                var escolaridad = db.EscolaridadesPerfil.Find(esco.Id);
+                escolaridad.EscolaridadId = esco.EscolaridadId;
+                escolaridad.EstadoEstudioId = esco.EstadoEstudioId;
+                escolaridad.UsuarioMod = esco.Usuario;
+                escolaridad.fch_Modificacion = DateTime.Now;
+                db.Entry(escolaridad).State = EntityState.Modified;
+                db.SaveChanges();
+                return Ok(HttpStatusCode.Accepted);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpPost]
+        [Route("deleteEscolaridad")]
+        public IHttpActionResult DeleteEscolaridades(EscoPerfilDto esco)
+        {
+            try
+            {
+                var escolaridad = new EscolaridadesPerfil();
+                escolaridad.Id = esco.Id;
+                db.Entry(escolaridad).State = EntityState.Deleted;
+                db.SaveChanges();
+                return Ok(HttpStatusCode.Accepted);
+            }
+            catch (Exception ex)
             {
                 string msg = ex.Message;
                 return Ok(HttpStatusCode.NotFound);
             }
         }
         #endregion
+        #region Beneficios
+        [HttpPost]
+        [Route("crudBeneficios")]
+        public IHttpActionResult CrudBeneficios(BenPerfilDto Beneficio)
+        {
+            try
+            {
+                switch (Beneficio.Action)
+                {
+                    case "create":
+                        var x = new BeneficiosPerfil();
+                        x.TipoBeneficioId = Beneficio.TipoBeneficioId;
+                        x.Cantidad = Beneficio.Cantidad;
+                        x.Observaciones = Beneficio.Observaciones.ToUpper();
+                        x.UsuarioAlta = Beneficio.Usuario;
+                        x.DAMFO290Id = Beneficio.DAMFO290Id;
+                        db.BeneficiosPerfil.Add(x);
+                        db.SaveChanges();
+                        var BeneficioId = db.BeneficiosPerfil
+                            .Where(e => e.DAMFO290Id.Equals(Beneficio.DAMFO290Id))
+                            .OrderByDescending(e => e.fch_Creacion)
+                            .Select(e => e.Id)
+                            .Take(1)
+                            .FirstOrDefault();
+                        return Ok(BeneficioId);
+                    case "update":
+                        var u = db.BeneficiosPerfil.Find(Beneficio.Id);
+                        db.Entry(u).State = EntityState.Modified;
+                        u.TipoBeneficioId = Beneficio.TipoBeneficioId;
+                        u.Cantidad = Beneficio.Cantidad;
+                        u.Observaciones = Beneficio.Observaciones.ToUpper();
+                        u.UsuarioMod = Beneficio.Usuario;
+                        u.fch_Modificacion = DateTime.Now;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    case "delete":
+                        var d = db.BeneficiosPerfil.Find(Beneficio.Id);
+                        db.Entry(d).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotAcceptable);
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        #endregion
+        #region Horarios
+        [HttpPost]
+        [Route("crudHorarios")]
+        public IHttpActionResult CrudHorarios(HrsPerfilDto hrs)
+        {
+            try
+            {
+                switch (hrs.Action)
+                {
+                    case "create":
+
+                        var existes = db.HorariosPerfiles
+                            .Where(e => e.DAMFO290Id.Equals(hrs.DAMFO290Id) && e.Nombre == hrs.Nombre).Count();
+                        if (existes == 0)
+                        {
+                            var c = new HorarioPerfil();
+                            c.Nombre = hrs.Nombre.ToUpper().Trim();
+                            c.deDiaId = hrs.deDiaId;
+                            c.aDiaId = hrs.aDiaId;
+                            c.deHora = hrs.deHora;
+                            c.aHora = hrs.aHora;
+                            c.numeroVacantes = hrs.numeroVacantes;
+                            c.Especificaciones = hrs.Especificaciones.ToUpper().Trim();
+                            c.Activo = hrs.Activo;
+                            c.DAMFO290Id = hrs.DAMFO290Id;
+                            c.UsuarioAlta = hrs.Usuario;
+                            db.HorariosPerfiles.Add(c);
+                            db.SaveChanges();
+                            var horarioId = db.HorariosPerfiles
+                                .Where(e => e.DAMFO290Id.Equals(hrs.DAMFO290Id))
+                                .OrderByDescending(e => e.fch_Creacion)
+                                .Select(e => e.Id)
+                                .Take(1)
+                                .FirstOrDefault();
+                            return Ok(horarioId);
+                        }
+                        else
+                        {
+                            return Ok(HttpStatusCode.Ambiguous);
+                        }
+
+                    case "update":
+                        var upexiste = db.HorariosPerfiles
+                            .Where(e => e.DAMFO290Id.Equals(hrs.DAMFO290Id) && e.Nombre == hrs.Nombre && e.Id != hrs.Id).Count();
+                        if (upexiste == 0)
+                        {
+                            var u = db.HorariosPerfiles.Find(hrs.Id);
+                            db.Entry(u).State = EntityState.Modified;
+                            u.Nombre = hrs.Nombre.ToUpper().Trim();
+                            u.deDiaId = hrs.deDiaId;
+                            u.aDiaId = hrs.aDiaId;
+                            u.deHora = hrs.deHora;
+                            u.aHora = hrs.aHora;
+                            u.numeroVacantes = hrs.numeroVacantes;
+                            u.Especificaciones = hrs.Especificaciones.ToUpper().Trim();
+                            u.Activo = hrs.Activo;
+                            u.DAMFO290Id = hrs.DAMFO290Id;
+                            u.UsuarioMod = hrs.Usuario;
+                            u.fch_Modificacion = DateTime.Now;
+                            db.SaveChanges();
+                            return Ok(u);
+                        }
+                        else
+                        {
+                            return Ok(HttpStatusCode.Ambiguous);
+                        }
+                    case "delete":
+                        var d = db.HorariosPerfiles.Find(hrs.Id);
+                        db.Entry(d).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotAcceptable);
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        #endregion
+        #region Actividades
+        [HttpPost]
+        [Route("crudActividades")]
+        public IHttpActionResult CurdActividades(ActPerfilDto act)
+        {
+            try
+            {
+                switch (act.Action)
+                {
+                    case "create":
+                        var c = new ActividadesPerfil();
+                        c.Actividades = act.Actividad.ToUpper().Trim();
+                        c.UsuarioAlta = act.Usuario;
+                        c.DAMFO290Id = act.DAMFO290Id;
+                        db.ActividadesPerfil.Add(c);
+                        db.SaveChanges();
+                        var actividadId = db.ActividadesPerfil
+                            .Where(e => e.DAMFO290Id.Equals(act.DAMFO290Id))
+                            .OrderByDescending(e => e.fch_Creacion)
+                            .Select(e => e.Id)
+                            .Take(1)
+                            .FirstOrDefault();
+                        return Ok(actividadId);
+                    case "update":
+                        var u = db.ActividadesPerfil.Find(act.Id);
+                        db.Entry(u).State = EntityState.Modified;
+                        u.Actividades = act.Actividad.ToUpper().Trim();
+                        u.DAMFO290Id = act.DAMFO290Id;
+                        u.UsuarioMod = act.Usuario;
+                        u.fch_Modificacion = DateTime.Now;
+                        db.SaveChanges();
+                        return Ok(u);
+                    case "delete":
+                        var d = db.ActividadesPerfil.Find(act.Id);
+                        db.Entry(d).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotAcceptable);
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        #endregion
+
+        #region Observaciones
+        [HttpPost]
+        [Route("crudObservaciones")]
+        public IHttpActionResult CurdObservaciones(ObsPerfilDto obs)
+        {
+            try
+            {
+                switch (obs.Action)
+                {
+                    case "create":
+                        var c = new ObservacionesPerfil();
+                        c.Observaciones = obs.Observaciones.ToUpper().Trim();
+                        c.UsuarioAlta = obs.Usuario;
+                        c.DAMFO290Id = obs.DAMFO290Id;
+                        db.ObservacionesPerfil.Add(c);
+                        db.SaveChanges();
+                        var actividadId = db.ObservacionesPerfil
+                            .Where(e => e.DAMFO290Id.Equals(obs.DAMFO290Id))
+                            .OrderByDescending(e => e.fch_Creacion)
+                            .Select(e => e.Id)
+                            .Take(1)
+                            .FirstOrDefault();
+                        return Ok(actividadId);
+                    case "update":
+                        var u = db.ObservacionesPerfil.Find(obs.Id);
+                        db.Entry(u).State = EntityState.Modified;
+                        u.Observaciones = obs.Observaciones.ToUpper().Trim();
+                        u.DAMFO290Id = obs.DAMFO290Id;
+                        u.UsuarioMod = obs.Usuario;
+                        u.fch_Modificacion = DateTime.Now;
+                        db.SaveChanges();
+                        return Ok(u);
+                    case "delete":
+                        var d = db.ObservacionesPerfil.Find(obs.Id);
+                        db.Entry(d).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotAcceptable);
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        #endregion
+
+        #region PsicometriasDamsa
+        [HttpPost]
+        [Route("crudPsicometriasDamsa")]
+        public IHttpActionResult CrudPsicometriasDamsa(PstDamsaDto pst)
+        {
+            try
+            {
+                switch (pst.Action)
+                {
+                    case "create":
+                        var existes = db.PsicometriasDamsa
+                           .Where(p => p.DAMFO290Id.Equals(pst.DAMFO290Id) && p.PsicometriaId == pst.PsicometriaId).Count();
+                        if (existes == 0)
+                        {
+                            var c = new PsicometriasDamsa();
+                            c.PsicometriaId = pst.PsicometriaId;
+                            c.DAMFO290Id = pst.DAMFO290Id;
+                            c.UsuarioAlta = pst.Usuario;
+                            db.PsicometriasDamsa.Add(c);
+                            db.SaveChanges();
+                            var psicometriaId = db.PsicometriasDamsa
+                                .Where(e => e.DAMFO290Id.Equals(pst.DAMFO290Id))
+                                .OrderByDescending(e => e.fch_Creacion)
+                                .Select(e => e.Id)
+                                .Take(1)
+                                .FirstOrDefault();
+                            return Ok(psicometriaId);
+                        }
+                        else
+                        {
+                            return Ok(HttpStatusCode.Ambiguous);
+                        }
+                    case "update":
+                        var upexiste = db.PsicometriasDamsa
+                            .Where(e => e.DAMFO290Id.Equals(pst.DAMFO290Id) && e.PsicometriaId == pst.PsicometriaId && e.Id != pst.Id).Count();
+                        if (upexiste == 0)
+                        {
+                            var u = db.PsicometriasDamsa.Find(pst.Id);
+                            db.Entry(u).State = EntityState.Modified;
+                            u.PsicometriaId = pst.PsicometriaId;
+                            u.DAMFO290Id = pst.DAMFO290Id;
+                            u.UsuarioMod = pst.Usuario;
+                            u.fch_Modificacion = DateTime.Now;
+                            db.SaveChanges();
+                            return Ok(u);
+                        }
+                        else
+                        {
+                            return Ok(HttpStatusCode.Ambiguous);
+                        }
+                    case "delete":
+                        var d = db.PsicometriasDamsa.Find(pst.Id);
+                        db.Entry(d).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotAcceptable);
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        #endregion
+
+
     }
 }
