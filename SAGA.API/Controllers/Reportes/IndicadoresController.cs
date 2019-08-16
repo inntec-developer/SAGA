@@ -161,7 +161,7 @@ namespace SAGA.API.Controllers.Reportes
             DateTime fecha = DateTime.Now.AddMonths(-1);
             var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
             int[] EstatusList = new[] { 4,6,7,29,30,31,32,33,38,39 };
-            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.AprobadorId)).ToList();
+            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.AprobadorId) && e.Activo == true).ToList();
             
             int Nuevo = datos.Where(e => e.EstatusId == 4).ToList().Count;
             int Aprobada = datos.Where(e => e.EstatusId == 6).ToList().Count;
