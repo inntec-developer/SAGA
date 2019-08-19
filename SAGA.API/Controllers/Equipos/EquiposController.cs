@@ -62,36 +62,30 @@ namespace SAGA.API.Controllers.Equipos
             return mocos;
         }
 
-        public int sumrec(List<ResumenDto> tree, List<int> totCub)
+        public int sumTotalCub(List<ResumenDto> tree, int inicio, Guid id)
         {
-
-            foreach (var c in tree)
+            var mocos = tree.Where(x => x.liderId == id).ToList();
+            if (mocos.Count() > 0)
             {
-                totCub.Add(c.totalCub);
-  
-                if (c.resumen.Count > 0)
+                foreach (var nodo in mocos)
                 {
-                    c.totalCub = sumrec(c.resumen, totCub);
+                    nodo.totalCub = nodo.totalCub + sumTotalCub(tree, nodo.totalCub, nodo.reclutadorId);
                 }
             }
-
-
-            return totCub.Sum();
+            return mocos.Sum(x => x.totalCub);
         }
-        public int sumTotalPos(List<ResumenDto> tree, List<int> totPos)
+        public int sumTotalPos(List<ResumenDto> tree, int inicio, Guid id)
         {
-
-            foreach (var c in tree)
+            var mocos = tree.Where(x => x.liderId == id).ToList();
+            if (mocos.Count() > 0)
             {
-                totPos.Add(c.totalPos);
-                if (c.resumen.Count > 0)
+                foreach (var nodo in mocos)
                 {
-                    c.totalPos = sumTotalPos(c.resumen, totPos);
+                    nodo.totalPos = nodo.totalPos + sumTotalPos(tree, nodo.totalPos, nodo.reclutadorId);
                 }
             }
-
-
-            return totPos.Sum();
+            return mocos.Sum(x => x.totalPos);
+                       
         }
 
         [HttpGet]
@@ -142,6 +136,17 @@ namespace SAGA.API.Controllers.Equipos
 
                     }).ToList();
 
+                    var nodesSum = tree.Where(x => x.tipoUsuario.Equals(14)).Select(r => new ResumenDto
+                    {
+                        reclutadorId = r.reclutadorId,
+                        nombre = r.nombre,
+                        clave = r.clave,
+                        tipoUsuario = r.tipoUsuario,
+                        totalCub = sumTotalCub(tree, r.totalCub, r.reclutadorId),
+                        totalPos = sumTotalPos(tree, r.totalPos, r.reclutadorId),
+                        //resumen = GetRportGG2(tree, r.reclutadorId),
+                    }).ToList();
+
 
                     var nodes = tree.Where(x => x.tipoUsuario.Equals(14)).Select(r => new ResumenDto
                     {
@@ -154,101 +159,21 @@ namespace SAGA.API.Controllers.Equipos
                         resumen = GetRportGG2(tree, r.reclutadorId),        
                     }).ToList();
 
-                
+
                     var resumen = nodes.Select(rr => new {
                         reclutadorId = rr.reclutadorId,
                         nombre = rr.nombre,
                         clave = rr.clave,
                         tipoUsuario = rr.tipoUsuario,
+                        totalCub = rr.totalCub,
+                        totalPos = rr.totalPos,
                         resumen = rr.resumen,
-                        totalCub = sumrec(nodes, new List<int>()),
-                        totalPos = sumTotalPos(nodes, new List<int>())
-   
-                    });
-                    uids.Clear();
+                    }).ToList();
 
-                    //foreach (var c in gerentes)
-                    //{
-                    //    var coords = db.Subordinados.Where(x => x.LiderId.Equals(c)).Select(u => u.UsuarioId).ToList();
+                     uids.Clear();
 
-                    //    foreach (var row in coords)
-                    //    {
-                    //        var reclutadores = db.Subordinados.Where(x => !x.UsuarioId.Equals(row) && x.LiderId.Equals(row)).Select(u => u.UsuarioId).ToList();
-                    //        uids = GetSub(reclutadores, uids);
-
-                    //        uids.Add(row);
-
-                         
-                    //            var resum = new {
-                    //            reclutadorId = row,
-                    //            nombre = db.Usuarios.Where(x => x.Id.Equals(row)).Select(ng => ng.Nombre + " " + ng.ApellidoPaterno + " " + ng.ApellidoMaterno).FirstOrDefault(),
-                    //            clave = db.Usuarios.Where(x => x.Id.Equals(row)).Select(cl => cl.Clave).FirstOrDefault(),
-                    //            tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(row)).Select(tu => tu.TipoUsuarioId).FirstOrDefault(),
-                    //            resumen = db.AsignacionRequis.Where(x => uids.Contains(x.GrpUsrId)).GroupBy(g => g.GrpUsrId)
-                    //            .Select(r => new ResumenDto
-                    //            {
-                    //                reclutadorId = r.Key,
-                    //                nombre = db.Usuarios.Where(x => x.Id.Equals(r.Key)).Select(ng => ng.Nombre + " " + ng.ApellidoPaterno + " " + ng.ApellidoMaterno).FirstOrDefault(),
-                    //                clave = db.Usuarios.Where(x => x.Id.Equals(r.Key)).Select(cl => cl.Clave).FirstOrDefault(),
-                    //                tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(r.Key)).Select(tu => tu.TipoUsuarioId).FirstOrDefault(),
-                    //                requis = r.Select(res => new RequisDtos {
-                    //                    requisicionId = res.Requisicion.Id,
-                    //                    folio = res.Requisicion.Folio,
-                    //                    vBtra = res.Requisicion.VBtra,
-                    //                    vacantes = res.Requisicion.horariosRequi.Count() > 0 ? res.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                    //                    contratados = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Requisicion.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(res.GrpUsrId)).Select(cs => db.CandidatosInfo.Where(xx => xx.CandidatoId.Equals(cs.CandidatoId) && xx.ReclutadorId.Equals(cs.ReclutadorId))).Count(),
-                    //                }).ToList(),
-                    //                totalCub = r.Select(sum => new
-                    //                {
-                    //                    cont = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(sum.Requisicion.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(r.Key)).Select(cand => cand.CandidatoId).Count(),
-                    //                }).Sum(x => x.cont),
-                    //                totalPos = r.Select(sum => new
-                    //                {
-                    //                    cont = sum.Requisicion.horariosRequi.Count() > 0 ? sum.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                    //                }).Sum(x => x.cont),
-
-                    //                totalFal = r.Select(sum => new
-                    //                            {
-                    //                                cont = sum.Requisicion.horariosRequi.Count() > 0 ? sum.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                    //                            }).Sum(x => x.cont) - r.Select(sum => new
-                    //                            {
-                    //                                cont = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(sum.Requisicion.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(r.Key)).Select(cand => cand.CandidatoId).Count(),
-                    //                            }).Sum(x => x.cont),
-                    //                totalCump = r.Select(sum => new
-                    //                            {
-                    //                                cont = sum.Requisicion.horariosRequi.Count() > 0 ? sum.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                    //                            }).Sum(x => x.cont) > 0 ? r.Select(sum => new
-                    //                                                        {
-                    //                                                            cont = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(sum.Requisicion.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(r.Key)).Select(cand => cand.CandidatoId).Count(),
-                    //                                                        }).Sum(x => x.cont) * 100 / r.Select(sum => new
-                    //                                                        {
-                    //                                                            cont = sum.Requisicion.horariosRequi.Count() > 0 ? sum.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                    //                                                        }).Sum(x => x.cont) : 0
-                    //            }).ToList()
-                    //    };
-
-                    //        ResumenDto rd = new ResumenDto();
-
-                    //        rd.reclutadorId = resum.reclutadorId;
-                    //        rd.nombre = resum.nombre;
-                    //        rd.clave = resum.clave;
-                    //        rd.tipoUsuario = resum.tipoUsuario;
-                    //        rd.resumen = resum.resumen;
-                    //        rd.totalCub = resum.resumen.Sum(s => s.totalCub);
-                    //        rd.totalPos = resum.resumen.Sum(s => s.totalPos);
-                    //        rd.totalFal = resum.resumen.Sum(s => s.totalPos) - resum.resumen.Sum(s => s.totalCub);
-                    //        rd.totalCump = resum.resumen.Sum(s => s.totalPos) > 0 ? resum.resumen.Sum(s => s.totalCub) * 100 / resum.resumen.Sum(s => s.totalPos) : 0;
-
-                    //        totales.Add(rd);
-
-                    //        uids.Clear();
-
-
-                    //    }
-                       
-
-                    //}
-                    return Ok(resumen);
+                   
+                    return Ok(nodes);
                 }
                 else
                 {
