@@ -7,7 +7,7 @@ namespace SAGA.API.Dtos.Equipos
 {
     public class ResumenDto
     {
-       
+        public Guid liderId { get; set; }
         public Guid reclutadorId { get; set; }
         public string nombre { get; set; }
         public string clave { get; set; }

@@ -191,9 +191,21 @@ namespace SAGA.API.Controllers
                     db.CandidatosInfo.Add(obj);
                     db.SaveChanges();
 
-                    tran.Commit();
-
                     candidatosIds.Add(candidato.Id);
+
+                    var IDR = db.Requisiciones.Find(r.requisicionId);
+                    if (IDR.EstatusId != 33 && IDR.EstatusId != 8 && IDR.Activo)
+                    {
+                        db.Entry(IDR).Property(u => u.EstatusId).IsModified = true;
+                        db.Entry(IDR).Property(u => u.fch_Modificacion).IsModified = true;
+
+                        IDR.EstatusId = 33;
+                        IDR.fch_Modificacion = DateTime.Now;
+
+                        db.SaveChanges();
+                    }
+
+                    tran.Commit();
 
                     candidato = new Candidato();
                     PC = new PerfilCandidato();
