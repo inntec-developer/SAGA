@@ -1147,6 +1147,7 @@ namespace SAGA.API.Controllers
                 {
                     Id = e.Id,
                     Folio = e.Folio,
+                    fch_Modificacion = requi.Where(x => x.Id == e.Id).Select(a => a.fch_Modificacion).FirstOrDefault(),
                     fch_Solicitud = e.fch_Creacion,
                     reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a =>
                         db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
@@ -1157,7 +1158,7 @@ namespace SAGA.API.Controllers
                     domicilio_trabajo = e.domicilio_trabajo.ToUpper(),
                     Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper() : "SIN REGISTRO",
                     coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper() : "SIN REGISTRO",
-                    ClienteId = db.Requisiciones.Where(x => x.Id == e.Id).Select(a => a.ClienteId).FirstOrDefault(),
+                    ClienteId = requi.Where(x => x.Id == e.Id).Select(a => a.ClienteId).FirstOrDefault(),
                     ClaseReclutamientoId = requi.Where(x => x.Id == e.Id).Select(a => a.ClaseReclutamientoId).FirstOrDefault(),
                     TipoReclutamientoId = requi.Where(x => x.Id == e.Id).Select(a => a.TipoReclutamientoId).FirstOrDefault(),
                     EstadoId = requi.Where(x => x.Id == e.Id).Select(a => a.Direccion.EstadoId).FirstOrDefault(),
