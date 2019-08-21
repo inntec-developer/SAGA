@@ -274,7 +274,7 @@ namespace SAGA.API.Controllers.Reportes
         public IHttpActionResult Empresas()
         {
             var fecha = DateTime.Now.AddDays(-15);
-            var datos = db.Clientes.Where(e=>e.Activo == true && e.esCliente.Equals(true)).Select(e => new
+            var datos = db.Clientes.Where(e=>e.Activo == true && e.esCliente == true).Select(e => new
             {
                 e.RFC,
                 e.Nombrecomercial,
@@ -998,6 +998,52 @@ namespace SAGA.API.Controllers.Reportes
 
 
             return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("vacante")]
+        public IHttpActionResult vacante(string cliente, string coordina)
+        {
+           
+            int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
+            
+            try
+            {
+                Guid clienteID = new Guid("A5029BD9-752C-E811-AF5F-C85B76218241");
+                var requi = db.Requisiciones.Where(e => EstatusList.Contains(e.EstatusId) && e.Activo == true && e.ClienteId == clienteID).ToList();
+                var requiID = requi.Select(e => e.Id).ToList();
+                var ListaCubierta = db.ProcesoCandidatos.Where(e => requiID.Contains(e.RequisicionId) && e.EstatusId == 24).ToList();
+                var datos = requi.Select(e=> new {
+                    perfil = e.VBtra,
+                    numeropos = e.horariosRequi.Sum(s => s.numeroVacantes),
+                    cubierta = db.ProcesoCandidatos.Where(x => x.RequisicionId == e.Id && x.EstatusId == 24).Count(),
+                    faltantes = db.HorariosRequis.Where(x => x.RequisicionId == e.Id).Sum(x => x.numeroVacantes) - db.ProcesoCandidatos.Where(x => x.RequisicionId == e.Id && x.EstatusId == 24).Count(),
+                    porsentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId == e.Id && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
+                    cordinacion = e.ClaseReclutamiento.clasesReclutamiento,
+                    e.ClaseReclutamientoId
+                }).OrderByDescending(e=>e.numeropos).ToList();
+                if (coordina != "0" && coordina != null)
+                {
+                    var obj = coordina.Split(',');
+                    List<int> listaAreglo = new List<int>();
+                    for (int i = 0; i < obj.Count() - 1; i++)
+                    {
+                        listaAreglo.Add(Convert.ToInt32(obj[i]));
+                    }
+                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
+                    if (obb.Count == 0)
+                    {
+                        datos = datos.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
+                    }
+                }
+                return Ok(datos);
+            }
+            catch (Exception ex)
+            {
+                var mensaje = ex.Message;
+            }
+            
+            return Ok("El servidor no responde");
         }
 
         public class proactividad
