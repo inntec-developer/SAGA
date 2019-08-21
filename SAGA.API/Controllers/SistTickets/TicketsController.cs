@@ -1464,30 +1464,29 @@ namespace SAGA.API.Controllers
                         categoria = e.Area.areaExperiencia,
                         icono = e.Area.Icono,
                         areaId = e.AreaId,
-
                         cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0,
-         
+                        arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/Arte/" + e.Id + ".png"
                     }).ToList();
 
 
-                var v = vacantes.Where(x => x.cubierta > 0).Select(e => new
-                {
-                    Id = e.Id,
-                    estatus = e.estatus,
-                    Folio = e.Folio,
-                    VBtra = e.VBtra,
-                    experiencia = e.experiencia,
-                    categoria = e.categoria,
-                    icono = e.icono,
-                    areaId = e.areaId,
-                    cubierta = e.cubierta,
-                    arte = this.ValidarArte(e.Id.ToString()),
-                    //fsarte = this.GetImage(e.Id.ToString())
+                //var v = vacantes.Where(x => x.cubierta > 0).Select(e => new
+                //{
+                //    Id = e.Id,
+                //    estatus = e.estatus,
+                //    Folio = e.Folio,
+                //    VBtra = e.VBtra,
+                //    experiencia = e.experiencia,
+                //    categoria = e.categoria,
+                //    icono = e.icono,
+                //    areaId = e.areaId,
+                //    cubierta = e.cubierta,
+                //    arte = this.ValidarArte(e.Id.ToString()),
+                //    //fsarte = this.GetImage(e.Id.ToString())
 
-                }).ToList();
+                //}).ToList();
 
 
-                return Ok(v);
+                return Ok(vacantes);
 
             }
             catch (Exception ex)
