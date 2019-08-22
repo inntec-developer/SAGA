@@ -485,7 +485,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                         }).OrderBy(x => x.fch_Cumplimiento).ToList();
                         return Ok(requisicion);
                     }
-                    else if (estado == "Especial")
+                    else if (estado == "Especializado")
                     {
                         var requisicion = db.Requisiciones
                         .Where(e => e.Activo == true && e.ClaseReclutamientoId == 1 && e.Confidencial == false)
@@ -547,9 +547,9 @@ namespace SAGA.API.Controllers.Component.Graficas
                             Confidencial = e.Confidencial,
                             coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Count() == 0 ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                             Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
-                            reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Count() > 0 ? db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                            reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
                                  db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
-                            ).Distinct().ToList() : null
+                            ).Distinct().ToList()
                         }).OrderBy(x => x.fch_Cumplimiento).ToList();
                         return Ok(requisicion);
                     }

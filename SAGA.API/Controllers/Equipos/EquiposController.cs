@@ -52,10 +52,10 @@ namespace SAGA.API.Controllers.Equipos
                 nombre = u.nombre,
                 clave = u.clave,
                 tipoUsuario = u.tipoUsuario,
-                requis = u.requis,
                 totalCub = u.totalCub,
                 totalPos = u.totalPos,
-                resumen = GetRportGG2(tree,u.reclutadorId),
+                foto = u.foto,
+                resumen = GetRportGG2(tree, u.reclutadorId),
 
             }).ToList();
 
@@ -85,20 +85,19 @@ namespace SAGA.API.Controllers.Equipos
                 }
             }
             return mocos.Sum(x => x.totalPos);
-                       
+
         }
 
         [HttpGet]
         [Route("getRportGG")]
         public IHttpActionResult GetRportGG(Guid gg)
         {
-
             List<Guid> uids = new List<Guid>();
-            List<ResumenDto> totales = new List<ResumenDto>();
+            int[] estatusId = { 8, 9, 34, 35, 36, 37, 47, 48 };
             try
             {
-               
-        var val = db.Subordinados.Where(x => x.LiderId.Equals(gg)).Count();
+
+                var val = db.Subordinados.Where(x => x.LiderId.Equals(gg)).Count();
 
                 if (val > 0)
                 {
@@ -109,34 +108,26 @@ namespace SAGA.API.Controllers.Equipos
 
                     var tree = db.Usuarios.Where(x => uids.Distinct().Contains(x.Id)).Select(r => new ResumenDto
                     {
-                        liderId = db.Subordinados.Where(x => x.UsuarioId.Equals(r.Id)).Select(l=> l.LiderId).FirstOrDefault(),
+                        liderId = db.Subordinados.Where(x => x.UsuarioId.Equals(r.Id)).Select(l => l.LiderId).FirstOrDefault(),
                         reclutadorId = r.Id,
                         nombre = r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno,
                         clave = r.Clave,
                         tipoUsuario = r.TipoUsuarioId,
-                       
-                        requis = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(r.Id)).Select(res => new RequisDtos
-                        {
-                            requisicionId = res.Requisicion.Id,
-                            folio = res.Requisicion.Folio,
-                            vBtra = res.Requisicion.VBtra,
-                            vacantes = res.Requisicion.horariosRequi.Count() > 0 ? res.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                            contratados = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Requisicion.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(res.GrpUsrId)).Select(cs => db.CandidatosInfo.Where(xx => xx.CandidatoId.Equals(cs.CandidatoId) && xx.ReclutadorId.Equals(cs.ReclutadorId))).Count(),
-                        }).ToList(),
-
-                        totalCub = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(r.Id)).Count() > 0 ? db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(r.Id)).Select(sum => new
+                        foto = @"https://apierp.damsa.com.mx/img/" + r.Clave + ".jpg",
+                   
+                        totalCub = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && x.GrpUsrId.Equals(r.Id)).Count() > 0 ? db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && x.GrpUsrId.Equals(r.Id)).Select(sum => new
                         {
                             cont = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(sum.Requisicion.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(sum.GrpUsrId)).Select(cand => db.CandidatosInfo.Where(xx => xx.CandidatoId.Equals(cand.CandidatoId) && xx.ReclutadorId.Equals(cand.ReclutadorId))).Count(),
                         }).Sum(x => x.cont) : 0,
 
-                        totalPos = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(r.Id)).Count() > 0 ? db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(r.Id)).Select(sum => new
+                        totalPos = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && x.GrpUsrId.Equals(r.Id)).Count() > 0 ? db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && x.GrpUsrId.Equals(r.Id)).Select(sum => new
                         {
                             vac = sum.Requisicion.horariosRequi.Count() > 0 ? sum.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
                         }).Sum(x => x.vac) : 0
 
                     }).ToList();
 
-                    var nodesSum = tree.Where(x => x.tipoUsuario.Equals(14)).Select(r => new ResumenDto
+                    var nodesSum = tree.Where(x => x.reclutadorId.Equals(gg)).Select(r => new ResumenDto
                     {
                         reclutadorId = r.reclutadorId,
                         nombre = r.nombre,
@@ -147,45 +138,92 @@ namespace SAGA.API.Controllers.Equipos
                         //resumen = GetRportGG2(tree, r.reclutadorId),
                     }).ToList();
 
-
-                    var nodes = tree.Where(x => x.tipoUsuario.Equals(14)).Select(r => new ResumenDto
+                    var nodes = tree.Where(x => x.reclutadorId.Equals(gg)).Select(r => new ResumenDto
                     {
+                        liderId = r.liderId,
                         reclutadorId = r.reclutadorId,
                         nombre = r.nombre,
                         clave = r.clave,
                         tipoUsuario = r.tipoUsuario,
-                        totalCub = r.totalCub,
-                        totalPos = r.totalPos,
-                        resumen = GetRportGG2(tree, r.reclutadorId),        
+                        totalCub = nodesSum[0].totalCub,
+                        totalPos = nodesSum[0].totalPos,
+                        foto = r.foto,
+                        resumen = GetRportGG2(tree, r.reclutadorId),
                     }).ToList();
 
-
-                    var resumen = nodes.Select(rr => new {
-                        reclutadorId = rr.reclutadorId,
-                        nombre = rr.nombre,
-                        clave = rr.clave,
-                        tipoUsuario = rr.tipoUsuario,
-                        totalCub = rr.totalCub,
-                        totalPos = rr.totalPos,
-                        resumen = rr.resumen,
-                    }).ToList();
-
-                     uids.Clear();
-
-                   
                     return Ok(nodes);
                 }
                 else
                 {
-                    return Ok();
+                    return Ok(HttpStatusCode.ExpectationFailed);
                 }
 
-              
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Ok(ex.Message);
             }
         }
+
+        [HttpGet]
+        [Route("getRportTable")]
+        public IHttpActionResult GetRportTable(Guid usuario, int orden)
+        {
+            //1 posiciones activas. 2 cubiertas. 3 faltantes. 4 cumplimiento
+            List<Guid> uids = new List<Guid>();
+            int[] estatusId = { 8, 9, 34, 35, 36, 37, 47, 48 };
+            try
+            {
+                var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(usuario) && x.LiderId.Equals(usuario)).Select(u => u.UsuarioId).ToList();
+                uids = GetSub(ids, uids);
+
+                uids.Add(usuario);
+
+                var requis = db.AsignacionRequis.Where(x => uids.Distinct().Contains(x.GrpUsrId) && !estatusId.Contains(x.Requisicion.EstatusId)).Select(res => new
+                {
+                    requisicionId = res.Requisicion.Id,
+                    estatusId = res.Requisicion.EstatusId,
+                    folio = res.Requisicion.Folio,
+                    cliente = res.Requisicion.Cliente.Nombrecomercial,
+                    vBtra = res.Requisicion.VBtra,
+                    fch_Cumplimiento = res.Requisicion.fch_Cumplimiento,
+                    vacantes = res.Requisicion.horariosRequi.Count() > 0 ? res.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                    contratados = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Requisicion.Id) && x.EstatusId.Equals(24)).Count(),
+                    coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(res.Requisicion.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(res.Requisicion.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                    reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(res.RequisicionId) && !x.GrpUsrId.Equals(res.Requisicion.AprobadorId)).Select(a =>
+                                   db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
+                                   ),
+                    faltantes = (res.Requisicion.horariosRequi.Count() > 0 ? res.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0) - (db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Requisicion.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(res.GrpUsrId)).Select(cs => db.CandidatosInfo.Where(xx => xx.CandidatoId.Equals(cs.CandidatoId) && xx.ReclutadorId.Equals(cs.ReclutadorId))).Count()),
+                    cumplimiento = res.Requisicion.horariosRequi.Count() > 0 ? db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Requisicion.Id) && x.EstatusId.Equals(24)).Count() * 100 / res.Requisicion.horariosRequi.Count() : 0,
+                }).ToList();
+
+
+                if (orden == 1)
+                {
+                    requis = requis.OrderByDescending(o => o.vacantes).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                }
+                else if(orden == 2)
+                {
+                    requis = requis.OrderByDescending(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                }
+                else if (orden == 4)
+                {
+                    requis = requis.OrderByDescending(o => o.faltantes).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                }
+                else
+                {
+                    requis = requis.OrderByDescending(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                }
+
+                return Ok(requis);
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+
     }
 }

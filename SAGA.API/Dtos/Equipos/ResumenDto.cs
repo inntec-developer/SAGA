@@ -14,8 +14,7 @@ namespace SAGA.API.Dtos.Equipos
         public int tipoUsuario { get; set; }
         public int totalCub { get; set; }
         public int totalPos { get; set; }
-        public int totalFal { get; set; }
-        public int totalCump { get; set; }
+        public string foto { get; set; }
         public List<RequisDtos> requis { get; set; }
         public List<ResumenDto> resumen { get; set; }
     }
