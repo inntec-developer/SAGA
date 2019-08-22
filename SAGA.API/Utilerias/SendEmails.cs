@@ -417,7 +417,7 @@ namespace SAGA.API.Utilerias
             try
             {
                 int[] mty = {6,7,10,19,28,24};
-                int[] gdl = {1,3,8,10,11,14,16,18,2,25,26,32};
+                int[] gdl = {1,3,8,11,14,16,18,2,25,26,32};
                 int[] mx = {4,5,9,12,13,15,17,20,21,22,23,27,29,30,31};
                 string GrVtasEmail = "", GVtasEmail = "", GGEmail = "";
                 List<string> GrVEmails = null;
@@ -470,7 +470,7 @@ namespace SAGA.API.Utilerias
                 var facturacion = db.FacturacionPuro.Where(f => f.RequisicionId.Equals(RequisicionId))
                     .Select(f => new
                     {
-                        porcentage = f.Porcentaje,
+                        porcentaje = f.Porcentaje,
                         monto = f.Monto,
                         perContratado = f.PerContratado,
                         montoContratado = f.MontoContratado,
@@ -711,7 +711,7 @@ namespace SAGA.API.Utilerias
                             }
                         }
                         m.CC.Add(emailProp);
-                        m.Subject = string.Format("[AUTORIZAR FOLIO] Vacante con Reclutamiento Puro Porcentage menor de 50% {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[AUTORIZAR FOLIO] Vacante con Reclutamiento Puro Porcentaje menor de 50% {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>, el cual se esta solicitando una facturación por debajo del 50%. Es necesaria previa autorización para continuar con el proceso. </strong>",sitioWeb, requi.folio);
                         break;
                 }
@@ -720,7 +720,7 @@ namespace SAGA.API.Utilerias
                 {
                     body = body + string.Format("<p><h3>INFORMACIÓN PRINCIPAL DE FACTURACIÓN.</h3></p> ");
                     body = body + string.Format("<div style=\"background-color: #FFFAD6; width: max-content; margin-left: 15px;\"><div style=\"padding: 15px 20px 15px\"> ");
-                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">FACTURAR: </strong>{0}%</label></p>", facturacion.porcentage);
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">FACTURAR: </strong>{0}%</label></p>", facturacion.porcentaje);
                     body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO A FACTURAR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.monto));
                     body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> AL CUBRIR: </strong>{0} %</label><p>", facturacion.perContratado);
                     body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO AL CUBRIR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.montoContratado));
@@ -888,7 +888,7 @@ namespace SAGA.API.Utilerias
             try
             {
                 int[] mty = { 6, 7, 10, 19, 28, 24 };
-                int[] gdl = { 1, 3, 8, 10, 11, 14, 16, 18, 2, 25, 26, 32 };
+                int[] gdl = { 1, 3, 8, 11, 14, 16, 18, 2, 25, 26, 32 };
                 int[] mx = { 4, 5, 9, 12, 13, 15, 17, 20, 21, 22, 23, 27, 29, 30, 31 };
                 string GrVtasEmail = "", GVtasEmail = "", GGEmail = "";
                 List<string> GrVEmails = null;
@@ -941,7 +941,7 @@ namespace SAGA.API.Utilerias
                 var facturacion = db.FacturacionPuro.Where(f => f.RequisicionId.Equals(RequisicionId))
                     .Select(f => new
                     {
-                        porcentage = f.Porcentaje,
+                        porcentaje = f.Porcentaje,
                         monto = f.Monto,
                         perContratado = f.PerContratado,
                         montoContratado = f.MontoContratado,
@@ -1046,7 +1046,7 @@ namespace SAGA.API.Utilerias
                 {
                     body = body + string.Format("<p><h3>INFORMACIÓN PRINCIPAL DE FACTURACIÓN.</h3></p> ");
                     body = body + string.Format("<div style=\"background-color: #FFFAD6; width: max-content; margin-left: 15px;\"><div style=\"padding: 15px 20px 15px\"> ");
-                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">FACTURAR: </strong>{0}%</label></p>", facturacion.porcentage);
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">FACTURAR: </strong>{0}%</label></p>", facturacion.porcentaje);
                     body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO A FACTURAR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.monto));
                     body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> AL CUBRIR: </strong>{0} %</label><p>", facturacion.perContratado);
                     body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO AL CUBRIR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.montoContratado));

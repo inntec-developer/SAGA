@@ -263,7 +263,51 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                             psicometriaId = d.PsicometriaId,
                             psicometria = d.Psicometria.tipoPsicometria,
                             descripcion = d.Psicometria.descripcion
-                        }).ToList()
+                        }).ToList(),
+                        PsicometriasC = p.psicometriasCliente.Select(d => new
+                        {
+                            id = d.Id,
+                            psicometria = d.Psicometria,
+                            descripcion = d.Descripcion
+                        }).ToList(),
+                        Documentos = p.documentosCliente.Select(dc => new
+                        {
+                            id = dc.Id,
+                            documento = dc.Documento
+                        }).ToList(),
+                        Procesos = p.procesoPerfil
+                        .OrderBy(pro => pro.Orden)
+                        .Select(pro => new
+                        {
+                            id = pro.Id,
+                            proceso = pro.Proceso,
+                        }).ToList(),
+                        Prestaciones = p.prestacionesCliente.Select(pre => new
+                        {
+                            id = pre.Id,
+                            prestacion = pre.Prestamo
+                        }).ToList(),
+                        Cardinales = p.competenciasCardinalPerfil.Select(cc => new
+                        {
+                            Id = cc.Id,
+                            Nivel = cc.Nivel,
+                            Competencia = cc.Competencia.competenciaCardinal,
+                            CompetenciaId = cc.CompetenciaId
+                        }).ToList(),
+                        Areas = p.competenciasAreaPerfil.Select(cc => new
+                        {
+                            Id = cc.Id,
+                            Nivel = cc.Nivel,
+                            Competencia = cc.Competencia.competenciaArea,
+                            CompetenciaId = cc.CompetenciaId
+                        }).ToList(),
+                        Gerenciales = p.competetenciasGerencialPerfil.Select(cc => new
+                        {
+                            Id = cc.Id,
+                            Nivel = cc.Nivel,
+                            Competencia = cc.Competencia.competenciaGerencial,
+                            CompetenciaId = cc.CompetenciaId
+                        }).ToList(),
                     })
                     .FirstOrDefault();
                 return Ok(anexos);
@@ -359,31 +403,51 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                 switch (Beneficio.Action)
                 {
                     case "create":
-                        var x = new BeneficiosPerfil();
-                        x.TipoBeneficioId = Beneficio.TipoBeneficioId;
-                        x.Cantidad = Beneficio.Cantidad;
-                        x.Observaciones = Beneficio.Observaciones.ToUpper();
-                        x.UsuarioAlta = Beneficio.Usuario;
-                        x.DAMFO290Id = Beneficio.DAMFO290Id;
-                        db.BeneficiosPerfil.Add(x);
-                        db.SaveChanges();
-                        var BeneficioId = db.BeneficiosPerfil
-                            .Where(e => e.DAMFO290Id.Equals(Beneficio.DAMFO290Id))
-                            .OrderByDescending(e => e.fch_Creacion)
-                            .Select(e => e.Id)
-                            .Take(1)
-                            .FirstOrDefault();
-                        return Ok(BeneficioId);
+                        var existes = db.BeneficiosPerfil
+                            .Where(e => e.DAMFO290Id.Equals(Beneficio.DAMFO290Id) && e.TipoBeneficioId == Beneficio.TipoBeneficioId).Count();
+                        if (existes == 0)
+                        {
+                            var x = new BeneficiosPerfil();
+                            x.TipoBeneficioId = Beneficio.TipoBeneficioId;
+                            x.Cantidad = Beneficio.Cantidad;
+                            x.Observaciones = Beneficio.Observaciones.ToUpper();
+                            x.UsuarioAlta = Beneficio.Usuario;
+                            x.DAMFO290Id = Beneficio.DAMFO290Id;
+                            db.BeneficiosPerfil.Add(x);
+                            db.SaveChanges();
+                            var BeneficioId = db.BeneficiosPerfil
+                                .Where(e => e.DAMFO290Id.Equals(Beneficio.DAMFO290Id))
+                                .OrderByDescending(e => e.fch_Creacion)
+                                .Select(e => e.Id)
+                                .Take(1)
+                                .FirstOrDefault();
+                            return Ok(BeneficioId);
+                        }
+                        else
+                        {
+                            return Ok(HttpStatusCode.Ambiguous);
+                        }
+                        
                     case "update":
-                        var u = db.BeneficiosPerfil.Find(Beneficio.Id);
-                        db.Entry(u).State = EntityState.Modified;
-                        u.TipoBeneficioId = Beneficio.TipoBeneficioId;
-                        u.Cantidad = Beneficio.Cantidad;
-                        u.Observaciones = Beneficio.Observaciones.ToUpper();
-                        u.UsuarioMod = Beneficio.Usuario;
-                        u.fch_Modificacion = DateTime.Now;
-                        db.SaveChanges();
-                        return Ok(HttpStatusCode.OK);
+                        var upexiste = db.BeneficiosPerfil
+                            .Where(e => e.DAMFO290Id.Equals(Beneficio.DAMFO290Id) && e.TipoBeneficioId == Beneficio.TipoBeneficioId && e.Id != Beneficio.Id).Count();
+                        if (upexiste == 0)
+                        {
+                            var u = db.BeneficiosPerfil.Find(Beneficio.Id);
+                            db.Entry(u).State = EntityState.Modified;
+                            u.TipoBeneficioId = Beneficio.TipoBeneficioId;
+                            u.Cantidad = Beneficio.Cantidad;
+                            u.Observaciones = Beneficio.Observaciones.ToUpper();
+                            u.UsuarioMod = Beneficio.Usuario;
+                            u.fch_Modificacion = DateTime.Now;
+                            db.SaveChanges();
+                            return Ok(HttpStatusCode.OK);
+                        }
+                        else
+                        {
+                            return Ok(HttpStatusCode.Ambiguous);
+                        }
+
                     case "delete":
                         var d = db.BeneficiosPerfil.Find(Beneficio.Id);
                         db.Entry(d).State = EntityState.Deleted;
@@ -647,6 +711,430 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
         }
         #endregion
 
+        #region PsicometriasCliente
+        [HttpPost]
+        [Route("crudPsicometriasCliente")]
+        public IHttpActionResult CrudPsicometriasCliente(PstClienteDto pst)
+        {
+            try
+            {
+                switch (pst.Action)
+                {
+                    case "create":
+                        var existes = db.PsicometriasCliente
+                           .Where(p => p.DAMFO290Id.Equals(pst.DAMFO290Id) && p.Psicometria == pst.Psicometria).Count();
+                        if (existes == 0)
+                        {
+                            var c = new PsicometriasCliente();
+                            c.Psicometria = pst.Psicometria;
+                            c.Descripcion = pst.Descripcion;
+                            c.DAMFO290Id = pst.DAMFO290Id;
+                            c.UsuarioAlta = pst.Usuario;
+                            db.PsicometriasCliente.Add(c);
+                            db.SaveChanges();
+                            var psicometriaId = db.PsicometriasDamsa
+                                .Where(e => e.DAMFO290Id.Equals(pst.DAMFO290Id))
+                                .OrderByDescending(e => e.fch_Creacion)
+                                .Select(e => e.Id)
+                                .Take(1)
+                                .FirstOrDefault();
+                            return Ok(psicometriaId);
+                        }
+                        else
+                        {
+                            return Ok(HttpStatusCode.Ambiguous);
+                        }
+                    case "update":
+                        var upexiste = db.PsicometriasCliente
+                            .Where(e => e.DAMFO290Id.Equals(pst.DAMFO290Id) && e.Psicometria == pst.Psicometria && e.Id != pst.Id).Count();
+                        if (upexiste == 0)
+                        {
+                            var u = db.PsicometriasCliente.Find(pst.Id);
+                            db.Entry(u).State = EntityState.Modified;
+                            u.Psicometria = pst.Psicometria.ToUpper().Trim();
+                            u.Descripcion = pst.Descripcion.ToUpper().Trim();
+                            u.DAMFO290Id = pst.DAMFO290Id;
+                            u.UsuarioMod = pst.Usuario;
+                            u.fch_Modificacion = DateTime.Now;
+                            db.SaveChanges();
+                            return Ok(u);
+                        }
+                        else
+                        {
+                            return Ok(HttpStatusCode.Ambiguous);
+                        }
+                    case "delete":
+                        var d = db.PsicometriasCliente.Find(pst.Id);
+                        db.Entry(d).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotAcceptable);
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        #endregion
 
+        #region Documentos Cliente
+        [HttpPost]
+        [Route("crudDocumento")]
+        public IHttpActionResult CrudDocumento(DocClienteDto doc)
+        {
+            try
+            {
+                switch (doc.Action)
+                {
+                    case "create":
+                        var c = new DocumentosCliente();
+                        c.Documento = doc.Documento.ToUpper().Trim();
+                        c.UsuarioAlta = doc.Usuario;
+                        c.DAMFO290Id = doc.DAMFO290Id;
+                        db.DocumentosClientes.Add(c);
+                        db.SaveChanges();
+                        var documentoId = db.DocumentosClientes
+                            .Where(e => e.DAMFO290Id.Equals(doc.DAMFO290Id))
+                            .OrderByDescending(e => e.fch_Creacion)
+                            .Select(e => e.Id)
+                            .Take(1)
+                            .FirstOrDefault();
+                        return Ok(documentoId);
+                    case "update":
+                        var u = db.DocumentosClientes.Find(doc.Id);
+                        db.Entry(u).State = EntityState.Modified;
+                        u.Documento = doc.Documento.ToUpper().Trim();
+                        u.DAMFO290Id = doc.DAMFO290Id;
+                        u.UsuarioMod = doc.Usuario;
+                        u.fch_Modificacion = DateTime.Now;
+                        db.SaveChanges();
+                        return Ok(u);
+                    case "delete":
+                        var d = db.DocumentosClientes.Find(doc.Id);
+                        db.Entry(d).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotAcceptable);
+                }
+                
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        #endregion
+
+        #region Documentos Cliente
+        [HttpPost]
+        [Route("crudProceso")]
+        public IHttpActionResult CrudProceso(ProcesoPerfilDto pro)
+        {
+            try
+            {
+                switch (pro.Action)
+                {
+                    case "create":
+                        var cout = db.ProcesosPerfil.OrderByDescending(x => x.Orden).Where(p => p.DAMFO290Id.Equals(pro.DAMFO290Id)).Select(x => x.Orden).FirstOrDefault();
+                        var c = new ProcesoPerfil();
+                        c.Proceso = pro.Proceso.ToUpper().Trim();
+                        c.Orden = cout + 1;
+                        c.UsuarioAlta = pro.Usuario;
+                        c.DAMFO290Id = pro.DAMFO290Id;
+                        db.ProcesosPerfil.Add(c);
+                        db.SaveChanges();
+                        var procesoId = db.ProcesosPerfil
+                            .Where(e => e.DAMFO290Id.Equals(pro.DAMFO290Id))
+                            .OrderByDescending(e => e.fch_Creacion)
+                            .Select(e => e.Id)
+                            .Take(1)
+                            .FirstOrDefault();
+                        return Ok(procesoId);
+                    case "update":
+                        var u = db.ProcesosPerfil.Find(pro.Id);
+                        db.Entry(u).State = EntityState.Modified;
+                        u.Proceso = pro.Proceso.ToUpper().Trim();
+                        u.DAMFO290Id = pro.DAMFO290Id;
+                        u.UsuarioMod = pro.Usuario;
+                        u.fch_Modificacion = DateTime.Now;
+                        db.SaveChanges();
+                        return Ok(u);
+                    case "delete":
+                        var d = db.ProcesosPerfil.Find(pro.Id);
+                        db.Entry(d).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotAcceptable);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        #endregion
+
+        #region Prestaiocnes Cliente
+        [HttpPost]
+        [Route("crudPrestacion")]
+        public IHttpActionResult CudPrestacion(PrestacionPerfilDto pre)
+        {
+            try
+            {
+                switch (pre.Action)
+                {
+                    case "create":
+                        var c = new PrestacionesClientePerfil();
+                        c.Prestamo = pre.Prestacion.ToUpper().Trim();
+                        c.DAMFO290Id = pre.DAMFO290Id;
+                        c.UsuarioAlta = pre.Usuario;
+                        db.PrestacionesClientePerfil.Add(c);
+                        db.SaveChanges();
+                        var prestacionId = db.PrestacionesClientePerfil
+                            .Where(e => e.DAMFO290Id.Equals(pre.DAMFO290Id))
+                            .OrderByDescending(e => e.fch_Creacion)
+                            .Select(e => e.Id)
+                            .Take(1)
+                            .FirstOrDefault();
+                        return Ok(prestacionId);
+                    case "update":
+                        var u = db.PrestacionesClientePerfil.Find(pre.Id);
+                        db.Entry(u).State = EntityState.Modified;
+                        u.Prestamo = pre.Prestacion.ToUpper().Trim();
+                        u.DAMFO290Id = pre.DAMFO290Id;
+                        u.UsuarioMod = pre.Usuario;
+                        u.fch_Modificacion = DateTime.Now;
+                        db.SaveChanges();
+                        return Ok(u);
+                    case "delete":
+                        var d = db.PrestacionesClientePerfil.Find(pre.Id);
+                        db.Entry(d).State = EntityState.Deleted;
+                        db.SaveChanges();
+                        return Ok(HttpStatusCode.OK);
+                    default:
+                        return Ok(HttpStatusCode.NotAcceptable);
+                }
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        #endregion
+
+        #region Competencias
+            #region Cardinales
+            [HttpPost]
+            [Route("crudCompCardinal")]
+            public IHttpActionResult CrudComCardinal(CompeteciasPerfilDto comp)
+            {
+                try
+                {
+                    switch (comp.Action)
+                    {
+                        case "create":
+                            var addexist = db.CompetenciaCardinalPerfil
+                               .Where(p => p.DAMFO290Id.Equals(comp.DAMFO290Id) && p.CompetenciaId == comp.CompetenciaId).Count();
+                            if(addexist == 0)
+                            {
+                                var c = new CompetenciaCardinalPerfil();
+                                c.CompetenciaId = comp.CompetenciaId;
+                                c.Nivel = comp.Nivel;
+                                c.DAMFO290Id = comp.DAMFO290Id;
+                                c.UsuarioAlta = comp.Usuario;
+                                db.CompetenciaCardinalPerfil.Add(c);
+                                db.SaveChanges();
+                                var cardinalId = db.CompetenciaCardinalPerfil
+                                    .Where(ca => ca.DAMFO290Id.Equals(comp.DAMFO290Id))
+                                    .OrderByDescending(ca => ca.fch_Creacion)
+                                    .Select(ca => ca.Id)
+                                    .FirstOrDefault();
+                                return Ok(cardinalId);
+                            }
+                            else
+                            {
+                                return Ok(HttpStatusCode.Ambiguous);
+                            }
+                        
+                        case "update":
+                            var upexiste = db.CompetenciaCardinalPerfil
+                                .Where(e => e.DAMFO290Id.Equals(comp.DAMFO290Id) && e.CompetenciaId == comp.CompetenciaId && e.Id != comp.Id).Count();
+                            if (upexiste == 0)
+                            {
+                                var u = db.CompetenciaCardinalPerfil.Find(comp.Id);
+                                db.Entry(u).State = EntityState.Modified;
+                                u.CompetenciaId = comp.CompetenciaId;
+                                u.Nivel = comp.Nivel;
+                                u.DAMFO290Id = comp.DAMFO290Id;
+                                u.UsuarioMod = comp.Usuario;
+                                u.fch_Modificacion = DateTime.Now;
+                                db.SaveChanges();
+                                return Ok(u);
+                            }
+                            else
+                            {
+                                return Ok(HttpStatusCode.Ambiguous);
+                            }
+                        case "delete":
+                            var d = db.CompetenciaCardinalPerfil.Find(comp.Id);
+                            db.Entry(d).State = EntityState.Deleted;
+                            db.SaveChanges();
+                            return Ok(HttpStatusCode.OK);
+                        default:
+                            return Ok(HttpStatusCode.NotAcceptable);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    string msg = ex.Message;
+                    return Ok(HttpStatusCode.NotFound);
+                }
+            }
+            #endregion
+            #region Area
+            [HttpPost]
+            [Route("crudCompArea")]
+            public IHttpActionResult CrudComArea(CompeteciasPerfilDto comp)
+            {
+                try
+                {
+                    switch (comp.Action)
+                    {
+                        case "create":
+                            var addexist = db.CompetenciaAreaPerfil
+                               .Where(p => p.DAMFO290Id.Equals(comp.DAMFO290Id) && p.CompetenciaId == comp.CompetenciaId).Count();
+                            if (addexist == 0)
+                            {
+                                var c = new CompetenciaAreaPerfil();
+                                c.CompetenciaId = comp.CompetenciaId;
+                                c.Nivel = comp.Nivel;
+                                c.DAMFO290Id = comp.DAMFO290Id;
+                                c.UsuarioAlta = comp.Usuario;
+                                db.SaveChanges();
+                                var cardinalId = db.CompetenciaAreaPerfil
+                                    .Where(ca => ca.DAMFO290Id.Equals(comp.DAMFO290Id))
+                                    .OrderByDescending(ca => ca.fch_Creacion)
+                                    .Select(ca => ca.Id)
+                                    .FirstOrDefault();
+                                return Ok(cardinalId);
+                            }
+                            else
+                            {
+                                return Ok(HttpStatusCode.Ambiguous);
+                            }
+
+                        case "update":
+                            var upexiste = db.CompetenciaAreaPerfil
+                                .Where(e => e.DAMFO290Id.Equals(comp.DAMFO290Id) && e.CompetenciaId == comp.CompetenciaId && e.Id != comp.Id).Count();
+                            if (upexiste == 0)
+                            {
+                                var u = db.CompetenciaAreaPerfil.Find(comp.Id);
+                                db.Entry(u).State = EntityState.Modified;
+                                u.CompetenciaId = comp.CompetenciaId;
+                                u.Nivel = comp.Nivel;
+                                u.DAMFO290Id = comp.DAMFO290Id;
+                                u.UsuarioMod = comp.Usuario;
+                                u.fch_Modificacion = DateTime.Now;
+                                db.SaveChanges();
+                                return Ok(u);
+                            }
+                            else
+                            {
+                                return Ok(HttpStatusCode.Ambiguous);
+                            }
+                        case "delete":
+                            var d = db.CompetenciaAreaPerfil.Find(comp.Id);
+                            db.Entry(d).State = EntityState.Deleted;
+                            db.SaveChanges();
+                            return Ok(HttpStatusCode.OK);
+                        default:
+                            return Ok(HttpStatusCode.NotAcceptable);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string msg = ex.Message;
+                    return Ok(HttpStatusCode.NotFound);
+                }
+            }
+            #endregion
+            #region Gerenciales
+            [HttpPost]
+            [Route("crudCompGerencial")]
+            public IHttpActionResult CrudComGerencial(CompeteciasPerfilDto comp)
+            {
+                try
+                {
+                    switch (comp.Action)
+                    {
+                        case "create":
+                            var addexist = db.CompetenciaGerencialPerfil
+                               .Where(p => p.DAMFO290Id.Equals(comp.DAMFO290Id) && p.CompetenciaId == comp.CompetenciaId).Count();
+                            if (addexist == 0)
+                            {
+                                var c = new CompetenciaGerencialPerfil();
+                                c.CompetenciaId = comp.CompetenciaId;
+                                c.Nivel = comp.Nivel;
+                                c.DAMFO290Id = comp.DAMFO290Id;
+                                c.UsuarioAlta = comp.Usuario;
+                                db.CompetenciaGerencialPerfil.Add(c);
+                                db.SaveChanges();
+                                var cardinalId = db.CompetenciaGerencialPerfil
+                                    .Where(ca => ca.DAMFO290Id.Equals(comp.DAMFO290Id))
+                                    .OrderByDescending(ca => ca.fch_Creacion)
+                                    .Select(ca => ca.Id)
+                                    .FirstOrDefault();
+                                return Ok(cardinalId);
+                            }
+                            else
+                            {
+                                return Ok(HttpStatusCode.Ambiguous);
+                            }
+
+                        case "update":
+                            var upexiste = db.CompetenciaGerencialPerfil
+                                .Where(e => e.DAMFO290Id.Equals(comp.DAMFO290Id) && e.CompetenciaId == comp.CompetenciaId && e.Id != comp.Id).Count();
+                            if (upexiste == 0)
+                            {
+                                var u = db.CompetenciaGerencialPerfil.Find(comp.Id);
+                                db.Entry(u).State = EntityState.Modified;
+                                u.CompetenciaId = comp.CompetenciaId;
+                                u.Nivel = comp.Nivel;
+                                u.DAMFO290Id = comp.DAMFO290Id;
+                                u.UsuarioMod = comp.Usuario;
+                                u.fch_Modificacion = DateTime.Now;
+                                db.SaveChanges();
+                                return Ok(u);
+                            }
+                            else
+                            {
+                                return Ok(HttpStatusCode.Ambiguous);
+                            }
+                        case "delete":
+                            var d = db.CompetenciaGerencialPerfil.Find(comp.Id);
+                            db.Entry(d).State = EntityState.Deleted;
+                            db.SaveChanges();
+                            return Ok(HttpStatusCode.OK);
+                        default:
+                            return Ok(HttpStatusCode.NotAcceptable);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string msg = ex.Message;
+                    return Ok(HttpStatusCode.NotFound);
+                }
+            }
+            #endregion
+        #endregion
     }
 }

@@ -88,4 +88,51 @@ namespace SAGA.API.Dtos
         public string Usuario { get; set; }
         public string Action { get; set; }
     }
+
+    public class PstClienteDto
+    {
+        public Guid Id { get; set; }
+        public string Psicometria { get; set; }
+        public string Descripcion { get; set; }
+        public Guid DAMFO290Id { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
+
+    public class DocClienteDto
+    {
+        public Guid Id { get; set; }
+        public string Documento { get; set; }
+        public Guid DAMFO290Id { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
+    public class ProcesoPerfilDto
+    {
+        public Guid Id { get; set; }
+        public string Proceso { get; set; }
+        public int Orden { get; set; }
+        public Guid DAMFO290Id { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
+
+    public class PrestacionPerfilDto
+    {
+        public Guid Id { get; set; }
+        public string Prestacion { get; set; }
+        public Guid DAMFO290Id { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
+
+    public class CompeteciasPerfilDto
+    {
+        public Guid Id { get; set; }
+        public int CompetenciaId { get; set; }
+        public string Nivel { get; set; }
+        public Guid DAMFO290Id { get; set; }
+        public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
 }

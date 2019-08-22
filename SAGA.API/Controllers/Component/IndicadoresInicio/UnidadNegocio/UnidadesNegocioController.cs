@@ -86,7 +86,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
         {
             try
             {
-                int?[] gdl = { 1, 3, 8, 10, 11, 14, 16, 18, 2, 25, 26, 32 };
+                int?[] gdl = { 1, 3, 8, 11, 14, 16, 18, 2, 25, 26, 32 };
                 int[] estatus = { 4, 5, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 44, 46 };
                 var DateActivas = DateTime.Now.AddDays(3);
 
@@ -208,7 +208,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                         unidadNegocio = mty;
                         break;
                     case "Gdl":
-                        int?[] gdl = { 1, 3, 8, 10, 11, 14, 16, 18, 2, 25, 26, 32 };
+                        int?[] gdl = { 1, 3, 8, 11, 14, 16, 18, 2, 25, 26, 32 };
                         unidadNegocio = gdl;
                         break;
                     case "Mx":

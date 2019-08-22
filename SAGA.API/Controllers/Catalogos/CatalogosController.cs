@@ -511,6 +511,30 @@ namespace SAGA.API.Controllers
                             Nivel = e.estadoEstudio
                         }).ToList();
                     return Ok(EstadosEstudio);
+                case 47: // Estados Estudio
+                    var cardinales = db.CompetenciasCardinales
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            competencia = e.competenciaCardinal
+                        }).ToList();
+                    return Ok(cardinales);
+                case 48: // Estados Estudio
+                    var area = db.CompetenciasAreas
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            competencia = e.competenciaArea
+                        }).ToList();
+                    return Ok(area);
+                case 49: // Estados Estudio
+                    var gerenciales = db.CompetenciasGerenciales
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            competencia = e.competenciaGerencial
+                        }).ToList();
+                    return Ok(gerenciales);
                 #endregion
 
                 default:
