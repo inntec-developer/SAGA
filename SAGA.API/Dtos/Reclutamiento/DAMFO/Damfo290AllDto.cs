@@ -1,9 +1,12 @@
-﻿using System;
+﻿using SAGA.BOL;
+using System;
+using System.Collections.Generic;
 
 namespace SAGA.API.Dtos
 {
     public class Damfo290AllDto
     {
+        public Guid Id { get; set; }
         public Guid ClienteId { get; set; }
         public int TipoReclutamientoId { get; set; }
         public int ClaseReclutamientoId { get; set; }
@@ -27,6 +30,25 @@ namespace SAGA.API.Dtos
         public bool FlexibilidadHorario { get; set; }
         public int JornadaLaboralId { get; set; }
         public int TipoModalidadId { get; set; }
+        public string Usuario { get; set; }
+    }
+
+    public class Damfo190allColectionDto
+    {
+        public ICollection<EscolaridadesPerfil> escolardadesPerfil { get; set; }
+        public ICollection<AptitudesPerfil> aptitudesPerfil { get; set; }
+        public ICollection<HorarioPerfil> horariosPerfil { get; set; }
+        public ICollection<ActividadesPerfil> actividadesPerfil { get; set; }
+        public ICollection<ObservacionesPerfil> observacionesPerfil { get; set; }
+        public ICollection<PsicometriasDamsa> psicometriasDamsa { get; set; }
+        public ICollection<PsicometriasCliente> psicometriasCliente { get; set; }
+        public ICollection<BeneficiosPerfil> beneficiosPerfil { get; set; }
+        public ICollection<DocumentosCliente> documentosCliente { get; set; }
+        public ICollection<ProcesoPerfil> procesoPerfil { get; set; }
+        public ICollection<PrestacionesClientePerfil> prestacionesCliente { get; set; }
+        public ICollection<CompetenciaAreaPerfil> competenciasAreaPerfil { get; set; }
+        public ICollection<CompetenciaCardinalPerfil> competenciasCardinalPerfil { get; set; }
+        public ICollection<CompetenciaGerencialPerfil> competetenciasGerencialPerfil { get; set; }
     }
 
     public class EscoPerfilDto
@@ -133,6 +155,13 @@ namespace SAGA.API.Dtos
         public string Nivel { get; set; }
         public Guid DAMFO290Id { get; set; }
         public string Usuario { get; set; }
+        public string Action { get; set; }
+    }
+
+    public class PerfilReclutmientoDto
+    {
+        public Damfo290AllDto Headers { get; set; }
+        public Damfo190allColectionDto Collections { get; set; }
         public string Action { get; set; }
     }
 }

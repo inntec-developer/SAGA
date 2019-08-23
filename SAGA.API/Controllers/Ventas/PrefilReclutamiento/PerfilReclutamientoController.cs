@@ -22,6 +22,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             db = new SAGADBContext();
         }
 
+        #region Get Informacion
         [HttpGet]
         [Route("getCliente")]
         public IHttpActionResult GetClientes(string busqueda)
@@ -319,9 +320,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             }
         }
 
-
-
-
+        #endregion
 
         #region Escolaridadades
         [HttpPost]
@@ -594,7 +593,6 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             }
         }
         #endregion
-
         #region Observaciones
         [HttpPost]
         [Route("crudObservaciones")]
@@ -643,7 +641,6 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             }
         }
         #endregion
-
         #region PsicometriasDamsa
         [HttpPost]
         [Route("crudPsicometriasDamsa")]
@@ -710,7 +707,6 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             }
         }
         #endregion
-
         #region PsicometriasCliente
         [HttpPost]
         [Route("crudPsicometriasCliente")]
@@ -779,7 +775,6 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             }
         }
         #endregion
-
         #region Documentos Cliente
         [HttpPost]
         [Route("crudDocumento")]
@@ -829,7 +824,6 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             }
         }
         #endregion
-
         #region Documentos Cliente
         [HttpPost]
         [Route("crudProceso")]
@@ -881,7 +875,6 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             }
         }
         #endregion
-
         #region Prestaiocnes Cliente
         [HttpPost]
         [Route("crudPrestacion")]
@@ -930,7 +923,6 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             }
         }
         #endregion
-
         #region Competencias
             #region Cardinales
             [HttpPost]
@@ -1019,6 +1011,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                                 c.Nivel = comp.Nivel;
                                 c.DAMFO290Id = comp.DAMFO290Id;
                                 c.UsuarioAlta = comp.Usuario;
+                            db.CompetenciaAreaPerfil.Add(c);
                                 db.SaveChanges();
                                 var cardinalId = db.CompetenciaAreaPerfil
                                     .Where(ca => ca.DAMFO290Id.Equals(comp.DAMFO290Id))
@@ -1134,7 +1127,112 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                     return Ok(HttpStatusCode.NotFound);
                 }
             }
-            #endregion
+        #endregion
+        #endregion
+
+        #region Crear, Editar, Eliminar Perfil
+        [HttpPost]
+        [Route("crudPerfilReclutamiento")]
+        public IHttpActionResult CurdPerfilReclutamiento (PerfilReclutmientoDto pf)
+        {
+            try
+            {
+                switch (pf.Action)
+                {
+                    case "create":
+                        var df = new DAMFO_290();
+                        df.ClienteId = pf.Headers.ClienteId;
+                        df.TipoReclutamientoId = pf.Headers.TipoReclutamientoId;
+                        df.ClaseReclutamientoId = pf.Headers.ClaseReclutamientoId;
+                        df.NombrePerfil = pf.Headers.NombrePerfil;
+                        df.GeneroId = pf.Headers.GeneroId;
+                        df.EdadMinima = pf.Headers.EdadMinima;
+                        df.EdadMaxima = pf.Headers.EdadMaxima;
+                        df.EstadoCivilId = pf.Headers.EstadoCivilId;
+                        df.AreaId = pf.Headers.AreaId;
+                        df.Experiencia = pf.Headers.Experiencia;
+                        df.SueldoMinimo = pf.Headers.SueldoMinimo;
+                        df.SueldoMaximo = pf.Headers.SueldoMaximo;
+                        df.DiaCorteId = pf.Headers.DiaCorteId;
+                        df.TipoNominaId = pf.Headers.TipoNominaId;
+                        df.DiaPagoId = pf.Headers.DiaPagoId;
+                        df.PeriodoPagoId = pf.Headers.PeriodoPagoId;
+                        df.Especifique = pf.Headers.Especifique != null ? pf.Headers.Especifique : "";
+                        df.ContratoInicialId = pf.Headers.ContratoInicialId;
+                        df.TiempoContratoId = pf.Headers.TiempoContratoId;
+                        df.Activo = true;
+                        df.UsuarioAlta = pf.Headers.Usuario;
+                        df.escolardadesPerfil = pf.Collections.escolardadesPerfil;
+                        df.aptitudesPerfil = pf.Collections.aptitudesPerfil;
+                        df.horariosPerfil = pf.Collections.horariosPerfil;
+                        df.actividadesPerfil = pf.Collections.actividadesPerfil;
+                        df.observacionesPerfil = pf.Collections.observacionesPerfil;
+                        df.psicometriasDamsa = pf.Collections.psicometriasDamsa;
+                        df.psicometriasCliente = pf.Collections.psicometriasCliente;
+                        df.beneficiosPerfil = pf.Collections.beneficiosPerfil;
+                        df.documentosCliente = pf.Collections.documentosCliente;
+                        df.procesoPerfil = pf.Collections.procesoPerfil;
+                        df.prestacionesCliente = pf.Collections.prestacionesCliente;
+                        df.competenciasAreaPerfil = pf.Collections.competenciasAreaPerfil;
+                        df.competenciasCardinalPerfil = pf.Collections.competenciasCardinalPerfil;
+                        df.competetenciasGerencialPerfil = pf.Collections.competetenciasGerencialPerfil;
+                        df.FlexibilidadHorario = false;
+                        df.JornadaLaboralId = 0;
+                        df.TipoModalidadId = 0;
+                        db.DAMFO290.Add(df);
+                        db.SaveChanges();
+                        var PerfilId = db.DAMFO290
+                            .Where(d => d.UsuarioAlta.Equals(pf.Headers.Usuario))
+                            .OrderByDescending(d => d.fch_Creacion)
+                            .Select(d => d.Id)
+                            .Take(1)
+                            .FirstOrDefault();
+                            
+                        return Ok(PerfilId);
+                    case "update":
+                        var apt = db.AptitudesPerfil.Where(x => x.DAMFO290Id == pf.Headers.Id);
+                        db.AptitudesPerfil.RemoveRange(apt);
+                        db.AptitudesPerfil.AddRange(pf.Collections.aptitudesPerfil);
+
+                        var up = db.DAMFO290.Find(pf.Headers.Id);
+                        db.Entry(up).State = EntityState.Modified;
+                        up.TipoReclutamientoId = pf.Headers.TipoReclutamientoId;
+                        up.ClaseReclutamientoId = pf.Headers.ClaseReclutamientoId;
+                        up.NombrePerfil = pf.Headers.NombrePerfil;
+                        up.GeneroId = pf.Headers.GeneroId;
+                        up.EdadMinima = pf.Headers.EdadMinima;
+                        up.EdadMaxima = pf.Headers.EdadMaxima;
+                        up.EstadoCivilId = pf.Headers.EstadoCivilId;
+                        up.AreaId = pf.Headers.AreaId;
+                        up.Experiencia = pf.Headers.Experiencia;
+                        up.SueldoMinimo = pf.Headers.SueldoMinimo;
+                        up.SueldoMaximo = pf.Headers.SueldoMaximo;
+                        up.DiaCorteId = pf.Headers.DiaCorteId;
+                        up.TipoNominaId = pf.Headers.TipoNominaId;
+                        up.DiaPagoId = pf.Headers.DiaPagoId;
+                        up.PeriodoPagoId = pf.Headers.PeriodoPagoId;
+                        up.Especifique = pf.Headers.Especifique != null ? pf.Headers.Especifique : "";
+                        up.ContratoInicialId = pf.Headers.ContratoInicialId;
+                        up.TiempoContratoId = pf.Headers.TiempoContratoId;
+                        up.UsuarioMod = pf.Headers.Usuario;
+                        up.fch_Modificacion = DateTime.Now;
+                        
+                        db.SaveChanges();
+                        return Ok();
+                    case "delete":
+                        return Ok();
+                    default:
+                        return Ok(HttpStatusCode.NotAcceptable);
+                }
+                
+
+            }
+            catch(Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
         #endregion
     }
 }
