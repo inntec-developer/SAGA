@@ -887,6 +887,7 @@ namespace SAGA.API.Controllers
                     candidatoId = c.CandidatoId,
                     estatus = c.Estatus.Descripcion,
                     estatusId = c.EstatusId,
+                    reclutador = db.Usuarios.Where(x => x.Id.Equals(c.ReclutadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                     contratados = db.Candidatos.Where(x => x.Id.Equals(c.CandidatoId)).Select(p => new
                     {
                             nombre = p.Nombre == null ? "" : p.Nombre,
