@@ -271,7 +271,7 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("empresas")]
-        public IHttpActionResult Empresas()
+        public IHttpActionResult Empresas(string bandera)
         {
             var fecha = DateTime.Now.AddDays(-15);
             var datos = db.Clientes.Where(e=>e.Activo == true && e.esCliente == true).Select(e => new
@@ -282,8 +282,11 @@ namespace SAGA.API.Controllers.Reportes
                 e.RazonSocial,
                 fechal = fecha
             }).Distinct().OrderBy(x=>x.RazonSocial).ToList();
-
-            datos.Insert(0, new { RFC = "Todos", Nombrecomercial = "as", Id = new Guid("00000000-0000-0000-0000-000000000000"), RazonSocial = "Todas", fechal = fecha });
+            if (bandera == "1")
+            {
+                datos.Insert(0, new { RFC = "Todos", Nombrecomercial = "as", Id = new Guid("00000000-0000-0000-0000-000000000000"), RazonSocial = "Todas", fechal = fecha });
+            }
+           
             return Ok(datos);
         }
 
@@ -1009,8 +1012,9 @@ namespace SAGA.API.Controllers.Reportes
             
             try
             {
-                Guid clienteID = new Guid("A5029BD9-752C-E811-AF5F-C85B76218241");
+                Guid clienteID = new Guid(cliente);
                 var requi = db.Requisiciones.Where(e => EstatusList.Contains(e.EstatusId) && e.Activo == true && e.ClienteId == clienteID).ToList();
+                string nombrecliente = db.Clientes.Where(e => e.Id == clienteID).FirstOrDefault().Nombrecomercial;
                 var requiID = requi.Select(e => e.Id).ToList();
                 var ListaCubierta = db.ProcesoCandidatos.Where(e => requiID.Contains(e.RequisicionId) && e.EstatusId == 24).ToList();
                 var datos = requi.Select(e=> new {
@@ -1020,7 +1024,8 @@ namespace SAGA.API.Controllers.Reportes
                     faltantes = db.HorariosRequis.Where(x => x.RequisicionId == e.Id).Sum(x => x.numeroVacantes) - db.ProcesoCandidatos.Where(x => x.RequisicionId == e.Id && x.EstatusId == 24).Count(),
                     porsentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId == e.Id && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
                     cordinacion = e.ClaseReclutamiento.clasesReclutamiento,
-                    e.ClaseReclutamientoId
+                    e.ClaseReclutamientoId,
+                    vacantenombre = nombrecliente
                 }).OrderByDescending(e=>e.numeropos).ToList();
                 if (coordina != "0" && coordina != null)
                 {
@@ -1041,9 +1046,10 @@ namespace SAGA.API.Controllers.Reportes
             catch (Exception ex)
             {
                 var mensaje = ex.Message;
+                var datos = db.Requisiciones.Where(e => e.VBtra == "error provocado").ToList();
+                return Ok(datos);
             }
-            
-            return Ok("El servidor no responde");
+          
         }
 
         public class proactividad
