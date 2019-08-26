@@ -1052,6 +1052,44 @@ namespace SAGA.API.Controllers.Reportes
           
         }
 
+
+        [HttpGet]
+        [Route("clientes")]
+        public IHttpActionResult Clientes()
+        {
+
+            int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
+
+            try
+            {
+                var cliente = db.Clientes.Where(e=>e.Activo == true && e.esCliente == true).ToList();
+                var requis = db.Requisiciones.Where(e=>EstatusList.Contains(e.EstatusId)).ToList();
+                int pos = 0;
+                int cub = 0;
+                List<proactividad> lista = new List<proactividad>();
+                foreach (var item in cliente)
+                {
+                    var ob = new proactividad();
+                    pos = db.HorariosRequis.Where(a => (requis.Where(x => x.ClienteId == item.Id).Select(x => x.Id).ToList()).Contains(a.RequisicionId)).Sum(x => x.numeroVacantes);
+                    cub = db.ProcesoCandidatos.Where(x => (requis.Where(a => a.ClienteId == item.Id).Select(a => a.Id).ToList()).Contains(x.RequisicionId) && x.EstatusId == 24).Count();
+                    ob.nombre = item.Nombrecomercial;
+                    ob.numeropos = pos;
+                    ob.cubiertas = cub;
+                    ob.puntaje = pos - cub;
+                    ob.porcentaje = (cub * 100) / pos;
+                    lista.Add(ob);
+                }
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                var mensaje = ex.Message;
+                var datos = db.Requisiciones.Where(e => e.VBtra == "error provocado").ToList();
+                return Ok(datos);
+            }
+
+        }
+
         public class proactividad
         {
             public string nombre { get; set; }
