@@ -566,7 +566,7 @@ namespace SAGA.API.Utilerias
                                 m.CC.Add(e);
                             }
                         };
-                        m.Subject = string.Format("[ASIGNACióN A GERENTE] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[ASIGNACIÓN A GERENTE] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha asignado al gerente de reclutamiento el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>, el cual debera tranferirla al coordinador correspondiente. </strong>", requi.folio, sitioWeb);
                         break;
                     case 8:

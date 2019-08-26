@@ -41,7 +41,8 @@ namespace SAGA.API.Controllers
                     TipoReclutamiento = df.TipoReclutamiento.tipoReclutamiento,
                     ClaseReclutamiento = df.ClaseReclutamiento.clasesReclutamiento,
                     fch_Creacion = df.fch_Creacion,
-                    horariosActivos = df.horariosPerfil.Where(hp => hp.Activo).Count() > 0 ? df.horariosPerfil.Where(hp => hp.Activo).Count() : 0
+                    horariosActivos = df.horariosPerfil.Where(hp => hp.Activo).Count() > 0 ? df.horariosPerfil.Where(hp => hp.Activo).Count() : 0,
+                    UsuarioAlta = df.UsuarioAlta,
                 }).ToList();
 
 
@@ -57,6 +58,7 @@ namespace SAGA.API.Controllers
                 var damfoGetById = db.DAMFO290.Select(r => new
                 {
                     Id = r.Id,
+                    usuarioAlta = r.UsuarioAlta,
                     nombrePerfil = r.NombrePerfil,
                     clienteId = r.ClienteId,
                     horarios = r.horariosPerfil.Select(h => new {
@@ -178,7 +180,9 @@ namespace SAGA.API.Controllers
                     observaciones = r.observacionesPerfil.Select(ob => new {
                         observaciones = ob.Observaciones
                     }).ToList(),
-                    procesos = r.procesoPerfil.Select(pr => new {
+                    procesos = r.procesoPerfil
+                    .OrderBy(pr => pr.Orden)
+                    .Select(pr => new {
                         proceso = pr.Proceso
                     }).ToList(),
                     documentosCliente = r.documentosCliente.Select(dcr => new
