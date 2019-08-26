@@ -1159,7 +1159,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         df.PeriodoPagoId = pf.Headers.PeriodoPagoId;
                         df.Especifique = pf.Headers.Especifique != null ? pf.Headers.Especifique : "";
                         df.ContratoInicialId = pf.Headers.ContratoInicialId;
-                        df.TiempoContratoId = pf.Headers.TiempoContratoId;
+                        df.TiempoContratoId = pf.Headers.TiempoContratoId != 0 ? pf.Headers.TiempoContratoId : null;
                         df.Activo = true;
                         df.UsuarioAlta = pf.Headers.Usuario;
                         df.escolardadesPerfil = pf.Collections.escolardadesPerfil;

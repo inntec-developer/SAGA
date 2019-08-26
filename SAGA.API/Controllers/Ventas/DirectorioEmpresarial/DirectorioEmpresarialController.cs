@@ -27,6 +27,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial
             {
                 var prospecto = db.Clientes
                     .Where(c => c.esCliente.Equals(false) && c.Activo.Equals(true))
+                    .OrderByDescending(p => p.fch_Creacion)
                     .Select(x => new
                     {
                         x.Id,
@@ -54,6 +55,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial
             {
                 var prospecto = db.Clientes
                     .Where(c => c.esCliente.Equals(true) && c.Activo.Equals(true))
+                    .OrderByDescending( c => c.fch_Creacion)
                     .Select(x => new {
                         x.Id,
                         x.RazonSocial,

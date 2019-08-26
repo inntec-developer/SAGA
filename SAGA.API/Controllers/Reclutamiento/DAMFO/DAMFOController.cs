@@ -30,6 +30,7 @@ namespace SAGA.API.Controllers
         {
             var damfo290 = db.DAMFO290
                 .Where(df => df.Activo)
+                .OrderByDescending(df => df.fch_Creacion)
                 .Select(df => new {
                     Id = df.Id,
                     Cliente = df.Cliente.Nombrecomercial,
