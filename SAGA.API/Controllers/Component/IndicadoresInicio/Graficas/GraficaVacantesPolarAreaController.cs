@@ -144,6 +144,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
                 if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
                 {
+                    #region tipo admin
                     if (estado == "Todas")
                     {
                         var requisicion = db.Requisiciones
@@ -513,7 +514,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Nuevas" || estado == "Aprobadas" || estado == "Publicadas" || estado == "Búsqueda de candidatos"
                         || estado == "Envió al cliente" || estado == "Nueva busqueda" || estado == "Socioeconomicos" || estado == "En espera de contratación" ||
-                        estado == "Pausadas" || estado == "Garantía de búsqueda")
+                        estado == "Pausadas" || estado == "Garantía de búsqueda" || estado == "Pendiente" || estado == "PendienteGG")
                     {
 
                         int valor = 0;
@@ -527,8 +528,10 @@ namespace SAGA.API.Controllers.Component.Graficas
                         valor = estado == "En espera de contratación" ? 33 : valor;
                         valor = estado == "Pausadas" ? 39 : valor;
                         valor = estado == "Garantía de búsqueda" ? 38 : valor;
-                        var asigna = db.AsignacionRequis.Select(e => e.RequisicionId).ToList();
-                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) && e.Activo == true && e.Confidencial == false).ToList();
+                        valor = estado == "Pendiente" ? 43 : valor;
+                        valor = estado == "PendienteGG" ? 46 : valor;
+                    //    var asigna = db.AsignacionRequis.Select(e => e.RequisicionId).ToList();
+                        var datos = db.Requisiciones.Where(e =>  e.Activo == true && e.Confidencial == false).ToList();
                         datos = datos.Where(e => e.EstatusId == valor).ToList();
                         var requisicion = datos
                         .Select(e => new
@@ -635,9 +638,11 @@ namespace SAGA.API.Controllers.Component.Graficas
                         return Ok(requisicion);
                     }
                     return NotFound();
+                    #endregion
                 }
                 else
                 {
+                    #region tipo reclu
                     if (db.Subordinados.Count(x => x.LiderId.Equals(UsuarioId)) > 0)
                     {
                         var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(UsuarioId) && x.LiderId.Equals(UsuarioId)).Select(u => u.UsuarioId).ToList();
@@ -1101,7 +1106,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Nuevas" || estado == "Aprobadas" || estado == "Publicadas" || estado == "Búsqueda de candidatos" 
                         || estado == "Envió al cliente" || estado == "Nueva busqueda" || estado == "Socioeconomicos" || estado == "En espera de contratación" ||
-                        estado == "Pausadas" || estado == "Garantía de búsqueda")
+                        estado == "Pausadas" || estado == "Garantía de búsqueda" || estado == "Pendiente" || estado == "PendienteGG")
                     {
                        
                         int valor = 0;
@@ -1115,6 +1120,8 @@ namespace SAGA.API.Controllers.Component.Graficas
                         valor = estado == "En espera de contratación" ? 33 : valor;
                         valor = estado == "Pausadas" ? 39 : valor;
                         valor = estado == "Garantía de búsqueda" ? 38 : valor;
+                        valor = estado == "Pendiente" ? 43 : valor;
+                        valor = estado == "PendienteGG" ? 46 : valor;
                         var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
                         var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
                         datos = datos.Where(e => e.EstatusId == valor).ToList();
@@ -1223,6 +1230,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                         return Ok(requisicion);
                     }
                     return NotFound();
+                    #endregion
                 }
 
             }
