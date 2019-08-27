@@ -1055,30 +1055,67 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("clientes")]
-        public IHttpActionResult Clientes()
+        public IHttpActionResult Clientes(string fini, string ffin,string bandera)
         {
 
             int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
-
+            
             try
             {
+                DateTime FechaF = DateTime.Now;
+                DateTime FechaI = DateTime.Now;
+
+                if (fini != null)
+                {
+                    FechaI = Convert.ToDateTime(fini);
+                }
+                if (ffin != null)
+                {
+                    FechaF = Convert.ToDateTime(ffin);
+                }
+                FechaF = FechaF.AddDays(1);
+
                 var cliente = db.Clientes.Where(e=>e.Activo == true && e.esCliente == true).ToList();
-                var requis = db.Requisiciones.Where(e=>EstatusList.Contains(e.EstatusId)).ToList();
+                var requis = db.Requisiciones.Where(e=>EstatusList.Contains(e.EstatusId) && e.fch_Creacion >= FechaI && e.fch_Creacion < FechaF).ToList();
                 int pos = 0;
                 int cub = 0;
                 List<proactividad> lista = new List<proactividad>();
                 foreach (var item in cliente)
                 {
                     var ob = new proactividad();
-                    pos = db.HorariosRequis.Where(a => (requis.Where(x => x.ClienteId == item.Id).Select(x => x.Id).ToList()).Contains(a.RequisicionId)).Sum(x => x.numeroVacantes);
-                    cub = db.ProcesoCandidatos.Where(x => (requis.Where(a => a.ClienteId == item.Id).Select(a => a.Id).ToList()).Contains(x.RequisicionId) && x.EstatusId == 24).Count();
+                    pos = 0;
+                    cub = 0;
+                    var requien = requis.Where(x => x.ClienteId == item.Id).Select(x => x.Id).ToList();
+                    if (requien.Count > 0)
+                    {
+                        pos = db.HorariosRequis.Where(a => requien.Contains(a.RequisicionId)).Sum(x => x.numeroVacantes);
+                        cub = db.ProcesoCandidatos.Where(x => requien.Contains(x.RequisicionId) && x.EstatusId == 24).Distinct().Count();
+                    }
+                    
                     ob.nombre = item.Nombrecomercial;
                     ob.numeropos = pos;
                     ob.cubiertas = cub;
-                    ob.puntaje = pos - cub;
-                    ob.porcentaje = (cub * 100) / pos;
-                    lista.Add(ob);
+                    ob.puntaje = 0;
+                    ob.porcentaje = 0;
+                    if (pos > 0)
+                    {
+                        ob.puntaje = pos - cub;
+                        ob.porcentaje = (cub * 100) / pos;
+                    }
+                    if (bandera == "2")
+                    {
+                        if (pos > 0)
+                        {
+                            lista.Add(ob);
+                        }
+                    }
+                    else
+                    {
+                        lista.Add(ob);
+                    }
+                   
                 }
+                lista = lista.OrderByDescending(e => e.numeropos).ToList();
                 return Ok(lista);
             }
             catch (Exception ex)
