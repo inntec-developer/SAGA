@@ -14,8 +14,10 @@ namespace SAGA.API.Dtos.Equipos
         public int tipoUsuario { get; set; }
         public int totalCub { get; set; }
         public int totalPos { get; set; }
+        public int totalPosAux { get; set; }
         public string foto { get; set; }
         public List<RequisDtos> requis { get; set; }
+        public List<RequisDtos> requisAux { get; set; }
         public List<ResumenDto> resumen { get; set; }
     }
 
@@ -23,9 +25,9 @@ namespace SAGA.API.Dtos.Equipos
     {
         public Guid requisicionId { get; set; }
         public int vacantes { get; set; }
-        public int contratados { get; set; }
         public string vBtra { get; set; }
         public long folio { get; set; }
+        public int cubiertas { get; set; }
     }
 
 }
