@@ -4,6 +4,7 @@ using SAGA.DAL;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -1130,7 +1131,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
         #endregion
         #endregion
 
-        #region Crear, Editar, Eliminar Perfil
+        #region Crear, Editar, Eliminar, Clonar Perfil
         [HttpPost]
         [Route("crudPerfilReclutamiento")]
         public IHttpActionResult CurdPerfilReclutamiento (PerfilReclutmientoDto pf)
@@ -1221,6 +1222,15 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         return Ok();
                     case "delete":
                         return Ok();
+                    case "clone":
+                        object[] _params = {
+                            new SqlParameter("@Id",pf.Headers.Id),
+                            new SqlParameter("@IdNWR", Guid.NewGuid())
+                        };
+
+                        var returnId = db.Database.SqlQuery<DAMFO_290>("exec CloneDamfo290 @Id, @IdNWR", _params).SingleOrDefault();
+
+                        return Ok(returnId.Id);
                     default:
                         return Ok(HttpStatusCode.NotAcceptable);
                 }

@@ -42,6 +42,22 @@ namespace SAGA.API.Controllers.Equipos
             }
             return listaIds;
         }
+        public List<RequisDtos> AddRequis(List<ResumenDto> tree, List<RequisDtos> inicio, Guid id)
+        {
+
+            var mocos = tree.Where(x => x.liderId.Equals(id)).ToList();
+            if (mocos.Count() > 0)
+            {
+                foreach (var nodo in mocos)
+                {
+
+                    inicio.AddRange(nodo.requis);
+                    AddRequis(tree, inicio, nodo.reclutadorId);
+                    // inicio.AddRange(nodo.requis);
+                }
+            }
+            return inicio;
+        }
 
         public List<ResumenDto> GetRportGG2(List<ResumenDto> tree, Guid gg)
         {
@@ -54,6 +70,8 @@ namespace SAGA.API.Controllers.Equipos
                 tipoUsuario = u.tipoUsuario,
                 totalCub = u.totalCub,
                 totalPos = u.totalPos,
+                totalPosAux = u.totalPosAux,
+                requis = u.requisAux,
                 foto = u.foto,
                 resumen = GetRportGG2(tree, u.reclutadorId),
 
@@ -69,10 +87,11 @@ namespace SAGA.API.Controllers.Equipos
             {
                 foreach (var nodo in mocos)
                 {
-                    nodo.totalCub = nodo.totalCub + sumTotalCub(tree, nodo.totalCub, nodo.reclutadorId);
+                    var suma = nodo.requis.OrderBy(o => o.requisicionId).Select(rs => new { rs.requisicionId, rs.cubiertas }).Distinct().Sum(s => s.cubiertas);
+                    inicio += sumTotalCub(tree, suma, nodo.reclutadorId);
                 }
             }
-            return mocos.Sum(x => x.totalCub);
+            return inicio;
         }
         public int sumTotalPos(List<ResumenDto> tree, int inicio, Guid id)
         {
@@ -81,11 +100,11 @@ namespace SAGA.API.Controllers.Equipos
             {
                 foreach (var nodo in mocos)
                 {
-                    nodo.totalPos = nodo.totalPos + sumTotalPos(tree, nodo.totalPos, nodo.reclutadorId);
+                    var suma = nodo.requis.OrderBy(o => o.requisicionId).Select(rs => new { rs.requisicionId, rs.vacantes }).Distinct().Sum(s => s.vacantes);
+                    inicio += sumTotalPos(tree, suma, nodo.reclutadorId);
                 }
             }
-            return mocos.Sum(x => x.totalPos);
-
+            return inicio;
         }
 
         [HttpGet]
@@ -93,18 +112,32 @@ namespace SAGA.API.Controllers.Equipos
         public IHttpActionResult GetRportGG(Guid gg)
         {
             List<Guid> uids = new List<Guid>();
-            int[] estatusId = { 8, 9, 34, 35, 36, 37, 47, 48 };
+            int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37, 47, 48 };
             try
             {
+                var gerentes = db.Subordinados.Where(x => !x.UsuarioId.Equals(gg) && x.LiderId.Equals(gg)).Select(u => u.UsuarioId).ToList();
 
-                var val = db.Subordinados.Where(x => x.LiderId.Equals(gg)).Count();
-
-                if (val > 0)
+                if (gerentes.Count() > 0)
                 {
-                    var gerentes = db.Subordinados.Where(x => !x.UsuarioId.Equals(gg) && x.LiderId.Equals(gg)).Select(u => u.UsuarioId).ToList();
-
+                   
                     uids = GetSub(gerentes, uids);
                     uids.Add(gg);
+
+
+                    var asignadas = db.AsignacionRequis
+                      .OrderByDescending(e => e.Id)
+                      .Where(a => uids.Distinct().Contains(a.GrpUsrId)
+                          && !estatusId.Contains(a.Requisicion.EstatusId) && !a.Requisicion.Confidencial)
+                      .Select(a => a.RequisicionId)
+                      .Distinct()
+                      .ToList();
+
+                    var requis = db.Requisiciones
+                    .Where(e => (uids.Contains(e.AprobadorId) || uids.Contains(e.PropietarioId))
+                        && !estatusId.Contains(e.EstatusId) && !e.Confidencial)
+                    .Select(a => a.Id).ToList();
+
+                    var AllRequis = requis.Union(asignadas).Distinct().ToList();
 
                     var tree = db.Usuarios.Where(x => uids.Distinct().Contains(x.Id)).Select(r => new ResumenDto
                     {
@@ -114,42 +147,67 @@ namespace SAGA.API.Controllers.Equipos
                         clave = r.Clave,
                         tipoUsuario = r.TipoUsuarioId,
                         foto = @"https://apierp.damsa.com.mx/img/" + r.Clave + ".jpg",
-                   
-                        totalCub = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && x.GrpUsrId.Equals(r.Id)).Count() > 0 ? db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && x.GrpUsrId.Equals(r.Id)).Select(sum => new
+                        requis = db.AsignacionRequis.Where(x => AllRequis.Contains(x.RequisicionId) && (x.GrpUsrId.Equals(r.Id) || x.Requisicion.AprobadorId.Equals(r.Id) || x.Requisicion.PropietarioId.Equals(r.Id))).Select(sum => new RequisDtos
                         {
-                            cont = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(sum.Requisicion.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(sum.GrpUsrId)).Select(cand => db.CandidatosInfo.Where(xx => xx.CandidatoId.Equals(cand.CandidatoId) && xx.ReclutadorId.Equals(cand.ReclutadorId))).Count(),
-                        }).Sum(x => x.cont) : 0,
-
-                        totalPos = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && x.GrpUsrId.Equals(r.Id)).Count() > 0 ? db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && x.GrpUsrId.Equals(r.Id)).Select(sum => new
+                            folio = sum.Requisicion.Folio,
+                            requisicionId = sum.RequisicionId,
+                            vBtra = sum.Requisicion.Estatus.Descripcion,
+                            vacantes = sum.Requisicion.horariosRequi.Count() > 0 ? sum.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                            cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(sum.RequisicionId) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(r.Id)).Count()
+                        }).Union(db.Requisiciones.Where(xx => AllRequis.Contains(xx.Id) && (xx.AprobadorId.Equals(r.Id) || xx.PropietarioId.Equals(r.Id))).Select(rr => new RequisDtos
                         {
-                            vac = sum.Requisicion.horariosRequi.Count() > 0 ? sum.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                        }).Sum(x => x.vac) : 0
-
+                            folio = rr.Folio,
+                            requisicionId = rr.Id,
+                            vBtra = rr.Estatus.Descripcion,
+                            vacantes = rr.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? rr.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                            cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(rr.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(r.Id)).Count()
+                        })).ToList(),
+                        requisAux = db.AsignacionRequis.Where(x => AllRequis.Contains(x.RequisicionId) && (x.GrpUsrId.Equals(r.Id) || x.Requisicion.AprobadorId.Equals(r.Id) || x.Requisicion.PropietarioId.Equals(r.Id))).Select(sum => new RequisDtos
+                        {
+                            folio = sum.Requisicion.Folio,
+                            requisicionId = sum.RequisicionId,
+                            vBtra = sum.Requisicion.Estatus.Descripcion,
+                            vacantes = sum.Requisicion.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? sum.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                            cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(sum.RequisicionId) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(r.Id)).Count()
+                        }).Union(db.Requisiciones.Where(xx => AllRequis.Contains(xx.Id) && (xx.AprobadorId.Equals(r.Id) || xx.PropietarioId.Equals(r.Id))).Select(rr => new RequisDtos{
+                            folio = rr.Folio,
+                            requisicionId = rr.Id,
+                            vBtra = rr.Estatus.Descripcion,
+                            vacantes = rr.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? rr.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                            cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(rr.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(r.Id)).Count()
+                        })).ToList(),
+                        totalPosAux = db.AsignacionRequis.Where(x => AllRequis.Contains(x.RequisicionId) && (x.GrpUsrId.Equals(r.Id) || x.Requisicion.AprobadorId.Equals(r.Id) || x.Requisicion.PropietarioId.Equals(r.Id))).Count() > 0 ? db.AsignacionRequis.Where(x => AllRequis.Contains(x.RequisicionId) && (x.GrpUsrId.Equals(r.Id) || x.Requisicion.AprobadorId.Equals(r.Id) || x.Requisicion.PropietarioId.Equals(r.Id))).Select(sum => new RequisDtos
+                        {
+                            folio = sum.Requisicion.Folio,
+                            requisicionId = sum.RequisicionId,
+                            vBtra = sum.Requisicion.Estatus.Descripcion,
+                            vacantes = sum.Requisicion.horariosRequi.Count() > 0 ? sum.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                            cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(sum.RequisicionId) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(r.Id)).Count()
+                        }).OrderBy(o => o.folio).Select(sss => new { requisicionId = sss.requisicionId, vacantes = sss.vacantes}).Distinct().Sum(s => s.vacantes) : 0,
                     }).ToList();
-
-                    var nodesSum = tree.Where(x => x.reclutadorId.Equals(gg)).Select(r => new ResumenDto
+    
+                    foreach(var nodo in tree)
                     {
-                        reclutadorId = r.reclutadorId,
-                        nombre = r.nombre,
-                        clave = r.clave,
-                        tipoUsuario = r.tipoUsuario,
-                        totalCub = sumTotalCub(tree, r.totalCub, r.reclutadorId),
-                        totalPos = sumTotalPos(tree, r.totalPos, r.reclutadorId),
-                        //resumen = GetRportGG2(tree, r.reclutadorId),
-                    }).ToList();
-
-                    var nodes = tree.Where(x => x.reclutadorId.Equals(gg)).Select(r => new ResumenDto
+                        nodo.requis = AddRequis(tree, nodo.requis, nodo.reclutadorId);
+                        nodo.totalPos = nodo.requis.OrderBy(o => o.folio).Select(rr => new { folio = rr.folio, vacantes = rr.vacantes}).Distinct().Sum(s => s.vacantes);
+                        nodo.totalCub = nodo.requis.OrderBy(o => o.requisicionId).Select(rr => new { requisicionId = rr.requisicionId, cubiertas = rr.cubiertas }).Distinct().Sum(s => s.cubiertas);
+                    }
+                 
+                    var nodes = tree.Where(x => x.reclutadorId.Equals(gg)).Select(r => new
                     {
                         liderId = r.liderId,
                         reclutadorId = r.reclutadorId,
                         nombre = r.nombre,
                         clave = r.clave,
                         tipoUsuario = r.tipoUsuario,
-                        totalCub = nodesSum[0].totalCub,
-                        totalPos = nodesSum[0].totalPos,
+                        totalCub = r.totalCub,
+                        totalPos = r.totalPos,
+                        totalPosAux = r.totalPosAux,
+                        requis = r.requisAux,
                         foto = r.foto,
                         resumen = GetRportGG2(tree, r.reclutadorId),
                     }).ToList();
+
 
                     return Ok(nodes);
                 }
@@ -180,44 +238,60 @@ namespace SAGA.API.Controllers.Equipos
 
                 uids.Add(usuario);
 
-                var requis = db.AsignacionRequis.Where(x => uids.Distinct().Contains(x.GrpUsrId) && !estatusId.Contains(x.Requisicion.EstatusId)).Select(res => new
+                var asignadas = db.AsignacionRequis
+                            .OrderByDescending(e => e.Id)
+                            .Where(a => uids.Distinct().Contains(a.GrpUsrId)
+                                && !estatusId.Contains(a.Requisicion.EstatusId) && !a.Requisicion.Confidencial)
+                            .Select(a => a.RequisicionId)
+                            .Distinct()
+                            .ToList();
+
+                var requis = db.Requisiciones
+                          .Where(e => (uids.Contains(e.AprobadorId) || uids.Contains(e.PropietarioId))
+                              && !estatusId.Contains(e.EstatusId) && !e.Confidencial)
+                          .Select(a => a.Id).ToList();
+
+
+                var AllRequis = requis.Union(asignadas).Distinct().ToList();
+
+                var total = db.Requisiciones.Where(x => AllRequis.Contains(x.Id)).Select(res => new
                 {
-                    requisicionId = res.Requisicion.Id,
-                    estatusId = res.Requisicion.EstatusId,
-                    folio = res.Requisicion.Folio,
-                    cliente = res.Requisicion.Cliente.Nombrecomercial,
-                    vBtra = res.Requisicion.VBtra,
-                    fch_Cumplimiento = res.Requisicion.fch_Cumplimiento,
-                    vacantes = res.Requisicion.horariosRequi.Count() > 0 ? res.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                    contratados = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Requisicion.Id) && x.EstatusId.Equals(24)).Count(),
-                    coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(res.Requisicion.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(res.Requisicion.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
-                    reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(res.RequisicionId) && !x.GrpUsrId.Equals(res.Requisicion.AprobadorId)).Select(a =>
+                    requisicionId = res.Id,
+                    estatusId = res.EstatusId,
+                    folio = res.Folio,
+                    cliente = res.Cliente.Nombrecomercial,
+                    vBtra = res.VBtra,
+                    fch_Cumplimiento = res.fch_Cumplimiento,
+                    vacantes = res.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? res.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                    contratados = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Id) && x.EstatusId.Equals(24)).Count(),
+                    coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(res.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(res.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                    reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(res.Id) && !x.GrpUsrId.Equals(res.AprobadorId)).Select(a =>
                                    db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                                    ),
-                    faltantes = (res.Requisicion.horariosRequi.Count() > 0 ? res.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0) - (db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Requisicion.Id) && x.EstatusId.Equals(24) && x.ReclutadorId.Equals(res.GrpUsrId)).Select(cs => db.CandidatosInfo.Where(xx => xx.CandidatoId.Equals(cs.CandidatoId) && xx.ReclutadorId.Equals(cs.ReclutadorId))).Count()),
-                    cumplimiento = res.Requisicion.horariosRequi.Count() > 0 ? db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Requisicion.Id) && x.EstatusId.Equals(24)).Count() * 100 / res.Requisicion.horariosRequi.Count() : 0,
+                    faltantes = (res.horariosRequi.Count() > 0 ? res.horariosRequi.Sum(v => v.numeroVacantes) : 0) - db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Id) && x.EstatusId.Equals(24)).Count(),
+                    cumplimiento = res.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Id) && x.EstatusId.Equals(24)).Count() * 100 / res.horariosRequi.Sum(v => v.numeroVacantes) : 0,
                 }).ToList();
 
-
+                var mocos2 = total.Sum(s => s.vacantes);
                 if (orden == 1)
                 {
-                    requis = requis.OrderByDescending(o => o.vacantes).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                    total = total.OrderByDescending(o => o.vacantes).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                 }
                 else if(orden == 2)
                 {
-                    requis = requis.OrderByDescending(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                    total = total.OrderByDescending(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                 }
-                else if (orden == 4)
+                else if (orden == 3)
                 {
-                    requis = requis.OrderByDescending(o => o.faltantes).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                    total = total.OrderByDescending(o => o.faltantes).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                 }
                 else
                 {
-                    requis = requis.OrderByDescending(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                    total = total.OrderByDescending(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                 }
 
-                return Ok(requis);
-
+                return Ok(total);
+                 
             }
             catch (Exception ex)
             {

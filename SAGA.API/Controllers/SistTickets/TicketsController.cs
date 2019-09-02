@@ -1498,6 +1498,54 @@ namespace SAGA.API.Controllers
         }
 
         [HttpGet]
+        [Route("getVacantesById")]
+        public IHttpActionResult GetVacantes(Guid requisicionId)
+        {
+            try
+            {
+                List<int> estatus = new List<int> { 8, 9, 34, 35, 36, 37, 47, 48 };
+
+                //Guid mocos = new Guid("1FF62A23-3664-E811-80E1-9E274155325E");
+                //var usuarios = db.Usuarios.Where(x => x.SucursalId.Equals(mocos)).Select(U => U.Id).ToList();
+                //var requis = db.AsignacionRequis.Where(x => usuarios.Contains(x.GrpUsrId)).Select(R => R.RequisicionId).ToArray();
+
+                var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
+                    .Where(e => e.Activo && !e.Confidencial && !estatus.Contains(e.EstatusId) && e.Id.Equals(requisicionId))
+                    .Select(e => new
+                    {
+                        Id = e.Id,
+                        estatus = e.Estatus.Descripcion,
+                        Folio = e.Folio,
+                        //Cliente = e.Cliente.Nombrecomercial,
+                        //ClienteId = e.Cliente.Id,
+                        //estado = e.Cliente.direcciones.Select(x => x.Municipio.municipio + " " + x.Estado.estado + " " + x.Estado.Pais.pais).FirstOrDefault(),
+                        //domicilio_trabajo = e.Direccion.Calle + " " + e.Direccion.NumeroExterior + " " + e.Direccion.Colonia.colonia + " " + e.Direccion.Municipio.municipio + " " + e.Direccion.Estado.estado,
+                        //Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                        VBtra = e.VBtra,
+                        //requisitos = e.DAMFO290.escolardadesPerfil.Select(esc => esc.Escolaridad.gradoEstudio),
+                        //Actividades = e.DAMFO290.actividadesPerfil.Select(a => a.Actividades),
+                        //aptitudes = e.DAMFO290.aptitudesPerfil.Select(ap => ap.Aptitud.aptitud),
+                        experiencia = e.Experiencia,
+                        categoria = e.Area.areaExperiencia,
+                        icono = e.Area.Icono,
+                        areaId = e.AreaId,
+                        cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0,
+                        arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/Arte/" + e.Id + ".png"
+                    }).ToList();
+
+
+                return Ok(vacantes);
+
+            }
+            catch (Exception ex)
+            {
+                string mensaje = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+
+        }
+
+        [HttpGet]
         [Route("filtrarCategorias")]
         public IHttpActionResult FiltrarCategorias(int areaId)
         {
