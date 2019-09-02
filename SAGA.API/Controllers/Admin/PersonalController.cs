@@ -933,6 +933,7 @@ namespace SAGA.API.Controllers
                         //userData.Lider = lider.nombre;
                         userData.DepartamentoId = Data.DepartamentoId;
                         userData.Departamento = Data.Departamento;
+                        userData.Roles = db.RolEntidades.Where(c => c.EntidadId.Equals(db.GruposUsuarios.Where(g => g.EntidadId.Equals(Data.Id)).Select(d => d.GrupoId).FirstOrDefault())).Select(r => r.Rol.Rol).ToList();
                         var token = TokenGenerator.GenerateTokenJwt(userData);
                         var dataUser = TokenGenerator.GenerateTokenUser(userData);
 

@@ -55,6 +55,7 @@ namespace SAGA.API.Controllers
             // create a claimsIdentity
             var jsonSerialiser = new JavaScriptSerializer();
             var privilegios = jsonSerialiser.Serialize(username.Privilegios);
+            var roles = jsonSerialiser.Serialize(username.Roles);
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(new[] {
                 new Claim("IdUsuario", username.Id.ToString()),
                 new Claim("Clave", username.Clave),
@@ -69,7 +70,8 @@ namespace SAGA.API.Controllers
                 new Claim("LiderId", username.LiderId.ToString()),
                 new Claim("DepartamentoId", username.DepartamentoId.ToString()),
                 new Claim("Departamento", username.Departamento),
-                new Claim("UnidadNegocioId", username.UnidadNegocioId.ToString())
+                new Claim("UnidadNegocioId", username.UnidadNegocioId.ToString()),
+                new Claim("Roles", roles)
             });
 
             // create token to the user
