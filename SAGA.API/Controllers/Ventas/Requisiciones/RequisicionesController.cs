@@ -824,6 +824,7 @@ namespace SAGA.API.Controllers
                             SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
                             fch_Modificacion = e.fch_Modificacion,
+                            diasTrans = countWeekDays(Convert.ToDateTime(e.fch_Creacion), DateTime.Now),
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
@@ -898,6 +899,7 @@ namespace SAGA.API.Controllers
                             SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
                             fch_Modificacion = e.fch_Modificacion,
+                            diasTrans = countWeekDays(Convert.ToDateTime(e.fch_Creacion), DateTime.Now),
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
@@ -987,7 +989,6 @@ namespace SAGA.API.Controllers
                 }
                 else
                 {
-
                     List<Guid> uids = new List<Guid>();
                     if (db.Subordinados.Count(x => x.LiderId.Equals(IdUsuario)) > 0)
                     {
