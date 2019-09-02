@@ -37,6 +37,7 @@ namespace SAGA.API.Controllers.Catalogos
                         nombre = db.Entidad.Where(e => e.Id == caja.Id).Select(e => e.Nombre).FirstOrDefault(),
                         caja.Latitud,
                         caja.Longitud,
+                         tipoOficinaid = caja.TipoOficina.Id,
                         caja.TipoOficina.tipoOficina,
                         caja.Activo,
                         cp = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().CodigoPostal,

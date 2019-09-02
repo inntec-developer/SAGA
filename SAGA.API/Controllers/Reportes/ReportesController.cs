@@ -54,20 +54,23 @@ namespace SAGA.API.Controllers.Reportes
 
             var Usuarios = db.Usuarios;
             var requi = datos2.Select(e => e.Id).ToList();
-      //      var aprobador = datos2.Select(e => new { e.AprobadorId, e.Id }).ToList();
+            var prosesoCan = db.ProcesoCandidatos.Where(a => requi.Contains(a.RequisicionId)).ToList();
             var nombreReclu = db.AsignacionRequis.Where(a => requi.Contains(a.RequisicionId)).Select(a => new { a.RequisicionId, a.GrpUsrId, Nombre = Usuarios.Where(e=>e.Id == a.GrpUsrId).FirstOrDefault().Nombre.ToUpper() +" "+ Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + Usuarios.Where(e => e.Id == a.GrpUsrId).FirstOrDefault().ApellidoMaterno.ToUpper() }).ToList();
-            // var nombreReclu = db.Usuarios.Where(x => lago.Contains(x.Id)).Select(x => new { x.Nombre,x.Id }).ToList();
-            //var cadenas = nombreReclu.Where(b => b.Id == new Guid("2217b0f2-5a6e-e811-80e1-9e274155325e")).Select(b => b.Nombre).ToList();
-            //String.Join(String.Empty, cadenas.ToArray());
-
-            
+            var candidato = prosesoCan.Select(a => new
+            {
+                a.RequisicionId,
+                a.CandidatoId,
+                a.EstatusId,
+                Nombre = db.Entidad.Where(e => e.Id == a.CandidatoId).Select(x=>x.Nombre.ToUpper() + " " + x.ApellidoPaterno.ToUpper() + " " + x.ApellidoMaterno.ToUpper()).FirstOrDefault()
+            }).ToList();
+            var Comentario = db.ComentariosVacantes.Where(e=> requi.Contains(e.RequisicionId)).ToList();       
 
             var datos = datos2.Select(e => new
             {
                 e.Id,
                 e.Folio,
                 VBtra = e.VBtra.ToUpper(),
-                cubierta = db.ProcesoCandidatos.Where(x => x.RequisicionId == e.Id && x.EstatusId == 24).Select(a => a.CandidatoId).Distinct().ToList().Count,
+                cubierta = prosesoCan.Where(x => x.EstatusId == 24).Select(a => a.CandidatoId).Distinct().ToList().Count,
                 porcentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
                 e.fch_Creacion,
                 e.fch_Modificacion,
@@ -91,8 +94,12 @@ namespace SAGA.API.Controllers.Reportes
                 e.fch_Cumplimiento,
                 estatus = e.Estatus.Descripcion.ToUpper(),
                 reclutadorTotal = db.AsignacionRequis.Where(a => a.RequisicionId == e.Id && a.GrpUsrId != e.AprobadorId).Count() == 0? "SIN ASIGNAR" : db.AsignacionRequis.Where(a => a.RequisicionId == e.Id && a.GrpUsrId != e.AprobadorId).Count().ToString(),
-                nombreReclutado = String.Join(", ", nombreReclu.Where(b => b.RequisicionId == e.Id && b.GrpUsrId != e.AprobadorId).Select(b => b.Nombre).ToList().ToArray())
-        }).ToList();
+                nombreReclutado = String.Join(", ", nombreReclu.Where(b => b.RequisicionId == e.Id && b.GrpUsrId != e.AprobadorId).Select(b => b.Nombre).ToList().ToArray()),
+                candiTotal = candidato.Where(x => x.RequisicionId == e.Id).Count() == 0? 0 : candidato.Where(x=>x.RequisicionId == e.Id).ToList().Count,
+                nombreCandidato = String.Join(", ", candidato.Where(b => b.RequisicionId == e.Id).Select(b => b.Nombre).ToList().ToArray()),
+                coemtaTotal = Comentario.Where(x => x.RequisicionId == e.Id).Count() == 0 ? 0 : Comentario.Where(x => x.RequisicionId == e.Id).ToList().Count(),
+                listaComentario = String.Join(", ", Comentario.Where(b => b.RequisicionId == e.Id).Select(b => b.fch_Creacion.ToShortDateString().ToString() +"-"+ b.Comentario).ToList().ToArray())
+            }).ToList();
             
 
             if (stus != "0" && stus != null)
