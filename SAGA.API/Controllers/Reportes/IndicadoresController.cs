@@ -68,6 +68,7 @@ namespace SAGA.API.Controllers.Reportes
             {
                
                 var lista = new Dtos.Reporte.IndicadorDto();
+                
                 lista.nombre = DateTime.Now.AddMonths(mes).ToString("MMMM");
                 fechaInicio = new DateTime(fechaInicio.Year, DateTime.Now.AddMonths(mes).Month, 1);
                 fechaFinal = new DateTime(fechaInicio.Year, fechaInicio.Month, fechaInicio.AddMonths(1).AddDays(-1).Day);

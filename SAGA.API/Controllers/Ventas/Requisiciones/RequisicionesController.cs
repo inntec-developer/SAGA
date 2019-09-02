@@ -715,6 +715,7 @@ namespace SAGA.API.Controllers
                             Cliente = e.Cliente.Nombrecomercial,
                             razon = e.Cliente.RazonSocial,
                             factura = e.Cliente.RazonSocial,
+                            tipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
                             GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
                             ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,

@@ -470,12 +470,13 @@ namespace SAGA.API.Controllers
                         e.Candidato.Nombre.ToLower().Contains(palabraClave) ||
                         e.Candidato.ApellidoPaterno.ToLower().Contains(palabraClave) ||
                         e.Candidato.ApellidoMaterno.ToLower().Contains(palabraClave) ||
-                        e.Candidato.RFC.ToLower().Contains(palabraClave)
+                        e.Candidato.RFC.ToLower().Contains(palabraClave) ||
+                        e.Candidato.CURP.ToLower().Contains(palabraClave)
 
-                        //palabraClave.Contains(e.Candidato.Nombre.ToLower()) ||
-                        //palabraClave.Contains(e.Candidato.ApellidoPaterno.ToLower()) ||
-                        //palabraClave.Contains(e.Candidato.ApellidoMaterno.ToLower()) ||
-                        //palabraClave.Contains(e.Candidato.RFC.ToLower())
+                    //palabraClave.Contains(e.Candidato.Nombre.ToLower()) ||
+                    //palabraClave.Contains(e.Candidato.ApellidoPaterno.ToLower()) ||
+                    //palabraClave.Contains(e.Candidato.ApellidoMaterno.ToLower()) ||
+                    //palabraClave.Contains(e.Candidato.RFC.ToLower())
                     )
                     .Select(e => e.Id)
                     .ToList();

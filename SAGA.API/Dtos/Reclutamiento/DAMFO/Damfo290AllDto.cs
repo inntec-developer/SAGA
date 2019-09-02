@@ -25,7 +25,7 @@ namespace SAGA.API.Dtos
         public int PeriodoPagoId { get; set; }
         public string Especifique { get; set; }
         public int ContratoInicialId { get; set; }
-        public int TiempoContratoId { get; set; }
+        public int? TiempoContratoId { get; set; }
         public bool Activo { get; set; }
         public bool FlexibilidadHorario { get; set; }
         public int JornadaLaboralId { get; set; }

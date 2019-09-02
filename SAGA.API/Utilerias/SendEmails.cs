@@ -48,8 +48,8 @@ namespace SAGA.API.Utilerias
                 inicio = inicio + "h3 { font - family:'calibri'; } table { width: 100 %; }</style></head><body style =\"text-align:center; font-family:'calibri'; font-size:10pt;\"><br><br><p> Nueva Requisición:</p>";
 
                 body = inicio;
-                body = body + string.Format("<p>Se comunica de la manera más atenta que has generado una nueva requisición con el folio <a href=\"{0}/login/{1}\">{1}</a> – {2}, el cual es necesario que se le dé el seguimiento correspondiente. </p>", sitioWeb, Folio, VBtra);
-                body = body + string.Format("<p>Sin más por el momento, me despido, saludos cordiales.</p>");
+                body = body + string.Format("<p style=\"color: #159EF7\">Por este medio se informa la manera más atenta que has generado una nueva requisición con el folio <a href=\"{0}/login/{1}\">{1}</a> – {2}, el cual es necesario que se le dé el seguimiento correspondiente. </p>", sitioWeb, Folio, VBtra);
+                body = body + string.Format("<p style=\"color: #159EF7\">Sin más por el momento, me despido, saludos cordiales.</p>");
                 body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>");
                 body = body + string.Format("<p><small>Favor de no responder este mensaje, ya que solo es de carácter informativo y son enviados automáticamente por el sistema </small></p>");
                 m.Body = body;
