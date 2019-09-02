@@ -825,7 +825,6 @@ namespace SAGA.API.Controllers
                             SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
                             fch_Modificacion = e.fch_Modificacion,
-                            diasTrans = countWeekDays(Convert.ToDateTime(e.fch_Creacion), DateTime.Now),
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
@@ -900,7 +899,6 @@ namespace SAGA.API.Controllers
                             SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
                             fch_Modificacion = e.fch_Modificacion,
-                            diasTrans = countWeekDays(Convert.ToDateTime(e.fch_Creacion), DateTime.Now),
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
@@ -1052,7 +1050,7 @@ namespace SAGA.API.Controllers
         }
 
         // Count days from d0 to d1 inclusive, excluding weekends
-        public static int countWeekDays(DateTime d0, DateTime d1)
+        public int countWeekDays(DateTime d0, DateTime d1)
         {
             int ndays = 1 + Convert.ToInt32((d1 - d0).TotalDays);
             int nsaturdays = (ndays + Convert.ToInt32(d0.DayOfWeek)) / 7;
