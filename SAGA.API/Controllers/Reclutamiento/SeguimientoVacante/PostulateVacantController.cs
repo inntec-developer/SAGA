@@ -401,7 +401,8 @@ namespace SAGA.API.Controllers
                         estadoNacimiento = p.EstadoNacimientoId,
                         municipioNacimiento = p.MunicipioNacimientoId,
                         localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
-                        genero = p.GeneroId == 1 ? "Hombre" : "Mujer"
+                        genero = p.GeneroId == 1 ? "Hombre" : "Mujer",
+                        reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
                     }).FirstOrDefault()
                 });
                     
