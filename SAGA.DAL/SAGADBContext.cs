@@ -175,6 +175,7 @@ namespace SAGA.DAL
         public DbSet<RequiClaves> RequiClaves { get; set; }
         public DbSet<PsicometriaCandidato> PsicometriaCandidato { get; set; }
         public DbSet<MedicoCandidato> MedicosCandidato { get; set; }
+        public DbSet<ConfigEntrevista> ConfigEntrevistas { get; set; }
         // Preguntas Frecuentes
         public DbSet<PreguntasFrecuente> PreguntasFrecuentes { get; set; }
 
@@ -329,6 +330,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new RequiClavesMap().ToTable("RequiClaves"));
             modelBuilder.Configurations.Add(new PsicometriaCandidatosMap().ToTable("PsicometriaCandidatos"));
             modelBuilder.Configurations.Add(new MedicoCandidatoMap().ToTable("MedicoCandidato"));
+            modelBuilder.Configurations.Add(new ConfigEntrevistaMap().ToTable("ConfigEntrevistas"));
 
 
             //Preguntas Frecuentes 
@@ -1279,6 +1281,20 @@ namespace SAGA.DAL
                 Property(x => x.fch_Creacion).IsRequired();
                 Property(x => x.fch_Resultado).IsRequired();
                 Property(x => x.UsuarioId).IsOptional();
+            }
+        }
+
+        public class ConfigEntrevistaMap : EntityTypeConfiguration<ConfigEntrevista>
+        {
+            public ConfigEntrevistaMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.examenId).IsRequired();
+                Property(x => x.numPreguntas).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.fch_Modificacion).IsRequired();
+                Property(x => x.usuarioId).IsRequired();
             }
         }
 
