@@ -25,12 +25,15 @@ namespace SAGA.API.Controllers.Version
         {
             try
             {
-               
-                var check = db.VertionSistem.Where(x => x.Version == version && x.Liberada == true)
+
+                var check = db.VertionSistem.Where(x => x.Liberada == true)
                     .OrderByDescending(x => x.Id)
-                    .Take(1)
-                    .Count();
-                if(check == 1)
+                    .Select(x => new
+                    {
+                        version = x.Version
+                    })
+                    .FirstOrDefault();
+                if(check.version == version)
                 {
                     Actualizado = true;
                 }
@@ -38,7 +41,13 @@ namespace SAGA.API.Controllers.Version
                 {
                     Actualizado = false;
                 }
-                return Ok(Actualizado);
+
+                var obj = new
+                {
+                    Actualizado = Actualizado,
+                    Version = check.version
+                };
+                return Ok(obj);
             }
             catch(Exception ex)
             {
