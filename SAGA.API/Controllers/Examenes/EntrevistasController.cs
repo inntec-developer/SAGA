@@ -1,4 +1,5 @@
-﻿using SAGA.DAL;
+﻿using SAGA.BOL;
+using SAGA.DAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,12 +33,47 @@ namespace SAGA.API.Controllers.Examenes
                     }),                    
                     tipo = E.TipoExamen.Nombre,
                     fch_Modificacion = DateTime.Now,
-                    ale = db.Preguntas.Where(x => x.ExamenId.Equals(E.Id)).Count(),
+                    ale = db.ConfigEntrevistas.Where(x => x.examenId.Equals(E.Id)).Select(a => a.numPreguntas).FirstOrDefault(),
                     num = db.Preguntas.Where(x => x.ExamenId.Equals(E.Id)).Count(),
-                    usuario = "INNTECC"
+                    usuario = String.IsNullOrEmpty(db.ConfigEntrevistas.Where(x => x.examenId.Equals(E.Id)).Select(u => u.Usuario.Usuario).FirstOrDefault()) ? "SIN REGISTRO" : db.ConfigEntrevistas.Where(x => x.examenId.Equals(E.Id)).Select(u => u.Usuario.Usuario).FirstOrDefault()
                 }).ToList();
 
                 return Ok(examenes);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
+        [HttpPost]
+        [Route("updateAlea")]
+        public IHttpActionResult updateAlea(ConfigEntrevista resultado)
+        {
+            try
+            {
+
+                var idx = db.ConfigEntrevistas.Where(x => x.examenId.Equals(resultado.examenId)).Select(i => i.Id).FirstOrDefault();
+                if(idx != 0)
+                {
+                    var id = db.ConfigEntrevistas.Find(idx);
+                    db.Entry(id).State = System.Data.Entity.EntityState.Modified;
+
+                    id.numPreguntas = resultado.numPreguntas;
+                    id.usuarioId = resultado.usuarioId;
+                    id.fch_Modificacion = DateTime.Now;
+
+                    db.SaveChanges();
+
+                }
+                else
+                {
+                    
+                    db.ConfigEntrevistas.Add(resultado);
+                    db.SaveChanges();
+                }
+                
+                return Ok(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
