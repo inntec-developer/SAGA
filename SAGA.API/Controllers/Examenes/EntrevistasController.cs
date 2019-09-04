@@ -81,5 +81,39 @@ namespace SAGA.API.Controllers.Examenes
             }
 
         }
+
+        [HttpGet]
+        [Route("getEntrevista")]
+        public IHttpActionResult GetEntrevista()
+        {
+            try
+            {
+                var examenesId = db.Examenes.Where(x => x.TipoExamenId.Equals(6)).Select(e => e.Id);
+                var preguntas = db.Preguntas.Where(x => examenesId.Contains(x.ExamenId) && x.Activo.Equals(1)).GroupBy(g => g.ExamenId)
+                    .Select(E => new
+                    {
+                        examenId = E.Key,
+                        alea = db.ConfigEntrevistas.Where(x => x.examenId.Equals(E.Key)).Select(n => n.numPreguntas).FirstOrDefault(),
+                        preguntas = E.Select(p => new
+                        {
+                            preguntaId = p.Id,
+                            pregunta = p.Pregunta,
+                        }).OrderBy(o => Guid.NewGuid())
+                   
+                     }).ToList();
+
+                var entrevista = preguntas.Select(m => new
+                {
+                    preguntas = m.preguntas.Take(m.alea),
+                    examenId = m.examenId
+                });
+                return Ok(entrevista);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
     }
 }
