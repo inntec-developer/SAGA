@@ -38,6 +38,7 @@ namespace SAGA.BOL
         public int TipoModalidadId { get; set; }
         public string UsuarioAlta { get; set; }
         public string UsuarioMod { get; set; }
+        public string Arte { get; set; }
 
         public virtual Cliente Cliente { get; set; }
         public virtual TipoReclutamiento TipoReclutamiento { get; set; }

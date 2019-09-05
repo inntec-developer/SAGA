@@ -2374,6 +2374,7 @@ namespace SAGA.DAL
 				Property(x => x.TipoModalidadId).IsOptional();
 				Property(x => x.UsuarioAlta).HasMaxLength(30).IsOptional();
 				Property(x => x.UsuarioMod).HasMaxLength(30).IsOptional();
+                Property(x => x.Arte).HasMaxLength(50).IsRequired();
 			}
 		}
 		public class DocumentosDamsaMap : EntityTypeConfiguration<DocumentosDamsa>
