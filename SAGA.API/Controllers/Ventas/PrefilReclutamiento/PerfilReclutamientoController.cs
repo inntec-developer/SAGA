@@ -1180,6 +1180,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         df.FlexibilidadHorario = false;
                         df.JornadaLaboralId = 0;
                         df.TipoModalidadId = 0;
+                        df.Arte = pf.Headers.Arte;
                         db.DAMFO290.Add(df);
                         db.SaveChanges();
                         var PerfilId = db.DAMFO290
@@ -1217,7 +1218,8 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         up.TiempoContratoId = pf.Headers.TiempoContratoId;
                         up.UsuarioMod = pf.Headers.Usuario;
                         up.fch_Modificacion = DateTime.Now;
-                        
+                        up.Arte = pf.Headers.Arte;
+
                         db.SaveChanges();
                         return Ok();
                     case "delete":

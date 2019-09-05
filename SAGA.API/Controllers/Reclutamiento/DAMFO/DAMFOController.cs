@@ -58,6 +58,7 @@ namespace SAGA.API.Controllers
                 var damfoGetById = db.DAMFO290.Select(r => new
                 {
                     Id = r.Id,
+                    arte = r.Arte,
                     usuarioAlta = r.UsuarioAlta,
                     nombrePerfil = r.NombrePerfil,
                     clienteId = r.ClienteId,

@@ -31,6 +31,7 @@ namespace SAGA.API.Dtos
         public int JornadaLaboralId { get; set; }
         public int TipoModalidadId { get; set; }
         public string Usuario { get; set; }
+        public string Arte { get; set; }
     }
 
     public class Damfo190allColectionDto
