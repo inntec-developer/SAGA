@@ -520,7 +520,20 @@ namespace SAGA.API.Controllers.Reportes
                         datos = datos.Where(e => listaAreglo.Contains(e.Id)).ToList();
                     }
                 }
-                return Ok(datos);
+                var requien = datos.Select(e => e.Id).ToList();
+                var datos4 = datos.Select(e => new {
+                    Id = e.Id,
+                    Descripcion = e.Descripcion,
+                    masivo = e.masivo,
+                    operativo = e.operativo,
+                    ezpecial = e.ezpecial,
+                    totalmas = masivo.Where(x => requien.Contains(x.EstatusId)).ToList().Count(),
+                    totalope = operativo.Where(x => requien.Contains(x.EstatusId)).ToList().Count(),
+                    totalesp = ezpeciali.Where(x => requien.Contains(x.EstatusId)).ToList().Count(),
+                    total = masivo.Where(x => requien.Contains(x.EstatusId)).ToList().Count() + operativo.Where(x => requien.Contains(x.EstatusId)).ToList().Count()
+                    + ezpeciali.Where(x => requien.Contains(x.EstatusId)).ToList().Count()
+                }).ToList();
+                return Ok(datos4);
             }
             catch (Exception ex)
             {

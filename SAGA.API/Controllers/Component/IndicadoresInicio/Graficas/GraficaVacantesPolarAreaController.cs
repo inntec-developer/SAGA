@@ -391,22 +391,14 @@ namespace SAGA.API.Controllers.Component.Graficas
                     else if (estado == "No Cubiertos")
                     {
 
-                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
-                        var asigna = db.AsignacionRequis.Select(e => e.RequisicionId).ToList();
-                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) && e.Activo == true && e.Confidencial == false).ToList();
-                        List<Guid> faltante = new List<Guid>();
-                        foreach (var item in datos)
-                        {
-                            int numeropos = db.HorariosRequis.Where(x => x.RequisicionId == item.Id).Sum(x => x.numeroVacantes);
-                            int cubierto = db.ProcesoCandidatos.Where(e => e.EstatusId == 24 && e.RequisicionId == item.Id).ToList().Count;
-                            if (numeropos > cubierto)
-                            {
-                                faltante.Add(item.Id);
-                            }
-                        }
-                        datos = datos.Where(e => faltante.Contains(e.Id)).ToList();
+                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 46 };
+                        var datos = db.Requisiciones.Where(e => e.Activo == true && e.Confidencial == false).ToList();
+                        datos = datos.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
+                        var requien = datos.Select(e => e.Id).ToList();
+                        var proseso = db.ProcesoCandidatos.Where(e => requien.Contains(e.RequisicionId)).ToList();
+                        var cubierto = proseso.Where(e => e.EstatusId == 24).Select(e => e.RequisicionId).Distinct().ToList();
+                        datos = datos.Where(e => !cubierto.Contains(e.Id)).ToList();
                         var requisicion = datos
-                        .Where(e => EstatusList.Contains(e.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -431,22 +423,14 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Cubiertos")
                     {
-                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
-                        var asigna = db.AsignacionRequis.Select(e => e.RequisicionId).ToList();
-                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) && e.Activo == true && e.Confidencial == false).ToList();
-                        List<Guid> faltante = new List<Guid>();
-                        foreach (var item in datos)
-                        {
-                            int numeropos = db.HorariosRequis.Where(x => x.RequisicionId == item.Id).Sum(x => x.numeroVacantes);
-                            int cubierto = db.ProcesoCandidatos.Where(e => e.EstatusId == 24 && e.RequisicionId == item.Id).ToList().Count;
-                            if (numeropos == cubierto)
-                            {
-                                faltante.Add(item.Id);
-                            }
-                        }
-                        datos = datos.Where(e => faltante.Contains(e.Id)).ToList();
+                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 46 };
+                        var datos = db.Requisiciones.Where(e => e.Activo == true && e.Confidencial == false).ToList();
+                        datos = datos.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
+                        var requien = datos.Select(e => e.Id).ToList();
+                        var proseso = db.ProcesoCandidatos.Where(e => requien.Contains(e.RequisicionId)).ToList();
+                        var cubierto = proseso.Where(e => e.EstatusId == 24).Select(e => e.RequisicionId).Distinct().ToList();
+                        datos = datos.Where(e => cubierto.Contains(e.Id)).ToList();
                         var requisicion = datos
-                        .Where(e => EstatusList.Contains(e.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -763,6 +747,12 @@ namespace SAGA.API.Controllers.Component.Graficas
                             var proseso = db.ProcesoCandidatos.Where(e => requien.Contains(e.RequisicionId)).ToList();
                             var cubierto = proseso.Where(e => e.EstatusId == 24).Select(e => e.RequisicionId).Distinct().ToList();
                             datos = datos.Where(e => !cubierto.Contains(e.Id)).ToList();
+                            //var requien = datos.Select(e => e.Id).ToList();
+                            //var proseso = db.ProcesoCandidatos.Where(e => requien.Contains(e.RequisicionId)).ToList();
+                            //var posicion = db.HorariosRequis.Where(e => requien.Contains(e.RequisicionId)).Select(e => new { e.RequisicionId, e.numeroVacantes }).ToList();
+                            //var cubiertorequi = proseso.Where(e => e.EstatusId == 24).ToList();
+                            //var numeroRequien = posicion.Select(e => new { e.RequisicionId, e.numeroVacantes, cubierto = cubiertorequi.Where(x => x.RequisicionId == e.RequisicionId).Count() }).ToList();
+                            //var cubierto = numeroRequien.Where(e => e.numeroVacantes > e.cubierto).Select(e => e.RequisicionId).ToList();
                         }
                         var requisicion = datos
                         .Where(e => EstatusList.Contains(e.EstatusId))
@@ -788,25 +778,113 @@ namespace SAGA.API.Controllers.Component.Graficas
                         }).OrderBy(x => x.fch_Cumplimiento).ToList();
                         return Ok(requisicion);
                     }
-                    else if (estado == "No Cubiertos")
+                    else if (estado == "diciembre" || estado == "noviembre" || estado == "octubre" || estado == "septiembre" || estado == "agosto"
+                        || estado == "julio" || estado == "junio" || estado == "mayo" || estado == "abril" || estado == "marzo" 
+                        || estado == "febrero" || estado == "enero")
                     {
-                        
-                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
-                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
-                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
-                        List<Guid> faltante = new List<Guid>();
-                        foreach (var item in datos)
+                        DateTime fechaInicio = DateTime.Now;
+                        DateTime fechaFinal = DateTime.Now;
+                        if (estado == "diciembre" || estado == "noviembre" || estado == "octubre" || estado == "septiembre" || estado == "agosto"
+                        || estado == "julio")
                         {
-                            int numeropos = db.HorariosRequis.Where(x => x.RequisicionId == item.Id).Sum(x => x.numeroVacantes);
-                            int cubierto = db.ProcesoCandidatos.Where(e => e.EstatusId == 24 && e.RequisicionId == item.Id).ToList().Count;
-                            if (numeropos > cubierto)
+                            if (fechaInicio.Month < 6)
                             {
-                                faltante.Add(item.Id);
+                                int valor = fechaInicio.Year - 1;
+                                fechaInicio = new DateTime(valor, 1, 1);
                             }
                         }
-                        datos = datos.Where(e => faltante.Contains(e.Id)).ToList();
+                        switch (estado)
+                        {
+                            case("enero"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 1, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 1, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("febrero"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 2, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 2, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("marzo"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 3, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 3, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("abril"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 4, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 4, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("mayo"):
+                                fechaInicio = new DateTime(fechaInicio.Year,5, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 5, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("junio"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 6, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 6, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("julio"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 7, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 7, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("agosto"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 8, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 8, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("septiembre"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 9, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 9, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("octubre"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 10, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 10, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("noviembre"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 11, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 11, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                            case ("diciembre"):
+                                fechaInicio = new DateTime(fechaInicio.Year, 12, 1);
+                                fechaFinal = new DateTime(fechaInicio.Year, 12, fechaInicio.AddMonths(1).AddDays(-1).Day);
+                                break;
+                        }
+                        var datos2 = db.EstatusRequisiciones.Where(e => uids.Contains(e.PropietarioId)).Select(e => e.RequisicionId).ToList();
+                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        var datos3 = db.Requisiciones.Where(e => datos2.Contains(e.Id) || asigna.Contains(e.Id)).Select(e => e.Id).ToList();
+                        var datos = db.Requisiciones.Where(e => datos3.Contains(e.Id) && e.Activo == true && e.Confidencial == false).ToList();
+                        int[] EstatusList = new[] { 34, 35, 36, 37, 47, 48 };
+                        datos = datos.Where(e => EstatusList.Contains(e.EstatusId) && e.fch_Modificacion > fechaInicio && e.fch_Modificacion <= fechaFinal).ToList();
                         var requisicion = datos
-                        .Where(e =>  EstatusList.Contains(e.EstatusId))
+                          .Select(e => new
+                          {
+                              Id = e.Id,
+                              Folio = e.Folio,
+                              fch_Creacion = e.fch_Creacion,
+                              fch_Cumplimiento = e.fch_Cumplimiento,
+                              Cliente = e.Cliente.Nombrecomercial.ToUpper(),
+                              VBtra = e.VBtra.ToUpper(),
+                              Estatus = e.Estatus.Descripcion.ToUpper(),
+                              EstatusId = e.EstatusId,
+                              EstatusOrden = e.Estatus.Orden,
+                              Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
+                              Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                              Confidencial = e.Confidencial,
+                              coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Count() == 0 ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                              Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
+                              reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                                  db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
+                                ).Distinct().ToList()
+                          }).OrderBy(x => x.fch_Cumplimiento).ToList();
+                        return Ok(requisicion);
+                    }
+                    else if (estado == "No Cubiertos")
+                    {
+
+                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 46 };
+                        var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.AprobadorId) && e.Activo == true && e.Confidencial == false).ToList();
+                        datos = datos.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
+                        var requien = datos.Select(e => e.Id).ToList();
+                        var proseso = db.ProcesoCandidatos.Where(e => requien.Contains(e.RequisicionId)).ToList();
+                        var cubierto = proseso.Where(e => e.EstatusId == 24).Select(e => e.RequisicionId).Distinct().ToList();
+                        datos = datos.Where(e => !cubierto.Contains(e.Id)).ToList();
+                        var requisicion = datos
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -831,22 +909,27 @@ namespace SAGA.API.Controllers.Component.Graficas
                     }
                     else if (estado == "Cubiertos")
                     {
-                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
+                        int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 46 };
                         var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
-                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.PropietarioId) && e.Activo == true).ToList();
-                        List<Guid> faltante = new List<Guid>();
-                        foreach (var item in datos)
-                        {
-                            int numeropos = db.HorariosRequis.Where(x => x.RequisicionId == item.Id).Sum(x => x.numeroVacantes);
-                            int cubierto = db.ProcesoCandidatos.Where(e => e.EstatusId == 24 && e.RequisicionId == item.Id).ToList().Count;
-                            if (numeropos == cubierto)
-                            {
-                                faltante.Add(item.Id);
-                            }
-                        }
-                        datos = datos.Where(e => faltante.Contains(e.Id)).ToList();
+                        var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || uids.Contains(e.AprobadorId) && e.Activo == true && e.Confidencial == false).ToList();
+                        datos = datos.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
+                        var requien = datos.Select(e => e.Id).ToList();
+                        var proseso = db.ProcesoCandidatos.Where(e => requien.Contains(e.RequisicionId)).ToList();
+                        var cubierto = proseso.Where(e => e.EstatusId == 24).Select(e => e.RequisicionId).Distinct().ToList();
+                        datos = datos.Where(e => cubierto.Contains(e.Id)).ToList();
+                        
+                        //List<Guid> faltante = new List<Guid>();
+                        //foreach (var item in datos)
+                        //{
+                        //    int numeropos = db.HorariosRequis.Where(x => x.RequisicionId == item.Id).Sum(x => x.numeroVacantes);
+                        //    int cubierto = db.ProcesoCandidatos.Where(e => e.EstatusId == 24 && e.RequisicionId == item.Id).ToList().Count;
+                        //    if (numeropos == cubierto)
+                        //    {
+                        //        faltante.Add(item.Id);
+                        //    }
+                        //}
+                       // datos = datos.Where(e => faltante.Contains(e.Id)).ToList();
                         var requisicion = datos
-                        .Where(e => EstatusList.Contains(e.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
