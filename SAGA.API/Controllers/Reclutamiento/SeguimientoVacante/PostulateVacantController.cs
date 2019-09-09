@@ -387,6 +387,7 @@ namespace SAGA.API.Controllers
             {
                 var candidatos = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.RequisicionId.Equals(requisicionId) & x.EstatusId != 27 & x.EstatusId != 40).Select(c => new
                 {
+                    procesoId = c.Id,
                     candidatoId = c.CandidatoId,
                     horarioId = c.HorarioId,
                     horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
@@ -402,8 +403,9 @@ namespace SAGA.API.Controllers
                         municipioNacimiento = p.MunicipioNacimientoId,
                         localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
                         genero = p.GeneroId == 1 ? "Hombre" : "Mujer",
-                        reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
-                    }).FirstOrDefault()
+                        reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault(),
+                        reclutadorId = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Id).FirstOrDefault()
+                }).FirstOrDefault()
                 });
                     
                 return Ok(candidatos);
