@@ -172,14 +172,16 @@ namespace SAGA.API.Controllers
         [Route("downloadFiles")]
         public HttpResponseMessage DownloadFiles(string file)
         {
-            string path = System.Web.Hosting.HostingEnvironment.MapPath(file);
+            HttpResponseMessage result = Request.CreateResponse(HttpStatusCode.OK);
+            try { 
+            string path = System.Web.Hosting.HostingEnvironment.MapPath("~/" + file);
             byte[] pdf = System.IO.File.ReadAllBytes(path);
             string nom = Path.GetFileName(path);
             string ext = Path.GetExtension(path);
             string mimetype = MimeMapping.GetMimeMapping(path);
 
 
-            HttpResponseMessage result = Request.CreateResponse(HttpStatusCode.OK);
+          
             result.Content = new ByteArrayContent(pdf);
             result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline");
             result.Content.Headers.ContentDisposition.FileName = nom;
@@ -209,11 +211,11 @@ namespace SAGA.API.Controllers
             //        return Ok(HttpStatusCode.BadRequest);
             //    }
 
-            //}
-            //catch( Exception ex)
-            //{
-            //    return Ok(HttpStatusCode.ExpectationFailed);
-            //}
+            }
+            catch (Exception ex)
+            {
+                return result;
+            }
 
 
         }
