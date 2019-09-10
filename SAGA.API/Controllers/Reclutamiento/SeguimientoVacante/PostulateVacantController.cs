@@ -391,6 +391,8 @@ namespace SAGA.API.Controllers
                     candidatoId = c.CandidatoId,
                     horarioId = c.HorarioId,
                     horario = db.HorariosRequis.Where(x => x.Id.Equals(c.HorarioId)).Select(h => h.Nombre + " de " + h.deHora.Hour + " a " + h.aHora.Hour).FirstOrDefault(),
+                    vacantes = db.HorariosRequis.Where(x => x.RequisicionId.Equals(c.RequisicionId)).Count() > 0 ? db.HorariosRequis.Where(x => x.RequisicionId.Equals(c.RequisicionId)).Sum(h => h.numeroVacantes) : 0,
+                    propietarioId = c.Requisicion.PropietarioId,
                     informacion = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
                     {
                         nombre = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
