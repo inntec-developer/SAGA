@@ -310,6 +310,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                             Competencia = cc.Competencia.competenciaGerencial,
                             CompetenciaId = cc.CompetenciaId
                         }).ToList(),
+                        Arte = p.Arte,
                     })
                     .FirstOrDefault();
                 return Ok(anexos);

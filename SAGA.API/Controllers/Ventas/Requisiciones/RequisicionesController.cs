@@ -178,6 +178,12 @@ namespace SAGA.API.Controllers
                             periodoPagoId = r.PeriodoPagoId,
                             especifique = r.Especifique,
                             direccionId = r.DireccionId,
+                            direccion = r.Direccion.Calle + ", " +
+                                        r.Direccion.NumeroExterior + ", " +
+                                        r.Direccion.Colonia.colonia + ", " +
+                                        r.Direccion.Municipio.municipio + ", " +
+                                        r.Direccion.Estado.estado + ", " +
+                                        r.Direccion.Pais.pais,
                             beneficios = r.beneficiosRequi.Select(bn => new
                             {
                                 tipoBeneficio = bn.TipoBeneficio.tipoBeneficio,
@@ -220,8 +226,8 @@ namespace SAGA.API.Controllers
                             competenciasGerencial = r.competetenciasGerencialRequi.Select(cg => new {
                                 competencia = cg.Competencia.competenciaGerencial,
                                 nivel = cg.Nivel
-                            }).ToList()
-
+                            }).ToList(),
+                            Arte = r.DAMFO290.Arte,
 
                         })
                         .FirstOrDefault(x => x.Id.Equals(Id));
