@@ -388,8 +388,9 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     activos = db.Estatus.Where(x => ActivosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList(),
                     cubiertos = db.Estatus.Where(x => CubiertosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList(),
-                    otros = db.Estatus.Where(x => OtrosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList()
+                    otros = db.Estatus.Where(x => OtrosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList(),
                 };
+                
                 return Ok(dato);
             }
 
@@ -416,7 +417,7 @@ namespace SAGA.API.Controllers.Reportes
                 datos2.Insert(0, new { Descripcion = "Todos", Id = 0 });
                 return Ok(datos2);
             }
-           
+            datos.Insert(0, new { Descripcion = "Todos", Id = 0 });
             return Ok(datos);
         }
 
@@ -996,7 +997,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     listaAreglo.Add(Convert.ToInt32(obj[i]));
                 }
-                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                 if (obb.Count == 0)
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.estadoid)).ToList();
