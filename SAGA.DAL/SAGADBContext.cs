@@ -2192,6 +2192,7 @@ namespace SAGA.DAL
                 Property(x => x.PropietarioId).IsRequired();
                 Property(x => x.EstatusId).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
+                Property(x => x.UsuarioMod).HasMaxLength(50).IsRequired();
             }
         }
         #endregion
