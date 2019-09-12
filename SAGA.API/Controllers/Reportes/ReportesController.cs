@@ -388,8 +388,9 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     activos = db.Estatus.Where(x => ActivosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList(),
                     cubiertos = db.Estatus.Where(x => CubiertosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList(),
-                    otros = db.Estatus.Where(x => OtrosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList()
+                    otros = db.Estatus.Where(x => OtrosList.Contains(x.Id)).Select(x => new { x.Descripcion, x.Id }).ToList(),
                 };
+                
                 return Ok(dato);
             }
 
@@ -416,7 +417,7 @@ namespace SAGA.API.Controllers.Reportes
                 datos2.Insert(0, new { Descripcion = "Todos", Id = 0 });
                 return Ok(datos2);
             }
-           
+            datos.Insert(0, new { Descripcion = "Todos", Id = 0 });
             return Ok(datos);
         }
 
@@ -996,7 +997,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     listaAreglo.Add(Convert.ToInt32(obj[i]));
                 }
-                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                 if (obb.Count == 0)
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.estadoid)).ToList();
@@ -1145,6 +1146,54 @@ namespace SAGA.API.Controllers.Reportes
                 return Ok(datos);
             }
 
+        }
+
+
+        [HttpGet]
+        [Route("consultavacante")]
+        public IHttpActionResult ConsultaVacante(string busquedad)
+        {
+            int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
+
+            var vct = (from vacante in db.Requisiciones
+                       where vacante.VBtra.ToLower().StartsWith(busquedad.Trim().ToLower())
+                            || vacante.VBtra.ToLower().Contains(busquedad.Trim().ToLower())
+                            || vacante.Folio.ToString().ToLower().Contains(busquedad.Trim().ToLower())
+                       select vacante
+                                       ).ToList();
+
+            var requis = vct.Where(e => e.Activo == true && e.Confidencial == false).ToList();
+            var requien = requis.Select(e => e.Id).ToList();
+            var asig = db.AsignacionRequis.Where(e=> requien.Contains(e.RequisicionId)).ToList();
+            var grupu = asig.Select(e => e.GrpUsrId).ToList();
+           
+            var user = db.Usuarios.Where(e => grupu.Contains(e.Id)).Select(e =>new  {
+                nombre = e.Nombre + " " + e.ApellidoPaterno + " " + e.ApellidoMaterno,
+                e.Id,
+                email = e.emails.FirstOrDefault().email,
+                e.SucursalId,
+                sucursal = e.Sucursal.Nombre
+                }).ToList();
+            var sucur = user.Select(e => e.SucursalId).ToList();
+            var oficina = db.Usuarios.Where(e => sucur.Contains(e.Id)).ToList();
+
+            var datos = requis.Select(e => new {
+                e.Folio,
+                e.VBtra,
+                reclutador = asig.Where(x => x.RequisicionId == e.Id).Count() > 0? asig.Where(x=>x.RequisicionId == e.Id).Select(x=>
+                new { nombre = user.Where(a=>a.Id == x.GrpUsrId).FirstOrDefault().nombre}).FirstOrDefault().nombre: "SIN ASIGNAR",
+
+                email = asig.Where(x => x.RequisicionId == e.Id).Count() > 0 ? asig.Where(x => x.RequisicionId == e.Id).Select(x =>
+                   new { nombre = user.Where(a => a.Id == x.GrpUsrId).FirstOrDefault().email }).FirstOrDefault().nombre : "SIN ASIGNAR",
+
+                sucursal = asig.Where(x => x.RequisicionId == e.Id).Count() > 0 ? asig.Where(x => x.RequisicionId == e.Id).Select(x =>
+                   new { nombre = user.Where(a => a.Id == x.GrpUsrId).FirstOrDefault().sucursal }).FirstOrDefault().nombre : "SIN ASIGNAR",
+
+            }).ToList();
+                
+ 
+                
+                return Ok(datos);
         }
 
         public class proactividad
