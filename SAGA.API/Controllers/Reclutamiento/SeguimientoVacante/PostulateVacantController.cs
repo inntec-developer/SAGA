@@ -154,7 +154,15 @@ namespace SAGA.API.Controllers
                     t.IdPersona = candidato.Id;
                     db.SaveChanges();
 
-                    var horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(r.requisicionId)).Select(h => h.Id).FirstOrDefault();
+                    var horario = auxID;
+                    if (r.horarioId == auxID)
+                    {
+                        horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(r.requisicionId)).Select(h => h.Id).FirstOrDefault();
+                    }
+                    else
+                    {
+                        horario = r.horarioId;
+                    }
 
                     proceso.CandidatoId = candidato.Id;
                     proceso.RequisicionId = r.requisicionId;
@@ -166,7 +174,7 @@ namespace SAGA.API.Controllers
                     proceso.HorarioId = horario;
                     proceso.Fch_Modificacion = DateTime.Now;
                     proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
-                    proceso.TipoMediosId = 2;
+                    proceso.TipoMediosId = r.tipoMediosId;
 
                     db.ProcesoCandidatos.Add(proceso);
                     db.SaveChanges();
