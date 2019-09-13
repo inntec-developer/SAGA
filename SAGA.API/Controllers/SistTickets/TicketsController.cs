@@ -274,13 +274,13 @@ namespace SAGA.API.Controllers
             try
             {
 
-                GenerarTicket GT = new GenerarTicket();
-                var mocos = GT.FindPrinter();
+                //GenerarTicket GT = new GenerarTicket();
+                //var mocos = GT.FindPrinter();
                 
-                if (!mocos.IsNotAvailable)
-                {
-                    if (!mocos.IsOutOfPaper)
-                    {
+                //if (!mocos.IsNotAvailable)
+                //{
+                //    if (!mocos.IsOutOfPaper)
+                //    {
                         DateTime endDate = DateTime.Now.AddDays(1);
 
                         var cita = (from items in db.CalendarioCandidato
@@ -330,9 +330,9 @@ namespace SAGA.API.Controllers
 
                                     var nombre = db.Candidatos.Where(x => x.Id.Equals(ticket.CandidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
 
-                                    GT.TicketNo = ticket.Numero;
-                                    GT.Nombre = nombre;
-                                    GT.print();
+                                    //GT.TicketNo = ticket.Numero;
+                                    //GT.Nombre = nombre;
+                                    //GT.print();
 
                                     var data = new TicketDto() { numero = ticket.Numero, nombre = nombre };
 
@@ -353,16 +353,16 @@ namespace SAGA.API.Controllers
                             return Ok(HttpStatusCode.NotFound); //404 no se encontró la cita
 
                         }
-                    }
-                    else
-                    {
-                        return Ok(HttpStatusCode.Conflict); //sin papel
-                    }
-                }
-                else
-                {
-                    return Ok(HttpStatusCode.BadGateway); //apagada
-                }
+                //    }
+                //    else
+                //    {
+                //        return Ok(HttpStatusCode.Conflict); //sin papel
+                //    }
+                //}
+                //else
+                //{
+                //    return Ok(HttpStatusCode.BadGateway); //apagada
+                //}
             }
             catch (Exception ex)
             {
