@@ -355,7 +355,76 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
+        public IHttpActionResult EnviarEmail2(int estatus, Guid requi, Guid reclutador)
+        {
 
+            FolioIncidencia obj = new FolioIncidencia();
+            //envia el email cuando se des pausa
+            try
+            {
+                var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
+                    coordinador = p.AprobadorId,
+                    solicitante = p.PropietarioId,
+                    folio = p.Folio,
+                    vbtra = p.VBtra
+                }).FirstOrDefault();
+                var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
+                var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi)).Select(A => new
+                {
+                    emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
+                }).ToList();
+
+                var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => new
+                {
+                    nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
+                    email = n.emails.Select(ee => ee.email).FirstOrDefault()
+                }).FirstOrDefault();
+
+
+                //email = "bmorales@damsa.com.mx";
+                string body = "";
+                // email = "idelatorre@damsa.com.mx";
+                if (emailSolicitante != "")
+                {
+                    string from = "noreply@damsa.com.mx";
+                    MailMessage m = new MailMessage();
+                    m.From = new MailAddress(from, "SAGA Inn");
+                    m.Subject = "Solicitud vacante en pausa Requisición, " + propietario.folio;
+
+                    m.To.Add(emailCoord);
+                    m.Bcc.Add(emailSolicitante);
+                    foreach (var e in asignados)
+                    {
+                        m.Bcc.Add(e.emails.ToString());
+                    }
+
+                    m.Bcc.Add("bmorales@damsa.com.mx");
+
+                    body = "<html><head></head>";
+                    body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
+                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, levant&oacute; una solicitud de vacante \"en pausa\", Vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", usuario.nombre, propietario.vbtra, propietario.folio);
+                    body = body + "<p>Para validar la solicitud ser&aacute; necesario ingresar a Reclutamiento, selecciona la opci&oacute;n Vacantes, dar clic en el bot&oacute;n Visualizar Vacantes en Pausa, para dar el seguimiento correspondiente.</p>";
+                    body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
+                    body = body + "<br/><p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>";
+                    body = body + "</body></html>";
+
+                    m.Body = body;
+                    m.IsBodyHtml = true;
+                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                    smtp.EnableSsl = true;
+                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                    smtp.Send(m);
+
+                }
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
         public IHttpActionResult EnviarEmailNR(Guid candidatoId, Guid requi, Guid reclutador)
         {
 

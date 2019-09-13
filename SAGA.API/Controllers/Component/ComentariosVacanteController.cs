@@ -85,6 +85,10 @@ namespace SAGA.API.Controllers
                         Ofi.TransferRequi(comentario.RequisicionId, comentario.UsuarioTransferId, comentario.ReclutadorId, comentario.Tipo);
                     }
                 }
+                else if (!comentario.EstatusId.Equals(8))
+                {
+                    Ofi.EnviarEmail2(comentario.EstatusId, comentario.ReclutadorId, comentario.ReclutadorId);
+                }
 
                 T.Commit();
                 return Ok(HttpStatusCode.OK);
