@@ -40,18 +40,18 @@ namespace SAGA.API.Controllers.Catalogos
                          tipoOficinaid = caja.TipoOficina.Id,
                         caja.TipoOficina.tipoOficina,
                         caja.Activo,
-                        cp = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().CodigoPostal,
-                        Estado = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Estado.estado,
-                        Estadoid = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Estado.Id,
+                        codigopostal = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().CodigoPostal,
+                         Estado = db.Direcciones.Where(e => e.EntidadId == caja.Id).Count() == 0?"": db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Estado.estado,
+                         Estadoid = db.Direcciones.Where(e => e.EntidadId == caja.Id).Count() == 0?0: db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Estado.Id,
                          Municipio = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Municipio.municipio,
                          Municipioid = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Municipio.Id,
                          Colonia = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Colonia.colonia,
                          coloniaid = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Colonia.Id,
                          Calle = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().Calle,
-                        NumeroExt = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().NumeroExterior,
-                        Telefono = db.Telefonos.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().telefono,
-                        Extension = db.Telefonos.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().Extension,
-                        Correo = db.Emails.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().email,
+                         NumeroExt = db.Direcciones.Where(e => e.EntidadId == caja.Id).FirstOrDefault().NumeroExterior,
+                         Telefono = db.Telefonos.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().telefono,
+                         Extension = db.Telefonos.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().Extension,
+                         Correo = db.Emails.Where(e => e.EntidadId == caja.Id && e.esPrincipal == true).FirstOrDefault().email,
                      }).OrderBy(e => e.nombre).ToList();
 
                 if (filtro != "" && filtro != null )
@@ -201,13 +201,29 @@ namespace SAGA.API.Controllers.Catalogos
                 Guid iden = new Guid(id);
 
                 var dire = db.Direcciones.Where(e => e.EntidadId == iden).FirstOrDefault();
-                db.Direcciones.Remove(dire);
+                if (dire != null)
+                {
+                    db.Direcciones.Remove(dire);
+                }
+                
                 var ofi = db.OficinasReclutamiento.Where(e => e.Id == iden).FirstOrDefault();
-                db.OficinasReclutamiento.Remove(ofi);
+                if (ofi != null)
+                {
+                    db.OficinasReclutamiento.Remove(ofi);
+                }
+               
                 var ema = db.Emails.Where(e => e.EntidadId == iden).FirstOrDefault();
-                db.Emails.Remove(ema);
+                if (ema != null)
+                {
+                    db.Emails.Remove(ema);
+                }
+                
                 var tel = db.Telefonos.Where(e => e.EntidadId == iden).FirstOrDefault();
-                db.Telefonos.Remove(tel);
+                if (tel != null)
+                {
+                    db.Telefonos.Remove(tel);
+                }
+                
                 var datos = db.OficinasReclutamiento.Where(e => e.Id == iden).FirstOrDefault();
                 db.Entidad.Remove(datos);
                 db.SaveChanges();
