@@ -233,14 +233,14 @@ namespace SAGA.API.Controllers.Component
                     db.ProcesoCandidatos.Add(proceso);
                     db.SaveChanges();
 
-                    var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(proceso.RequisicionId) && x.EstatusId.Equals(29)).Count();
-                    if (requi == 0)
-                    {
-                        datos.requisicionId = proceso.RequisicionId;
-                        datos.estatusId = 29;
-                        obj.UpdateStatusVacante(datos);
+                    //var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(proceso.RequisicionId) && x.EstatusId.Equals(29)).Count();
+                    //if (requi == 0)
+                    //{
+                    //    datos.requisicionId = proceso.RequisicionId;
+                    //    datos.estatusId = 29;
+                    //    obj.UpdateStatusVacante(datos);
 
-                    }
+                    //}
 
                     return Ok(HttpStatusCode.OK);
                 }
@@ -261,14 +261,14 @@ namespace SAGA.API.Controllers.Component
 
                     db.SaveChanges();
 
-                    var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(proceso.RequisicionId) && x.EstatusId.Equals(29)).Count();
-                    if (requi == 0)
-                    {
-                        datos.requisicionId = proceso.RequisicionId;
-                        datos.estatusId = 29;
-                        obj.UpdateStatusVacante(datos);
+                    //var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(proceso.RequisicionId) && x.EstatusId.Equals(29)).Count();
+                    //if (requi == 0)
+                    //{
+                    //    datos.requisicionId = proceso.RequisicionId;
+                    //    datos.estatusId = 29;
+                    //    obj.UpdateStatusVacante(datos);
 
-                    }
+                    //}
 
                     return Ok(HttpStatusCode.OK);
                 }

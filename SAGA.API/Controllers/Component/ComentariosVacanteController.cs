@@ -55,7 +55,7 @@ namespace SAGA.API.Controllers
         {
             FoliosIncidenciasController Ofi = new FoliosIncidenciasController();
 
-            var T = db.Database.BeginTransaction();
+            //var T = db.Database.BeginTransaction();
             try
             {
                 ComentarioVacante cm = new ComentarioVacante();
@@ -87,15 +87,15 @@ namespace SAGA.API.Controllers
                 }
                 else if (!comentario.EstatusId.Equals(8))
                 {
-                    Ofi.EnviarEmail2(comentario.EstatusId, comentario.ReclutadorId, comentario.ReclutadorId);
+                    Ofi.EnviarEmail2(comentario.EstatusId, comentario.RequisicionId, comentario.ReclutadorId);
                 }
 
-                T.Commit();
+                //T.Commit();
                 return Ok(HttpStatusCode.OK);
             }
             catch(Exception ex)
             {
-                T.Rollback();
+                //T.Rollback();
                 return Ok(HttpStatusCode.NotFound);
             }
         }

@@ -359,6 +359,7 @@ namespace SAGA.API.Controllers
         {
 
             FolioIncidencia obj = new FolioIncidencia();
+            int[] motivosId = new int[] { 14, 15, 16 };
             //envia el email cuando se des pausa
             try
             {
@@ -366,7 +367,10 @@ namespace SAGA.API.Controllers
                     coordinador = p.AprobadorId,
                     solicitante = p.PropietarioId,
                     folio = p.Folio,
-                    vbtra = p.VBtra
+                    vbtra = p.VBtra, 
+                    comentario = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(p.Id) && motivosId.Contains(x.MotivoId)).OrderByDescending(o => o.fch_Creacion).Select(c => 
+                        db.ComentariosVacantes.Where(x => x.RespuestaId.Equals(c.Id)).OrderByDescending(oo => oo.fch_Creacion).Select(cc => cc.Comentario).FirstOrDefault()).FirstOrDefault(),
+                    estatus = p.Estatus.Descripcion
                 }).FirstOrDefault();
                 var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
                 var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
@@ -403,8 +407,9 @@ namespace SAGA.API.Controllers
 
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
-                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, levant&oacute; una solicitud de vacante \"en pausa\", Vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", usuario.nombre, propietario.vbtra, propietario.folio);
-                    body = body + "<p>Para validar la solicitud ser&aacute; necesario ingresar a Reclutamiento, selecciona la opci&oacute;n Vacantes, dar clic en el bot&oacute;n Visualizar Vacantes en Pausa, para dar el seguimiento correspondiente.</p>";
+                    body = body + string.Format("<p>Se comunica que el usuario/coordinador <strong>{0}</strong>, dio seguimiento al reporte solicitado con la siguiente informacion:</p>", usuario.nombre); 
+                    body = body + string.Format("<br/><p>Folio <strong>{0}</strong> Vacante <strong>{1}</strong> Comentario <strong>{2}.</strong> Estatus <strong>{3}.</strong></p>", propietario.folio, propietario.vbtra, propietario.comentario, propietario.estatus);
+               
                     body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                     body = body + "<br/><p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>";
                     body = body + "</body></html>";
