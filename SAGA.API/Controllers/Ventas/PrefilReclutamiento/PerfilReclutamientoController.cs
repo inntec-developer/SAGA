@@ -1224,6 +1224,15 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         db.SaveChanges();
                         return Ok();
                     case "delete":
+                        var dl = db.DAMFO290.Find(pf.Headers.Id);
+                        db.Entry(dl).State = EntityState.Modified;
+                        dl.Activo = false;
+                        dl.UsuarioMod = pf.Headers.Usuario;
+                        dl.fch_Modificacion = DateTime.Now;
+                        db.Entry(dl).Property(x => x.Activo).IsModified = true;
+                        db.Entry(dl).Property(x => x.fch_Modificacion).IsModified = true;
+                        db.Entry(dl).Property(x => x.UsuarioMod).IsModified = true;
+                        db.SaveChanges();
                         return Ok();
                     case "clone":
                         object[] _params = {
