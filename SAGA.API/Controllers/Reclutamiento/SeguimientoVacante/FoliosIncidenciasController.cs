@@ -372,6 +372,7 @@ namespace SAGA.API.Controllers
                         db.ComentariosVacantes.Where(x => x.RespuestaId.Equals(c.Id)).OrderByDescending(oo => oo.fch_Creacion).Select(cc => cc.Comentario).FirstOrDefault()).FirstOrDefault(),
                     estatus = p.Estatus.Descripcion
                 }).FirstOrDefault();
+
                 var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(propietario.coordinador)).Select(e => e.email).FirstOrDefault();
                 var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
                 var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi)).Select(A => new
@@ -437,7 +438,7 @@ namespace SAGA.API.Controllers
 
             try
             {
-                var email = "idelatorre@damsa.com.mx";
+                var emailSolicitante = "idelatorre@damsa.com.mx";
                 var aprovadorEmail = "idelatorre@damsa.com.mx";
                 var folio = "000000000000";
                 var vbtra = "No se encontró vacante";
@@ -451,12 +452,17 @@ namespace SAGA.API.Controllers
                 
                 if(propietario != null)
                 {
-                    email = db.Emails.Where(x => x.EntidadId.Equals(propietario.propietario)).Select(e => e.email).FirstOrDefault();
+                    emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.propietario)).Select(e => e.email).FirstOrDefault();
                     aprovadorEmail = db.Emails.Where(x => x.EntidadId.Equals(propietario.aprobador)).Select(e => e.email).FirstOrDefault();
 
                     folio = propietario.folio;
                     vbtra = propietario.vbtra;
                 }
+
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && !x.GrpUsrId.Equals(propietario.aprobador)).Select(A => new
+                {
+                    emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
+                }).ToList();
 
                 var usuario = db.Usuarios.Where(x => x.Id.Equals(reclutador)).Select(n => new {
                     nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
@@ -479,17 +485,21 @@ namespace SAGA.API.Controllers
                 //tengo que sacar el que le corresponde por estatus
                 string body = "";
                 
-                if (email != "")
+                if (emailSolicitante != "")
                 {
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
                     m.Subject = "Reporte posible NR en Requisición, " + folio;
 
-                    m.To.Add(email);
-                    m.CC.Add(usuario.email.ToString());
-                    m.CC.Add(aprovadorEmail);
+                    m.To.Add(emailSolicitante);
+                    m.Bcc.Add(usuario.email.ToString());
+                    m.Bcc.Add(aprovadorEmail);
 
+                    foreach (var e in asignados)
+                    {
+                        m.Bcc.Add(e.emails.ToString());
+                    }
                     //usuario, candidato, motivo, vbtra, folio
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
@@ -518,7 +528,102 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
+        public IHttpActionResult EnviarEmailNR2(ComentariosEntrevistaDto datos)
+        {
 
+            FolioIncidencia obj = new FolioIncidencia();
+
+            try
+            {
+                var emailSolicitante = "idelatorre@damsa.com.mx";
+                var aprovadorEmail = "idelatorre@damsa.com.mx";
+                var folio = "000000000000";
+                var vbtra = "No se encontró vacante";
+
+                var propietario = db.Requisiciones.Where(x => x.Id.Equals(datos.RequisicionId)).Select(p => new {
+                    propietario = p.PropietarioId,
+                    aprobador = p.AprobadorId,
+                    coordinador = db.Usuarios.Where(x => x.Id.Equals(p.AprobadorId)).Select(nom => nom.Nombre + " " + nom.ApellidoPaterno + " " + nom.ApellidoMaterno).FirstOrDefault(),
+                    folio = p.Folio.ToString(),
+                    vbtra = p.VBtra,
+                }).FirstOrDefault();
+
+                if (propietario != null)
+                {
+                    emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.propietario)).Select(e => e.email).FirstOrDefault();
+                    aprovadorEmail = db.Emails.Where(x => x.EntidadId.Equals(propietario.aprobador)).Select(e => e.email).FirstOrDefault();
+
+                    folio = propietario.folio;
+                    vbtra = propietario.vbtra;
+                }
+
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(datos.RequisicionId) && !x.GrpUsrId.Equals(propietario.aprobador)).Select(A => new
+                {
+                    emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
+                }).ToList();
+
+                //var usuario = db.Usuarios.Where(x => x.Id.Equals(datos)).Select(n => new {
+                //    nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
+                //    email = n.emails.Select(e => e.email).FirstOrDefault()
+                //}).FirstOrDefault();
+
+                var candidato = db.Candidatos.Where(x => x.Id.Equals(datos.CandidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
+                var motivo = db.ComentariosEntrevistas.OrderByDescending(x => x.fch_Creacion)
+                    .Where(x => x.CandidatoId.Equals(datos.CandidatoId)
+                                & x.RequisicionId.Equals(datos.RequisicionId)
+                                & x.Motivo.EstatusId == 28)
+                    .Select(m => m.Motivo.Descripcion).FirstOrDefault();
+
+                var comentario = db.ComentariosEntrevistas.OrderByDescending(x => x.fch_Creacion)
+                    .Where(x => x.CandidatoId.Equals(datos.CandidatoId)
+                                & x.RequisicionId.Equals(datos.RequisicionId)
+                                & x.Motivo.EstatusId == 28
+                                & !x.RespuestaId.Equals(datos.RespuestaId)).OrderByDescending( o=> o.fch_Creacion)
+                    .Select(m => m.Comentario).FirstOrDefault();
+
+                //tengo que sacar el que le corresponde por estatus
+                string body = "";
+
+                if (emailSolicitante != "")
+                {
+                    string from = "noreply@damsa.com.mx";
+                    MailMessage m = new MailMessage();
+                    m.From = new MailAddress(from, "SAGA Inn");
+                    m.Subject = "Seguimiento posible NR Requisición, " + folio;
+
+                    m.To.Add(emailSolicitante);
+                    m.Bcc.Add(aprovadorEmail);
+
+                    foreach (var e in asignados)
+                    {
+                        m.Bcc.Add(e.emails.ToString());
+                    }
+                    //usuario, candidato, motivo, vbtra, folio
+                    body = "<html><head></head>";
+                    body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
+                    body = body + string.Format("<label>Informaci&oacute;n de candidato Posible NR</label><p> Se comunica que el usuario / coordinador {0}, dio seguimiento al reporte solicitado con la siguiente informacion: </p>", propietario.coordinador);
+                    body = body + "<table style=\"width: 75%; background-color: #f1f1c1; border-spacing: 10px;\"><tr><th>Folio:</th><th>Vacante</th><th>Candidato</th><th>Motivo</th><th>Comentario</th><th>Resultado</th></tr>";
+                    body = body + string.Format("<tr><td style=\"color:green; text-align: center;\">{0}</td><td style=\"text-align: center;\">{1}</td><td style=\"text-align: center;\">{2}</td><td style=\"color:red; text-align: center;\">{3}</td><td style=\"text-align: center;\">{4}</td><td style=\"text-align: center;\">{5}</td></tr></table>", folio, vbtra, candidato, motivo, comentario, datos.Comentario);
+                    body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
+                    body = body + "<br/><p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>";
+                    body = body + "</body></html>";
+
+                    m.Body = body;
+                    m.IsBodyHtml = true;
+                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                    smtp.EnableSsl = true;
+                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                    smtp.Send(m);
+
+                }
+
+                return Ok(HttpStatusCode.Created);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
         public IHttpActionResult EnviarEmailTransfer(Guid requi, Guid usuario, string desc, Guid antId, Guid actId)
         {
 

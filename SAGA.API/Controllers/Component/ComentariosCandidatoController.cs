@@ -189,6 +189,7 @@ namespace SAGA.API.Controllers.Component
         {
             try
             {
+                FoliosIncidenciasController ObjIncidencias = new FoliosIncidenciasController();
                 ComentarioEntrevista cm = new ComentarioEntrevista();
                 cm.Comentario = comentario.Comentario.ToUpper().Trim();
                 cm.CandidatoId = comentario.CandidatoId;
@@ -221,6 +222,7 @@ namespace SAGA.API.Controllers.Component
 
                     db.SaveChanges();
 
+                    ObjIncidencias.EnviarEmailNR2(comentario);
                 }
                 else if(comentario.estatusId == 28)
                 {
@@ -239,6 +241,8 @@ namespace SAGA.API.Controllers.Component
                     cc.EstatusId = 28;
 
                     db.SaveChanges();
+
+                    ObjIncidencias.EnviarEmailNR2(comentario);
                 }
 
                 return Ok(HttpStatusCode.OK);

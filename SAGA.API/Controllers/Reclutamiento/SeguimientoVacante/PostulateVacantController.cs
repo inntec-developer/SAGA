@@ -277,7 +277,7 @@ namespace SAGA.API.Controllers
                         contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
                         {
                             nombre = p.Nombre == null ? "" : p.Nombre,
-                            apellidoPaterno = p.ApellidoPaterno,
+                            apellidoPaterno = String.IsNullOrEmpty( p.ApellidoPaterno) ? "Sin registro" : p.ApellidoPaterno,
                             apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "Sin registro" : p.ApellidoMaterno,
                             edad = p.FechaNacimiento,
                             rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
@@ -297,8 +297,8 @@ namespace SAGA.API.Controllers
                             AreaInt = x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() != null ? x.AboutMe.Select(ai => ai.AreaInteres.areaInteres).FirstOrDefault() : "",
                             sueldoMinimo = x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault().ToString() != null ? x.AboutMe.Select(s => s.SalarioAceptable).FirstOrDefault() : 0,
                             nombre = x.Candidato.Nombre,
-                            apellidoPaterno = x.Candidato.ApellidoPaterno,
-                            apellidoMaterno = String.IsNullOrEmpty(x.Candidato.ApellidoMaterno) ? "" : x.Candidato.ApellidoMaterno,
+                            apellidoPaterno = String.IsNullOrEmpty(x.Candidato.ApellidoPaterno) ? "Sin registro" : x.Candidato.ApellidoPaterno,
+                            apellidoMaterno = String.IsNullOrEmpty(x.Candidato.ApellidoMaterno) ? "Sin registro" : x.Candidato.ApellidoMaterno,
                             localidad = x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault(),
                             edad = x.Candidato.FechaNacimiento,
                             rfc = String.IsNullOrEmpty(x.Candidato.RFC) ? "Sin registro" : x.Candidato.RFC,

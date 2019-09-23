@@ -282,6 +282,40 @@ namespace SAGA.API.Controllers
 
         }
 
+        [HttpPost]
+        [Route("uploadBG")]
+        public IHttpActionResult UploadBG()
+        {
+            string fileName = null;
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
+                var postedFile = httpRequest.Files["file"];
+
+                fileName = Path.GetFileName(postedFile.FileName);
+                var idx = fileName.LastIndexOf('_') + 1;
+                var lon = fileName.Length - idx;
+                var id = fileName.Substring(idx, lon);
+
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/BG");
+
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/BG/" + fileName);
+
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
+
+                postedFile.SaveAs(fullPath);
+
+                return Ok(HttpStatusCode.Created); //201
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.InternalServerError);
+            }
+
+        }
+
         [HttpGet]
         [Route("getImage")]
         public IHttpActionResult GetImage2(string ruta)
