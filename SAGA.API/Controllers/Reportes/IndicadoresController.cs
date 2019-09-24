@@ -19,7 +19,6 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("vcubierta")]
-        
         public IHttpActionResult vcubierta(string usuario)
         {
             Guid id = new Guid(usuario);
@@ -644,6 +643,126 @@ namespace SAGA.API.Controllers.Reportes
                 
             };
             return Ok(obj);
+        }
+
+
+        [HttpGet]
+        [Route("calidad")]
+        public IHttpActionResult Calidad(string usuario)
+        {
+            Guid id = new Guid(usuario);
+
+            var ListaUsuario = new List<Guid>();
+            ListaUsuario.Add(id);
+            var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
+            if (arbol.Count > 0)
+            {
+                ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
+                foreach (var item in arbol)
+                {
+                    var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
+                    if (hijos.Count > 0)
+                    {
+                        ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                    }
+                }
+            }
+            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+            int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 46 };
+            var requi = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.AprobadorId) && e.Activo == true && e.Confidencial == false).ToList();
+            requi = requi.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
+            int tipo = db.Usuarios.Where(e => e.Id == id).Select(e => e.TipoUsuarioId).FirstOrDefault();
+            if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
+            {
+                requi = db.Requisiciones.Where(e => EstatusList.Contains(e.EstatusId) && e.Activo == true && e.Confidencial == false).ToList();
+            }
+
+            var vencidas = requi.Where(e => e.fch_Cumplimiento < DateTime.Now).ToList();
+            var vigentes = requi.Where(e => e.fch_Cumplimiento > DateTime.Now.AddDays(-1)).ToList();
+
+            var datos = new
+            {
+                vencidas = vencidas.Count,
+                vigentes = vigentes.Count
+            };
+            return Ok(datos);
+        }
+
+        [HttpGet]
+        [Route("calidadbarra")]
+        public IHttpActionResult Calidadbarra(string usuario)
+        {
+            Guid id = new Guid(usuario);
+
+            var ListaUsuario = new List<Guid>();
+            ListaUsuario.Add(id);
+            var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
+            if (arbol.Count > 0)
+            {
+                ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
+                foreach (var item in arbol)
+                {
+                    var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
+                    if (hijos.Count > 0)
+                    {
+                        ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                    }
+                }
+            }
+            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+            int[] EstatusList = new[] { 34, 35, 36, 37, 47, 48 };
+            var requi = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.AprobadorId) && e.Activo == true && e.Confidencial == false).ToList();
+            requi = requi.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
+            int tipo = db.Usuarios.Where(e => e.Id == id).Select(e => e.TipoUsuarioId).FirstOrDefault();
+            if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
+            {
+                requi = db.Requisiciones.Where(e => EstatusList.Contains(e.EstatusId) && e.Activo == true && e.Confidencial == false).ToList();
+            }
+
+            int[] rango = new[] { 0, 1, 2, 3, 4, 5, 6 };
+
+            int mes = 0;
+            DateTime fechaInicio = DateTime.Now;
+            DateTime fechaFinal = DateTime.Now;
+            List<Dtos.Reporte.IndicadorDto> DatosLista = new List<Dtos.Reporte.IndicadorDto>();
+            int cubiertaPos = 0;
+          
+            foreach (var item in rango)
+            {
+                var lista = new Dtos.Reporte.IndicadorDto();
+
+                lista.nombre = DateTime.Now.AddMonths(mes).ToString("MMMM");
+                fechaInicio = new DateTime(fechaInicio.Year, DateTime.Now.AddMonths(mes).Month, 1);
+                fechaFinal = new DateTime(fechaInicio.Year, fechaInicio.Month, fechaInicio.AddMonths(1).AddDays(-1).Day);
+            
+                var datos4 = requi.Where(e => e.fch_Modificacion > fechaInicio && e.fch_Modificacion <= fechaFinal).ToList();
+                lista.id = mes;
+                cubiertaPos = 0;
+                var cubierID = datos4.Where(e => e.fch_Cumplimiento >= e.fch_Modificacion).Select(e => e.Id).ToList();
+                lista.cubierta = 0;
+                if (cubierID.Count > 0)
+                {
+                    lista.cubierta = cubierID.ToList().Count();
+                    cubiertaPos = cubierID.ToList().Count();
+                }
+                
+                var parcialID = datos4.Where(e => e.fch_Cumplimiento < e.fch_Modificacion).Select(e => e.Id).ToList();
+                lista.parcial = 0;
+                if (parcialID.Count > 0)
+                {
+                    lista.parcial = parcialID.ToList().Count();
+                    cubiertaPos = cubiertaPos + parcialID.ToList().Count();
+                }
+                
+                lista.Totalcubierta = cubiertaPos;
+           //     lista.Totalcubierta = lista.cubierta + lista.parcial;
+                DatosLista.Add(lista);
+                mes--;
+                cubiertaPos = 0;
+               
+              
+            }
+            return Ok(DatosLista);
         }
 
     }
