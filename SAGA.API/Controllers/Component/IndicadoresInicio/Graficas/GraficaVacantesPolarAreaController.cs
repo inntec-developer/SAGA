@@ -593,7 +593,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                         }).OrderBy(x => x.fch_Cumplimiento).ToList();
                         return Ok(requisicion);
                     }
-                    else if (estado == "A un vigentes" || estado == "Ya vencidas")
+                    else if (estado == "Vigentes2" || estado == "Vencidas2")
                     {
 
                         var asigna = db.AsignacionRequis.Select(e => e.RequisicionId).ToList();
@@ -602,36 +602,37 @@ namespace SAGA.API.Controllers.Component.Graficas
                         requi = requi.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
 
                         var datos = requi.Where(e => e.fch_Cumplimiento > DateTime.Now.AddDays(-1)).ToList();
-                        if (estado == "Ya vencidas")
+                        if (estado == "Vencidas2")
                         {
                             datos = requi.Where(e => e.fch_Cumplimiento < DateTime.Now).ToList();
                         }
 
                         var requisicion = datos
-                        .Select(e => new
-                        {
-                            Id = e.Id,
-                            Folio = e.Folio,
-                            fch_Creacion = e.fch_Creacion,
-                            fch_Cumplimiento = e.fch_Cumplimiento,
-                            fch_Asignacion = e.fch_Aprobacion,
-                            fch_Modificacion = e.fch_Modificacion,
-                            e.ClaseReclutamiento.clasesReclutamiento,
-                            dias = DateTime.Now.Date.Subtract(DateTime.Parse(e.fch_Aprobacion.ToString()).Date).Days,
-                            Cliente = e.Cliente.Nombrecomercial.ToUpper(),
-                            VBtra = e.VBtra.ToUpper(),
-                            Estatus = e.Estatus.Descripcion.ToUpper(),
-                            EstatusId = e.EstatusId,
-                            EstatusOrden = e.Estatus.Orden,
-                            Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
-                            Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-                            Confidencial = e.Confidencial,
-                            coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Count() == 0 ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
-                            Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
+                         .Select(e => new
+                         {
+                             Id = e.Id,
+                             Folio = e.Folio,
+                             EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId == e.Id && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
+                             fch_Creacion = e.fch_Creacion,
+                             fch_Cumplimiento = e.fch_Cumplimiento,
+                             fch_Asignacion = e.fch_Aprobacion,
+                             fch_Modificacion = e.fch_Modificacion,
+                             e.ClaseReclutamiento.clasesReclutamiento,
+                             dias = e.fch_Aprobacion != null ? DateTime.Now.Date.Subtract(DateTime.Parse(e.fch_Aprobacion.ToString()).Date).Days : 0,
+                             Cliente = e.Cliente.Nombrecomercial.ToUpper(),
+                             VBtra = e.VBtra.ToUpper(),
+                             Estatus = e.Estatus.Descripcion.ToUpper(),
+                             EstatusId = e.EstatusId,
+                             EstatusOrden = e.Estatus.Orden,
+                             Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
+                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                             Confidencial = e.Confidencial,
+                            //  coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Count() == 0 ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                            //  Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
-                                db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
-                            ).Distinct().ToList()
-                        }).OrderBy(x => x.fch_Cumplimiento).ToList();
+                                 db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
+                             ).Distinct().ToList()
+                         }).OrderBy(x => x.fch_Cumplimiento).ToList();
                         return Ok(requisicion);
                     }
                     else if (estado == "diciembre1" || estado == "noviembre1" || estado == "octubre1" || estado == "septiembre1" || estado == "agosto1"
@@ -713,6 +714,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                          {
                              Id = e.Id,
                              Folio = e.Folio,
+                             EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId == e.Id && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
                              fch_Creacion = e.fch_Creacion,
                              fch_Cumplimiento = e.fch_Cumplimiento,
                              fch_Asignacion = e.fch_Aprobacion,
@@ -1244,7 +1246,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                         }).OrderBy(x => x.fch_Cumplimiento).ToList();
                         return Ok(requisicion);
                     }
-                    else if (estado == "A un vigentes" || estado == "Ya vencidas")
+                    else if (estado == "Vigentes2" || estado == "Vencidas2")
                     {
                        
                         var asigna = db.AsignacionRequis.Where(e => uids.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
@@ -1253,7 +1255,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                         requi = requi.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
                       
                         var datos = requi.Where(e => e.fch_Cumplimiento > DateTime.Now.AddDays(-1)).ToList();
-                        if (estado == "Ya vencidas")
+                        if (estado == "Vencidas2")
                         {
                             datos = requi.Where(e => e.fch_Cumplimiento < DateTime.Now).ToList();
                         }
@@ -1263,12 +1265,13 @@ namespace SAGA.API.Controllers.Component.Graficas
                         {
                             Id = e.Id,
                             Folio = e.Folio,
+                            EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId == e.Id && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
                             fch_Creacion = e.fch_Creacion,
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             fch_Asignacion = e.fch_Aprobacion,
                             fch_Modificacion = e.fch_Modificacion,
                             e.ClaseReclutamiento.clasesReclutamiento,
-                            dias = DateTime.Now.Date.Subtract(DateTime.Parse(e.fch_Aprobacion.ToString()).Date).Days,
+                            dias = e.fch_Aprobacion != null ? DateTime.Now.Date.Subtract(DateTime.Parse(e.fch_Aprobacion.ToString()).Date).Days:0,
                             Cliente = e.Cliente.Nombrecomercial.ToUpper(),
                             VBtra = e.VBtra.ToUpper(),
                             Estatus = e.Estatus.Descripcion.ToUpper(),
@@ -1277,8 +1280,8 @@ namespace SAGA.API.Controllers.Component.Graficas
                             Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                             Confidencial = e.Confidencial,
-                            coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Count() == 0 ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
-                            Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
+                          //  coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Count() == 0 ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                          //  Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
                                 db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                             ).Distinct().ToList()
@@ -1364,6 +1367,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                          {
                              Id = e.Id,
                              Folio = e.Folio,
+                             EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId == e.Id && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
                              fch_Creacion = e.fch_Creacion,
                              fch_Cumplimiento = e.fch_Cumplimiento,
                              fch_Asignacion = e.fch_Aprobacion,
