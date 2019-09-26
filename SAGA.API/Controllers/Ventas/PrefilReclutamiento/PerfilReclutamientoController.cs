@@ -558,7 +558,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                 {
                     case "create":
                         var c = new ActividadesPerfil();
-                        c.Actividades = act.Actividad.ToUpper().Trim();
+                        c.Actividades = act.Actividades.ToUpper().Trim();
                         c.UsuarioAlta = act.Usuario;
                         c.DAMFO290Id = act.DAMFO290Id;
                         db.ActividadesPerfil.Add(c);
@@ -573,7 +573,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                     case "update":
                         var u = db.ActividadesPerfil.Find(act.Id);
                         db.Entry(u).State = EntityState.Modified;
-                        u.Actividades = act.Actividad.ToUpper().Trim();
+                        u.Actividades = act.Actividades.ToUpper().Trim();
                         u.DAMFO290Id = act.DAMFO290Id;
                         u.UsuarioMod = act.Usuario;
                         u.fch_Modificacion = DateTime.Now;
@@ -826,7 +826,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             }
         }
         #endregion
-        #region Documentos Cliente
+        #region Proceso
         [HttpPost]
         [Route("crudProceso")]
         public IHttpActionResult CrudProceso(ProcesoPerfilDto pro)
@@ -1182,7 +1182,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         df.JornadaLaboralId = 0;
                         df.TipoModalidadId = 0;
                         df.Arte = pf.Headers.Arte;
-                        db.DAMFO290.Add(df);
+                        //db.DAMFO290.Add(df);
                         db.SaveChanges();
                         var PerfilId = db.DAMFO290
                             .Where(d => d.UsuarioAlta.Equals(pf.Headers.Usuario))

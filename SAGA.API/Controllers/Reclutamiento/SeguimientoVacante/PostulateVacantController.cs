@@ -450,47 +450,61 @@ namespace SAGA.API.Controllers
                     UpdateStatusBolsaFinalizado(datos);
                 }
 
-                if (datos.estatusId == 4)
+                if (datos.estatusId == 44)
                 {
-                    var requi = db.Requisiciones
-                        .Where(r => r.Id.Equals(datos.requisicionId))
-                        .Select(r => new
-                        {
-                            vBtra = r.VBtra,
-                            folio = r.Folio,
-                            estado = r.Direccion.EstadoId,
-                            tipoReclutamiento = r.TipoReclutamientoId,
-                            prop = db.Entidad
-                                .Where(e => e.Id.Equals(r.PropietarioId)).
-                                Select(x => x.Nombre + "" + x.ApellidoPaterno).FirstOrDefault()
-                        }).FirstOrDefault();
+                    datos.estatusId = 4;
+                    db.Entry(R).Property(u => u.EstatusId).IsModified = true;
+                    db.Entry(R).Property(u => u.fch_Modificacion).IsModified = true;
+                    R.EstatusId = datos.estatusId;
+                    R.fch_Modificacion = DateTime.Now;
+                    db.SaveChanges();
+                }
 
-                    if (datos.estatusId == 4 && requi.tipoReclutamiento == 1)
-                    {
-                        Guid GReclutamiento = Guid.NewGuid();
+                /*
+                 * Este proceso se modifico ya no es necesario buscar al Gerente de reclutamiento para hacerle la asigancion de la requisicion
+                 * cuendo la misma es de tipoReclutamiento 1 (PURO). 
+                 */
+                //if (datos.estatusId == 4)
+                //{
+                //    var requi = db.Requisiciones
+                //        .Where(r => r.Id.Equals(datos.requisicionId))
+                //        .Select(r => new
+                //        {
+                //            vBtra = r.VBtra,
+                //            folio = r.Folio,
+                //            estado = r.Direccion.EstadoId,
+                //            tipoReclutamiento = r.TipoReclutamientoId,
+                //            prop = db.Entidad
+                //                .Where(e => e.Id.Equals(r.PropietarioId)).
+                //                Select(x => x.Nombre + "" + x.ApellidoPaterno).FirstOrDefault()
+                //        }).FirstOrDefault();
+
+                //    if (datos.estatusId == 4 && requi.tipoReclutamiento == 1)
+                //    {
+                //        Guid GReclutamiento = Guid.NewGuid();
 
                         
-                        GReclutamiento = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("RECL") && u.Activo.Equals(true))
-                            .Select(u => u.Id)
-                            .FirstOrDefault();
+                //        GReclutamiento = db.Usuarios
+                //            .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("RECL") && u.Activo.Equals(true))
+                //            .Select(u => u.Id)
+                //            .FirstOrDefault();
 
-                        AsignacionRequi agr = new AsignacionRequi();
-                        agr.RequisicionId = datos.requisicionId;
-                        agr.GrpUsrId = GReclutamiento;
-                        agr.CRUD = "";
-                        agr.UsuarioAlta = "SISTEMA";
-                        agr.UsuarioMod = "SISTEMA";
-                        agr.fch_Modificacion = DateTime.Now;
+                //        AsignacionRequi agr = new AsignacionRequi();
+                //        agr.RequisicionId = datos.requisicionId;
+                //        agr.GrpUsrId = GReclutamiento;
+                //        agr.CRUD = "";
+                //        agr.UsuarioAlta = "SISTEMA";
+                //        agr.UsuarioMod = "SISTEMA";
+                //        agr.fch_Modificacion = DateTime.Now;
 
-                        db.AsignacionRequis.Add(agr);
-                        db.SaveChanges();
+                //        db.AsignacionRequis.Add(agr);
+                //        db.SaveChanges();
 
-                        List<AsignacionRequi> asignaciones = new List<AsignacionRequi>();
-                        asignaciones.Add(agr);
-                        SendEmail.ConstructEmail(asignaciones, null, "C", requi.folio, requi.prop, requi.vBtra, null);
-                    }
-                }
+                //        List<AsignacionRequi> asignaciones = new List<AsignacionRequi>();
+                //        asignaciones.Add(agr);
+                //        SendEmail.ConstructEmail(asignaciones, null, "C", requi.folio, requi.prop, requi.vBtra, null);
+                //    }
+                //}
 
                 return Ok(HttpStatusCode.Created);
             }

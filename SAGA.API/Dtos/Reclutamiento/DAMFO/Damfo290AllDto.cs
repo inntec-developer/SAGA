@@ -90,7 +90,7 @@ namespace SAGA.API.Dtos
     public class ActPerfilDto
     {
         public Guid Id { get; set; }
-        public string  Actividad { get; set; }
+        public string  Actividades { get; set; }
         public Guid DAMFO290Id { get; set; }
         public string Usuario { get; set; }
         public string Action { get; set; }
