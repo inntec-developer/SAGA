@@ -549,7 +549,9 @@ namespace SAGA.API.Utilerias
                 switch (requi.estatusId)
                 {
                     case 4:
-                        m.To.Add(emailProp);
+                        m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                        m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
+                        m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
                         if (!isDurango)
                         {
                             m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
@@ -565,9 +567,11 @@ namespace SAGA.API.Utilerias
                             {
                                 m.CC.Add(e);
                             }
-                        };
-                        m.Subject = string.Format("[ASIGNACIÓN A GERENTE] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha asignado al gerente de reclutamiento el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>, el cual debera tranferirla al coordinador correspondiente. </strong>", requi.folio, sitioWeb);
+                        }
+                        m.CC.Add(emailProp);
+                        m.Subject = string.Format("[FACTURAR FOLIO] Solicitud de Facturación de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa, que se requiere factura para el nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb, requi.folio);
+                       
                         break;
                     case 8:
                         m.To.Add(emailProp);
@@ -648,28 +652,25 @@ namespace SAGA.API.Utilerias
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb,requi.folio);
                         break;
                     case 44:
-                        m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
-                        m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
-                        m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
-                        if (!isDurango)
-                        {
-                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
-                        }
-                        else
-                        {
-                            foreach (var e in GrVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                            foreach (var e in GVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                        }
-                        m.CC.Add(emailProp);
-                        m.Subject = string.Format("[FACTURAR FOLIO] Solicitud de Facturación de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa, que se requiere factura para el nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb, requi.folio);
+                        //m.To.Add(emailProp);
+                        //if (!isDurango)
+                        //{
+                        //    m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
+                        //    m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                        //}
+                        //else
+                        //{
+                        //    foreach (var e in GrVEmails)
+                        //    {
+                        //        m.CC.Add(e);
+                        //    }
+                        //    foreach (var e in GVEmails)
+                        //    {
+                        //        m.CC.Add(e);
+                        //    }
+                        //};
+                        //m.Subject = string.Format("[ASIGNACIÓN A GERENTE] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        //body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha asignado al gerente de reclutamiento el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>, el cual debera tranferirla al coordinador correspondiente. </strong>", requi.folio, sitioWeb);
                         break;
                     case 45:
                         if (!isDurango)
