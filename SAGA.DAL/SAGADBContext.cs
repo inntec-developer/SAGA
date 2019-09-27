@@ -101,6 +101,7 @@ namespace SAGA.DAL
         public DbSet<FolioIncidenciasCandidatos> FoliosIncidendiasCandidatos { get; set; }
         public DbSet<OficioRequisicion> OficiosRequisicion { get; set; }
         public DbSet<PonderacionRequisiciones> PonderacionRequisiciones { get; set; }
+        public DbSet<HistoricoTransDamfo> HistoricoTransDamfo { get; set; }
         #endregion
 
         #region Sist
@@ -411,6 +412,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new FoliosIncidenciasCandidatosMap().ToTable("FoliosIncidenciasCandidatos", "Recl"));
             modelBuilder.Configurations.Add(new OficioRequisicionMap().ToTable("OficiosRequisicion", "Recl"));
             modelBuilder.Configurations.Add(new PonderacionRequisicionesMap().ToTable("PonderacionRequisiciones", "Recl"));
+            modelBuilder.Configurations.Add(new HistoricoTransDamfoMap().ToTable("HistoricoTransDamfo", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -2767,7 +2769,18 @@ namespace SAGA.DAL
                 Property(x => x.fch_Creacion).HasColumnType("DATETIME").IsOptional();
             }
         }
-
+        public class HistoricoTransDamfoMap: EntityTypeConfiguration<HistoricoTransDamfo>
+        {
+            public HistoricoTransDamfoMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.DAMFO290Id).IsRequired();
+                Property(x => x.PropietarioId).IsRequired();
+                Property(x => x.TransferidoId).IsRequired();
+                Property(x => x.fch_Alta).HasColumnType("DATETIME").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+            }
+        }
         #endregion
     }
 }

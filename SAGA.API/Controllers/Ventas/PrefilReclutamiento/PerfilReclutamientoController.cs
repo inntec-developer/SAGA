@@ -1182,7 +1182,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         df.JornadaLaboralId = 0;
                         df.TipoModalidadId = 0;
                         df.Arte = pf.Headers.Arte;
-                        //db.DAMFO290.Add(df);
+                        db.DAMFO290.Add(df);
                         db.SaveChanges();
                         var PerfilId = db.DAMFO290
                             .Where(d => d.UsuarioAlta.Equals(pf.Headers.Usuario))

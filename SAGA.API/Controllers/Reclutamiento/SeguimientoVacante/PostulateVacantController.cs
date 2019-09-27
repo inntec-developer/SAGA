@@ -448,7 +448,7 @@ namespace SAGA.API.Controllers
                     db.SaveChanges();
 
                     UpdateStatusBolsaFinalizado(datos);
-                }
+                }  
 
                 if (datos.estatusId == 44)
                 {
