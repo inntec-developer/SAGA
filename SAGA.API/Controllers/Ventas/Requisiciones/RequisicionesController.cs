@@ -1151,7 +1151,7 @@ namespace SAGA.API.Controllers
                 var asig = vacantes.Select(e => e.Id).ToList();
                 var requi = db.Requisiciones.Where(e => asig.Contains(e.Id)).ToList();
                 
-                var objeto = vacantes.Where(e => e.fch_Creacion > FechaI.AddDays(-1)
+                var objeto = vacantes.Where(e => e.fch_Creacion >= FechaI
                     && e.fch_Creacion < FechaF.AddDays(1)).OrderByDescending(o => o.fch_Creacion).Select(e => new
                 {
                     Id = e.Id,

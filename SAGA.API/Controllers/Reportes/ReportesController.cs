@@ -70,7 +70,7 @@ namespace SAGA.API.Controllers.Reportes
                 e.Id,
                 e.Folio,
                 VBtra = e.VBtra.ToUpper(),
-                cubierta = prosesoCan.Where(x => x.EstatusId == 24).Select(a => a.CandidatoId).Distinct().ToList().Count,
+                cubierta = prosesoCan.Where(x => x.EstatusId == 24 && x.RequisicionId == e.Id).Select(a => a.CandidatoId).Distinct().ToList().Count,
                 porcentaje = e.horariosRequi.Sum(s => s.numeroVacantes) > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count()) * 100 / e.horariosRequi.Sum(s => s.numeroVacantes) : 0,
                 e.fch_Creacion,
                 e.fch_Modificacion,
