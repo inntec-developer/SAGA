@@ -65,7 +65,9 @@ namespace SAGA.API.Controllers.Component
             var entidad = db.RolEntidades.Where(x => rol.Contains(x.RolId)).Select(x => x.EntidadId).ToList();
 
             var asignacion = db.Grupos.OrderBy(x => x.Nombre)
-               .Where(g => g.Activo.Equals(true) && (g.TipoGrupoId == 11 || g.TipoGrupoId == 5) && entidad.Contains(g.Id))
+               .Where(g => g.Activo.Equals(true) 
+                && (g.TipoGrupoId == 11 || g.TipoGrupoId == 5) 
+                && entidad.Contains(g.Id))
                .Select(g => new
                {
                    id = g.Id,
@@ -80,6 +82,7 @@ namespace SAGA.API.Controllers.Component
                                      )
                                 .Where(u => u.Activo.Equals(true))
                                 .Where(u => (u.TipoUsuarioId == 11 || u.TipoUsuarioId == 5) || u.TipoUsuarioId.Equals(11))
+                                .Where(u => (u.Departamento.Clave == "RECL" || u.Departamento.Clave == "RCMP" || u.Departamento.Clave == "RECM"))
                                 .Select(u => new UsuariosDto
                                 {
                                     Id = u.Id,
