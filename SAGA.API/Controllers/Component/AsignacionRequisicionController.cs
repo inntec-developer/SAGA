@@ -43,6 +43,7 @@ namespace SAGA.API.Controllers.Component
                                             .ToList()).Contains(u.Id) )
                                 .Where(u =>  u.Activo.Equals(true))
                                 .Where(u => (u.TipoUsuarioId > 3 && u.TipoUsuarioId <= 5) || u.TipoUsuarioId == 10)
+                                .Where(u => (u.Departamento.Clave == "RECL" || u.Departamento.Clave == "RCMP" || u.Departamento.Clave == "RECM"))
                                 .Select(u => new UsuariosDto
                                 {
                                     Id = u.Id,
