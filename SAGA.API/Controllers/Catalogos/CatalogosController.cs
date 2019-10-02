@@ -1359,6 +1359,7 @@ namespace SAGA.API.Controllers
                         {
                             Id = e.Id,
                             diaSemana = e.diaSemana,
+                            tipo = e.tipo,
                             activo = e.activo
                         })
                         .OrderBy(c => c.Id)

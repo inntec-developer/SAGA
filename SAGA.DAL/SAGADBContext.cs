@@ -552,6 +552,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.diaSemana).HasMaxLength(15).IsRequired();
+                Property(x => x.tipo).IsRequired();
                 Property(x => x.activo).IsRequired();
             }
         }

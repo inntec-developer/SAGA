@@ -9,6 +9,7 @@ namespace SAGA.API.Dtos
     {
         public byte Id { get; set; }
         public string diaSemana { get; set; }
+        public int tipo { get; set; }
         public bool activo { get; set; }
     }
 }
