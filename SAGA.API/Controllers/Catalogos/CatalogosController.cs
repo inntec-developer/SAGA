@@ -2131,6 +2131,7 @@ namespace SAGA.API.Controllers
                         DiaSemana DiasSemana = new DiaSemana();
 
                         DiasSemana.diaSemana = Catalogo.DiasSemana[0].diaSemana;
+                        DiasSemana.tipo = Catalogo.DiasSemana[0].tipo;
                         DiasSemana.activo = Catalogo.DiasSemana[0].activo;
 
                         log.CatalogoId = Catalogo.Catalogos.Id;
