@@ -13,6 +13,7 @@ using System.Web.Http;
 using System.Web.Http.Cors;
 using SAGA.API.Dtos;
 using SAGA.API.Dtos.Admin;
+using SAGA.API.Utilerias;
 
 namespace SAGA.API.Controllers
 {
@@ -61,9 +62,10 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getFiles")]
-        public IHttpActionResult GetFiles(Guid entidadId)
+        public IHttpActionResult GetFiles(Guid entidadId, string ruta)
         {
-            var path = "~/utilerias/Files/users/" + entidadId.ToString();
+            //var path = "~/utilerias/Files/users/" + entidadId.ToString();
+            var path = "~" + ruta + entidadId.ToString();
             string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
 
             if (!Directory.Exists(fullPath))
@@ -141,24 +143,28 @@ namespace SAGA.API.Controllers
 
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("guardarArte")]
-        public IHttpActionResult GuardarArte(ArteDto Arte)
+        public IHttpActionResult GuardarArte()
         {
+            //ArteDto Arte
             try
             {
-                string x = Arte.arte.Replace("data:image/png;base64,", "");
-                byte[] imageBytes = Convert.FromBase64String(x);
-                MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
-                ms.Write(imageBytes, 0, imageBytes.Length);
-                System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
+                //string x = Arte.arte.Replace("data:image/png;base64,", "");
+                //byte[] imageBytes = Convert.FromBase64String(x);
+                //MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+                //ms.Write(imageBytes, 0, imageBytes.Length);
+                //System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
 
-                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/Arte/" + Arte.requisicionId.ToString() + ".png");
+                //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/Arte/" + Arte.requisicionId.ToString() + ".png");
 
-                if (File.Exists(fullPath))
-                    File.Delete(fullPath);
+                //if (File.Exists(fullPath))
+                //    File.Delete(fullPath);
 
-                image.Save(fullPath);
+                //image.Save(fullPath);
+
+                FacebookTools fb = new FacebookTools();
+                var mocos = fb.ObtenerUrlAutorizacion();
 
                 return Ok(HttpStatusCode.OK);
             }
@@ -300,6 +306,46 @@ namespace SAGA.API.Controllers
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/BG");
 
                 fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/BG/" + fileName);
+
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
+
+                postedFile.SaveAs(fullPath);
+
+                return Ok(HttpStatusCode.Created); //201
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.InternalServerError);
+            }
+
+        }
+        [HttpPost]
+        [Route("uploadAnexos")]
+        public IHttpActionResult UploadAnexos()
+        {
+            string fileName = null;
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
+                var postedFile = httpRequest.Files["file"];
+
+                fileName = Path.GetFileName(postedFile.FileName);
+                var idx = fileName.LastIndexOf('_') + 1;
+                var lon = fileName.Length - idx;
+                var id = fileName.Substring(idx, lon);
+
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/ANEXOSDAMFO/" );
+
+                if (!Directory.Exists(fullPath + '/' + id))
+                {
+                    Directory.CreateDirectory(fullPath + '/' + id);
+                }
+
+                fileName = fileName.Substring(0, idx - 1);
+
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/ANEXOSDAMFO/" + id + '/' + fileName);
 
                 if (File.Exists(fullPath))
                     File.Delete(fullPath);

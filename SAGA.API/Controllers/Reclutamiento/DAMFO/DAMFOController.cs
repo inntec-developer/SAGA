@@ -58,7 +58,7 @@ namespace SAGA.API.Controllers
                 var damfoGetById = db.DAMFO290.Select(r => new
                 {
                     Id = r.Id,
-                    arte = r.Arte,
+                    arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/BG/" + r.Arte + ".jpg" ,
                     usuarioAlta = r.UsuarioAlta,
                     nombrePerfil = r.NombrePerfil,
                     clienteId = r.ClienteId,
@@ -146,7 +146,7 @@ namespace SAGA.API.Controllers
                     claseReclutamiento = r.ClaseReclutamiento.clasesReclutamiento,
                     tipoContrato = r.ContratoInicial.tipoContrato,
                     periodoPrueba = r.ContratoInicial.periodoPrueba,
-                    tiempo = r.TiempoContrato.Tiempo,
+                    tiempo = string.IsNullOrEmpty( r.TiempoContrato.Tiempo.ToString() ) ? "Sin registro" : r.TiempoContrato.Tiempo,
                     areaExperiencia = r.Area.areaExperiencia,
                     genero = r.Genero.genero,
                     edadMinima = r.EdadMinima,

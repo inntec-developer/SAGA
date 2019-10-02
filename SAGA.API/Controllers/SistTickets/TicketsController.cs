@@ -1530,7 +1530,8 @@ namespace SAGA.API.Controllers
                         icono = e.Area.Icono,
                         areaId = e.AreaId,
                         cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0,
-                        arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/Arte/" + e.Id + ".png"
+                        arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/Arte/" + e.Id + ".png",
+                        bg = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/BG/" + e.DAMFO290.Arte + ".jpg"
                     }).ToList();
 
 

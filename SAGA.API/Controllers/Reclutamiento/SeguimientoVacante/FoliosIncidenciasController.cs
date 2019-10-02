@@ -329,8 +329,6 @@ namespace SAGA.API.Controllers
                         m.Bcc.Add(e.emails.ToString());
                     }
 
-                    m.Bcc.Add("bmorales@damsa.com.mx");
-
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
                     body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, levant&oacute; una solicitud de vacante \"en pausa\", Vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", usuario.nombre, propietario.vbtra, propietario.folio );
@@ -441,7 +439,7 @@ namespace SAGA.API.Controllers
                 var emailSolicitante = "idelatorre@damsa.com.mx";
                 var aprovadorEmail = "idelatorre@damsa.com.mx";
                 var folio = "000000000000";
-                var vbtra = "No se encontró vacante";
+                var vbtra = "";
 
                 var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
                     propietario = p.PropietarioId,
@@ -495,7 +493,7 @@ namespace SAGA.API.Controllers
                     m.To.Add(emailSolicitante);
                     m.Bcc.Add(usuario.email.ToString());
                     m.Bcc.Add(aprovadorEmail);
-
+                    m.Bcc.Add("bmorales@damsa.com.mx");
                     foreach (var e in asignados)
                     {
                         m.Bcc.Add(e.emails.ToString());
@@ -538,8 +536,7 @@ namespace SAGA.API.Controllers
                 var emailSolicitante = "idelatorre@damsa.com.mx";
                 var aprovadorEmail = "idelatorre@damsa.com.mx";
                 var folio = "000000000000";
-                var vbtra = "No se encontró vacante";
-
+                var vbtra = "";
                 var propietario = db.Requisiciones.Where(x => x.Id.Equals(datos.RequisicionId)).Select(p => new {
                     propietario = p.PropietarioId,
                     aprobador = p.AprobadorId,
