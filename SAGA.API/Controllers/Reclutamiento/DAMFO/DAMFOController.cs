@@ -145,6 +145,7 @@ namespace SAGA.API.Controllers
                     tipoReclutamiento = r.TipoReclutamiento.tipoReclutamiento,
                     claseReclutamiento = r.ClaseReclutamiento.clasesReclutamiento,
                     tipoContrato = r.ContratoInicial.tipoContrato,
+                    tipoContratoId = r.ContratoInicial.Id,
                     periodoPrueba = r.ContratoInicial.periodoPrueba,
                     tiempo = string.IsNullOrEmpty( r.TiempoContrato.Tiempo.ToString() ) ? "Sin registro" : r.TiempoContrato.Tiempo,
                     areaExperiencia = r.Area.areaExperiencia,
