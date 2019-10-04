@@ -402,8 +402,6 @@ namespace SAGA.API.Controllers
                         m.Bcc.Add(e.emails.ToString());
                     }
 
-                    m.Bcc.Add("bmorales@damsa.com.mx");
-
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
                     body = body + string.Format("<p>Se comunica que el usuario/coordinador <strong>{0}</strong>, dio seguimiento al reporte solicitado con la siguiente informacion:</p>", usuario.nombre); 

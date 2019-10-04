@@ -58,7 +58,7 @@ namespace SAGA.API.Controllers
                 var damfoGetById = db.DAMFO290.Select(r => new
                 {
                     Id = r.Id,
-                    arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/BG/" + r.Arte + ".jpg" ,
+                    arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/BG/" + r.Arte,
                     usuarioAlta = r.UsuarioAlta,
                     nombrePerfil = r.NombrePerfil,
                     clienteId = r.ClienteId,

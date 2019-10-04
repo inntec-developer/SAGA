@@ -150,14 +150,14 @@ namespace SAGA.API.Controllers
                 EntidadId = u.Id,
                 userActivo = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
                 grupoActivo = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
-                Foto = String.IsNullOrEmpty(u.Foto) ? "utilerias/img/user/default.jpg" : u.Foto,
+                Foto = u.TipoEntidadId == 1 ? String.IsNullOrEmpty(u.Foto) ? @"https://apierp.damsa.com.mx/utilerias/img/user/default.jpg" : @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault() + ".jpg" : @"https://apierp.damsa.com.mx/" + u.Foto,
                 Clave = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault(),
                 nombre = u.Nombre,
                 apellidoPaterno = string.IsNullOrEmpty(u.ApellidoPaterno) ? "" : u.ApellidoPaterno,
                 apellidoMaterno = string.IsNullOrEmpty(u.ApellidoMaterno) ? "" : u.ApellidoMaterno,
                 Usuario = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Usuario).FirstOrDefault(),
                 Descripcion = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(x => string.IsNullOrEmpty(x.Descripcion) ? "" : x.Descripcion).FirstOrDefault(),
-                Departamento = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
+                Departamento = u.TipoEntidadId == 1 ? db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault() : db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(c => c.TipoGrupo.Tipo).FirstOrDefault(),
                 Emails = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => string.IsNullOrEmpty(e.email) ? "SIN REGISTRO" : e.email).FirstOrDefault(),
                 grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
                 {
@@ -287,6 +287,7 @@ namespace SAGA.API.Controllers
                 var persona = db.GruposUsuarios.Where(x => x.GrupoId.Equals(id) & x.Grupo.Activo).Select(u => new
                 {
                     EntidadId = u.EntidadId,
+                    clave = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => c.Clave).FirstOrDefault(),
                     Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(f => String.IsNullOrEmpty(f.Foto) ? "utilerias/img/user/default.jpg" : f.Foto).FirstOrDefault(),
                     TipoEntidadId = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.TipoEntidadId).FirstOrDefault(),
                     nombre = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.Nombre).FirstOrDefault(),
@@ -338,7 +339,7 @@ namespace SAGA.API.Controllers
                 var persona = db.RolEntidades.Where(x => x.RolId.Equals(id) & x.Rol.Activo).Select(u => new
                 {
                     EntidadId = u.EntidadId,
-                    Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(f => String.IsNullOrEmpty(f.Foto) ? "utilerias/img/user/default.jpg" : f.Foto).FirstOrDefault(),
+                    Foto = u.Entidad.TipoEntidadId == 1 ? String.IsNullOrEmpty(u.Entidad.Foto) ? @"https://apierp.damsa.com.mx/utilerias/img/user/default.jpg" : @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => c.Clave).FirstOrDefault() + ".jpg" : @"https://apierp.damsa.com.mx/" + u.Entidad.Foto,
                     TipoEntidadId = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.TipoEntidadId).FirstOrDefault(),
                     nombre = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.Nombre).FirstOrDefault(),
                     apellidoPaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoPaterno) ? "" : n.ApellidoPaterno).FirstOrDefault(),

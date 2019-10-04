@@ -392,12 +392,12 @@ namespace SAGA.API.Controllers
 
                 case 23: // Días de la semana
 
-                    var DiasSemana = db.DiasSemanas
+                    var DiasSemana = db.DiasSemanas.Where(x => x.activo)
                         .Select(e => new DiasSemanaDto
                         {
                             Id = e.Id,
                             diaSemana = e.diaSemana,
-                            activo = e.activo
+                            tipo = e.tipo
                         })
                         .OrderBy(c => c.Id)
                         .ToList();
@@ -616,7 +616,7 @@ namespace SAGA.API.Controllers
             var grupos = db.Grupos.Select(g => new
             {
                 Id = g.Id,
-                Foto = g.Foto,
+                Foto = @"https://apisb.damsa.com.mx/" + g.Foto,
                 Activo = g.Activo,
                 Descripcion = g.Descripcion,
                 Nombre = g.Nombre,
@@ -625,25 +625,25 @@ namespace SAGA.API.Controllers
                 TipoGrupo = db.TiposUsuarios.Where(x => x.Id.Equals(g.TipoGrupoId)).Select(n => n.Tipo).FirstOrDefault()
             }).OrderBy(g => g.Nombre).ToList();
 
-            foreach (var g in grupos)
-            {
-                var aux = obj.GetImage(g.Foto);
-                data.Add(new GruposDtos
-                {
-                    Id = g.Id,
-                    Foto = g.Foto,
-                    Activo = g.Activo,
-                    Descripcion = g.Descripcion,
-                    Nombre = g.Nombre,
-                    UsuarioAlta = g.UsuarioAlta,
-                    TipoGrupoId = g.TipoGrupoId,
-                    TipoGrupo = g.TipoGrupo,
-                    FotoAux = aux
-                });
-            }
+            //foreach (var g in grupos)
+            //{
+            //    var aux = obj.GetImage(g.Foto);
+            //    data.Add(new GruposDtos
+            //    {
+            //        Id = g.Id,
+            //        Foto = g.Foto,
+            //        Activo = g.Activo,
+            //        Descripcion = g.Descripcion,
+            //        Nombre = g.Nombre,
+            //        UsuarioAlta = g.UsuarioAlta,
+            //        TipoGrupoId = g.TipoGrupoId,
+            //        TipoGrupo = g.TipoGrupo,
+            //        FotoAux = aux
+            //    });
+            //}
 
-            obj = null;
-            return Ok(data);
+
+            return Ok(grupos);
         }
 
         [HttpGet]

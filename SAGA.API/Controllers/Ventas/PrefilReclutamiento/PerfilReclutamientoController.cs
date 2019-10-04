@@ -310,7 +310,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                             Competencia = cc.Competencia.competenciaGerencial,
                             CompetenciaId = cc.CompetenciaId
                         }).ToList(),
-                        Arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/BG/" + p.Arte + ".jpg",
+                        Arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/BG/" + p.Arte,
                     })
                     .FirstOrDefault();
                 return Ok(anexos);

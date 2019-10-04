@@ -280,7 +280,7 @@ namespace SAGA.API.Controllers.Equipos
                 }
                 else if(orden == 2)
                 {
-                    total = total.OrderByDescending(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                    total = total.OrderBy(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                 }
                 else if (orden == 3)
                 {
@@ -288,7 +288,7 @@ namespace SAGA.API.Controllers.Equipos
                 }
                 else
                 {
-                    total = total.OrderByDescending(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                    total = total.OrderBy(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                 }
 
                 return Ok(total);

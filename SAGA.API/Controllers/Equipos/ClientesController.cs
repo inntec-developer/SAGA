@@ -31,20 +31,29 @@ namespace SAGA.API.Controllers.Equipos
             try
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(usuarioId)).Select(t => t.TipoUsuarioId).FirstOrDefault();
-               
-                if (tipo == 14)
+
+                if (tipo == 14 || tipo == 8 || tipo == 13)
                 {
                     var reclutadores = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId)).Select(u => new
                     {
                         clienteId = u.Requisicion.ClienteId,
                         reclutadorId = u.GrpUsrId,
+                        tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
                     }).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new
                     {
                         clienteId = u.ClienteId,
                         reclutadorId = u.AprobadorId,
+                        tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                        foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
+                    })).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new
+                    {
+                        clienteId = u.ClienteId,
+                        reclutadorId = u.PropietarioId,
+                        tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                        nombre = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
                     })).ToList().Distinct();
 
@@ -58,11 +67,11 @@ namespace SAGA.API.Controllers.Equipos
                         posiciones = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(v => v.numeroVacantes) : 0,
                                 
                     }).ToList();
-
+                    reclutadores.Distinct();
                     var clientes = requisTodas.GroupBy(g => g.clienteId).Select(d => new {
                         clienteId = d.Key,
                         cliente = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.cliente).FirstOrDefault(),
-                        reclutadores = reclutadores.Where(x => x.clienteId.Equals(d.Key)),
+                        reclutadores = reclutadores.Where(x => x.clienteId.Equals(d.Key)).Distinct(),
                         requisiciones = d.Select(x => new
                         {
                             requisicionId = x.requisicionId,
@@ -111,15 +120,26 @@ namespace SAGA.API.Controllers.Equipos
                     {
                         clienteId = u.Requisicion.ClienteId,
                         reclutadorId = u.GrpUsrId,
+                        tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
                     }).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && unidadNegocio.Contains(x.Direccion.EstadoId)).Select(u => new
                     {
                         clienteId = u.ClienteId,
                         reclutadorId = u.AprobadorId,
+                        tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
+                    })).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new
+                    {
+                        clienteId = u.ClienteId,
+                        reclutadorId = u.PropietarioId,
+                        tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                        nombre = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                        foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
                     })).ToList().Distinct();
+
+                    reclutadores.Distinct();
 
                     var requisTodas = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && unidadNegocio.Contains(x.Direccion.EstadoId)).Select(r => new
                     {
@@ -135,7 +155,7 @@ namespace SAGA.API.Controllers.Equipos
                     var clientes = requisTodas.GroupBy(g => g.clienteId).Select(d => new {
                         clienteId = d.Key,
                         cliente = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.cliente).FirstOrDefault(),
-                        reclutadores = reclutadores.Where(x => x.clienteId.Equals(d.Key)).ToList(),
+                        reclutadores = reclutadores.Where(x => x.clienteId.Equals(d.Key)).ToList().Distinct(),
                         requisiciones = d.Select(x => new
                         {
                             requisicionId = x.requisicionId,
@@ -173,7 +193,7 @@ namespace SAGA.API.Controllers.Equipos
                       .ToList();
 
                     var requis = db.Requisiciones
-                    .Where(e => (uids.Contains(e.AprobadorId))
+                    .Where(e => (uids.Contains(e.AprobadorId) || uids.Contains(e.PropietarioId))
                         && !estatusId.Contains(e.EstatusId) && !e.Confidencial)
                     .Select(a => a.Id).ToList();
 
@@ -183,6 +203,7 @@ namespace SAGA.API.Controllers.Equipos
                     {
                         clienteId = u.Requisicion.ClienteId,
                         reclutadorId = u.GrpUsrId,
+                        tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
                     }).Union(
@@ -190,9 +211,19 @@ namespace SAGA.API.Controllers.Equipos
                               {
                                   clienteId = u.ClienteId,
                                   reclutadorId = u.AprobadorId,
+                                  tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
                                   nombre = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                                   foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
+                              })).Distinct().Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new
+                              {
+                                  clienteId = u.ClienteId,
+                                  reclutadorId = u.PropietarioId,
+                                  tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                                  nombre = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                                  foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
                               })).ToList().Distinct();
+
+                    reclutadores.Distinct();
 
                     var requisTodas = db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id)).Select(r => new
                     {
@@ -209,7 +240,7 @@ namespace SAGA.API.Controllers.Equipos
                     var clientes = requisTodas.GroupBy(g => g.clienteId).Select(d => new {
                         clienteId = d.Key,
                         cliente = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.cliente).FirstOrDefault(),
-                        reclutadores = reclutadores.Where(x => x.clienteId.Equals(d.Key)),
+                        reclutadores = reclutadores.Where(x => x.clienteId.Equals(d.Key)).ToList().Distinct(),
                         requisiciones = d.Select(x => new
                         {
                             requisicionId = x.requisicionId,
@@ -296,7 +327,7 @@ namespace SAGA.API.Controllers.Equipos
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(usuarioId)).Select(t => t.TipoUsuarioId).FirstOrDefault();
 
-                if (tipo == 14)
+                if (tipo == 14 || tipo == 8 || tipo == 13)
                 {
                     var clientes = db.Requisiciones.Select(x => x.ClienteId).Distinct();
 
@@ -325,7 +356,7 @@ namespace SAGA.API.Controllers.Equipos
                     }
                     else if (orden == 2)
                     {
-                        total = total.OrderByDescending(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                        total = total.OrderBy(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                     }
                     else if (orden == 3)
                     {
@@ -333,7 +364,7 @@ namespace SAGA.API.Controllers.Equipos
                     }
                     else
                     {
-                        total = total.OrderByDescending(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                        total = total.OrderBy(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                     }
                     return Ok(total);
                 }
@@ -386,7 +417,7 @@ namespace SAGA.API.Controllers.Equipos
                     }
                     else if (orden == 2)
                     {
-                        total = total.OrderByDescending(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                        total = total.OrderBy(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                     }
                     else if (orden == 3)
                     {
@@ -394,7 +425,7 @@ namespace SAGA.API.Controllers.Equipos
                     }
                     else
                     {
-                        total = total.OrderByDescending(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                        total = total.OrderBy(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                     }
                     return Ok(total);
 
@@ -449,7 +480,7 @@ namespace SAGA.API.Controllers.Equipos
                     }
                     else if (orden == 2)
                     {
-                        total = total.OrderByDescending(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                        total = total.OrderBy(o => o.contratados).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                     }
                     else if (orden == 3)
                     {
@@ -457,7 +488,7 @@ namespace SAGA.API.Controllers.Equipos
                     }
                     else
                     {
-                        total = total.OrderByDescending(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
+                        total = total.OrderBy(o => o.cumplimiento).ThenBy(oo => oo.fch_Cumplimiento).ToList();
                     }
                     return Ok(total);
                 }
