@@ -3,6 +3,7 @@ using SAGA.BOL;
 using SAGA.DAL;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -49,20 +50,47 @@ namespace SAGA.API.Controllers
             return Ok(damfo290);
         }
         //api/Damfo290/getById
+
+        public string GetImage(string ruta)
+        {
+            string fullPath;
+
+            try
+            {
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath(ruta);
+                var type = Path.GetExtension(ruta);
+                var fileName = Path.GetFileName(ruta);
+
+                FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+                byte[] bimage = new byte[fs.Length];
+                fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
+                fs.Close();
+      
+                string img = "data:image/" + type.Substring(1, type.Length - 1) + ";base64," + Convert.ToBase64String(bimage);
+                return img;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+
+        }
+
         [HttpGet]
         [Route("getById")]
         public IHttpActionResult GetById(Guid Id)
         {
             try
             {
-                var damfoGetById = db.DAMFO290.Select(r => new
+                var damfoGetById = db.DAMFO290.Where(x => x.Id.Equals(Id)).Select(r => new
                 {
                     Id = r.Id,
                     arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/BG/" + r.Arte,
                     usuarioAlta = r.UsuarioAlta,
                     nombrePerfil = r.NombrePerfil,
                     clienteId = r.ClienteId,
-                    horarios = r.horariosPerfil.Select(h => new {
+                    horarios = r.horariosPerfil.Select(h => new
+                    {
                         Id = h.Id,
                         nombre = h.Nombre,
                         deDia = h.deDia,
@@ -96,7 +124,8 @@ namespace SAGA.API.Controllers
                         }).ToList(),
                         telefonos = db.Telefonos
                                     .Where(t => t.EntidadId == r.ClienteId)
-                                    .Select(t => new {
+                                    .Select(t => new
+                                    {
                                         Calle = db.DireccionesTelefonos
                                             .Where(dt => dt.TelefonoId.Equals(t.Id)).FirstOrDefault() != null ?
                                             db.DireccionesTelefonos
@@ -127,7 +156,8 @@ namespace SAGA.API.Controllers
                                         infoAdicional = c.InfoAdicional,
                                         telefonos = db.Telefonos
                                             .Where(t => t.EntidadId == c.Id)
-                                            .Select(t => new {
+                                            .Select(t => new
+                                            {
                                                 tipo = t.TipoTelefono.Tipo,
                                                 clavePais = t.ClavePais,
                                                 claveLada = t.ClaveLada,
@@ -147,13 +177,13 @@ namespace SAGA.API.Controllers
                     tipoContrato = r.ContratoInicial.tipoContrato,
                     tipoContratoId = r.ContratoInicial.Id,
                     periodoPrueba = r.ContratoInicial.periodoPrueba,
-                    tiempo = string.IsNullOrEmpty( r.TiempoContrato.Tiempo.ToString() ) ? "Sin registro" : r.TiempoContrato.Tiempo,
+                    tiempo = string.IsNullOrEmpty(r.TiempoContrato.Tiempo.ToString()) ? "Sin registro" : r.TiempoContrato.Tiempo,
                     areaExperiencia = r.Area.areaExperiencia,
                     genero = r.Genero.genero,
                     edadMinima = r.EdadMinima,
                     edadMaxima = r.EdadMaxima,
                     estadoCivil = r.EstadoCivil.estadoCivil,
-                    sueldoMinimo =  r.SueldoMinimo, 
+                    sueldoMinimo = r.SueldoMinimo,
                     sueldoMaximo = r.SueldoMaximo,
                     escolaridades = r.escolardadesPerfil.Select(es => new
                     {
@@ -176,25 +206,30 @@ namespace SAGA.API.Controllers
                         cantidad = bn.Cantidad,
                         observaciones = bn.Observaciones,
                     }).ToList(),
-                    actividades = r.actividadesPerfil.Select(ac => new {
+                    actividades = r.actividadesPerfil.Select(ac => new
+                    {
                         actividades = ac.Actividades
                     }).ToList(),
-                    observaciones = r.observacionesPerfil.Select(ob => new {
+                    observaciones = r.observacionesPerfil.Select(ob => new
+                    {
                         observaciones = ob.Observaciones
                     }).ToList(),
                     procesos = r.procesoPerfil
                     .OrderBy(pr => pr.Orden)
-                    .Select(pr => new {
+                    .Select(pr => new
+                    {
                         proceso = pr.Proceso
                     }).ToList(),
                     documentosCliente = r.documentosCliente.Select(dcr => new
                     {
                         documento = dcr.Documento
                     }).ToList(),
-                    prestacionesCliente = r.prestacionesCliente.Select(pcr => new {
+                    prestacionesCliente = r.prestacionesCliente.Select(pcr => new
+                    {
                         prestamo = pcr.Prestamo
                     }).ToList(),
-                    psicometriasDamsa = r.psicometriasDamsa.Select(pd => new {
+                    psicometriasDamsa = r.psicometriasDamsa.Select(pd => new
+                    {
                         tipoPsicometria = pd.Psicometria.tipoPsicometria,
                         descripcion = pd.Psicometria.descripcion
                     }).ToList(),
@@ -203,22 +238,69 @@ namespace SAGA.API.Controllers
                         psicometria = pc.Psicometria,
                         descripcion = pc.Descripcion
                     }).ToList(),
-                    competenciasCardinal = r.competenciasCardinalPerfil.Select(cc => new {
+                    competenciasCardinal = r.competenciasCardinalPerfil.Select(cc => new
+                    {
                         competencia = cc.Competencia.competenciaCardinal,
                         nivel = cc.Nivel
                     }).ToList(),
-                    competenciasArea = r.competenciasAreaPerfil.Select(ca => new {
+                    competenciasArea = r.competenciasAreaPerfil.Select(ca => new
+                    {
                         competencia = ca.Competencia.competenciaArea,
                         nivel = ca.Nivel
                     }).ToList(),
-                    competenciasGerencial = r.competetenciasGerencialPerfil.Select(cg => new {
+                    competenciasGerencial = r.competetenciasGerencialPerfil.Select(cg => new
+                    {
                         competencia = cg.Competencia.competenciaGerencial,
                         nivel = cg.Nivel
                     }).ToList()
 
 
-                })
-                        .FirstOrDefault(x => x.Id.Equals(Id));
+                }).FirstOrDefault();
+
+                //var mocos = damfoGetById.Select(rr => new
+                //{
+                //    Id = rr.Id,
+                //    horarios = rr.horarios,
+                //    clienteId = rr.clienteId,
+                //    cliente = rr.cliente,
+                //    tipoReclutamiento = rr.tipoReclutamiento,
+                //    claseReclutamiento = rr.claseReclutamiento,
+                //    tipoContrato = rr.tipoContrato,
+                //    periodoPrueba = rr.periodoPrueba,
+                //    tiempo = rr.tiempo,
+                //    areaExperiencia = rr.areaExperiencia,
+                //    genero = rr.genero,
+                //    edadMinima = rr.edadMinima,
+                //    edadMaxima = rr.edadMaxima,
+                //    estadoCivil = rr.estadoCivil,
+                //    sueldoMinimo = rr.sueldoMinimo,
+                //    sueldoMaximo = rr.sueldoMaximo,
+                //    escolaridades = rr.escolaridades,
+                //    aptitudes = rr.aptitudes,
+                //    experiencia = rr.experiencia,
+                //    diaCorte = rr.diaCorte,
+                //    tipoDeNomina = rr.tipoDeNomina,
+                //    diaPago = rr.diaPago,
+                //    periodoPago = rr.periodoPago,
+                //    especifique = rr.especifique,
+                //    beneficios = rr.beneficios,
+                //    actividades = rr.actividades,
+                //    observaciones = rr.observaciones,
+                //    procesos = rr.procesos,
+                //    documentosCliente = rr.documentosCliente,
+                //    prestacionesCliente = rr.prestacionesCliente,
+                //    psicometriasDamsa = rr.psicometriasDamsa,
+                //    psicometriasCliente = rr.psicometriasCliente,
+                //    competenciasCardinal = rr.competenciasCardinal,
+                //    competenciasArea = rr.competenciasArea,
+                //    competenciasGerencial = rr.competenciasGerencial,
+                //    Arte = this.GetImage(rr.arte),
+                //    bg = rr.arte,
+                //    nombrePerfil = rr.nombrePerfil
+
+                //}).FirstOrDefault();
+
+
                 return Ok(damfoGetById);
             }
             catch (Exception ex)

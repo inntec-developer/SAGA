@@ -143,28 +143,24 @@ namespace SAGA.API.Controllers
 
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("guardarArte")]
-        public IHttpActionResult GuardarArte()
+        public IHttpActionResult GuardarArte(ArteDto Arte)
         {
-            //ArteDto Arte
             try
             {
-                //string x = Arte.arte.Replace("data:image/png;base64,", "");
-                //byte[] imageBytes = Convert.FromBase64String(x);
-                //MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
-                //ms.Write(imageBytes, 0, imageBytes.Length);
-                //System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
+                string x = Arte.arte.Replace("data:image/png;base64,", "");
+                byte[] imageBytes = Convert.FromBase64String(x);
+                MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+                ms.Write(imageBytes, 0, imageBytes.Length);
+                System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
 
-                //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/Arte/" + Arte.requisicionId.ToString() + ".png");
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/Arte/" + Arte.requisicionId.ToString() + ".png");
 
-                //if (File.Exists(fullPath))
-                //    File.Delete(fullPath);
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
 
-                //image.Save(fullPath);
-
-                FacebookTools fb = new FacebookTools();
-                var mocos = fb.ObtenerUrlAutorizacion();
+                image.Save(fullPath);
 
                 return Ok(HttpStatusCode.OK);
             }
@@ -361,6 +357,8 @@ namespace SAGA.API.Controllers
             }
 
         }
+
+      
 
         [HttpGet]
         [Route("getImage")]

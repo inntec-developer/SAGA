@@ -198,7 +198,7 @@ namespace SAGA.API.Controllers.Equipos
                     .Select(a => a.Id).ToList();
 
                     var AllRequis = requis.Union(asignadas);
-
+                 
                     var reclutadores = db.AsignacionRequis.Where(x => AllRequis.Distinct().Contains(x.RequisicionId) && uids.Distinct().Contains(x.GrpUsrId)).Select(u => new
                     {
                         clienteId = u.Requisicion.ClienteId,
@@ -223,7 +223,7 @@ namespace SAGA.API.Controllers.Equipos
                                   foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
                               })).ToList().Distinct();
 
-                    reclutadores.Distinct();
+                    reclutadores.ToList().Distinct();
 
                     var requisTodas = db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id)).Select(r => new
                     {

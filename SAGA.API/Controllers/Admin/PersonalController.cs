@@ -178,7 +178,7 @@ namespace SAGA.API.Controllers
 
                 })
 
-            }).Where(a => a.grupoActivo || a.userActivo).OrderBy(o => o.nombre).ToList();
+            }).OrderBy(o => o.nombre).ToList();
 
 
             //var mocos = persona.Where(u => u.userActivo).ToList();
