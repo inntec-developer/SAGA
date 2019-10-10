@@ -176,10 +176,16 @@ namespace SAGA.API.Controllers.Catalogos
                 dire.NumeroExterior = numero;
 
                 var ema = db.Emails.Where(e => e.EntidadId == ide).FirstOrDefault();
-                ema.email = email == null?"":email;
-
+                if (ema != null)
+                {
+                    ema.email = email == null ? "" : email;
+                }
                 var tel = db.Telefonos.Where(e => e.EntidadId == ide).FirstOrDefault();
-                tel.telefono = telefono;
+                if (tel != null)
+                {
+                    tel.telefono = telefono;
+                }
+                
                 db.SaveChanges();
 
 
