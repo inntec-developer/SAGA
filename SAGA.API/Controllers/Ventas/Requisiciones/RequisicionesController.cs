@@ -1372,7 +1372,7 @@ namespace SAGA.API.Controllers
         [HttpGet]
         [Route("getReporte70")]
         public IHttpActionResult GetReporte70(string clave, string ofc, string tipo, string fini,
-           string ffin, string emp, string sol, string trcl, string cor, string stus, string recl)
+           string ffin, string emp, string sol, string trcl, string cor, string stus, string recl, string usuario)
         {
 
             try
@@ -1582,19 +1582,31 @@ namespace SAGA.API.Controllers
                     }
                 }
 
-                if (recl != "0" && recl != "00000000-0000-0000-0000-000000000000," && recl != null)
+                Guid id = new Guid(usuario);
+                int usertipo = db.Usuarios.Where(e => e.Id == id).Select(e => e.TipoUsuarioId).FirstOrDefault();
+
+                if (usertipo == 11)
                 {
-                    var obj = recl.Split(',');
-                    List<Guid> listaAreglo = new List<Guid>();
-                    for (int i = 0; i < obj.Count() - 1; i++)
+                    var asigna = db.AsignacionRequis.Where(e => e.GrpUsrId == id).Select(e => e.RequisicionId).ToList();
+                    objeto = objeto.Where(e => asigna.Contains(e.Id)).ToList();
+                }
+                else
+                {
+
+                    if (recl != "0" && recl != "00000000-0000-0000-0000-000000000000," && recl != null)
                     {
-                        listaAreglo.Add(new Guid(obj[i]));
-                    }
-                    var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
-                    if (obb.Count == 0)
-                    {
-                        var asigna = db.AsignacionRequis.Where(e => listaAreglo.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
-                        objeto = objeto.Where(e => asigna.Contains(e.Id)).ToList();
+                        var obj = recl.Split(',');
+                        List<Guid> listaAreglo = new List<Guid>();
+                        for (int i = 0; i < obj.Count() - 1; i++)
+                        {
+                            listaAreglo.Add(new Guid(obj[i]));
+                        }
+                        var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
+                        if (obb.Count == 0)
+                        {
+                            var asigna = db.AsignacionRequis.Where(e => listaAreglo.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                            objeto = objeto.Where(e => asigna.Contains(e.Id)).ToList();
+                        }
                     }
                 }
 

@@ -22,7 +22,8 @@ namespace SAGA.API.Controllers.Reportes
         [HttpGet]
         [Route("Informe")]
         public IHttpActionResult Informe(string clave, string ofc, string tipo, string fini,
-           string ffin, string emp, string sol, string trcl, string cor, string stus, string recl, string usercor)
+           string ffin, string emp, string sol, string trcl, string cor, string stus, string recl, 
+           string usercor, string usuario)
         {
             
             DateTime FechaF = DateTime.Now;
@@ -170,24 +171,37 @@ namespace SAGA.API.Controllers.Reportes
                     datos = datos.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
                 }
             }
+            Guid id = new Guid(usuario);
+            int usertipo = db.Usuarios.Where(e => e.Id == id).Select(e => e.TipoUsuarioId).FirstOrDefault();
 
-            if (usercor != "0" && usercor != null && usercor != "00000000-0000-0000-0000-000000000000,")
+            if (usertipo == 11)
             {
-                var obj = usercor.Split(',');
-                List<Guid> listaAreglo = new List<Guid>();
-                for (int i = 0; i < obj.Count() - 1; i++)
+                var requiID = datos.Select(x => x.Id).ToList();
+                var asigna = db.AsignacionRequis.Where(e => requiID.Contains(e.RequisicionId)).ToList();
+                var requien = asigna.Where(e => e.GrpUsrId == id).Select(x => x.RequisicionId).ToList();
+                datos = datos.Where(e => e.AprobadorId == id || requien.Contains(e.Id)).ToList();
+            }
+            else{
+                if (usercor != "0" && usercor != null && usercor != "00000000-0000-0000-0000-000000000000,")
                 {
-                    listaAreglo.Add(new Guid(obj[i]));
-                }
-                var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
-                if (obb.Count == 0)
-                {
-                    var requiID = datos.Select(x => x.Id).ToList();
-                    var asigna = db.AsignacionRequis.Where(e => requiID.Contains(e.RequisicionId)).ToList();
-                    var requien = asigna.Where(e => listaAreglo.Contains(e.GrpUsrId)).Select(x=>x.RequisicionId).ToList();
-                    datos = datos.Where(e => listaAreglo.Contains(e.AprobadorId) || requien.Contains(e.Id)).ToList();
+                    var obj = usercor.Split(',');
+                    List<Guid> listaAreglo = new List<Guid>();
+                    for (int i = 0; i < obj.Count() - 1; i++)
+                    {
+                        listaAreglo.Add(new Guid(obj[i]));
+                    }
+                    var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
+                    if (obb.Count == 0)
+                    {
+                        var requiID = datos.Select(x => x.Id).ToList();
+                        var asigna = db.AsignacionRequis.Where(e => requiID.Contains(e.RequisicionId)).ToList();
+                        var requien = asigna.Where(e => listaAreglo.Contains(e.GrpUsrId)).Select(x => x.RequisicionId).ToList();
+                        datos = datos.Where(e => listaAreglo.Contains(e.AprobadorId) || requien.Contains(e.Id)).ToList();
+                    }
                 }
             }
+
+          
 
             if (trcl != "0" && trcl != null)
             {
@@ -1005,7 +1019,7 @@ namespace SAGA.API.Controllers.Reportes
                 }
             }
 
-            if (estatus != "0" && estatus != null)
+            if (estatus != "0," && estatus != null)
             {
                 var obj = estatus.Split(',');
                 List<int> listaAreglo = new List<int>();
@@ -1013,7 +1027,7 @@ namespace SAGA.API.Controllers.Reportes
                 {
                     listaAreglo.Add(Convert.ToInt32(obj[i]));
                 }
-                var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
+                var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
                 if (obb.Count == 0)
                 {
                     datos = datos.Where(e => listaAreglo.Contains(e.estatusid)).ToList();
