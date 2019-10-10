@@ -1005,7 +1005,7 @@ namespace SAGA.API.Controllers
                     .Where(u => u.Id.Equals(propietario)).Select(u => u.Sucursal.UnidadNegocioId).FirstOrDefault();
                     var requisicion = db.Requisiciones
                         .Where(e => e.Activo.Equals(true) && e.TipoReclutamientoId.Equals(tipo) && (e.EstatusId.Equals(43) || e.EstatusId.Equals(44)) )
-                        .Select(e => new
+                        .Select(e => new RequisicionGrallDto
                         {
                             Id = e.Id,
                             EstadoId = e.Direccion.EstadoId,
@@ -1023,7 +1023,7 @@ namespace SAGA.API.Controllers
                             Cliente = e.Cliente.Nombrecomercial,
                             razon = e.Cliente.RazonSocial,
                             factura = e.Cliente.RazonSocial,
-                            tipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                            TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
                             GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
                             ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
@@ -1034,8 +1034,12 @@ namespace SAGA.API.Controllers
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
-                    return Ok(requisicion);
-                
+                foreach(var r in requisicion)
+                {
+                    r.diasTrans = this.countWeekDays(Convert.ToDateTime(r.fch_Creacion), DateTime.Now);
+                }
+
+                return Ok(requisicion);                
 
             }
             catch (Exception ex)

@@ -18,6 +18,7 @@ namespace SAGA.API.Dtos
         public decimal SueldoMaximo { get; set; }
         public DateTime? fch_Creacion { get; set; }
         public DateTime? fch_Cumplimiento { get; set; }
+        public DateTime? fch_Modificacion { get; set; }
         public string Estatus { get; set; }
         public int EstatusId { get; set; }
         public string Prioridad { get; set; }
@@ -30,5 +31,15 @@ namespace SAGA.API.Dtos
         public bool Confidencial { get; set; }
         public int Postulados { get; set; }
         public int EnProceso { get; set; }
+        public int? EstadoId { get; set; }
+        public int EstatusOrden { get; set; }
+        public string razon { get; set; }
+        public string factura { get; set; }
+        public string GiroEmpresa { get; set; }
+        public string ActividadEmpresa { get; set; }
+        public float Porcentaje { get; set; }
+        public string Propietario { get; set; }
+        public List<string> ComentarioReclutador { get; set; }
+        public int diasTrans { get; set; }
     }
 }

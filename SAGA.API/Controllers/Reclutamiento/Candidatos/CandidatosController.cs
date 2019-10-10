@@ -809,6 +809,62 @@ namespace SAGA.API.Controllers
         }
 
         [HttpPost]
+        [Route("updateCandidatosMasivo")]
+        [Authorize]
+        public IHttpActionResult UpdateCandidatosMasivo(CandidatosGralDto datos)
+        {
+            var aux = new Guid("00000000-0000-0000-0000-000000000000");
+            Candidato obj = new Candidato();
+            try
+            {
+                var cc = db.Candidatos.Where(x => x.Id.Equals(datos.Id)).Select(c => c.Id).FirstOrDefault();
+
+                if (cc != aux)
+                {
+                   
+                    var candidato = db.Candidatos.Find(cc);
+                    db.Entry(candidato).State = System.Data.Entity.EntityState.Modified;
+
+                    candidato.CURP = datos.Curp;
+                    candidato.Nombre = datos.Nombre;
+                    candidato.ApellidoPaterno = datos.ApellidoPaterno;
+                    candidato.ApellidoMaterno = datos.ApellidoMaterno;
+
+                    candidato.PaisNacimientoId = 42;
+                    candidato.EstadoNacimientoId = datos.EstadoNacimientoId;
+                    candidato.MunicipioNacimientoId = 0;
+
+                    candidato.GeneroId = datos.GeneroId;
+                    candidato.TipoEntidadId = 2;
+                    candidato.FechaNacimiento = datos.FechaNac;
+
+                    if (datos.OpcionRegistro == 1)
+                    {
+                        candidato.emails = datos.Email;
+                    }
+                    else
+                    {
+                        candidato.telefonos = datos.Telefono;
+                    }
+                    
+                    db.SaveChanges();
+                    return Ok(HttpStatusCode.Created);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.Ambiguous);
+                }
+
+                
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
+
+        [HttpPost]
         [Route("updateContratados")]
         public IHttpActionResult UpdateContratados(ProcesoDto datos)
         {
@@ -881,6 +937,55 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
 
+        }
+
+        [HttpGet]
+        [Route("getCandidatosByVacante")]
+        public IHttpActionResult GetCandidatosByVacante(Guid VacanteId, int estatus)
+        {
+            try
+            {
+                var postulate = db.ProcesoCandidatos
+                    .OrderByDescending(f => f.Fch_Modificacion)
+                    .Where(x => x.RequisicionId.Equals(VacanteId) && x.EstatusId == estatus).Select(c => new
+                    {
+                        Id = c.Id,
+                        candidatoId = c.CandidatoId,
+                        estatus = c.Estatus.Descripcion,
+                        estatusId = c.EstatusId,
+                        reclutador = db.Usuarios.Where(x => x.Id.Equals(c.ReclutadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                        datos = db.Candidatos.Where(x => x.Id.Equals(c.CandidatoId)).Select(p => new
+                        {
+                            nombre = p.Nombre == null ? "" : p.Nombre,
+                            apellidoPaterno = p.ApellidoPaterno,
+                            apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "" : p.ApellidoMaterno,
+                            edad = p.FechaNacimiento,
+                            rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
+                            curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
+                            nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
+                            paisNacimiento = p.PaisNacimientoId,
+                            estadoNacimientoId = p.EstadoNacimientoId,
+                            estadoNacimiento = p.estadoNacimiento.estado,
+                            municipioNacimiento = p.MunicipioNacimientoId,
+                            localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
+                            generoId = p.GeneroId,
+                            email = p.emails.Select(e => e.email).FirstOrDefault(),
+                            lada = p.telefonos.Select(l => l.ClaveLada).FirstOrDefault(),
+                            telefono = p.telefonos.Select(t => t.telefono).FirstOrDefault()
+                        }).ToList(),
+                        horario = c.Horario.Nombre,
+                        horarioId = c.Horario.Id,
+                        tipoMediosId = c.TipoMedios.Id,
+                        tipoMedios = c.TipoMedios.Nombre
+                  
+                    }).ToList();
+
+                return Ok(postulate);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
         }
 
         [HttpGet]
