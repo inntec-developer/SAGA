@@ -840,15 +840,46 @@ namespace SAGA.API.Controllers
 
                     if (datos.OpcionRegistro == 1)
                     {
-                        candidato.emails = datos.Email;
+                        var ec = db.Emails.Where(x => x.EntidadId.Equals(datos.Id)).Select(c => c.Id).FirstOrDefault();
+                        if (ec != aux)
+                        {
+                            var e = db.Emails.Find(ec);
+
+                            db.Entry(e).State = System.Data.Entity.EntityState.Modified;
+                            e.email = datos.Email.Select(x => x.email).FirstOrDefault();
+                            e.fch_Modificacion = DateTime.Now;
+                            e.UsuarioMod = datos.Email.Select(x => x.UsuarioMod).FirstOrDefault();
+                        }
                     }
                     else
                     {
-                        candidato.telefonos = datos.Telefono;
+                        var tc = db.Telefonos.Where(x => x.EntidadId.Equals(datos.Id)).Select(c => c.Id).FirstOrDefault();
+                        if (tc != aux)
+                        {
+                            var t = db.Telefonos.Find(tc);
+
+                            db.Entry(t).State = System.Data.Entity.EntityState.Modified;
+                            t.ClaveLada = datos.Telefono.Select(x => x.ClaveLada).FirstOrDefault();
+                            t.telefono = datos.Telefono.Select(x => x.telefono).FirstOrDefault();
+                            t.fch_Modificacion = DateTime.Now;
+                            t.UsuarioMod = datos.Telefono.Select(x => x.UsuarioMod).FirstOrDefault();
+                        }
+                        else
+                        {
+                            Telefono T = new Telefono();
+                            T.EntidadId = datos.Id;
+                            T.TipoTelefonoId = 1;
+                            T.ClavePais = "52";
+                            T.ClaveLada = datos.Telefono.Select(x => x.ClaveLada).FirstOrDefault();
+                            T.telefono = datos.Telefono.Select(x => x.telefono).FirstOrDefault();
+                            T.UsuarioAlta = datos.Telefono.Select(x => x.UsuarioMod).FirstOrDefault();
+
+                            db.Telefonos.Add(T);
+                        }
                     }
                     
                     db.SaveChanges();
-                    return Ok(HttpStatusCode.Created);
+                    return Ok(HttpStatusCode.OK);
                 }
                 else
                 {
