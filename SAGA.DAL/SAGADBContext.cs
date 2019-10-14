@@ -1814,6 +1814,7 @@ namespace SAGA.DAL
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 				Property(x => x.clasesReclutamiento).HasMaxLength(50).IsRequired();
+                Property(x => x.Activo).IsRequired();
 			}
 		}
 
@@ -2558,7 +2559,8 @@ namespace SAGA.DAL
 			public TipoReclutamientoMap()
 			{
 				HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-				Property(x => x.tipoReclutamiento).HasMaxLength(20).IsRequired();
+				Property(x => x.tipoReclutamiento).HasMaxLength(50).IsRequired();
+                Property(x => x.Activo).IsRequired();
 			}
 		}
 		public class TipoPsicometriaMap : EntityTypeConfiguration<TipoPsicometria>

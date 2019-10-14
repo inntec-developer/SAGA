@@ -465,6 +465,7 @@ namespace SAGA.API.Utilerias
                         estado = x.Direccion.Estado.estado,
                         propietarioid = x.PropietarioId,
                         estadoId = x.Direccion.EstadoId,
+                        ajustes = db.ComentariosVacantes.Where(xx => xx.RequisicionId.Equals(RequisicionId) && xx.MotivoId.Equals(19)).Select(c => c.Comentario).FirstOrDefault()
                     }).FirstOrDefault();
 
                 var facturacion = db.FacturacionPuro.Where(f => f.RequisicionId.Equals(RequisicionId))
@@ -546,7 +547,8 @@ namespace SAGA.API.Utilerias
                 m.Priority = MailPriority.High;
                 m.From = new MailAddress(from, "SAGA Inn");
                 body = string.Format("<html><head></head> <body style=\"text-align:justify; font-size:14px; font-family:'calibri'\"><div style =\"margin-left: 5px\">");
-                switch (requi.estatusId)
+                var auxEstatusId = (requi.estatusId >= 34 && requi.estatusId <= 37 ) || requi.estatusId == 47 || requi.estatusId == 48 ? 34 : requi.estatusId;
+                switch (auxEstatusId)
                 {
                     case 4:
                         m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
@@ -651,8 +653,9 @@ namespace SAGA.API.Utilerias
                         m.Subject = string.Format("[AUTORIZAR FOLIO] Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb,requi.folio);
                         break;
-                    case 44:
-                        //m.To.Add(emailProp);
+                    case 34:
+                        m.To.Add("bmorales@damsa.com.mx");
+                        m.Bcc.Add("mventura@damsa.com.mx");
                         //if (!isDurango)
                         //{
                         //    m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
@@ -669,8 +672,8 @@ namespace SAGA.API.Utilerias
                         //        m.CC.Add(e);
                         //    }
                         //};
-                        //m.Subject = string.Format("[ASIGNACIÓN A GERENTE] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        //body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha asignado al gerente de reclutamiento el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>, el cual debera tranferirla al coordinador correspondiente. </strong>", requi.folio, sitioWeb);
+                        m.Subject = string.Format("Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se cubrio la vacante </strong>");
                         break;
                     case 45:
                         if (!isDurango)
@@ -738,6 +741,11 @@ namespace SAGA.API.Utilerias
                 body = body + string.Format("<p><label><strong style=\"color: #159EF7\">PUESTO: </strong>{0}</label></p>", requi.puesto.ToUpper());
                 body = body + string.Format("<p><label><strong style=\"color: #159EF7\">SUELDO: </strong>{0} a {1}</label></p>", String.Format("{0:C}", requi.sueldoMinimo), String.Format("{0:C}", requi.sueldoMaximo));
                 body = body + string.Format("<p><label><strong style=\"color: #159EF7\">ESTATUS VACANTE: </strong>{0}</label></p>", requi.estaus);
+                if(requi.ajustes != "")
+                {
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">AJUSTES: </strong>{0}</label></p>", requi.ajustes);
+                }
+                
                 body = body + string.Format("</div></div>");
                 body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> Favor de corroborar esta información y dar el seguimiento correspondiente </strong></label></p>");
                 body = body + string.Format("<p><label><strong style=\"color: #159EF7\">Me despido de usted(es) agradeciendo su atención y enviándole un cordial saludo. </strong></label></p>");
@@ -745,6 +753,7 @@ namespace SAGA.API.Utilerias
                 body = body + string.Format("</div></body></html>");
                 m.Body = body;
                 m.IsBodyHtml = true;
+
                 SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
                 smtp.EnableSsl = true;
                 smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);

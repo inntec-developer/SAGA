@@ -51,7 +51,7 @@ namespace SAGA.API.Controllers
 
         [HttpPost]
         [Route("addComentariosVacante")]
-        public IHttpActionResult AddComentarios(ComentariosRequisicionesDto comentario)
+        public IHttpActionResult AddComentariosVacante(ComentariosRequisicionesDto comentario)
         {
             FoliosIncidenciasController Ofi = new FoliosIncidenciasController();
 
@@ -85,7 +85,7 @@ namespace SAGA.API.Controllers
                         Ofi.TransferRequi(comentario.RequisicionId, comentario.UsuarioTransferId, comentario.ReclutadorId, comentario.Tipo);
                     }
                 }
-                else if (!comentario.EstatusId.Equals(8))
+                else if (!comentario.EstatusId.Equals(8) && !comentario.EstatusId.Equals(0))
                 {
                     Ofi.EnviarEmail2(comentario.EstatusId, comentario.RequisicionId, comentario.ReclutadorId);
                 }

@@ -322,6 +322,25 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
             }
         }
 
+        [HttpGet]
+        [Route("getTipoClase")]
+        public IHttpActionResult GetTipoClaseReclutamiento()
+        {
+            var reclutamiento = new
+            {
+                tipos = db.TiposReclutamientos.Where(x => x.Activo).Select(t => new
+                {
+                    id = t.Id,
+                    descripcion = t.tipoReclutamiento
+                }),
+                clases = db.ClasesReclutamientos.Where(x => x.Activo).Select(c => new
+                {
+                    id = c.Id,
+                    descripcion = c.clasesReclutamiento
+                })
+            };
+            return Ok(reclutamiento);
+        }
         #endregion
 
         #region Escolaridadades
