@@ -43,7 +43,7 @@ namespace SAGA.API.Controllers
                     ClaseReclutamiento = df.ClaseReclutamiento.clasesReclutamiento,
                     fch_Creacion = df.fch_Creacion,
                     horariosActivos = df.horariosPerfil.Where(hp => hp.Activo).Count() > 0 ? df.horariosPerfil.Where(hp => hp.Activo).Count() : 0,
-                    UsuarioAlta = df.UsuarioAlta,
+                    UsuarioAlta = db.Usuarios.Where(x => x.Usuario.Equals(df.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                 }).ToList();
 
 
