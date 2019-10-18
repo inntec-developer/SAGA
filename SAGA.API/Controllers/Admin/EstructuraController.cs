@@ -28,7 +28,7 @@ namespace SAGA.API.Controllers.Admin
         {
             List<PrivilegiosDtos> Tree = new List<PrivilegiosDtos>();
 
-            Tree = db.Estructuras.Where(e => e.Id > 1 && e.Activo == true && e.TipoEstructuraId <= 4).Select(ee => new PrivilegiosDtos()
+            Tree = db.Estructuras.Where(e => e.Id > 1 && e.Activo == true && (e.TipoEstructuraId <= 4 || e.TipoEstructuraId == 8)).Select(ee => new PrivilegiosDtos()
             {
                 Id = ee.Id,
                 IdPadre = ee.IdPadre,

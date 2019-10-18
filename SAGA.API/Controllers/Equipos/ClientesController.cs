@@ -214,7 +214,7 @@ namespace SAGA.API.Controllers.Equipos
                                   tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
                                   nombre = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                                   foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
-                              })).Distinct().Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new
+                              })).Distinct().Union(db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id) && (uids.Distinct().Contains(x.PropietarioId))).Select(u => new
                               {
                                   clienteId = u.ClienteId,
                                   reclutadorId = u.PropietarioId,

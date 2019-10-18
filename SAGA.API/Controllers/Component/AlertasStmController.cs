@@ -34,7 +34,8 @@ namespace SAGA.API.Controllers.Component
                         x.Icon,
                         x.Alert,
                         x.Activo,
-                        x.Creacion
+                        x.Creacion,
+                        x.TipoAlerta.Tipo
                     })
                     .ToList().OrderByDescending(x => x.Creacion).Take(10);
                 return Ok(alert);
@@ -46,6 +47,23 @@ namespace SAGA.API.Controllers.Component
             }
         }
 
+        [HttpGet]
+        [Route("getAlertCount")]
+        [Authorize]
+        public IHttpActionResult GetAlertCount(Guid Id)
+        {
+            try
+            {
+                var alert = _db.AlertasStm
+                    .Where(x => x.EntidadId.Equals(Id) && x.Activo.Equals(true)).Count();
+                return Ok(alert);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
         [HttpGet]
         [Route("getAllAlert")]
         [Authorize]

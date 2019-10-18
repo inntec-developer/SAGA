@@ -26,6 +26,7 @@ namespace SAGA.API.Controllers
         private Rastreabilidad rastreabilidad;
         private SendEmails SendEmail;
         private DesignerVacanteController Dvc;
+        private PrivilegiosController objP;
 
         public RequisicionesController()
         {
@@ -35,6 +36,7 @@ namespace SAGA.API.Controllers
             rastreabilidad = new Rastreabilidad();
             SendEmail = new SendEmails();
             Dvc = new DesignerVacanteController();
+            objP = new PrivilegiosController();
         }
 
         [HttpGet]
@@ -640,15 +642,19 @@ namespace SAGA.API.Controllers
         public IHttpActionResult GetRequisiciones(Guid propietario)
         {
             List<Guid> uids = new List<Guid>();
+            
             int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37, 47, 48 };
 
             try
             {
                 byte tipo = db.Usuarios.Where(x => x.Id.Equals(propietario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
+                var permisos = objP.GetPrivilegios(propietario);
+
+                bool confidencial = permisos.Where(x => x.Nombre.Equals("Confidencial") && x.TipoEstructuraId.Equals(8)).Select(c => c.Read).FirstOrDefault();
                 if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
                 {
                     var requisicion = db.Requisiciones
-                   .Where(e => !e.Confidencial && !estatusId.Contains(e.EstatusId))
+                   .Where(e => !estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -697,6 +703,10 @@ namespace SAGA.API.Controllers
                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
                    }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
+                    if(!confidencial)
+                    {
+                        requisicion = requisicion.Where(x => !x.Confidencial).ToList();
+                    }
                     return Ok(requisicion);
                 }
                 else if (tipo == 10) //ejecutivo de cuenta
@@ -751,6 +761,12 @@ namespace SAGA.API.Controllers
 
                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
                    }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
+
+                    if (!confidencial)
+                    {
+                        requisicion = requisicion.Where(x => !x.Confidencial).ToList();
+                    }
+
                     return Ok(requisicion);
                 }
                 else
@@ -766,7 +782,7 @@ namespace SAGA.API.Controllers
                     uids.Add(propietario);
 
                     var requisicion = db.Requisiciones
-                   .Where(e => !estatusId.Contains(e.EstatusId) 
+                   .Where(e => !estatusId.Contains(e.EstatusId)
                    && (uids.Contains(e.PropietarioId)))
                    .Select(e => new
                    {
@@ -815,6 +831,11 @@ namespace SAGA.API.Controllers
                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion.ToUpper() + " - ") + c.Comentario.ToUpper()).ToList()
                    }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
+                    if (!confidencial)
+                    {
+                        requisicion = requisicion.Where(x => !x.Confidencial).ToList();
+                    }
+
                     return Ok(requisicion);
 
                 }
@@ -839,10 +860,14 @@ namespace SAGA.API.Controllers
             try
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(propietario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
+                var permisos = objP.GetPrivilegios(propietario);
+
+                bool confidencial = permisos.Where(x => x.Nombre.Equals("Confidencial") && x.TipoEstructuraId.Equals(8)).Select(c => c.Read).FirstOrDefault();
+
                 if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
                 {
                     var requisicion = db.Requisiciones
-                   .Where(e => !e.Confidencial && estatusId.Contains(e.EstatusId))
+                   .Where(e => estatusId.Contains(e.EstatusId))
                    .Select(e => new
                    {
                        Id = e.Id,
@@ -870,6 +895,10 @@ namespace SAGA.API.Controllers
                                        ).ToList(),
                    }).OrderByDescending(x => x.fch_Modificacion).ThenByDescending(x => x.EstatusOrden).ToList();
 
+                    if (!confidencial)
+                    {
+                        requisicion = requisicion.Where(x => !x.Confidencial).ToList();
+                    }
                     return Ok(requisicion);
                 }
                 else if(tipo == 10) //ejecutivo de cuenta
@@ -925,6 +954,11 @@ namespace SAGA.API.Controllers
                       //ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
                   }).OrderByDescending(x => x.fch_Modificacion).ThenByDescending(x => x.EstatusOrden).ToList();
 
+                    if (!confidencial)
+                    {
+                        requisicion = requisicion.Where(x => !x.Confidencial).ToList();
+                    }
+
                     return Ok(requisicion);
                 }
                 else
@@ -941,13 +975,13 @@ namespace SAGA.API.Controllers
 
                     var asignadas = db.AsignacionRequis
                         .Where(x => x.GrpUsrId.Equals(propietario) 
-                        && estatusId.Contains(x.Requisicion.EstatusId))
+                        && estatusId.Contains(x.Requisicion.EstatusId) )
                         .Select(a => a.RequisicionId).ToList();
 
 
                     var requis = db.Requisiciones
                    .Where(e => (uids.Contains(e.AprobadorId) || uids.Contains(e.PropietarioId))
-                   && estatusId.Contains(e.EstatusId))
+                   && estatusId.Contains(e.EstatusId) )
                    .Select(a => a.Id).ToList();
 
                     var AllRequis = requis.Union(asignadas);
@@ -981,8 +1015,12 @@ namespace SAGA.API.Controllers
                                        ).ToList(),
                    }).OrderByDescending(x => x.fch_Modificacion).ThenByDescending(x => x.EstatusOrden).ToList();
 
-                    return Ok(requisicion);
+                    if (!confidencial)
+                    {
+                        requisicion = requisicion.Where(x => !x.Confidencial).ToList();
+                    }
 
+                    return Ok(requisicion);
                 }
 
             }
@@ -1001,10 +1039,14 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                var permisos = objP.GetPrivilegios(propietario);
+
+                bool confidencial = permisos.Where(x => x.Nombre.Equals("Confidencial") && x.TipoEstructuraId.Equals(8)).Select(c => c.Read).FirstOrDefault();
+
                 var UnidadNegocio = db.Usuarios
                     .Where(u => u.Id.Equals(propietario)).Select(u => u.Sucursal.UnidadNegocioId).FirstOrDefault();
                     var requisicion = db.Requisiciones
-                        .Where(e => e.Activo.Equals(true) && e.TipoReclutamientoId.Equals(tipo) && (e.EstatusId.Equals(43) || e.EstatusId.Equals(44)) )
+                        .Where(e => e.Activo.Equals(true) && e.TipoReclutamientoId.Equals(tipo) && (e.EstatusId.Equals(43) || e.EstatusId.Equals(44)))
                         .Select(e => new RequisicionGrallDto
                         {
                             Id = e.Id,
@@ -1034,10 +1076,16 @@ namespace SAGA.API.Controllers
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
-                foreach(var r in requisicion)
+                if (!confidencial)
+                {
+                    requisicion = requisicion.Where(x => !x.Confidencial).ToList();
+                }
+
+                foreach (var r in requisicion)
                 {
                     r.diasTrans = this.countWeekDays(Convert.ToDateTime(r.fch_Creacion), DateTime.Now);
                 }
+
 
                 return Ok(requisicion);                
 
@@ -1056,6 +1104,9 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                var permisos = objP.GetPrivilegios(ReclutadorId);
+
+                bool confidencial = permisos.Where(x => x.Nombre.Equals("Confidencial") && x.TipoEstructuraId.Equals(8)).Select(c => c.Read).FirstOrDefault();
                 //List<Guid> uids = new List<Guid>();
                 //if (db.Subordinados.Count(x => x.LiderId.Equals(ReclutadorId)) > 0)
                 //{
@@ -1074,7 +1125,7 @@ namespace SAGA.API.Controllers
                 //      .ToList();
 
                 var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus) && e.AprobadorId.Equals(ReclutadorId))
+                    .Where(e => e.Activo.Equals(true) && e.Estatus.Id.Equals(estatus) && e.AprobadorId.Equals(ReclutadorId) )
                     .Select(e => new
                     {
                         Id = e.Id,
@@ -1091,6 +1142,7 @@ namespace SAGA.API.Controllers
                         EnProcesoEC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 22).Count(),
                         EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
                         contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
+                        Confidencial = e.Confidencial,
                         ComentarioReclutador = db.ComentariosVacantes.OrderByDescending(f => f.fch_Creacion).Where(x => x.RequisicionId.Equals(e.Id) && x.Motivo.EstatusId.Equals(39)).Select(c => new {
                             id = c.Id,
                             folio = db.FolioIncidencia.Where(x => x.ComentarioId.Equals(c.Id)).Select(f => f.Folio).FirstOrDefault(),
@@ -1102,6 +1154,10 @@ namespace SAGA.API.Controllers
                         }).FirstOrDefault()
                     }).ToList();
 
+                if (!confidencial)
+                {
+                    vacantes = vacantes.Where(x => !x.Confidencial).ToList();
+                }
                 return Ok(vacantes);
 
             }
@@ -1121,12 +1177,14 @@ namespace SAGA.API.Controllers
             int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37, 47, 48 };
             try
             {
+                var permisos = objP.GetPrivilegios(IdUsuario);
+
+                bool confidencial = permisos.Where(x => x.Nombre.Equals("Confidencial") && x.TipoEstructuraId.Equals(8)).Select(c => c.Read).FirstOrDefault();
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(IdUsuario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
                 if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
                 {
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                         .Where(e => e.Activo
-                        && !e.Confidencial
                         && !estatusId.Contains(e.EstatusId))
                         .Select(e => new
                         {
@@ -1171,6 +1229,11 @@ namespace SAGA.API.Controllers
                                 ponderacion = p.Ponderacion
                             }).FirstOrDefault() : null
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
+
+                    if (!confidencial)
+                    {
+                        vacantes = vacantes.Where(x => !x.Confidencial).ToList();
+                    }
                     return Ok(vacantes);
                 }
                 else
@@ -1188,14 +1251,14 @@ namespace SAGA.API.Controllers
                     var asignadas = db.AsignacionRequis
                             .OrderByDescending(e => e.Id)
                             .Where(a => uids.Distinct().Contains(a.GrpUsrId)
-                                && !estatusId.Contains(a.Requisicion.EstatusId))
+                                && !estatusId.Contains(a.Requisicion.EstatusId) )
                             .Select(a => a.RequisicionId)
                             .Distinct()
                             .ToList();
 
                     var requis = db.Requisiciones
                     .Where(e => (uids.Contains(e.AprobadorId) || uids.Contains(e.PropietarioId))
-                        && !estatusId.Contains(e.EstatusId))
+                        && !estatusId.Contains(e.EstatusId) )
                     .Select(a => a.Id).ToList();
 
                     var AllRequis = requis.Union(asignadas);
@@ -1245,6 +1308,12 @@ namespace SAGA.API.Controllers
                                 ponderacion = p.Ponderacion
                             }).FirstOrDefault() : null
                         }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
+
+                    if (!confidencial)
+                    {
+                        vacantes = vacantes.Where(x => !x.Confidencial).ToList();
+                    }
+
                     return Ok(vacantes);
                 }
 
@@ -1264,6 +1333,10 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                var permisos = objP.GetPrivilegios(IdUsuario);
+
+                bool confidencial = permisos.Where(x => x.Nombre.Equals("Confidencial") && x.TipoEstructuraId.Equals(8)).Select(c => c.Read).FirstOrDefault();
+
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(IdUsuario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
                 if (tipo == 8)
                 {
@@ -1297,6 +1370,10 @@ namespace SAGA.API.Controllers
                             Aprobador = e.Aprobador != null ? e.Aprobador : "",
 
                         }).ToList();
+                    if (!confidencial)
+                    {
+                        vacantes = vacantes.Where(x => !x.Confidencial).ToList();
+                    }
                     return Ok(vacantes);
                 }
                 else
@@ -1311,7 +1388,6 @@ namespace SAGA.API.Controllers
                     }
                     uids.Add(IdUsuario);
 
-
                     var asig = db.AsignacionRequis
                         .OrderByDescending(e => e.Id)
                         .Where(a => uids.Distinct().Contains(a.GrpUsrId))
@@ -1320,8 +1396,7 @@ namespace SAGA.API.Controllers
                         .ToList();
 
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
-                        .Where(e => asig.Contains(e.Id))
-                        .Where(e => e.Activo.Equals(true))
+                        .Where(e => asig.Contains(e.Id) && e.Activo.Equals(true))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -1350,6 +1425,12 @@ namespace SAGA.API.Controllers
                             AreaExperiencia = e.Area.areaExperiencia,
                             Aprobador = e.Aprobador != null ? e.Aprobador.ToUpper() : "",
                         }).ToList();
+
+                    if (!confidencial)
+                    {
+                        vacantes = vacantes.Where(x => !x.Confidencial).ToList();
+                    }
+
                     return Ok(vacantes);
                 }
 
@@ -1381,6 +1462,7 @@ namespace SAGA.API.Controllers
 
             try
             {
+
                 //Stopwatch stopwatch = new Stopwatch();
 
                 //stopwatch.Start();
@@ -1720,11 +1802,15 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                var permisos = objP.GetPrivilegios(reclutadorId);
+
+                bool confidencial = permisos.Where(x => x.Nombre.Equals("Confidencial") && x.TipoEstructuraId.Equals(8)).Select(c => c.Read).FirstOrDefault();
+
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(reclutadorId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
                 if (tipo == 8)
                 {
                     var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento)
-                       .Where(e => e.Activo.Equals(true) && e.EstatusId != 9).Select(h => new
+                       .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 ).Select(h => new
                        {
                            Id = h.Id,
                            Folio = h.Folio,
@@ -1733,6 +1819,7 @@ namespace SAGA.API.Controllers
                            EstatusId = h.EstatusId,
                            cliente = h.Cliente.Nombrecomercial.ToUpper(),
                            Vacantes = h.horariosRequi.Count() > 0 ? h.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                           Confidencial = h.Confidencial,
                            Fch_limite = h.fch_Cumplimiento,
                            Postulados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(10)).Select(c => c.CandidatoId).Distinct().Count(),
                            Abandono = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 26).Count(),
@@ -1748,6 +1835,10 @@ namespace SAGA.API.Controllers
                            porcentaje = h.horariosRequi.Count() > 0 && db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count() > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count() * 100) / h.horariosRequi.Sum(s => s.numeroVacantes) : 0,
                        }).ToList();
 
+                    if (!confidencial)
+                    {
+                        informe = informe.Where(x => !x.Confidencial).ToList();
+                    }
                     return Ok(informe);
                 }
                 else
@@ -1764,13 +1855,12 @@ namespace SAGA.API.Controllers
 
                     var asig = db.AsignacionRequis
                         .OrderByDescending(e => e.Id)
-                        .Where(a => uids.Distinct().Contains(a.GrpUsrId))
+                        .Where(a => uids.Distinct().Contains(a.GrpUsrId) && a.Requisicion.Activo)
                         .Select(a => a.RequisicionId)
                         .Distinct()
                         .ToList();
 
-                    var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => asig.Contains(e.Id))
-                        .Where(e => e.Activo.Equals(true) && e.EstatusId != 9).Select(h => new
+                    var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => asig.Contains(e.Id)).Select(h => new
                         {
                             Id = h.Id,
                             Folio = h.Folio,
@@ -1785,6 +1875,7 @@ namespace SAGA.API.Controllers
                             Descartados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 27).Count(),
                             EnProceso = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28 && p.EstatusId != 42).Count(),
                             entrevista = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 18).Count(),
+                            Confidencial = h.Confidencial,
                         //EnProcesoFR = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 21).Count(),
                         //EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(RequisicionId) && p.HorarioId.Equals(h.Id) && p.EstatusId == 23).Count(),
                         contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count(),
@@ -1794,6 +1885,10 @@ namespace SAGA.API.Controllers
                             porcentaje = h.horariosRequi.Count() > 0 && db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count() > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count() * 100) / h.horariosRequi.Sum(s => s.numeroVacantes) : 0,
                         }).ToList();
 
+                    if (!confidencial)
+                    {
+                        informe = informe.Where(x => !x.Confidencial).ToList();
+                    }
                     return Ok(informe);
                 }
 

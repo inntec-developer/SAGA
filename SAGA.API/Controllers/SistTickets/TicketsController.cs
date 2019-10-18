@@ -1418,7 +1418,7 @@ namespace SAGA.API.Controllers
 
             if(arte != null)
             {
-                arte = @"https://apisb.damsa.com.mx/Utilerias/" + "img/ArteRequi/Arte/" + requisicionId + ".png";
+                arte = @"http://localhost:33333/api/utilerias/" + "img/ArteRequi/Arte/" + requisicionId + ".png";
             }
             //else
             //{
@@ -1451,6 +1451,7 @@ namespace SAGA.API.Controllers
                         Id = e.Id,
                         estatus = e.Estatus.Descripcion,
                         Folio = e.Folio,
+                        fch_Creacion = e.fch_Creacion,
                         //Cliente = e.Cliente.Nombrecomercial,
                         //ClienteId = e.Cliente.Id,
                         //estado = e.Cliente.direcciones.Select(x => x.Municipio.municipio + " " + x.Estado.estado + " " + x.Estado.Pais.pais).FirstOrDefault(),
@@ -1466,7 +1467,7 @@ namespace SAGA.API.Controllers
                         areaId = e.AreaId,
                         cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0,
                        // arte = ValidarArte(e.Id.ToString()) // @"https://apisb.damsa.com.mx/Utilerias/" + "img/ArteRequi/Arte/" + e.Id + ".png"
-                    }).ToList();
+                    }).OrderBy(o => o.fch_Creacion).ToList();
 
 
                 var v = vacantes.Where(x => x.cubierta > 0).Select(e => new
@@ -1531,6 +1532,8 @@ namespace SAGA.API.Controllers
                         areaId = e.AreaId,
                         cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0,
                         arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/Arte/" + e.Id + ".png",
+                        //arte = @"http://localhost:33333/api/utilerias/" + "img/ArteRequi/Arte/" + e.Id + ".png",
+                        //bg = @"http://localhost:33333/api/utilerias/" + "img/ArteRequi/BG/" + e.DAMFO290.Arte
                         bg = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/BG/" + e.DAMFO290.Arte
                     }).ToList();
 
@@ -1572,6 +1575,7 @@ namespace SAGA.API.Controllers
                     Id = e.Id,
                     cubierta = e.cubierta,
                     arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/Arte/" + e.Id + ".png"
+                   //arte = @"http://localhost:33333/api/utilerias/" + "img/ArteRequi/Arte/" + e.Id + ".png",
                 }).ToList();
 
                 return Ok(v);
