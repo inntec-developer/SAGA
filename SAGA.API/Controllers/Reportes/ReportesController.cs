@@ -79,8 +79,8 @@ namespace SAGA.API.Controllers.Reportes
                 empresa = e.Cliente.Nombrecomercial.ToUpper(),
                 e.ClienteId,
                 e.AprobadorId,
-                cordinador2 = Usuarios.Where(x => x.Usuario == e.Aprobador).ToList().Count > 0 ? Usuarios.Where(x => e.Aprobador.Contains(x.Usuario)).Select(x => x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno).FirstOrDefault().ToUpper() : "",
-                nombreApellido = Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper() + " " + Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().ApellidoMaterno.ToUpper(),
+                cordinador2 = Usuarios.Where(x => x.Id == e.AprobadorId).ToList().Count > 0 ? Usuarios.Where(x => x.Id == e.AprobadorId).Select(x => x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno).FirstOrDefault().ToUpper() : "",
+                nombreApellido = Usuarios.Where(x => x.Id == e.PropietarioId).FirstOrDefault().Nombre.ToUpper() + " " + Usuarios.Where(x => x.Id == e.PropietarioId).FirstOrDefault().ApellidoPaterno.ToUpper() + " " + Usuarios.Where(x => x.Id == e.PropietarioId).FirstOrDefault().ApellidoMaterno.ToUpper(),
                 propietario = Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Nombre.ToUpper(),
                 Usuario = Usuarios.Where(x => x.Usuario == e.Propietario).FirstOrDefault().Usuario,
                 Estado = e.Direccion.Estado.estado.ToUpper(),
@@ -990,7 +990,7 @@ namespace SAGA.API.Controllers.Reportes
                 e.GeneroId,
                 estatusid = consul.Where(x => x.Id == e.Id).FirstOrDefault().estatuid,
                 estatus = consul.Where(x=>x.Id == e.Id).FirstOrDefault().nombre,
-                avance = 0
+                avance = 0//db.av.Where(x=>x.CandidatoId == e.Id).FirstOrDefault().
             }).ToList();
 
             if(Edad != 0)
