@@ -977,7 +977,7 @@ namespace SAGA.API.Controllers.Reportes
                 e.estatuid,
                 nombre = e.estatuid > 0? db.Estatus.Where(x=>x.Id == e.estatuid).FirstOrDefault().Descripcion : "DISPONIBLE"
             }).ToList();
-           
+
             var datos = candidato.Select(e => new {
                 e.Id,
                 nombre = entidad.Where(x => x.Id == e.Id).Select(x => x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno).FirstOrDefault(),
@@ -989,8 +989,8 @@ namespace SAGA.API.Controllers.Reportes
                 e.Genero.genero,
                 e.GeneroId,
                 estatusid = consul.Where(x => x.Id == e.Id).FirstOrDefault().estatuid,
-                estatus = consul.Where(x=>x.Id == e.Id).FirstOrDefault().nombre,
-                avance = 0//db.av.Where(x=>x.CandidatoId == e.Id).FirstOrDefault().
+                estatus = consul.Where(x => x.Id == e.Id).FirstOrDefault().nombre,
+                avance = db.AvancePerfil.Where(x => x.PerfilCandidatoId == e.Id).ToList().Count == 0? 0: db.AvancePerfil.Where(x => x.PerfilCandidatoId == e.Id).FirstOrDefault().Avance
             }).ToList();
 
             if(Edad != 0)

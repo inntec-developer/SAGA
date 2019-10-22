@@ -52,6 +52,7 @@ namespace SAGA.DAL
         public DbSet<MiCVUpload> MiCVUpload { get; set; }
         public DbSet<HorariosCalendario> HorariosCalendario { get; set; }
         public DbSet<CalendarioCandidato> CalendarioCandidato { get; set; }
+        public DbSet<AvancePerfil> AvancePerfil { get; set; }
         #endregion
 
         #region Recl
@@ -374,6 +375,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new MiCVUploadMap().ToTable("MiCVUpload", "BTra"));
             modelBuilder.Configurations.Add(new HorariosCalendarioMap().ToTable("HorariosCalendario", "BTra"));
             modelBuilder.Configurations.Add(new CalendarioCandidatoMap().ToTable("CalendarioCandidato", "BTra"));
+            modelBuilder.Configurations.Add(new AvancePerfilMap().ToTable("AvancePerfil", "BTra"));
             #endregion
 
             #region Reclutamiento_Recl
@@ -1755,6 +1757,17 @@ namespace SAGA.DAL
                 Property(x => x.Estatus).HasColumnType("int").IsRequired();
                 Property(x => x.Folio).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.RequisicionId).IsRequired();
+            }
+        }
+
+        public class AvancePerfilMap : EntityTypeConfiguration<AvancePerfil>
+        {
+            public AvancePerfilMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.PerfilCandidatoId).IsRequired();
+                Property(x => x.Avance).IsOptional();
             }
         }
 
