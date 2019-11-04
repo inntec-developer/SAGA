@@ -1210,6 +1210,30 @@ namespace SAGA.API.Controllers.Reportes
                 return Ok(datos);
         }
 
+        [HttpGet]
+        [Route("mapafolios")]
+        public IHttpActionResult MapaFolios()
+        {
+
+            int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39 };
+            var requi = db.Requisiciones.Where(e => e.Confidencial == false).ToList();
+            requi = requi.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
+            var estados = db.Estados.Where(e=>e.Activo == true && e.PaisId == 42).ToList();
+            var datos = estados.Select(e => new
+            {
+                e.estado,
+                e.Id,
+                folios = requi.Where(x => x.Direccion.EstadoId == e.Id).ToList().Count,
+                latitude = "",
+                longitude ="",
+            }).ToList();
+            //var negocio = db.OficinasReclutamiento.Where(e => listaAreglo.Contains(e.UnidadNegocioId)).Select(e => e.Id).ToList();
+            //var estado = db.Direcciones.Where(e => negocio.Contains(e.EntidadId)).Select(e => e.EstadoId).Distinct().ToList();
+            datos = datos.OrderBy(e => e.estado).ToList();
+            return Ok(datos);
+        }
+
+
         public class proactividad
         {
             public string nombre { get; set; }
@@ -1251,29 +1275,5 @@ namespace SAGA.API.Controllers.Reportes
             }
         }
 
-        //public int PuntajeCalculo(Guid id, List<ProcesoCandidato> lista)
-        //{
-        //    int total = 0;
-        //    var requi = lista.Where(e=>e.ReclutadorId == id).Select(e => e.RequisicionId).ToList();
-        //    try
-        //    {
-        //        var datos = db.PonderacionRequisiciones.Where(e => requi.Contains(e.RequisicionId)).Select(e => new
-        //        {
-        //            e.RequisicionId,
-        //            e.Ponderacion
-        //        }).ToList();
-        //        var ponderacion = datos.Select(e => new
-        //        {
-        //            puntos = lista.Where(a => a.RequisicionId == e.RequisicionId).ToList().Count() * e.Ponderacion
-        //        }).ToList();
-        //        total = ponderacion.Sum(e => e.puntos);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        total = 0;
-        //    }
-           
-        //    return total;
-        //}
     }
 }
