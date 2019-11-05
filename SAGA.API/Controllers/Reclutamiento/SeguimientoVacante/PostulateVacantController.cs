@@ -36,7 +36,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("validarEmailCandidato")]
-        [Authorize]
+        //[Authorize]
         public IHttpActionResult ValidarEmailCandidato(string email)
         {
             var e = db.Emails.Where(x => x.email.Equals(email)).Count();
@@ -52,7 +52,7 @@ namespace SAGA.API.Controllers
         }
         [HttpGet]
         [Route("validarTelCandidato")]
-        [Authorize]
+        //[Authorize]
         public IHttpActionResult ValidarTelCandidato(string lada, string telefono)
         {
             var e = db.Telefonos.Where(x => x.ClaveLada.Equals(lada) && x.telefono.Equals(telefono)).Count();

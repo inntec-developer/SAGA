@@ -10,7 +10,7 @@ using SAGA.API.Dtos;
 using AutoMapper;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
-
+using SAGA.API.Utilerias;
 
 namespace SAGA.API.Controllers
 
@@ -194,6 +194,7 @@ namespace SAGA.API.Controllers
                         TpVehiculo = c.Candidato.tieneVehiculoPropio,
                         Formaciones = c.Formaciones.Select(f => f.GradoEstudioId).ToList(),
                         Estatus = db.ProcesoCandidatos.OrderByDescending(p => p.Fch_Modificacion).Where(p => p.CandidatoId.Equals(c.CandidatoId)).Select(p => p.Estatus.Descripcion).FirstOrDefault(),
+                        EstatusId = db.ProcesoCandidatos.OrderByDescending(p => p.Fch_Modificacion).Where(p => p.CandidatoId.Equals(c.CandidatoId)).Select(p => p.Estatus.Id).FirstOrDefault(),
                         fch_Creacion = db.AspNetUsers.Where(a => a.IdPersona.Equals(c.CandidatoId)).Select(a => a.fch_Creacion).FirstOrDefault()
 
                     }).OrderByDescending(c => c.fch_Creacion).ToList();
@@ -329,7 +330,7 @@ namespace SAGA.API.Controllers
                 {
                     candidatoId = x.IdCandidato,
                     nombre = x.nombre + " " + x.apellidoPaterno + " " + x.apellidoMaterno,
-                    AreaExp = x.AreaExp != null ? x.AreaExp: "S/D",
+                    AreaExp = x.AreaExp != null ? x.AreaExp : "S/D",
                     AreaInt = x.AreaInt != null ? x.AreaInt : "S/D",
                     edad = x.fechaNacimiento,
                     curp = x.curp,
@@ -337,12 +338,12 @@ namespace SAGA.API.Controllers
                     sueldoMinimo = x.Salario != null ? x.Salario : 0,
                     localidad = x.Estado + " / " + x.Municipio,
                     estatus = x.Estatus != null ? x.Estatus : "DISPONIBLE",
-                  
+                    estatusId = x.EstatusId != 0 ? x.EstatusId : 27
                 }).ToList();
 
                 return Ok(candidatos.Distinct());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Ok(ex.Message);
             }
@@ -433,9 +434,9 @@ namespace SAGA.API.Controllers
                 {
                     return Ok(HttpStatusCode.BadRequest);
                 }
-                
+
             }
-            catch(Exception ex )
+            catch (Exception ex)
             {
                 return Ok(ex.Message);
             }
@@ -498,7 +499,7 @@ namespace SAGA.API.Controllers
                 var filtros = Aboutme.Union(Descripcion).ToList().Distinct();
                 if (Nombre.Count > 0)
                     filtros = filtros.Union(Nombre).ToList().Distinct();
-                
+
                 var encontrados = db.PerfilCandidato
                 .Where(x => filtros.Contains(x.Id))
                  .Select(x => new
@@ -715,7 +716,8 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var contratados = db.CandidatosInfo.Where(x => candidatos.Contains(x.CandidatoId)).Select(p => new {
+                var contratados = db.CandidatosInfo.Where(x => candidatos.Contains(x.CandidatoId)).Select(p => new
+                {
                     candidatoId = p.CandidatoId,
                     nombre = p.Nombre == null ? "" : p.Nombre,
                     apellidoPaterno = p.ApellidoPaterno,
@@ -821,7 +823,7 @@ namespace SAGA.API.Controllers
 
                 if (cc != aux)
                 {
-                   
+
                     var candidato = db.Candidatos.Find(cc);
                     db.Entry(candidato).State = System.Data.Entity.EntityState.Modified;
 
@@ -877,7 +879,7 @@ namespace SAGA.API.Controllers
                             db.Telefonos.Add(T);
                         }
                     }
-                    
+
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);
                 }
@@ -886,7 +888,7 @@ namespace SAGA.API.Controllers
                     return Ok(HttpStatusCode.Ambiguous);
                 }
 
-                
+
             }
             catch (Exception ex)
             {
@@ -1008,7 +1010,7 @@ namespace SAGA.API.Controllers
                         horarioId = c.Horario.Id,
                         tipoMediosId = c.TipoMedios.Id,
                         tipoMedios = c.TipoMedios.Nombre
-                  
+
                     }).ToList();
 
                 return Ok(postulate);
@@ -1029,13 +1031,13 @@ namespace SAGA.API.Controllers
                     .OrderByDescending(f => f.Fch_Modificacion)
                     .Where(x => x.RequisicionId.Equals(VacanteId) && x.EstatusId != 27 && x.EstatusId != 40 && x.EstatusId != 28 && x.EstatusId != 42).Select(c => new
                     {
-                    Id = c.Id,
-                    candidatoId = c.CandidatoId,
-                    estatus = c.Estatus.Descripcion,
-                    estatusId = c.EstatusId,
-                    reclutador = db.Usuarios.Where(x => x.Id.Equals(c.ReclutadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
-                    contratados = db.Candidatos.Where(x => x.Id.Equals(c.CandidatoId)).Select(p => new
-                    {
+                        Id = c.Id,
+                        candidatoId = c.CandidatoId,
+                        estatus = c.Estatus.Descripcion,
+                        estatusId = c.EstatusId,
+                        reclutador = db.Usuarios.Where(x => x.Id.Equals(c.ReclutadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                        contratados = db.Candidatos.Where(x => x.Id.Equals(c.CandidatoId)).Select(p => new
+                        {
                             nombre = p.Nombre == null ? "" : p.Nombre,
                             apellidoPaterno = p.ApellidoPaterno,
                             apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "" : p.ApellidoMaterno,
@@ -1048,24 +1050,24 @@ namespace SAGA.API.Controllers
                             municipioNacimiento = p.MunicipioNacimientoId,
                             localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
                             generoId = p.GeneroId
-                     }).ToList(),
+                        }).ToList(),
 
-                    //    contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId) && c.EstatusId.Equals(24)).Select(p => new
-                    //{
-                    //    nombre = p.Nombre == null ? "" : p.Nombre,
-                    //    apellidoPaterno = p.ApellidoPaterno,
-                    //    apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "" : p.ApellidoMaterno,
-                    //    edad = p.FechaNacimiento,
-                    //    rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
-                    //    curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
-                    //    nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
-                    //    paisNacimiento = p.PaisNacimientoId,
-                    //    estadoNacimiento = p.EstadoNacimientoId,
-                    //    municipioNacimiento = p.MunicipioNacimientoId,
-                    //    localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
-                    //    generoId = p.GeneroId
-                    //}).ToList(),
-                }).ToList();
+                        //    contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId) && c.EstatusId.Equals(24)).Select(p => new
+                        //{
+                        //    nombre = p.Nombre == null ? "" : p.Nombre,
+                        //    apellidoPaterno = p.ApellidoPaterno,
+                        //    apellidoMaterno = String.IsNullOrEmpty(p.ApellidoMaterno) ? "" : p.ApellidoMaterno,
+                        //    edad = p.FechaNacimiento,
+                        //    rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
+                        //    curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
+                        //    nss = String.IsNullOrEmpty(p.NSS) ? "Sin registro" : p.NSS,
+                        //    paisNacimiento = p.PaisNacimientoId,
+                        //    estadoNacimiento = p.EstadoNacimientoId,
+                        //    municipioNacimiento = p.MunicipioNacimientoId,
+                        //    localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
+                        //    generoId = p.GeneroId
+                        //}).ToList(),
+                    }).ToList();
 
                 return Ok(postulate);
             }
@@ -1073,6 +1075,24 @@ namespace SAGA.API.Controllers
             {
                 return Ok(HttpStatusCode.BadRequest);
             }
+        }
+
+        [HttpPost]
+        [Route("emailPeticionLiberar")]
+        [Authorize]
+        public IHttpActionResult EmailPeticionLiberar(ProcesoDto datos)
+        {
+            try
+            {
+                SendEmails se = new SendEmails();
+                se.SendEmailPeticionLiberar(datos);
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
         }
     }
 

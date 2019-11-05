@@ -28,178 +28,12 @@ namespace SAGA.API.Controllers
     [RoutePrefix("api/SistTickets")]
     public class TicketsController : ApiController
     {
-        public readonly HashSet<string> PalabrasInconvenientes = new HashSet<string>
-        {
-            "BACA", "BAKA", "BUEI", "BUEY",
-            "CACA", "CACO", "CAGA", "CAGO", "CAKA", "CAKO", "COGE", "COGI", "COJA", "COJE", "COJI", "COJO", "COLA", "CULO",
-            "FALO", "FETO",
-            "GETA", "GUEI", "GUEY",
-            "JETA", "JOTO",
-            "KACA", "KACO", "KAGA", "KAGO", "KAKA", "KAKO", "KOGE", "KOGI", "KOJA", "KOJE", "KOJI", "KOJO", "KOLA", "KULO",
-            "LILO", "LOCA", "LOCO", "LOKA", "LOKO",
-            "MAME", "MAMO", "MEAR", "MEAS", "MEON", "MIAR", "MION", "MOCO", "MOKO", "MULA", "MULO",
-            "NACA", "NACO",
-            "PEDA", "PEDO", "PENE", "PIPI", "PITO", "POPO", "PUTA", "PUTO",
-            "QULO",
-            "RATA", "ROBA", "ROBE", "ROBO", "RUIN",
-            "SENO",
-            "TETA",
-            "VACA", "VAGA", "VAGO", "VAKA", "VUEI", "VUEY",
-            "WUEI", "WUEY"
-        };
-
-
-        private SAGADBContext db;
+       private SAGADBContext db;
 
         Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
         public TicketsController()
         {
             db = new SAGADBContext();
-        }
-
-        /// <summary>
-        ///     Calcula el codigo verificador en base a la pre CURP.
-        /// </summary>
-        /// <param name="preCURP"> La pre CURP.</param>
-        /// <returns> El código verificador.</returns>
-        /// <exception cref="ArgumentException"> Cuando alguno de los caracteres de la pre CURP no es válido.</exception>
-        private static int CodigoVerificador(string preCURP)
-        {
-            var contador = 18;
-            var sumatoria = 0;
-
-            // Por cada caracter
-            foreach (var caracter in preCURP)
-            {
-                int valor;
-
-                switch (caracter)
-                {
-                    case '0':
-                        valor = 0 * contador;
-                        break;
-                    case '1':
-                        valor = 1 * contador;
-                        break;
-                    case '2':
-                        valor = 2 * contador;
-                        break;
-                    case '3':
-                        valor = 3 * contador;
-                        break;
-                    case '4':
-                        valor = 4 * contador;
-                        break;
-                    case '5':
-                        valor = 5 * contador;
-                        break;
-                    case '6':
-                        valor = 6 * contador;
-                        break;
-                    case '7':
-                        valor = 7 * contador;
-                        break;
-                    case '8':
-                        valor = 8 * contador;
-                        break;
-                    case '9':
-                        valor = 9 * contador;
-                        break;
-                    case 'A':
-                        valor = 10 * contador;
-                        break;
-                    case 'B':
-                        valor = 11 * contador;
-                        break;
-                    case 'C':
-                        valor = 12 * contador;
-                        break;
-                    case 'D':
-                        valor = 13 * contador;
-                        break;
-                    case 'E':
-                        valor = 14 * contador;
-                        break;
-                    case 'F':
-                        valor = 15 * contador;
-                        break;
-                    case 'G':
-                        valor = 16 * contador;
-                        break;
-                    case 'H':
-                        valor = 17 * contador;
-                        break;
-                    case 'I':
-                        valor = 18 * contador;
-                        break;
-                    case 'J':
-                        valor = 19 * contador;
-                        break;
-                    case 'K':
-                        valor = 20 * contador;
-                        break;
-                    case 'L':
-                        valor = 21 * contador;
-                        break;
-                    case 'M':
-                        valor = 22 * contador;
-                        break;
-                    case 'N':
-                        valor = 23 * contador;
-                        break;
-                    case 'Ñ':
-                        valor = 24 * contador;
-                        break;
-                    case 'O':
-                        valor = 25 * contador;
-                        break;
-                    case 'P':
-                        valor = 26 * contador;
-                        break;
-                    case 'Q':
-                        valor = 27 * contador;
-                        break;
-                    case 'R':
-                        valor = 28 * contador;
-                        break;
-                    case 'S':
-                        valor = 29 * contador;
-                        break;
-                    case 'T':
-                        valor = 30 * contador;
-                        break;
-                    case 'U':
-                        valor = 31 * contador;
-                        break;
-                    case 'V':
-                        valor = 32 * contador;
-                        break;
-                    case 'W':
-                        valor = 33 * contador;
-                        break;
-                    case 'X':
-                        valor = 34 * contador;
-                        break;
-                    case 'Y':
-                        valor = 35 * contador;
-                        break;
-                    case 'Z':
-                        valor = 36 * contador;
-                        break;
-                    default:
-                        throw new ArgumentException($"Caracter invalido en la compisicion de la pre CURP. [{caracter}]");
-                }
-
-                contador--;
-                sumatoria = sumatoria + valor;
-            }
-
-            // 12.- 2do digito verificador
-            var numVer = sumatoria % 10;
-            numVer = 10 - numVer;
-            numVer = numVer == 10 ? 0 : numVer;
-
-            return numVer;
         }
 
         [HttpGet]
@@ -208,7 +42,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var estados = db.Estados.Where(x => x.Id != 0).Select(E => new { id = E.Id, estado = E.estado, clave = E.Clave }).ToArray();
+                var estados = db.Estados.Where(x => x.Id != 0 & x.PaisId == 42).Select(E => new { id = E.Id, estado = E.estado, clave = E.Clave }).ToArray();
 
                 return Ok(estados);
 
@@ -450,97 +284,13 @@ namespace SAGA.API.Controllers
             }
         }
 
-        private static string Filtrar(string str)
-        {
-            if (string.IsNullOrWhiteSpace(str))
-            {
-                return null;
-            }
-
-            // Nombres, paterno y materno en mayuscula
-            str = str.ToUpper();
-
-            // Eliminar acentos en vocales
-            str = str.RemoveAccentMarks();
-
-            // Eliminar dieresis en vocales
-            str = str.RemoveVowelDieresis();
-
-            // Criterios de excepcion
-            var palabras = str.Split(' ')
-                .Where(i => !string.IsNullOrWhiteSpace(i))
-                .ToList();
-
-            // Preposición, conjunción, contraccion
-            var arr_1 = new[] { "DA", "DAS", "DE", "DEL", "DER", "DI", "DIE", "DD", "EL", "LA", "LOS", "LAS", "LE", "LES", "MAC", "MC", "VAN", "VON", "Y", "J", "MA" };
-
-            palabras = palabras.Where(i => !arr_1.Contains(i))
-                .ToList();
-
-            // Nombre compuesto
-            var arr_2 = new[] { "MARIA", "MA.", "MA", "JOSE", "J", "J." };
-
-            if (palabras.Count >= 2 && arr_2.Contains(palabras[0]))
-            {
-                palabras.RemoveAt(0);
-            }
-
-            // Caracteres especiales
-            str = palabras[0]
-                .Replace('/', 'X')
-                .Replace('-', 'X')
-                .Replace('.', 'X');
-
-            return str;
-        }
-
-        public string CalcularCURP(CandidatosGralDto datos)
-        {
-            var nombres = Filtrar(datos.Nombre);
-            var paterno = Filtrar(datos.ApellidoPaterno);
-            var materno = Filtrar(datos.ApellidoMaterno);
-
-            // Posicion 1-4
-            var uno = paterno[0] == 'Ñ' ? 'X' : paterno[0];
-            var dos = paterno.InternalVowel(1) ?? 'X';
-            var tres = string.IsNullOrWhiteSpace(materno) ? 'X' : (materno[0] == 'Ñ' ? 'X' : materno[0]);
-            var cuatro = nombres[0] == 'Ñ' ? 'X' : nombres[0];
-
-            var fecha = $"{datos.FechaNac:yy}{datos.FechaNac.Month:D2}{datos.FechaNac.Day:D2}";
-            var sexo = datos.GeneroId == 1 ? 'M' : 'H';
-            var estado = db.Estados.Where(e => e.Id.Equals(datos.EstadoNacimientoId)).Select(E => E.Clave).FirstOrDefault().ToString();
-
-            // Posicion 14-16
-            var x = paterno.InternalConsonant(1);
-            var y = materno?.InternalConsonant(1);
-            var z = nombres.InternalConsonant(1);
-
-            var catorce = x == null ? 'X' : (x == 'Ñ' ? 'X' : x);
-            var quince = y == null ? 'X' : (y == 'Ñ' ? 'X' : y);
-            var dieciseis = z == null ? 'X' : (z == 'Ñ' ? 'X' : z);
-
-            // Pre CURP
-            var preCURP = $"{uno}{dos}{tres}{cuatro}{fecha}{sexo}{estado}{catorce}{quince}{dieciseis}";
-
-            // Reemplaza el 2do caracter por una X donde comience con alguna de las palabras de la lisa de "Palabras Inconvenientes"
-            if (this.PalabrasInconvenientes.Contains(preCURP.Substring(0, 4)))
-            {
-                preCURP = preCURP[0] + "X" + preCURP.Substring(2);
-            }
-
-            // Digito diferenciador de homonimia y siglo
-            var diferenciador = datos.FechaNac.Year < 2000 ? "0" : "A";
-
-            // Digito verificador
-            var codigoVerificador = CodigoVerificador(preCURP);
-
-            return $"{preCURP}{diferenciador}{codigoVerificador}";
-        }
+     
 
         [HttpPost]
         [Route("registrarCandidato")]
         public IHttpActionResult RegistrarCandidato(CandidatosGralDto datos)
         {
+            LoginDto login = new LoginDto();
             try
             {
                 AspNetUsers usuario = new AspNetUsers();
@@ -555,7 +305,7 @@ namespace SAGA.API.Controllers
                     username = datos.Telefono[0].ClaveLada.ToString() + datos.Telefono[0].telefono.ToString();
                 }
                 usuario.Id = Guid.NewGuid().ToString();
-                usuario.PhoneNumber = datos.Telefono[0].telefono.ToString();
+                usuario.PhoneNumber = datos.Telefono == null ? "00000000" : datos.Telefono[0].telefono.ToString();
                 usuario.Clave = "00000";
                 usuario.Pasword = pass;
                 usuario.RegistroClave = DateTime.Now;
@@ -563,7 +313,7 @@ namespace SAGA.API.Controllers
                 usuario.EmailConfirmed = true;
                 usuario.LockoutEnabled = false;
                 usuario.AccessFailedCount = 0;
-                usuario.Email = datos.Email[0].email.ToString();
+                usuario.Email = datos.Email == null ? "SIN REGISTRO" : datos.Email[0].email.ToString();
                 usuario.UserName = username;
                 usuario.Activo = 0;
                
@@ -606,7 +356,7 @@ namespace SAGA.API.Controllers
                 t.IdPersona = candidato.Id;
                 db.SaveChanges();
 
-                LoginDto login = new LoginDto();
+               
                 login.Id = candidato.Id;
                 login.username = username;
                 login.pass = pass;
@@ -625,7 +375,14 @@ namespace SAGA.API.Controllers
             }
             catch (Exception ex)
             {
-                return Ok(HttpStatusCode.ExpectationFailed);
+                if (string.IsNullOrEmpty(login.username))
+                {
+                    return Ok(HttpStatusCode.GatewayTimeout);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.ExpectationFailed);
+                }
             }
         }
 
@@ -708,7 +465,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var p = db.AspNetUsers.Where(x => x.UserName.Equals(datos.username)).Select(U => new { id = U.IdPersona, userId = U.Id, pass = U.Pasword,
+                var p = db.AspNetUsers.Where(x => x.UserName.Equals(datos.username)).Select(U => new LoginDto { Id = U.IdPersona, userId = U.Id, pass = U.Pasword, username = U.UserName,
                         nombre = db.Entidad.Where(x => x.Id.Equals(U.IdPersona)).Select(u => u.Nombre + " " + u.ApellidoPaterno + " " + u.ApellidoMaterno).FirstOrDefault()
                 }).ToList();
                 
@@ -717,6 +474,7 @@ namespace SAGA.API.Controllers
                     var pd = db.Database.SqlQuery<String>("dbo.spDesencriptarPasword @id", new SqlParameter("id", p[0].userId)).FirstOrDefault();
                     if(pd.Equals(datos.pass))
                     {
+                        
                         return Ok(p);
                     }
                     else
@@ -1760,7 +1518,7 @@ namespace SAGA.API.Controllers
                                       group R by R.ticket into r
                                       select new
                                       {
-                                          fecha = r.Where(x => x.estatus.Equals(1)).Select(f => f.fecha),
+                                          fecha = r.Where(x => x.estatus.Equals(1)).Select(f => f.fecha).FirstOrDefault(),
                                           hora = r.Where(x => x.estatus == 2).Select(h => h.fecha).FirstOrDefault(),
                                           modulo = r.OrderByDescending(o => o.moduloId).Select(m => m.modulo).FirstOrDefault(),
                                           turno = r.Key,
@@ -1845,7 +1603,7 @@ namespace SAGA.API.Controllers
                                          select new
                                          {
                                              reclutador = String.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(r.Key)).Select(R => R.Nombre + " " + R.ApellidoPaterno + " " + R.ApellidoMaterno).FirstOrDefault()) ? "SIN REGISTRO" : db.Usuarios.Where(x => x.Id.Equals(r.Key)).Select(R => R.Nombre + " " + R.ApellidoPaterno + " " + R.ApellidoMaterno).FirstOrDefault(),
-                                             total = r.Select(x => x.ticket).Count(),
+                                             total = r.Where(x => x.tipo.Equals(1) && x.estatus.Equals(2)).Count() + r.Where(x => x.tipo.Equals(2) && x.estatus.Equals(2)).Count(),
                                              concita = r.Where(x => x.tipo.Equals(1) && x.estatus.Equals(2)).Count(),
                                              sincita = r.Where(x => x.tipo.Equals(2) && x.estatus.Equals(2)).Count(),
                                              //mocos = (from TR in db.HistoricosTickets

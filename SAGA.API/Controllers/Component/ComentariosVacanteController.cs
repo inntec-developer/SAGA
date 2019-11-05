@@ -86,7 +86,7 @@ namespace SAGA.API.Controllers
                     }
                 }
                 else if (!comentario.EstatusId.Equals(8) && !comentario.EstatusId.Equals(0))
-                {
+                { // para des pausar
                     Ofi.EnviarEmail2(comentario.EstatusId, comentario.RequisicionId, comentario.ReclutadorId);
                 }
 

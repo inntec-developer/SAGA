@@ -37,6 +37,7 @@ namespace SAGA.API.Dtos
         public string AreaExp { get; set; }
         public string AreaInt { get; set; }
         public string Estatus { get; set; }
+        public int EstatusId { get; set; }
         public virtual List<int> Formaciones { get; set; }
         public virtual ICollection<PerfilIdioma> Idiomas { get; set; }
         public DateTime? fch_Creacion { get; set; }

@@ -14,6 +14,7 @@ using System.Net.Mail;
 using System.Configuration;
 using static SAGA.API.Controllers.DesignerVacanteController;
 using System.IO;
+using System.Diagnostics;
 
 namespace SAGA.API.Controllers
 {
@@ -369,10 +370,11 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult GetRequisicion(Guid Id)
         {
-            TimeSpan stop;
-            TimeSpan start = new TimeSpan(DateTime.Now.Ticks);
+            //TimeSpan stop;
+            //TimeSpan start = new TimeSpan(DateTime.Now.Ticks);
             try
             {
+                var requisicion2 = db.Requisiciones.Where(x => x.Id.Equals(Id)).ToList();
                 if (Id != null)
                 {
                     var requisicion = db.Requisiciones.Where(x => x.Id.Equals(Id))
@@ -2416,6 +2418,9 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult AsginarRequi(AsignarVacanteReclutador requi)
         {
+            //Stopwatch stopwatch = new Stopwatch();
+
+            //stopwatch.Start();
             //db.Database.Log = Console.Write;
             using (DbContextTransaction beginTran = db.Database.BeginTransaction())
             {
@@ -2442,74 +2447,75 @@ namespace SAGA.API.Controllers
                                  EscolaridadesDesc = r.escolaridadesRequi.Select(e => e.Escolaridad.gradoEstudio).ToList()
                              })
                             .FirstOrDefault();
-
+                    //stopwatch.Stop();
+                    //var t = stopwatch.Elapsed;
                     // Candidatos Activos
-                    var Activos = db.AspNetUsers
-                        .Where(c => c.Activo == 0)
-                        .OrderBy(c => c.UltimoInicio)
-                        .Select(c => c.IdPersona)
-                        .ToList();
+                    //var Activos = db.AspNetUsers
+                    //    .Where(c => c.Activo == 0)
+                    //    .OrderBy(c => c.UltimoInicio)
+                    //    .Select(c => c.IdPersona)
+                    //    .ToList();
 
                     // Candidatos con todas las coincidencias.
-                //    var Candidatos = db.PerfilCandidato
-                //        .Where(c => Activos.Contains(c.CandidatoId))
-                //        .Select(c => new CoincidenciasDto
-                //        {
-                //            Nombre = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + (c.Candidato.ApellidoMaterno != null ? c.Candidato.ApellidoMaterno : ""),
-                //            Subcategoria = db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() != 0 ? 
-                //                           db.AreasInteres.Where(x => x.Id.Equals(c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault())).Select(s => s.areaInteres).FirstOrDefault() : "",
-                //            AreaExpId = db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() != 0 ?
-                //                        db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() : 0,
-                //            //Subcategoria = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() != null ? c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
-                //            //AreaExpId = c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() != 0 ? c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() : 0,
-                //            SueldoMinimo = c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
-                //            SueldoMaximo = c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() : 0,
-                //            Genero = c.Candidato.Genero.genero,
-                //            GeneroId = c.Candidato.GeneroId > 0 ? c.Candidato.GeneroId : 0,
-                //            EstadoCivil = c.Candidato.EstadoCivil.estadoCivil,
-                //            EstadoCivilId = c.Candidato.EstadoCivilId.Value > 0 ? c.Candidato.EstadoCivilId.Value : 0,
-                //            FormacionId = c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault(),
-                //            Formaciones = c.Formaciones.Select(x => x.GradosEstudio.gradoEstudio).FirstOrDefault(),
-                //            Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year,
-                //            Requisicion = db.Requisiciones
-                //             .Where(r => r.Folio == requisicion.Folio)
-                //             .Select(r => new RequisicionCoin
-                //             {
-                //                 Categoria = r.Area.Id,
-                //                 CategoriaDesc = r.Area.areaExperiencia,
-                //                 SalarioMinimo = r.SueldoMinimo,
-                //                 SalarioMaximo = r.SueldoMaximo,
-                //                 Genero = r.GeneroId,
-                //                 GeneroDesc = r.Genero.genero,
-                //                 EdadMinima = r.EdadMinima,
-                //                 EdadMaxima = r.EdadMaxima,
-                //                 EstadoCivil = r.EstadoCivilId,
-                //                 EstadoCivilDesc = r.EstadoCivil.estadoCivil,
-                //                 Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList(),
-                //                 EscolaridadesDesc = r.escolaridadesRequi.Select(e => e.Escolaridad.gradoEstudio).ToList()
-                //             })
-                //            .FirstOrDefault()
-                //})
-                //        .ToList();
+                    //    var Candidatos = db.PerfilCandidato
+                    //        .Where(c => Activos.Contains(c.CandidatoId))
+                    //        .Select(c => new CoincidenciasDto
+                    //        {
+                    //            Nombre = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + (c.Candidato.ApellidoMaterno != null ? c.Candidato.ApellidoMaterno : ""),
+                    //            Subcategoria = db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() != 0 ? 
+                    //                           db.AreasInteres.Where(x => x.Id.Equals(c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault())).Select(s => s.areaInteres).FirstOrDefault() : "",
+                    //            AreaExpId = db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() != 0 ?
+                    //                        db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() : 0,
+                    //            //Subcategoria = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() != null ? c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
+                    //            //AreaExpId = c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() != 0 ? c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() : 0,
+                    //            SueldoMinimo = c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
+                    //            SueldoMaximo = c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() : 0,
+                    //            Genero = c.Candidato.Genero.genero,
+                    //            GeneroId = c.Candidato.GeneroId > 0 ? c.Candidato.GeneroId : 0,
+                    //            EstadoCivil = c.Candidato.EstadoCivil.estadoCivil,
+                    //            EstadoCivilId = c.Candidato.EstadoCivilId.Value > 0 ? c.Candidato.EstadoCivilId.Value : 0,
+                    //            FormacionId = c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault(),
+                    //            Formaciones = c.Formaciones.Select(x => x.GradosEstudio.gradoEstudio).FirstOrDefault(),
+                    //            Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year,
+                    //            Requisicion = db.Requisiciones
+                    //             .Where(r => r.Folio == requisicion.Folio)
+                    //             .Select(r => new RequisicionCoin
+                    //             {
+                    //                 Categoria = r.Area.Id,
+                    //                 CategoriaDesc = r.Area.areaExperiencia,
+                    //                 SalarioMinimo = r.SueldoMinimo,
+                    //                 SalarioMaximo = r.SueldoMaximo,
+                    //                 Genero = r.GeneroId,
+                    //                 GeneroDesc = r.Genero.genero,
+                    //                 EdadMinima = r.EdadMinima,
+                    //                 EdadMaxima = r.EdadMaxima,
+                    //                 EstadoCivil = r.EstadoCivilId,
+                    //                 EstadoCivilDesc = r.EstadoCivil.estadoCivil,
+                    //                 Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList(),
+                    //                 EscolaridadesDesc = r.escolaridadesRequi.Select(e => e.Escolaridad.gradoEstudio).ToList()
+                    //             })
+                    //            .FirstOrDefault()
+                    //})
+                    //        .ToList();
 
-                //    List<CoincidenciasDto> CandidatosFiltro = new List<CoincidenciasDto>();
+                    //    List<CoincidenciasDto> CandidatosFiltro = new List<CoincidenciasDto>();
 
-                //    CandidatosFiltro = Candidatos
-                //        .Where(c => c.AreaExpId == Requi.Categoria)
-                //        .ToList();
+                    //    CandidatosFiltro = Candidatos
+                    //        .Where(c => c.AreaExpId == Requi.Categoria)
+                    //        .ToList();
 
-                //    CandidatosFiltro = CandidatosFiltro
-                //           .Where(c => Requi.Escolaridades.Contains(c.FormacionId))
-                //           .ToList();
+                    //    CandidatosFiltro = CandidatosFiltro
+                    //           .Where(c => Requi.Escolaridades.Contains(c.FormacionId))
+                    //           .ToList();
 
-                //    CandidatosFiltro = CandidatosFiltro
-                //        .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo && c.SueldoMinimo <= Requi.SalarioMaximo 
-                //                 || c.SueldoMaximo >= Requi.SalarioMinimo && c.SueldoMaximo <= Requi.SalarioMaximo)
-                //        .ToList();
+                    //    CandidatosFiltro = CandidatosFiltro
+                    //        .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo && c.SueldoMinimo <= Requi.SalarioMaximo 
+                    //                 || c.SueldoMaximo >= Requi.SalarioMinimo && c.SueldoMaximo <= Requi.SalarioMaximo)
+                    //        .ToList();
 
-                //    CandidatosFiltro = CandidatosFiltro
-                //        .Where(c => c.Edad >= Requi.EdadMinima && c.Edad <= Requi.EdadMaxima)
-                //        .ToList();
+                    //    CandidatosFiltro = CandidatosFiltro
+                    //        .Where(c => c.Edad >= Requi.EdadMinima && c.Edad <= Requi.EdadMaxima)
+                    //        .ToList();
 
                     //if (Requi.Genero > 0)
                     //{
@@ -2523,7 +2529,7 @@ namespace SAGA.API.Controllers
 
                     //// Solo tomamos el top 5 de candidatos que coinciderion.
                     //CandidatosFiltro = CandidatosFiltro.Take(5).ToList();
-
+                    //stopwatch.Start();
                     db.Entry(requisicion).State = EntityState.Modified;
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
                     if (requisicion.EstatusId == 4 || requisicion.EstatusId == 46)
@@ -2585,9 +2591,12 @@ namespace SAGA.API.Controllers
                     //Isertar el registro de la rastreabilidad. 
                     rastreabilidad.RastreabilidadInsert(trazabilidadId, requi.Usuario, 5);
 
-
+                    //stopwatch.Stop();
+                    //var t2 = stopwatch.Elapsed;
+                    //stopwatch.Start();
                     beginTran.Commit();
-
+                    //stopwatch.Stop();
+                    //var t3 = stopwatch.Elapsed;
                     return Ok(HttpStatusCode.OK);
                 }
                 catch (Exception ex)

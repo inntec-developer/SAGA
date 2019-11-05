@@ -58,7 +58,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                     db.Clientes.Add(cliente);
                     db.SaveChanges();
                     Guid IdCliente = db.Clientes.OrderByDescending(x => x.fch_Creacion).Take(1).Select(x => x.Id).FirstOrDefault();
-
+                    
                     List<Direccion> direcciones = db.Direcciones.Where(x => x.EntidadId.Equals(IdCliente)).ToList();
                     List<Telefono> telefonos = db.Telefonos.Where(x => x.EntidadId.Equals(IdCliente)).ToList();
                     List<Email> emails = db.Emails.Where(x => x.EntidadId.Equals(IdCliente)).ToList();
@@ -130,7 +130,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                         }
                     }
                     beginTran.Commit();
-                    return Ok(HttpStatusCode.Accepted);
+                    return Ok(cliente.Id);
                 }
                 catch (Exception ex)
                 {
