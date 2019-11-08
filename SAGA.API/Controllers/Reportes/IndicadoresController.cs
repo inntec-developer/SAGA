@@ -582,9 +582,9 @@ namespace SAGA.API.Controllers.Reportes
             var masivolist = masivo.Select(x => x.Id).ToList();
             var operativolist = operativo.Select(x => x.Id).ToList();
             var especiallist = ezpeciali.Select(x => x.Id).ToList();
-            int masivopos = db.HorariosRequis.Where(e => masivolist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
-            int operativopos = db.HorariosRequis.Where(e => operativolist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
-            int especialpos = db.HorariosRequis.Where(e => especiallist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
+            int masivopos = masivolist.Count == 0?0: db.HorariosRequis.Where(e => masivolist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
+            int operativopos = operativolist.Count == 0 ? 0 : db.HorariosRequis.Where(e => operativolist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
+            int especialpos = especiallist.Count == 0 ? 0 : db.HorariosRequis.Where(e => especiallist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
 
             var datos = new {
                     masivo = masivo.Count,
