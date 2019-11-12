@@ -1097,6 +1097,46 @@ namespace SAGA.API.Controllers.Reportes
             
             try
             {
+                if (bandera == "3")
+                {
+                    var clientedetalle = db.Clientes.Where(e => e.Activo == true && e.esCliente == true).ToList();
+                    var clienteactivo = db.Requisiciones.Select(e => e.ClienteId).Distinct().ToList();
+                    var clientedetalle2 = clientedetalle.Where(e => !clienteactivo.Contains(e.Id)).ToList();
+                    var telefono = db.Telefonos.ToList();
+                    var email = db.Emails.ToList();
+                    var datos = clientedetalle2.Select(e => new
+                    {
+                        e.Id,
+                        nombre = e.Nombrecomercial,
+                        razon = e.RazonSocial,
+                        rfc = e.RFC,
+                        telefono = telefono.Where(x=>x.esPrincipal == true && x.EntidadId == e.Id).Count() == 0? "": telefono.Where(x => x.esPrincipal == true && x.EntidadId == e.Id).FirstOrDefault().ClaveLada + telefono.Where(x => x.esPrincipal == true && x.EntidadId == e.Id).FirstOrDefault().telefono,
+                        email = email.Where(x=>x.esPrincipal == true && x.EntidadId == e.Id).Count() == 0? "" : email.Where(x => x.esPrincipal == true && x.EntidadId == e.Id).FirstOrDefault().email
+                    }).ToList();
+                    return Ok(datos);
+                }
+                if (bandera == "4")
+                {
+                    var rangofecha = DateTime.Now.AddMonths(-3);
+                    var clientedetalle = db.Clientes.Where(e => e.Activo == true && e.esCliente == true).ToList();
+                    var clientepasado = db.Requisiciones.Where(e=>e.fch_Creacion < rangofecha).Select(e => new { e.ClienteId }).Distinct().ToList();
+                    var clientepresente = db.Requisiciones.Where(e => e.fch_Creacion > rangofecha).Select(e => e.ClienteId).Distinct().ToList();
+                    var listaCliente = clientepasado.Where(e => !clientepresente.Contains(e.ClienteId)).Select(e=>e.ClienteId).ToList();
+                    clientedetalle = clientedetalle.Where(e => listaCliente.Contains(e.Id)).ToList();
+                    var telefono = db.Telefonos.ToList();
+                    var email = db.Emails.ToList();
+                    var datos = clientedetalle.Select(e => new
+                    {
+                        e.Id,
+                        nombre = e.Nombrecomercial,
+                        razon = e.RazonSocial,
+                        rfc = e.RFC,
+                        telefono = telefono.Where(x => x.esPrincipal == true && x.EntidadId == e.Id).Count() == 0 ? "" : telefono.Where(x => x.esPrincipal == true && x.EntidadId == e.Id).FirstOrDefault().ClaveLada + telefono.Where(x => x.esPrincipal == true && x.EntidadId == e.Id).FirstOrDefault().telefono,
+                        email = email.Where(x => x.esPrincipal == true && x.EntidadId == e.Id).Count() == 0 ? "" : email.Where(x => x.esPrincipal == true && x.EntidadId == e.Id).FirstOrDefault().email
+                    }).ToList();
+                    return Ok(datos);
+                }
+
                 DateTime FechaF = DateTime.Now;
                 DateTime FechaI = DateTime.Now;
 
