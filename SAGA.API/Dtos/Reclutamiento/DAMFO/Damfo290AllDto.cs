@@ -158,6 +158,11 @@ namespace SAGA.API.Dtos
         public string Usuario { get; set; }
         public string Action { get; set; }
     }
+    public class CostosDto
+    {
+        public int tipoId { get; set; }
+
+    }
 
     public class PerfilReclutmientoDto
     {

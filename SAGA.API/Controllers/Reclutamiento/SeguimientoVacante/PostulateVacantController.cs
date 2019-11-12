@@ -73,7 +73,7 @@ namespace SAGA.API.Controllers
         {
             var candidato = new Candidato();
             List<Guid> candidatosIds = new List<Guid>();
-            CandidatosInfo obj = new CandidatosInfo();
+           
             ProcesoCandidato proceso = new ProcesoCandidato();
             PerfilCandidato PC = new PerfilCandidato();
             ProcesoDto PCDto = new ProcesoDto();
@@ -179,26 +179,6 @@ namespace SAGA.API.Controllers
                     db.ProcesoCandidatos.Add(proceso);
                     db.SaveChanges();
 
-                    obj.CandidatoId = candidato.Id;
-                    obj.CURP = datos.Curp;
-                    obj.RFC = "SIN ASIGNAR";
-                    obj.NSS = "SIN ASIGNAR";
-                    obj.FechaNacimiento = datos.FechaNac;
-                    obj.Nombre = datos.Nombre;
-                    obj.ApellidoPaterno = datos.ApellidoPaterno;
-                    obj.ApellidoMaterno = datos.ApellidoMaterno;
-                    obj.PaisNacimientoId = 42;
-                    obj.EstadoNacimientoId = datos.EstadoNacimientoId;
-                    obj.MunicipioNacimientoId = 0;
-                    obj.GeneroId = datos.GeneroId;
-                    obj.ReclutadorId = datos.reclutadorId;
-
-                    obj.fch_Modificacion = DateTime.Now;
-                    obj.fch_Modificacion.ToUniversalTime();
-
-                    db.CandidatosInfo.Add(obj);
-                    db.SaveChanges();
-
                     candidatosIds.Add(candidato.Id);
 
                     //var IDR = db.Requisiciones.Find(datos.requisicionId);
@@ -218,7 +198,7 @@ namespace SAGA.API.Controllers
                     candidato = new Candidato();
                     PC = new PerfilCandidato();
                     proceso = new ProcesoCandidato();
-                    obj = new CandidatosInfo();
+                  //  obj = new CandidatosInfo();
 
                 return Ok(candidatosIds);
             }
@@ -239,6 +219,27 @@ namespace SAGA.API.Controllers
             {
                 foreach (var r in datos)
                 {
+                    CandidatosInfo obj = new CandidatosInfo();
+                    obj.CandidatoId = r.candidatoId;
+                    obj.CURP = r.curp;
+                    obj.RFC = "SIN REGISTRO";
+                    obj.NSS = "SIN REGISTRO";
+                    obj.FechaNacimiento = r.fechaNacimiento;
+                    obj.Nombre = r.nombre;
+                    obj.ApellidoPaterno = r.apellidoPaterno;
+                    obj.ApellidoMaterno = r.apellidoMaterno;
+                    obj.PaisNacimientoId = 42;
+                    obj.EstadoNacimientoId = r.estadoNacimientoId;
+                    obj.MunicipioNacimientoId = 0;
+                    obj.GeneroId = r.generoId;
+                    obj.ReclutadorId = r.ReclutadorId;
+
+                    obj.fch_Modificacion = DateTime.Now;
+                    obj.fch_Modificacion.ToUniversalTime();
+
+                    db.CandidatosInfo.Add(obj);
+                    db.SaveChanges();
+
                     var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(r.candidatoId) && x.RequisicionId.Equals(r.requisicionId)).Select(x => x.Id).FirstOrDefault();
                     if (id != auxID)
                     {
@@ -486,6 +487,9 @@ namespace SAGA.API.Controllers
                     informacion = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(p => new
                     {
                         nombre = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
+                        nom = p.Nombre,
+                        apellidoPaterno = p.ApellidoPaterno,
+                        apellidoMaterno = p.ApellidoMaterno,
                         edad = p.FechaNacimiento,
                         rfc = String.IsNullOrEmpty(p.RFC) ? "Sin registro" : p.RFC,
                         curp = String.IsNullOrEmpty(p.CURP) ? "Sin registro" : p.CURP,
@@ -496,8 +500,11 @@ namespace SAGA.API.Controllers
                         localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
                         genero = p.GeneroId == 1 ? "Hombre" : "Mujer",
                         reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault(),
-                        reclutadorId = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Id).FirstOrDefault()
-                }).FirstOrDefault()
+                        reclutadorId = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Id).FirstOrDefault(),
+                        lada = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.ClaveLada).FirstOrDefault(),
+                        telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
+                        email = db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()
+                    }).FirstOrDefault()
                 });
                     
                 return Ok(candidatos);
@@ -617,8 +624,18 @@ namespace SAGA.API.Controllers
                         db.Entry(c).Property(x => x.Fch_Modificacion).IsModified = true;
                         db.Entry(c).Property(x => x.ReclutadorId).IsModified = true;
 
+                        var horario = auxID;
+                        if (datos.horarioId == auxID)
+                        {
+                            horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(datos.requisicionId)).Select(h => h.Id).FirstOrDefault();
+                        }
+                        else
+                        {
+                            horario = datos.horarioId;
+                        }
+
                         c.EstatusId = datos.estatusId;
-                        c.HorarioId = datos.horarioId;
+                        c.HorarioId = horario;
                         c.Fch_Modificacion = DateTime.Now;
                         c.ReclutadorId = datos.ReclutadorId;
 
@@ -699,7 +716,7 @@ namespace SAGA.API.Controllers
                             }
                         }
                     }
-                    return Ok(HttpStatusCode.OK);
+                    return Ok(HttpStatusCode.Created);
                 }
             }
             catch(Exception ex)

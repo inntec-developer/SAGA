@@ -176,6 +176,66 @@ namespace SAGA.API.Controllers
 
         }
 
+        //public IHttpActionResult TransferRequiCandidato(Guid requiAnt, Guid requiAct, Guid usuario, Guid candidatoId)
+        //{
+        //    try
+        //    {
+        //        RastreabilidadMes RM = new RastreabilidadMes();
+        //        Transferencias Transf = new Transferencias();
+
+        //        var folio = db.Requisiciones.Where(x => x.Id.Equals(requiAct)).Select(F => F.Folio).FirstOrDefault();
+        //        var datos = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(requiAnt) && x.CandidatoId.Equals(candidatoId)).Select(r => new
+        //        {
+        //            id = r.Id,
+        //            candidato = db.Usuarios.Where(x => x.Id.Equals(r.CandidatoId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(),
+        //            candidatoId = r.CandidatoId,
+        //            folio = r.Requisicion.Folio
+        //        }).ToList();
+
+        //        var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
+        //        var tmId = aux.Where(x => x.folio == folio.ToString()).Select(ID => new { id = ID.id }).ToList();
+
+        //        var trans = db.Database.BeginTransaction();
+
+        //        var descripcion = "Se realizó una transferencia de requisición " + datos[0].folio + " a " + folio;
+           
+        //        try
+        //        {
+        //            Transf.antId = candidatoId;
+        //            Transf.actId = candidatoId;
+        //            Transf.requisicionId = requiAct;
+        //            Transf.tipoTransferenciaId = 3; 
+        //            Transf.fch_Modificacion = DateTime.Now;
+
+        //            db.Transferencias.Add(Transf);
+        //            db.SaveChanges();
+
+        //            RM.TrazabilidadMesId = tmId[0].id;
+        //            RM.TipoAccionId = 5; // movimiento especial
+        //            RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
+        //            RM.Descripcion = "Actualizacion (UPDATE)";
+        //            db.RastreabilidadMes.Add(RM);
+        //            db.SaveChanges();
+
+        //            var c = db.ProcesoCandidatos.Find(datos[0].id);
+        //            db.Entry(c).Property(x => x.EstatusId).IsModified = true;
+
+        //            c.Fch_Modificacion = DateTime.Now;
+        //            c.EstatusId = 27;
+
+        //            db.SaveChanges();
+        //            trans.Commit();
+
+        //            //this.EnviarEmailTransfer(requi, usuario, descripcion, usuarioAux, coorId);
+
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            trans.Rollback();
+        //        }
+
+        //        return Ok(HttpStatusCode.OK);
+        //    }
         public IHttpActionResult TransferRequi(Guid requi, Guid coorId, Guid usuario, int tipo)
         {
             try

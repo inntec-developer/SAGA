@@ -14,9 +14,7 @@ namespace SAGA.DAL
             this.Configuration.LazyLoadingEnabled = true;
             this.Configuration.ProxyCreationEnabled = true;
         }
-
-
-
+        
         #region Btra
         public DbSet<AboutMe> AcercaDeMi { get; set; }
         public DbSet<ActividadEmpresa> ActividadesEmpresas { get; set; }
@@ -221,7 +219,11 @@ namespace SAGA.DAL
         public DbSet<DireccionEmail> DireccionesEmails { get; set; }
         public DbSet<DireccionContacto> DireccionesContactos { get; set; }
 
-        #endregion
+        // Costos
+        public DbSet<Costos> Costos { get; set; }
+        public DbSet<TipoCostos> TipoCostos { get; set; }
+        public DbSet<CostosDamfo290> CostosDamfo290 { get; set; }
+            #endregion
 
         #region Banco
         public DbSet<Ticket> Tickets { get; set; }
@@ -235,239 +237,6 @@ namespace SAGA.DAL
 		 * Loging
 		 */
         public DbSet<AspNetUsers> AspNetUsers { get; set; }
-
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            //modelBuilder.Entity<PersonasMap>().Property(p => p.Email).HasColumnAnnotation(IndexAnnotation.AnnotationName, new IndexAnnotation(new IndexAttribute() { IsUnique = true }));
-
-            modelBuilder.HasDefaultSchema("Sist");
-
-            //modelBuilder.Entity<IdentityUserLogin>().HasKey<string>(l => l.UserId);
-            //modelBuilder.Entity<IdentityRole>().HasKey<string>(r => r.Id);
-            //modelBuilder.Entity<IdentityUserRole>().HasKey(r => new { r.RoleId, r.UserId });
-
-            #region Administracion_Sistema_Sist
-            modelBuilder.Configurations.Add(new RelacionClientesSistemasMap().ToTable("RelacionClientesSistemas", "dbo"));
-            modelBuilder.Configurations.Add(new EstructuraMap().ToTable("Estructuras"));
-            modelBuilder.Configurations.Add(new TipoEstructuraMap().ToTable("TiposEstructuras"));
-            modelBuilder.Configurations.Add(new AmbitoMap().ToTable("Ambitos"));
-            modelBuilder.Configurations.Add(new AreaMap().ToTable("Areas"));
-            modelBuilder.Configurations.Add(new ColoniasMap().ToTable("Colonias"));
-            modelBuilder.Configurations.Add(new CompetenciasAreasMap().ToTable("CompetenciasAreas"));
-            modelBuilder.Configurations.Add(new CompetenciasCardinalesMap().ToTable("CompetenciasCardinales"));
-            modelBuilder.Configurations.Add(new CompeteciasGerencialesMap().ToTable("CompetenciasGerenciales"));
-            modelBuilder.Configurations.Add(new DireccionMap().ToTable("Direcciones"));
-            modelBuilder.Configurations.Add(new EstadoMap().ToTable("Estados"));
-            modelBuilder.Configurations.Add(new EstatusMap().ToTable("Estatus"));
-            modelBuilder.Configurations.Add(new EmailMap().ToTable("Emails"));
-            modelBuilder.Configurations.Add(new EstadoCivilMap().ToTable("EstadosCiviles"));
-            modelBuilder.Configurations.Add(new EstadoEstudioMap().ToTable("EstadosEstudios"));
-            modelBuilder.Configurations.Add(new GeneroMap().ToTable("Generos"));
-            modelBuilder.Configurations.Add(new GradoEstudioMap().ToTable("GradosEstudios"));
-            modelBuilder.Configurations.Add(new GruposMap().ToTable("Grupos"));
-            modelBuilder.Configurations.Add(new GiroEmpresaMap().ToTable("GiroEmpresas"));
-            modelBuilder.Configurations.Add(new JornadaLaboralMap().ToTable("JornadasLaborales"));
-            modelBuilder.Configurations.Add(new MunicipioMap().ToTable("Municipios"));
-            modelBuilder.Configurations.Add(new NivelMap().ToTable("Niveles"));
-            modelBuilder.Configurations.Add(new PaisMap().ToTable("Paises"));
-            modelBuilder.Configurations.Add(new PrioridadMap().ToTable("Prioridades"));
-            modelBuilder.Configurations.Add(new RedSocialMap().ToTable("RedesSociales"));
-            modelBuilder.Configurations.Add(new RolesMap().ToTable("Roles"));
-            modelBuilder.Configurations.Add(new TamanoEmpresaMap().ToTable("TamanosEmpresas"));
-            modelBuilder.Configurations.Add(new TelefonoMap().ToTable("Telefonos"));
-            modelBuilder.Configurations.Add(new TiempoContratoMap().ToTable("TiemposContratos"));
-            modelBuilder.Configurations.Add(new TipoBaseMap().ToTable("TiposBases"));
-            modelBuilder.Configurations.Add(new TipoDireccionMap().ToTable("TiposDirecciones"));
-            modelBuilder.Configurations.Add(new TipoEmpresaMap().ToTable("TiposEmpresas"));
-            modelBuilder.Configurations.Add(new TipoTelefonoMap().ToTable("TiposTelefonos"));
-            modelBuilder.Configurations.Add(new TipoUsuarioMap().ToTable("TiposUsuarios"));
-            modelBuilder.Configurations.Add(new TipoBeneficioMap().ToTable("TiposBeneficios"));
-            modelBuilder.Configurations.Add(new TipoContratoMap().ToTable("TiposContratos"));
-            modelBuilder.Configurations.Add(new TipoModalidadMap().ToTable("TiposModalidades"));
-            modelBuilder.Configurations.Add(new TipodeNominaMap().ToTable("TiposNominas"));
-            modelBuilder.Configurations.Add(new TipoPsicometriaMap().ToTable("TiposPsicometrias"));
-            modelBuilder.Configurations.Add(new TipoReclutamientoMap().ToTable("TiposReclutamientos"));
-            modelBuilder.Configurations.Add(new UsuariosMap().ToTable("Usuarios"));
-            modelBuilder.Configurations.Add(new TipoAccionMap().ToTable("TiposAcciones"));
-            modelBuilder.Configurations.Add(new TipoMovimientoMap().ToTable("TiposMovimientos"));
-            modelBuilder.Configurations.Add(new TrazabilidadMesMap().ToTable("TrazabilidadMes"));
-            modelBuilder.Configurations.Add(new RastreabilidadMesMap().ToTable("RastreabilidadMes"));
-            modelBuilder.Configurations.Add(new FoliosMap().ToTable("Folios"));
-            modelBuilder.Configurations.Add(new PrivilegiosMap().ToTable("Privilegios"));
-            modelBuilder.Configurations.Add(new GrupoUsuarioMap().ToTable("GruposUsuarios"));
-            modelBuilder.Configurations.Add(new DepartamentoMap().ToTable("Departamentos"));
-            modelBuilder.Configurations.Add(new TipoEntidadMap().ToTable("TiposEntidades"));
-            modelBuilder.Configurations.Add(new TratamientoMap().ToTable("Tratamientos"));
-            modelBuilder.Configurations.Add(new OficinaReclutamientoMap().ToTable("OficinasReclutamiento"));
-            modelBuilder.Configurations.Add(new TipoOficinaMap().ToTable("TiposOficinas"));
-            modelBuilder.Configurations.Add(new RolEntidadesMap().ToTable("RolEntidades"));
-            modelBuilder.Configurations.Add(new ConfiguracionMovsMap().ToTable("ConfiguracionesMovs"));
-            modelBuilder.Configurations.Add(new LogsIngresosMap().ToTable("LogsIngresos"));
-            modelBuilder.Configurations.Add(new MotivoLiberacioMap().ToTable("MotivosLiberaciones"));
-            modelBuilder.Configurations.Add(new FolioIncidenciaMap().ToTable("FolioIncidencias"));
-            modelBuilder.Configurations.Add(new PuestoMap().ToTable("Puestos"));
-            modelBuilder.Configurations.Add(new CalendarioEventMap().ToTable("CalendarioEvent"));
-            modelBuilder.Configurations.Add(new TipoActividadReclutadorMap().ToTable("TipoActividadReclutador"));
-            modelBuilder.Configurations.Add(new AlertasStmMap().ToTable("AlertasStm"));
-            modelBuilder.Configurations.Add(new TipoAlertaMap().ToTable("TiposAlertas"));
-            modelBuilder.Configurations.Add(new SubordinadosMap().ToTable("Subordinados"));
-            modelBuilder.Configurations.Add(new UnidadesNegociosMap().ToTable("UnidadesNegocios"));
-            modelBuilder.Configurations.Add(new TipoExamenMedicoMap().ToTable("TiposExamenesMedicos"));
-            
-
-            //Catalogos
-            modelBuilder.Configurations.Add(new CatalogosMap().ToTable("Catalogos"));
-            modelBuilder.Configurations.Add(new LogCatalogosMap().ToTable("LogCatalogos"));
-
-
-            //Modulo para examenes
-            modelBuilder.Configurations.Add(new ExamenesMap().ToTable("Examenes"));
-            modelBuilder.Configurations.Add(new TipoExamenesMap().ToTable("TipoExamen"));
-            modelBuilder.Configurations.Add(new PreguntasMap().ToTable("Preguntas"));
-            modelBuilder.Configurations.Add(new RespuestasMap().ToTable("Respuestas"));
-            modelBuilder.Configurations.Add(new RequiExamenMap().ToTable("RequiExamen"));
-            modelBuilder.Configurations.Add(new ExamenCandidatoMap().ToTable("ExamenCandidato"));
-            modelBuilder.Configurations.Add(new ResultadosCandidatoMap().ToTable("ResultadosCandidato"));
-            modelBuilder.Configurations.Add(new RequiClavesMap().ToTable("RequiClaves"));
-            modelBuilder.Configurations.Add(new PsicometriaCandidatosMap().ToTable("PsicometriaCandidatos"));
-            modelBuilder.Configurations.Add(new MedicoCandidatoMap().ToTable("MedicoCandidato"));
-            modelBuilder.Configurations.Add(new ConfigEntrevistaMap().ToTable("ConfigEntrevistas"));
-
-
-            //Preguntas Frecuentes 
-            modelBuilder.Configurations.Add(new PreguntasFrecuentesMap().ToTable("PreguntasFrecuentes"));
-
-            modelBuilder.Configurations.Add(new TransferenciasMap().ToTable("Transferencias"));
-            modelBuilder.Configurations.Add(new TiposTransferenciasMap().ToTable("TiposTransferencias"));
-
-            modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
-
-            //Tabla de Versiones del Sistema.
-            modelBuilder.Configurations.Add(new VertionSistemMap().ToTable("VertionSistem"));
-            #endregion
-
-            #region BolsaTrabajo_BTra
-            modelBuilder.Configurations.Add(new AboutMeMap().ToTable("AcercaDeMi", "BTra"));
-            modelBuilder.Configurations.Add(new AreaExperienciaMap().ToTable("AreasExperiencia", "BTra"));
-            modelBuilder.Configurations.Add(new AreaInteresMap().ToTable("AreasInteres", "BTra"));
-            modelBuilder.Configurations.Add(new CarreraMap().ToTable("Carreras", "BTra"));
-            modelBuilder.Configurations.Add(new CertificacionMap().ToTable("Certificaciones", "BTra"));
-            modelBuilder.Configurations.Add(new ConocimientoOHabilidadMap().ToTable("ConocimientosHabilidades", "BTra"));
-            modelBuilder.Configurations.Add(new CursoMap().ToTable("Cursos", "BTra"));
-            modelBuilder.Configurations.Add(new DocumentoValidadorMap().ToTable("DocumentosValidadores", "BTra"));
-            modelBuilder.Configurations.Add(new FormulariosInicialesMap().ToTable("FormulariosIniciales", "BTra"));
-            modelBuilder.Configurations.Add(new FormacionMap().ToTable("Formaciones", "BTra"));
-            modelBuilder.Configurations.Add(new FormaContactoMap().ToTable("FormasContacto", "BTra"));
-            modelBuilder.Configurations.Add(new ExperienciaProfesionalMap().ToTable("ExperienciasProfesionales", "BTra"));
-            modelBuilder.Configurations.Add(new InstitucionEducativaMap().ToTable("InstitucionesEducativas", "BTra"));
-            modelBuilder.Configurations.Add(new PerfilCandidatoMap().ToTable("PerfilCandidato", "BTra"));
-            modelBuilder.Configurations.Add(new PerfilExperienciaMap().ToTable("PerfilExperiencia", "BTra"));
-            modelBuilder.Configurations.Add(new PostulacionMap().ToTable("Postulaciones", "BTra"));
-            modelBuilder.Configurations.Add(new StatusPostulacionMap().ToTable("StatusPostulaciones", "BTra"));
-            modelBuilder.Configurations.Add(new TipoDiscapacidadMap().ToTable("TiposDiscapacidades", "BTra"));
-            modelBuilder.Configurations.Add(new TipoLicenciaMap().ToTable("TiposLicencias", "BTra"));
-            modelBuilder.Configurations.Add(new TipoRedSocialMap().ToTable("TiposRedesSociales", "BTra"));
-            modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
-            modelBuilder.Configurations.Add(new FrecuenciasMap().ToTable("Frecuencias", "BTra"));
-            modelBuilder.Configurations.Add(new AlertasdtlMap().ToTable("Alertasdtl", "BTra"));
-            modelBuilder.Configurations.Add(new DpTpDiscapacidadMap().ToTable("DpTpDiscapacidad", "BTra"));
-            modelBuilder.Configurations.Add(new MiCVUploadMap().ToTable("MiCVUpload", "BTra"));
-            modelBuilder.Configurations.Add(new HorariosCalendarioMap().ToTable("HorariosCalendario", "BTra"));
-            modelBuilder.Configurations.Add(new CalendarioCandidatoMap().ToTable("CalendarioCandidato", "BTra"));
-            modelBuilder.Configurations.Add(new AvancePerfilMap().ToTable("AvancePerfil", "BTra"));
-            #endregion
-
-            #region Reclutamiento_Recl
-            modelBuilder.Configurations.Add(new ConfiguracionRequiMap().ToTable("ConfiguracionRequi", "Recl"));
-            modelBuilder.Configurations.Add(new ActividadesPerfilMap().ToTable("ActividadesPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new AptitudMap().ToTable("Aptitudes", "Recl"));
-            modelBuilder.Configurations.Add(new AptitudesPerfilMap().ToTable("AptitudesPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new BeneficiosPerfilMap().ToTable("BeneficiosPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new CompetenciaAreaPerfilMap().ToTable("CompetenciaAreaPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new CompetenciaCardinalPerfilMap().ToTable("CompetenciaCardinalPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new CompetenciaGerencialPerfilMap().ToTable("CompetenciaGerencialPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new ClaseReclutamientoMap().ToTable("ClasesReclutamientos", "Recl"));
-            modelBuilder.Configurations.Add(new DAMFO_290Map().ToTable("DAMFO_290", "Recl"));
-            modelBuilder.Configurations.Add(new DiaObligatorioMap().ToTable("DiasObligatorios", "Recl"));
-            modelBuilder.Configurations.Add(new DiaSemanaMap().ToTable("DiasSemana", "Recl"));
-            modelBuilder.Configurations.Add(new DocumentosDamsaMap().ToTable("DocumentosDamsa", "Recl"));
-            modelBuilder.Configurations.Add(new DocumentosClienteMap().ToTable("DocumentosClientes", "Recl"));
-            modelBuilder.Configurations.Add(new EscolaridadesPerfilMap().ToTable("EscolaridadesPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new HorarioPerfilMap().ToTable("HorariosPerfiles", "Recl"));
-            modelBuilder.Configurations.Add(new ObservacionesPerfilMap().ToTable("ObservacionesPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new PeriodoPagoMap().ToTable("PeriodosPagos", "Recl"));
-            modelBuilder.Configurations.Add(new PrestacionesLeyMap().ToTable("PrestacionesLey", "Recl"));
-            modelBuilder.Configurations.Add(new PrestacionesClientePerfilMap().ToTable("PrestacionesClientePerfil", "Recl"));
-            modelBuilder.Configurations.Add(new ProcesoCandidatoMap().ToTable("ProcesoCandidatos", "Recl"));
-            modelBuilder.Configurations.Add(new PsicometriasDamsaMap().ToTable("PsicometriasDamsa", "Recl"));
-            modelBuilder.Configurations.Add(new PsicometriasClienteMap().ToTable("PsicometriasCliente", "Recl"));
-            modelBuilder.Configurations.Add(new ProcesoPerfilMap().ToTable("ProcesoPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new RutasPerfilMap().ToTable("RutasPerfil", "Recl"));
-            modelBuilder.Configurations.Add(new CfgRequiMap().ToTable("CfgRequi", "Recl"));
-            modelBuilder.Configurations.Add(new ComentarioEntrevistaMap().ToTable("ComentariosEntrevistas", "Recl"));
-            modelBuilder.Configurations.Add(new ComentarioVacanteMap().ToTable("ComentariosVacantes", "Recl"));
-            modelBuilder.Configurations.Add(new CandidatoLiberadoMap().ToTable("CandidatosLiberados", "Recl"));
-            modelBuilder.Configurations.Add(new MediosMap().ToTable("Medios", "Recl"));
-            modelBuilder.Configurations.Add(new TiposMediosMap().ToTable("TiposMedios", "Recl"));
-            modelBuilder.Configurations.Add(new CandidatosInfoMap().ToTable("CandidatosInfo", "Recl"));
-            modelBuilder.Configurations.Add(new FoliosIncidenciasCandidatosMap().ToTable("FoliosIncidenciasCandidatos", "Recl"));
-            modelBuilder.Configurations.Add(new OficioRequisicionMap().ToTable("OficiosRequisicion", "Recl"));
-            modelBuilder.Configurations.Add(new PonderacionRequisicionesMap().ToTable("PonderacionRequisiciones", "Recl"));
-            modelBuilder.Configurations.Add(new HistoricoTransDamfoMap().ToTable("HistoricoTransDamfo", "Recl"));
-            #endregion
-
-            #region Ventas_Vtas			
-            modelBuilder.Configurations.Add(new ActividadEmpMap().ToTable("ActividadEmpresas", "Vtas"));
-            modelBuilder.Configurations.Add(new ActividadesRequilMap().ToTable("ActividadesRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new AgenciaMap().ToTable("Agencias", "Vtas"));
-            modelBuilder.Configurations.Add(new AptitudesRequiMap().ToTable("AptitudesRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new AsignacionRequiMap().ToTable("AsignacionesRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new BeneficiosRequiMap().ToTable("BeneficiosRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new CompetenciasAreasRequiMap().ToTable("CompetenciasAreasRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new CompetenciaCardinalRequilMap().ToTable("CompetenciasCardinalesRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new CompetenciaGerencialRequiMap().ToTable("CompetenciasGerencialesRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new DocumentosClienteRequiMap().ToTable("DocumentosClienteRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new EscolaridadesRequiMap().ToTable("EscolaridadesRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new HorarioRequiMap().ToTable("HorariosRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new HorariosDireccionesRequiMap().ToTable("HorariosDireccionesRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new ObservacionesRequiMap().ToTable("ObservacionesRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new ProcesoRequiMap().ToTable("ProcesosRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new PrestacionesClienteRequiMap().ToTable("PrestacionesClienteRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new PsicometriasDamsaRequiMap().ToTable("PsicometriasDamsaRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new PsicometriasClienteRequiMap().ToTable("PsicometriasClienteRequi", "Vtas"));
-            modelBuilder.Configurations.Add(new RequisicionMap().ToTable("Requisiciones", "Vtas"));
-            modelBuilder.Configurations.Add(new InformeRequisicionesMap().ToTable("InformeRequisicion", "Vtas"));
-            modelBuilder.Configurations.Add(new EstatusRequisicionesMap().ToTable("EstatusRequisiciones", "Vtas"));
-            modelBuilder.Configurations.Add(new FacturacionPuroMap().ToTable("FacturacionPuro", "Vtas"));
-            modelBuilder.Configurations.Add(new DireccionTelefonoMap().ToTable("DireccionesTelefonos", "Vtas"));
-            modelBuilder.Configurations.Add(new DireccionEmailMap().ToTable("DireccionesEmails", "Vtas"));
-            modelBuilder.Configurations.Add(new DireccionContactoMap().ToTable("DireccionesContactos", "Vtas"));
-            modelBuilder.Configurations.Add(new ExamenMedicoClienteMap().ToTable("ExamenesMedicosCliente","Vtas"));
-            #endregion
-
-            #region Banco_sist
-            modelBuilder.Configurations.Add(new TicketsMap().ToTable("Tickets", "Sist"));
-            modelBuilder.Configurations.Add(new TicketsReclutadorMap().ToTable("TicketsReclutador", "Sist"));
-            modelBuilder.Configurations.Add(new ModulosReclutamientoMap().ToTable("ModulosReclutamiento", "Recl"));
-            modelBuilder.Configurations.Add(new HistoricoTicketMap().ToTable("HistoricosTickets", "Sist"));
-
-            #endregion
-
-            #region ServicioCliente_SCte
-
-
-            #endregion
-
-            #region Herencia_de_Entidad
-            modelBuilder.Configurations.Add(new EntidadMap().ToTable("Entidades"));
-            modelBuilder.Configurations.Add(new CandidatoMap());
-            modelBuilder.Configurations.Add(new ContactoMap());
-            modelBuilder.Configurations.Add(new ReferenciadoMap());
-            modelBuilder.Configurations.Add(new ClienteMap());
-            #endregion
-
-        }
 
         #region "Mapeo Sist"
         public class AreaMap : EntityTypeConfiguration<Area>
@@ -1890,6 +1659,47 @@ namespace SAGA.DAL
             }
         }
 
+        public class CostosMap :EntityTypeConfiguration<Costos>
+        {
+            public CostosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Descripcion).HasMaxLength(100).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.Fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.Fch_Modificacion).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioCreacion).IsOptional();
+                Property(x => x.UsuarioModificacion).IsOptional();
+            }
+        }
+        public class TipoCostosMap :EntityTypeConfiguration<TipoCostos>
+        {
+            public TipoCostosMap()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Descripcion).HasMaxLength(100).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.CostosId).IsRequired();
+                Property(x => x.Fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.Fch_Modificacion).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioCreacion).IsOptional();
+                Property(x => x.UsuarioModificacion).IsOptional();
+
+            }
+        }
+        public class CostosDamfo290Map :EntityTypeConfiguration<CostosDamfo290>
+        {
+            public CostosDamfo290Map()
+            {
+                HasKey(x => x.Id);
+                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.TipoCostosId).IsRequired();
+                Property(x => x.Costo).HasPrecision(18, 4).IsRequired();
+                Property(x => x.DAMFO290Id).IsRequired();
+            }
+        }
         public class ExamenMedicoClienteMap :EntityTypeConfiguration<ExamenMedicoCliente>
         {
             public ExamenMedicoClienteMap()
@@ -2798,5 +2608,240 @@ namespace SAGA.DAL
             }
         }
         #endregion
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            //modelBuilder.Entity<PersonasMap>().Property(p => p.Email).HasColumnAnnotation(IndexAnnotation.AnnotationName, new IndexAnnotation(new IndexAttribute() { IsUnique = true }));
+
+            modelBuilder.HasDefaultSchema("Sist");
+
+            //modelBuilder.Entity<IdentityUserLogin>().HasKey<string>(l => l.UserId);
+            //modelBuilder.Entity<IdentityRole>().HasKey<string>(r => r.Id);
+            //modelBuilder.Entity<IdentityUserRole>().HasKey(r => new { r.RoleId, r.UserId });
+
+            #region Administracion_Sistema_Sist
+            modelBuilder.Configurations.Add(new RelacionClientesSistemasMap().ToTable("RelacionClientesSistemas", "dbo"));
+            modelBuilder.Configurations.Add(new EstructuraMap().ToTable("Estructuras"));
+            modelBuilder.Configurations.Add(new TipoEstructuraMap().ToTable("TiposEstructuras"));
+            modelBuilder.Configurations.Add(new AmbitoMap().ToTable("Ambitos"));
+            modelBuilder.Configurations.Add(new AreaMap().ToTable("Areas"));
+            modelBuilder.Configurations.Add(new ColoniasMap().ToTable("Colonias"));
+            modelBuilder.Configurations.Add(new CompetenciasAreasMap().ToTable("CompetenciasAreas"));
+            modelBuilder.Configurations.Add(new CompetenciasCardinalesMap().ToTable("CompetenciasCardinales"));
+            modelBuilder.Configurations.Add(new CompeteciasGerencialesMap().ToTable("CompetenciasGerenciales"));
+            modelBuilder.Configurations.Add(new DireccionMap().ToTable("Direcciones"));
+            modelBuilder.Configurations.Add(new EstadoMap().ToTable("Estados"));
+            modelBuilder.Configurations.Add(new EstatusMap().ToTable("Estatus"));
+            modelBuilder.Configurations.Add(new EmailMap().ToTable("Emails"));
+            modelBuilder.Configurations.Add(new EstadoCivilMap().ToTable("EstadosCiviles"));
+            modelBuilder.Configurations.Add(new EstadoEstudioMap().ToTable("EstadosEstudios"));
+            modelBuilder.Configurations.Add(new GeneroMap().ToTable("Generos"));
+            modelBuilder.Configurations.Add(new GradoEstudioMap().ToTable("GradosEstudios"));
+            modelBuilder.Configurations.Add(new GruposMap().ToTable("Grupos"));
+            modelBuilder.Configurations.Add(new GiroEmpresaMap().ToTable("GiroEmpresas"));
+            modelBuilder.Configurations.Add(new JornadaLaboralMap().ToTable("JornadasLaborales"));
+            modelBuilder.Configurations.Add(new MunicipioMap().ToTable("Municipios"));
+            modelBuilder.Configurations.Add(new NivelMap().ToTable("Niveles"));
+            modelBuilder.Configurations.Add(new PaisMap().ToTable("Paises"));
+            modelBuilder.Configurations.Add(new PrioridadMap().ToTable("Prioridades"));
+            modelBuilder.Configurations.Add(new RedSocialMap().ToTable("RedesSociales"));
+            modelBuilder.Configurations.Add(new RolesMap().ToTable("Roles"));
+            modelBuilder.Configurations.Add(new TamanoEmpresaMap().ToTable("TamanosEmpresas"));
+            modelBuilder.Configurations.Add(new TelefonoMap().ToTable("Telefonos"));
+            modelBuilder.Configurations.Add(new TiempoContratoMap().ToTable("TiemposContratos"));
+            modelBuilder.Configurations.Add(new TipoBaseMap().ToTable("TiposBases"));
+            modelBuilder.Configurations.Add(new TipoDireccionMap().ToTable("TiposDirecciones"));
+            modelBuilder.Configurations.Add(new TipoEmpresaMap().ToTable("TiposEmpresas"));
+            modelBuilder.Configurations.Add(new TipoTelefonoMap().ToTable("TiposTelefonos"));
+            modelBuilder.Configurations.Add(new TipoUsuarioMap().ToTable("TiposUsuarios"));
+            modelBuilder.Configurations.Add(new TipoBeneficioMap().ToTable("TiposBeneficios"));
+            modelBuilder.Configurations.Add(new TipoContratoMap().ToTable("TiposContratos"));
+            modelBuilder.Configurations.Add(new TipoModalidadMap().ToTable("TiposModalidades"));
+            modelBuilder.Configurations.Add(new TipodeNominaMap().ToTable("TiposNominas"));
+            modelBuilder.Configurations.Add(new TipoPsicometriaMap().ToTable("TiposPsicometrias"));
+            modelBuilder.Configurations.Add(new TipoReclutamientoMap().ToTable("TiposReclutamientos"));
+            modelBuilder.Configurations.Add(new UsuariosMap().ToTable("Usuarios"));
+            modelBuilder.Configurations.Add(new TipoAccionMap().ToTable("TiposAcciones"));
+            modelBuilder.Configurations.Add(new TipoMovimientoMap().ToTable("TiposMovimientos"));
+            modelBuilder.Configurations.Add(new TrazabilidadMesMap().ToTable("TrazabilidadMes"));
+            modelBuilder.Configurations.Add(new RastreabilidadMesMap().ToTable("RastreabilidadMes"));
+            modelBuilder.Configurations.Add(new FoliosMap().ToTable("Folios"));
+            modelBuilder.Configurations.Add(new PrivilegiosMap().ToTable("Privilegios"));
+            modelBuilder.Configurations.Add(new GrupoUsuarioMap().ToTable("GruposUsuarios"));
+            modelBuilder.Configurations.Add(new DepartamentoMap().ToTable("Departamentos"));
+            modelBuilder.Configurations.Add(new TipoEntidadMap().ToTable("TiposEntidades"));
+            modelBuilder.Configurations.Add(new TratamientoMap().ToTable("Tratamientos"));
+            modelBuilder.Configurations.Add(new OficinaReclutamientoMap().ToTable("OficinasReclutamiento"));
+            modelBuilder.Configurations.Add(new TipoOficinaMap().ToTable("TiposOficinas"));
+            modelBuilder.Configurations.Add(new RolEntidadesMap().ToTable("RolEntidades"));
+            modelBuilder.Configurations.Add(new ConfiguracionMovsMap().ToTable("ConfiguracionesMovs"));
+            modelBuilder.Configurations.Add(new LogsIngresosMap().ToTable("LogsIngresos"));
+            modelBuilder.Configurations.Add(new MotivoLiberacioMap().ToTable("MotivosLiberaciones"));
+            modelBuilder.Configurations.Add(new FolioIncidenciaMap().ToTable("FolioIncidencias"));
+            modelBuilder.Configurations.Add(new PuestoMap().ToTable("Puestos"));
+            modelBuilder.Configurations.Add(new CalendarioEventMap().ToTable("CalendarioEvent"));
+            modelBuilder.Configurations.Add(new TipoActividadReclutadorMap().ToTable("TipoActividadReclutador"));
+            modelBuilder.Configurations.Add(new AlertasStmMap().ToTable("AlertasStm"));
+            modelBuilder.Configurations.Add(new TipoAlertaMap().ToTable("TiposAlertas"));
+            modelBuilder.Configurations.Add(new SubordinadosMap().ToTable("Subordinados"));
+            modelBuilder.Configurations.Add(new UnidadesNegociosMap().ToTable("UnidadesNegocios"));
+            modelBuilder.Configurations.Add(new TipoExamenMedicoMap().ToTable("TiposExamenesMedicos"));
+
+
+            //Catalogos
+            modelBuilder.Configurations.Add(new CatalogosMap().ToTable("Catalogos"));
+            modelBuilder.Configurations.Add(new LogCatalogosMap().ToTable("LogCatalogos"));
+
+
+            //Modulo para examenes
+            modelBuilder.Configurations.Add(new ExamenesMap().ToTable("Examenes"));
+            modelBuilder.Configurations.Add(new TipoExamenesMap().ToTable("TipoExamen"));
+            modelBuilder.Configurations.Add(new PreguntasMap().ToTable("Preguntas"));
+            modelBuilder.Configurations.Add(new RespuestasMap().ToTable("Respuestas"));
+            modelBuilder.Configurations.Add(new RequiExamenMap().ToTable("RequiExamen"));
+            modelBuilder.Configurations.Add(new ExamenCandidatoMap().ToTable("ExamenCandidato"));
+            modelBuilder.Configurations.Add(new ResultadosCandidatoMap().ToTable("ResultadosCandidato"));
+            modelBuilder.Configurations.Add(new RequiClavesMap().ToTable("RequiClaves"));
+            modelBuilder.Configurations.Add(new PsicometriaCandidatosMap().ToTable("PsicometriaCandidatos"));
+            modelBuilder.Configurations.Add(new MedicoCandidatoMap().ToTable("MedicoCandidato"));
+            modelBuilder.Configurations.Add(new ConfigEntrevistaMap().ToTable("ConfigEntrevistas"));
+
+
+            //Preguntas Frecuentes 
+            modelBuilder.Configurations.Add(new PreguntasFrecuentesMap().ToTable("PreguntasFrecuentes"));
+
+            modelBuilder.Configurations.Add(new TransferenciasMap().ToTable("Transferencias"));
+            modelBuilder.Configurations.Add(new TiposTransferenciasMap().ToTable("TiposTransferencias"));
+
+            modelBuilder.Entity<AspNetUsers>().ToTable("AspNetUsers");
+
+            //Tabla de Versiones del Sistema.
+            modelBuilder.Configurations.Add(new VertionSistemMap().ToTable("VertionSistem"));
+            #endregion
+
+            #region BolsaTrabajo_BTra
+            modelBuilder.Configurations.Add(new AboutMeMap().ToTable("AcercaDeMi", "BTra"));
+            modelBuilder.Configurations.Add(new AreaExperienciaMap().ToTable("AreasExperiencia", "BTra"));
+            modelBuilder.Configurations.Add(new AreaInteresMap().ToTable("AreasInteres", "BTra"));
+            modelBuilder.Configurations.Add(new CarreraMap().ToTable("Carreras", "BTra"));
+            modelBuilder.Configurations.Add(new CertificacionMap().ToTable("Certificaciones", "BTra"));
+            modelBuilder.Configurations.Add(new ConocimientoOHabilidadMap().ToTable("ConocimientosHabilidades", "BTra"));
+            modelBuilder.Configurations.Add(new CursoMap().ToTable("Cursos", "BTra"));
+            modelBuilder.Configurations.Add(new DocumentoValidadorMap().ToTable("DocumentosValidadores", "BTra"));
+            modelBuilder.Configurations.Add(new FormulariosInicialesMap().ToTable("FormulariosIniciales", "BTra"));
+            modelBuilder.Configurations.Add(new FormacionMap().ToTable("Formaciones", "BTra"));
+            modelBuilder.Configurations.Add(new FormaContactoMap().ToTable("FormasContacto", "BTra"));
+            modelBuilder.Configurations.Add(new ExperienciaProfesionalMap().ToTable("ExperienciasProfesionales", "BTra"));
+            modelBuilder.Configurations.Add(new InstitucionEducativaMap().ToTable("InstitucionesEducativas", "BTra"));
+            modelBuilder.Configurations.Add(new PerfilCandidatoMap().ToTable("PerfilCandidato", "BTra"));
+            modelBuilder.Configurations.Add(new PerfilExperienciaMap().ToTable("PerfilExperiencia", "BTra"));
+            modelBuilder.Configurations.Add(new PostulacionMap().ToTable("Postulaciones", "BTra"));
+            modelBuilder.Configurations.Add(new StatusPostulacionMap().ToTable("StatusPostulaciones", "BTra"));
+            modelBuilder.Configurations.Add(new TipoDiscapacidadMap().ToTable("TiposDiscapacidades", "BTra"));
+            modelBuilder.Configurations.Add(new TipoLicenciaMap().ToTable("TiposLicencias", "BTra"));
+            modelBuilder.Configurations.Add(new TipoRedSocialMap().ToTable("TiposRedesSociales", "BTra"));
+            modelBuilder.Configurations.Add(new PerfilIdimoasMap().ToTable("PerfilIdiomas", "BTra"));
+            modelBuilder.Configurations.Add(new FrecuenciasMap().ToTable("Frecuencias", "BTra"));
+            modelBuilder.Configurations.Add(new AlertasdtlMap().ToTable("Alertasdtl", "BTra"));
+            modelBuilder.Configurations.Add(new DpTpDiscapacidadMap().ToTable("DpTpDiscapacidad", "BTra"));
+            modelBuilder.Configurations.Add(new MiCVUploadMap().ToTable("MiCVUpload", "BTra"));
+            modelBuilder.Configurations.Add(new HorariosCalendarioMap().ToTable("HorariosCalendario", "BTra"));
+            modelBuilder.Configurations.Add(new CalendarioCandidatoMap().ToTable("CalendarioCandidato", "BTra"));
+            modelBuilder.Configurations.Add(new AvancePerfilMap().ToTable("AvancePerfil", "BTra"));
+            #endregion
+
+            #region Reclutamiento_Recl
+            modelBuilder.Configurations.Add(new ConfiguracionRequiMap().ToTable("ConfiguracionRequi", "Recl"));
+            modelBuilder.Configurations.Add(new ActividadesPerfilMap().ToTable("ActividadesPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new AptitudMap().ToTable("Aptitudes", "Recl"));
+            modelBuilder.Configurations.Add(new AptitudesPerfilMap().ToTable("AptitudesPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new BeneficiosPerfilMap().ToTable("BeneficiosPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new CompetenciaAreaPerfilMap().ToTable("CompetenciaAreaPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new CompetenciaCardinalPerfilMap().ToTable("CompetenciaCardinalPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new CompetenciaGerencialPerfilMap().ToTable("CompetenciaGerencialPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new ClaseReclutamientoMap().ToTable("ClasesReclutamientos", "Recl"));
+            modelBuilder.Configurations.Add(new DAMFO_290Map().ToTable("DAMFO_290", "Recl"));
+            modelBuilder.Configurations.Add(new DiaObligatorioMap().ToTable("DiasObligatorios", "Recl"));
+            modelBuilder.Configurations.Add(new DiaSemanaMap().ToTable("DiasSemana", "Recl"));
+            modelBuilder.Configurations.Add(new DocumentosDamsaMap().ToTable("DocumentosDamsa", "Recl"));
+            modelBuilder.Configurations.Add(new DocumentosClienteMap().ToTable("DocumentosClientes", "Recl"));
+            modelBuilder.Configurations.Add(new EscolaridadesPerfilMap().ToTable("EscolaridadesPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new HorarioPerfilMap().ToTable("HorariosPerfiles", "Recl"));
+            modelBuilder.Configurations.Add(new ObservacionesPerfilMap().ToTable("ObservacionesPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new PeriodoPagoMap().ToTable("PeriodosPagos", "Recl"));
+            modelBuilder.Configurations.Add(new PrestacionesLeyMap().ToTable("PrestacionesLey", "Recl"));
+            modelBuilder.Configurations.Add(new PrestacionesClientePerfilMap().ToTable("PrestacionesClientePerfil", "Recl"));
+            modelBuilder.Configurations.Add(new ProcesoCandidatoMap().ToTable("ProcesoCandidatos", "Recl"));
+            modelBuilder.Configurations.Add(new PsicometriasDamsaMap().ToTable("PsicometriasDamsa", "Recl"));
+            modelBuilder.Configurations.Add(new PsicometriasClienteMap().ToTable("PsicometriasCliente", "Recl"));
+            modelBuilder.Configurations.Add(new ProcesoPerfilMap().ToTable("ProcesoPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new RutasPerfilMap().ToTable("RutasPerfil", "Recl"));
+            modelBuilder.Configurations.Add(new CfgRequiMap().ToTable("CfgRequi", "Recl"));
+            modelBuilder.Configurations.Add(new ComentarioEntrevistaMap().ToTable("ComentariosEntrevistas", "Recl"));
+            modelBuilder.Configurations.Add(new ComentarioVacanteMap().ToTable("ComentariosVacantes", "Recl"));
+            modelBuilder.Configurations.Add(new CandidatoLiberadoMap().ToTable("CandidatosLiberados", "Recl"));
+            modelBuilder.Configurations.Add(new MediosMap().ToTable("Medios", "Recl"));
+            modelBuilder.Configurations.Add(new TiposMediosMap().ToTable("TiposMedios", "Recl"));
+            modelBuilder.Configurations.Add(new CandidatosInfoMap().ToTable("CandidatosInfo", "Recl"));
+            modelBuilder.Configurations.Add(new FoliosIncidenciasCandidatosMap().ToTable("FoliosIncidenciasCandidatos", "Recl"));
+            modelBuilder.Configurations.Add(new OficioRequisicionMap().ToTable("OficiosRequisicion", "Recl"));
+            modelBuilder.Configurations.Add(new PonderacionRequisicionesMap().ToTable("PonderacionRequisiciones", "Recl"));
+            modelBuilder.Configurations.Add(new HistoricoTransDamfoMap().ToTable("HistoricoTransDamfo", "Recl"));
+            #endregion
+
+            #region Ventas_Vtas			
+            modelBuilder.Configurations.Add(new ActividadEmpMap().ToTable("ActividadEmpresas", "Vtas"));
+            modelBuilder.Configurations.Add(new ActividadesRequilMap().ToTable("ActividadesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new AgenciaMap().ToTable("Agencias", "Vtas"));
+            modelBuilder.Configurations.Add(new AptitudesRequiMap().ToTable("AptitudesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new AsignacionRequiMap().ToTable("AsignacionesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new BeneficiosRequiMap().ToTable("BeneficiosRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new CompetenciasAreasRequiMap().ToTable("CompetenciasAreasRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new CompetenciaCardinalRequilMap().ToTable("CompetenciasCardinalesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new CompetenciaGerencialRequiMap().ToTable("CompetenciasGerencialesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new DocumentosClienteRequiMap().ToTable("DocumentosClienteRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new EscolaridadesRequiMap().ToTable("EscolaridadesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new HorarioRequiMap().ToTable("HorariosRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new HorariosDireccionesRequiMap().ToTable("HorariosDireccionesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new ObservacionesRequiMap().ToTable("ObservacionesRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new ProcesoRequiMap().ToTable("ProcesosRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new PrestacionesClienteRequiMap().ToTable("PrestacionesClienteRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new PsicometriasDamsaRequiMap().ToTable("PsicometriasDamsaRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new PsicometriasClienteRequiMap().ToTable("PsicometriasClienteRequi", "Vtas"));
+            modelBuilder.Configurations.Add(new RequisicionMap().ToTable("Requisiciones", "Vtas"));
+            modelBuilder.Configurations.Add(new InformeRequisicionesMap().ToTable("InformeRequisicion", "Vtas"));
+            modelBuilder.Configurations.Add(new EstatusRequisicionesMap().ToTable("EstatusRequisiciones", "Vtas"));
+            modelBuilder.Configurations.Add(new FacturacionPuroMap().ToTable("FacturacionPuro", "Vtas"));
+            modelBuilder.Configurations.Add(new DireccionTelefonoMap().ToTable("DireccionesTelefonos", "Vtas"));
+            modelBuilder.Configurations.Add(new DireccionEmailMap().ToTable("DireccionesEmails", "Vtas"));
+            modelBuilder.Configurations.Add(new DireccionContactoMap().ToTable("DireccionesContactos", "Vtas"));
+            modelBuilder.Configurations.Add(new CostosMap().ToTable("Costos", "Vtas"));
+            modelBuilder.Configurations.Add(new TipoCostosMap().ToTable("TipoCostos", "Vtas"));
+            modelBuilder.Configurations.Add(new CostosDamfo290Map().ToTable("CostosDamfo290", "Vtas"));
+            modelBuilder.Configurations.Add(new ExamenMedicoClienteMap().ToTable("ExamenesMedicosCliente", "Vtas"));
+            #endregion
+
+            #region Banco_sist
+            modelBuilder.Configurations.Add(new TicketsMap().ToTable("Tickets", "Sist"));
+            modelBuilder.Configurations.Add(new TicketsReclutadorMap().ToTable("TicketsReclutador", "Sist"));
+            modelBuilder.Configurations.Add(new ModulosReclutamientoMap().ToTable("ModulosReclutamiento", "Recl"));
+            modelBuilder.Configurations.Add(new HistoricoTicketMap().ToTable("HistoricosTickets", "Sist"));
+
+            #endregion
+
+            #region ServicioCliente_SCte
+
+
+            #endregion
+
+            #region Herencia_de_Entidad
+            modelBuilder.Configurations.Add(new EntidadMap().ToTable("Entidades"));
+            modelBuilder.Configurations.Add(new CandidatoMap());
+            modelBuilder.Configurations.Add(new ContactoMap());
+            modelBuilder.Configurations.Add(new ReferenciadoMap());
+            modelBuilder.Configurations.Add(new ClienteMap());
+            #endregion
+
+        }
     }
 }

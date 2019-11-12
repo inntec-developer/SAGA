@@ -361,28 +361,6 @@ namespace SAGA.API.Controllers
             try
             {
                 var aux = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id)).Select(c => c.CandidatoId).ToList();
-
-                //var candidatos = db.ProcesoCandidatos.Where(x => x.ReclutadorId.Equals(Id) && aux.Contains(x.CandidatoId)).OrderByDescending(f => f.Fch_Creacion)
-                //    .Select(x => new
-                //    {
-                //        candidatoId = x.CandidatoId,
-                //        nombre = x.Candidato.Nombre + " " + x.Candidato.ApellidoPaterno + " " + x.Candidato.ApellidoMaterno,
-                //        AreaExp = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() != null ?
-                //              db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() : "",
-                //        AreaInt = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() != null ?
-                //              db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() : "",
-                //        Edad = x.Candidato.FechaNacimiento,
-                //        curp = x.Candidato.CURP,
-                //        rfc = x.Candidato.RFC != null ? x.Candidato.RFC : "",
-                //        sueldoMinimo = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault()).FirstOrDefault() != null ?
-                //                   db.PerfilCandidato.Where(p => p.CandidatoId.Equals(x.CandidatoId)).Select(p => p.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault() : 0,
-                //        localidad = x.Candidato.direcciones.Select(d => d.Estado.estado).FirstOrDefault() + " / " + x.Candidato.direcciones.Select(d => d.Municipio.municipio).FirstOrDefault(),
-                //        folio = x.Folio,
-                //        vBtra = x.Requisicion.VBtra,
-                //        estatus = x.Estatus.Descripcion.First(),
-                //        estatusId = x.EstatusId
-                //    }).ToList();
-
                 if (aux.Count() > 0)
                 {
                     var candidatos = db.PerfilCandidato.Where(x => aux.Contains(x.CandidatoId))
@@ -399,35 +377,12 @@ namespace SAGA.API.Controllers
                      rfc = p.Candidato.RFC != null ? p.Candidato.RFC : "",
                      sueldoMinimo = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault()).FirstOrDefault() != null ?
                                     db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault() : 0,
-                     localidad = p.Candidato.estadoNacimiento.estado + " / " + p.Candidato.municipioNacimiento.municipio,
+                     localidad = string.IsNullOrEmpty( p.Candidato.estadoNacimiento.estado ) ? "SIN REGISTRO" : p.Candidato.estadoNacimiento.estado + ( String.IsNullOrEmpty(p.Candidato.municipioNacimiento.municipio) ? "" : "/" + p.Candidato.municipioNacimiento.municipio ),
                      folio = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Folio).FirstOrDefault(),
                      vBtra = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Requisicion.VBtra).FirstOrDefault(),
                      estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Estatus.Descripcion).FirstOrDefault(),
                      estatusId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.EstatusId).FirstOrDefault(),
                  }).ToList();
-
-
-                    // var candidatos = db.CandidatosInfo.Where(x => aux.Contains(x.CandidatoId))
-                    //.Select(p => new
-                    //{
-                    //    candidatoId = p.CandidatoId,
-                    //    nombre = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
-                    //    AreaExp = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() != null ?
-                    //              db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaExperiencia.areaExperiencia).FirstOrDefault()).FirstOrDefault() : "",
-                    //    AreaInt = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() != null ?
-                    //              db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault()).FirstOrDefault() : "",
-                    //    Edad = p.FechaNacimiento,
-                    //    curp = p.CURP,
-                    //    rfc = p.RFC != null ? p.RFC : "",
-                    //    sueldoMinimo = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.SalarioAceptable.ToString()).FirstOrDefault()).FirstOrDefault() != null ?
-                    //                   db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(aa => aa.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault()).FirstOrDefault() : 0,
-                    //    localidad = p.estadoNacimiento.estado + " / " + p.municipioNacimiento.municipio,
-                    //    folio = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Folio).FirstOrDefault(),
-                    //    vBtra = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Requisicion.VBtra).FirstOrDefault(),
-                    //    estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.Estatus.Descripcion).FirstOrDefault(),
-                    //    estatusId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(f => f.Fch_Modificacion).Select(r => r.EstatusId).FirstOrDefault(),
-                    //}).ToList();
-
                     return Ok(candidatos);
                 }
                 else

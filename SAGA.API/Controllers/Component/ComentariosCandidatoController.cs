@@ -82,6 +82,7 @@ namespace SAGA.API.Controllers.Component
             try
             {
                 ComentarioEntrevista cm = new ComentarioEntrevista();
+
                 cm.Comentario = comentario.Comentario.ToUpper().Trim();
                 cm.CandidatoId = comentario.CandidatoId;
                 cm.RequisicionId = comentario.RequisicionId;
@@ -91,7 +92,6 @@ namespace SAGA.API.Controllers.Component
                 cm.fch_Creacion.ToUniversalTime();
                 cm.MotivoId = 7; //por mientras
                 //cm.ReclutadorId = comentario.UsuarioId;
-
 
                 db.ComentariosEntrevistas.Add(cm);
                 db.SaveChanges();
