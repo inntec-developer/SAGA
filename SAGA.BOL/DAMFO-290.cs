@@ -69,6 +69,7 @@ namespace SAGA.BOL
         public virtual ICollection<CompetenciaAreaPerfil> competenciasAreaPerfil { get; set; }
         public virtual ICollection<CompetenciaCardinalPerfil> competenciasCardinalPerfil { get; set; }
         public virtual ICollection<CompetenciaGerencialPerfil> competetenciasGerencialPerfil { get; set; }
+        public virtual ICollection<CostosDamfo290> costosPerfil { get; set; }
 
         public DAMFO_290()
         {

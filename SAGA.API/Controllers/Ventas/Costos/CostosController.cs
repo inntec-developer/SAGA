@@ -41,5 +41,30 @@ namespace SAGA.API.Controllers
                 throw;
             }
         }
+        [HttpGet]
+        [Route("getCostosByDamfo")]
+        //[Authorize]
+        public IHttpActionResult GetCostosByDamfo(Guid damfoId)
+        {
+            try
+            {
+                var costos = db.CostosDamfo290.Where(x => x.Equals(damfoId)).Select(cc => new
+                {
+                    costo = cc.TipoCostos.Costos.Descripcion,
+                    tipos = db.TipoCostos.Where(x => x.Id.Equals(cc.TipoCostosId)).Select(tc => new {
+                        tipoId = tc.Id,
+                        tipo = tc.Descripcion,
+                        value = cc.Costo
+                    })
+                
+                }).ToList();
+                return Ok(costos);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+                throw;
+            }
+        }
     }
 }

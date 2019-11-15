@@ -449,6 +449,48 @@ namespace SAGA.API.Utilerias
                 string msg = ex.Message;
             }
         }
+
+        public void SendEmailAignacionRequiPuro(string email, string user, string Folio, string vBtra)
+        {
+            try
+            {
+                string body = "";
+                string webERP = ConfigurationManager.AppSettings["WEBERP"].ToString();
+                DateTime fechaCreacion = DateTime.Now;
+
+                string from = "noreply@damsa.com.mx";
+                MailMessage m = new MailMessage();
+                m.From = new MailAddress(from, "SAGA Inn");
+                m.To.Add(email);
+
+                m.Subject = "Asignacion de Requisicion " + Folio;
+
+                var inicio = "<html><head><style>td { border: solid #2471A3 1px; padding-left:5px; padding-right:5px;padding-top:1px; padding-bottom:1px;font-size:9pt; color: #3498DB;font-family:'calibri'; width: 25%; text-align: left; vertical-align: top; border-spacing: 0; border-collapse: collapse;} ";
+                inicio = inicio + "p { font - family:'calibri'; } th { font - family:'calibri'; width: 25 %; text - align: left; vertical - align: top; border: solid blue 1px; border - spacing: 0; border - collapse: collapse; background: #3498DB; color:white;}";
+                inicio = inicio + "h3 { font - family:'calibri'; } table { width: 100 %; }</style></head><body style =\"text-align:center; font-family:'calibri'; font-size:10pt;\"><br><br><p> Asignación de Requisición:</p>";
+
+
+                body = inicio;
+                body = body + string.Format("<br/>El usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big><a href=\"{3}/login/{2}\">{2}</a></big></strong>.", user, vBtra, Folio, sitioWeb);
+
+                body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de <b>Reclutamiento</b>, selecciona la opción de <b>Vacantes</b> para dar el seguimiento correspondiente.</p> ";
+                body = body + "<p>Podrás acceder mediante la siguiente dirección: https://weberp.damsa.com.mx/login" + "</p>";
+                body = body + "<p>Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx</p><p>Gracias por tu atención. </p><p>Saludos</p>";
+                body = body + "</body></html>";
+
+                m.Body = body;
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                smtp.EnableSsl = true;
+                smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                smtp.Send(m);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         public bool SendEmailRequisPuras(Guid RequisicionId)
         {
             try
@@ -467,7 +509,7 @@ namespace SAGA.API.Utilerias
                 var estatusRequi = db.EstatusRequisiciones
                     .Where(e => e.RequisicionId.Equals(RequisicionId))
                     .Select(e => e.EstatusId ).ToList();
-
+              
                 foreach(var e in estatusRequi)
                 {
                     if (estatus.Contains(e))
@@ -590,10 +632,15 @@ namespace SAGA.API.Utilerias
                         m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
                         m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
                         m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
+
+                        var coorEmail = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(RequisicionId)).Select(r =>
+                         db.Usuarios.Where(x => x.Id.Equals(r.GrpUsrId)).Select(ee => ee.emails.Select(eee => eee.email).FirstOrDefault()).FirstOrDefault()
+                        ).FirstOrDefault();
+
                         if (!isDurango)
                         {
                             m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
                         }
                         else
                         {
@@ -601,22 +648,23 @@ namespace SAGA.API.Utilerias
                             {
                                 m.CC.Add(e);
                             }
-                            foreach (var e in GVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
+                            //foreach (var e in GVEmails)
+                            //{
+                            //    m.CC.Add(e);
+                            //}
                         }
                         m.CC.Add(emailProp);
-                        m.Subject = string.Format("[FACTURAR FOLIO] Solicitud de Facturación de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[SAGA] FACTURAR FOLIO Solicitud de Facturación de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa, que se requiere factura para el nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb, requi.folio);
-                       
+
+                        SendEmailAignacionRequiPuro(coorEmail, requi.solicita.nombre.ToUpper(), requi.folio.ToString(), requi.puesto);
                         break;
                     case 8:
                         m.To.Add(emailProp);
                         if (!isDurango)
                         {
                             m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
                         }
                         else
                         {
@@ -635,7 +683,7 @@ namespace SAGA.API.Utilerias
                             m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
                             m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
                         }
-                        m.Subject = string.Format("Cancelación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[SAGA] Cancelación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha cancelado el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a></strong>", requi.folio, sitioWeb);
                         break;
                     case 9:
@@ -643,7 +691,7 @@ namespace SAGA.API.Utilerias
                         if (!isDurango)
                         {
                             m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
                         }
                         else
                         {
@@ -663,7 +711,7 @@ namespace SAGA.API.Utilerias
                             m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
                             m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
                         }
-                        m.Subject = string.Format("Eliminación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[SAGA] Eliminación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha elimino el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>.</strong>", requi.folio, sitioWeb);
                         m.To.Add(emailProp);
                         break;
@@ -672,7 +720,15 @@ namespace SAGA.API.Utilerias
                         if (!isDurango)
                         {
                             m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                            //if (requi.asignados.Count() > 0)
+                            //{
+                            //    var mocos = Array.Exists(requi.asignados, e => e != "CRCL");
+                            //    if(mocos)
+                            //    {
+                            //        m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                            //    }
+                            //}
                         }
                         else
                         {
@@ -686,7 +742,7 @@ namespace SAGA.API.Utilerias
                             }
                         }
                         m.CC.Add(emailProp);
-                        m.Subject = string.Format("[AUTORIZAR FOLIO] Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[SAGA] AUTORIZAR FOLIO Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb,requi.folio);
                         break;
                     case 34:
@@ -694,7 +750,7 @@ namespace SAGA.API.Utilerias
                         if (!isDurango)
                         {
                             m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
                         }
                         else
                         {
@@ -707,7 +763,7 @@ namespace SAGA.API.Utilerias
                                 m.CC.Add(e);
                             }
                         };
-                        m.Subject = string.Format("Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[SAGA] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong>Por este medio se les informa que se requiere facturar el cierre de reclutamiento puro con el n&uacute;mero de folio {0} </strong>", requi.folio);
                         body = body + "<p><h3>INFORMACIÓN DE AJUSTE.</h3></p>";
                         body = body + string.Format("<p>{0}</p>", requi.ajustes);
@@ -716,7 +772,7 @@ namespace SAGA.API.Utilerias
                         if (!isDurango)
                         {
                             m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            m.To.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                            //m.To.Add(GVtasEmail != null ? GVtasEmail : emailProp);
                         }
                         else
                         {
@@ -730,7 +786,7 @@ namespace SAGA.API.Utilerias
                             }
                         }
                         m.CC.Add(emailProp);
-                        m.Subject = string.Format("[AUTORIZADA PENDIENTE PAGO] Seguimiento de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[SAGA] AUTORIZADA PENDIENTE PAGO Seguimiento de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">La requisiciones esta autorizada, con un pago pendiente.</strong>");
                         break;
                     case 46:
@@ -738,7 +794,7 @@ namespace SAGA.API.Utilerias
                         if (!isDurango)
                         {
                             m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
                         }
                         else
                         {
@@ -752,7 +808,7 @@ namespace SAGA.API.Utilerias
                             }
                         }
                         m.CC.Add(emailProp);
-                        m.Subject = string.Format("[AUTORIZAR FOLIO] Vacante con Reclutamiento Puro Porcentaje menor de 50% {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                        m.Subject = string.Format("[SAGA] AUTORIZAR FOLIO Vacante con Reclutamiento Puro Porcentaje menor de 50% {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>, el cual se esta solicitando una facturación por debajo del 50%. Es necesaria previa autorización para continuar con el proceso. </strong>",sitioWeb, requi.folio);
                         break;
                 }
@@ -952,7 +1008,6 @@ namespace SAGA.API.Utilerias
                         break;
                     }
                 }
-
 
                 var requi = db.Requisiciones
                     .Where(r => r.Id.Equals(RequisicionId))

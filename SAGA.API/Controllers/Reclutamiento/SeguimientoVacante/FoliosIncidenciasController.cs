@@ -308,7 +308,7 @@ namespace SAGA.API.Controllers
                                 fch_Modificacion = DateTime.Now
                             };
                             ar.Add(asg);
-                            rc.AlterAsignacionRequi(ar,requi, datos[0].folio, asg.UsuarioAlta, datos[0].VBtra, null);
+                            rc.AlterAsignacionRequi(ar,requi, datos[0].folio, asg.UsuarioAlta, datos[0].VBtra, null, 0);
                         }
                         else
                         {

@@ -32,6 +32,7 @@ namespace SAGA.API.Dtos
         public int TipoModalidadId { get; set; }
         public string Usuario { get; set; }
         public string Arte { get; set; }
+        public bool Costos { get; set; }
     }
 
     public class Damfo190allColectionDto
@@ -50,6 +51,7 @@ namespace SAGA.API.Dtos
         public ICollection<CompetenciaAreaPerfil> competenciasAreaPerfil { get; set; }
         public ICollection<CompetenciaCardinalPerfil> competenciasCardinalPerfil { get; set; }
         public ICollection<CompetenciaGerencialPerfil> competetenciasGerencialPerfil { get; set; }
+        public ICollection<CostosDamfo290> costos { get; set; }
     }
 
     public class EscoPerfilDto
@@ -157,11 +159,6 @@ namespace SAGA.API.Dtos
         public Guid DAMFO290Id { get; set; }
         public string Usuario { get; set; }
         public string Action { get; set; }
-    }
-    public class CostosDto
-    {
-        public int tipoId { get; set; }
-
     }
 
     public class PerfilReclutmientoDto

@@ -2313,7 +2313,7 @@ namespace SAGA.API.Controllers
 
                     }
                     db.SaveChanges();
-                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requi.Folio, requi.Usuario, requisicion.VBtra, CandidatosFiltro);
+                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requi.Folio, requi.Usuario, requisicion.VBtra, CandidatosFiltro, requi.EstatusId);
 
                     Int64 Folio = requisicion.Folio;
                     //Creacion de Trazabalidad par ala requisición.
@@ -2583,7 +2583,7 @@ namespace SAGA.API.Controllers
                         pon.fch_Modificacion = DateTime.Now;
                     }
                     db.SaveChanges();
-                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra, null);    
+                    AlterAsignacionRequi(requi.AsignacionRequi, requi.Id, requisicion.Folio, requi.Usuario, requisicion.VBtra, null, 0);    
                     db.SaveChanges();
                     Int64 Folio = requisicion.Folio;
                     //Creacion de Trazabalidad par ala requisición.
@@ -2631,7 +2631,7 @@ namespace SAGA.API.Controllers
             } while (saveFailed);
         }
 
-        public void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId, Int64 Folio, string Usuario, string VBra, List<CoincidenciasDto> Coincidencias)
+        public void AlterAsignacionRequi(List<AsignacionRequi> asignaciones, Guid RequiId, Int64 Folio, string Usuario, string VBra, List<CoincidenciasDto> Coincidencias, int estatusRequi)
         {
             var user = db.Usuarios.Where(x => x.Usuario.Equals(Usuario)).Select(x =>
                x.Nombre + " " + x.ApellidoPaterno + " " + x.ApellidoMaterno
@@ -2644,6 +2644,7 @@ namespace SAGA.API.Controllers
             var asg = db.AsignacionRequis
                 .Where(x => x.RequisicionId.Equals(RequiId))
                 .ToList();
+           
             if (asg.Count() > 0)
             {
                 for (int i = 0; i < asg.Count(); i++)
@@ -2677,14 +2678,20 @@ namespace SAGA.API.Controllers
                 }
                 if (filterAdd.Count() > 0)
                 {
-                    db.AsignacionRequis.AddRange(filterAdd);
-                    SendEmail.ConstructEmail(filterAdd, NotChange, "C", Folio, user, VBra, Coincidencias);
+                    db.AsignacionRequis.AddRange(filterAdd); //lo asigno despues veo si envío correo
+                    if (estatusRequi != 43)
+                    {
+                        SendEmail.ConstructEmail(filterAdd, NotChange, "C", Folio, user, VBra, Coincidencias);
+                    }
                 }
             }
             else
             {
-                db.AsignacionRequis.AddRange(asignaciones);
-                SendEmail.ConstructEmail(asignaciones, NotChange, "C", Folio, user, VBra, Coincidencias);
+                db.AsignacionRequis.AddRange(asignaciones); //lo asigno despues veo si envío correo
+                if (estatusRequi != 43)
+                {
+                    SendEmail.ConstructEmail(asignaciones, NotChange, "C", Folio, user, VBra, Coincidencias);
+                }
             }
             db.SaveChanges();
 

@@ -1,4 +1,5 @@
-﻿using SAGA.API.Utilerias;
+﻿using Microsoft.Ajax.Utilities;
+using SAGA.API.Utilerias;
 using SAGA.DAL;
 using System;
 using System.Collections.Generic;
@@ -329,9 +330,7 @@ namespace SAGA.API.Controllers.Equipos
 
                 if (tipo == 14 || tipo == 8 || tipo == 13)
                 {
-                    var clientes = db.Requisiciones.Select(x => x.ClienteId).Distinct();
-
-                    var total = db.Requisiciones.Where(x => clientes.Contains(x.ClienteId) && !estatusId.Contains(x.EstatusId) && !x.Confidencial).Select(res => new
+                    var total = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && !x.Confidencial).Select(res => new
                     {
                         requisicionId = res.Id,
                         estatusId = res.EstatusId,
@@ -349,6 +348,7 @@ namespace SAGA.API.Controllers.Equipos
                         cumplimiento = res.horariosRequi.Sum(h => h.numeroVacantes) > 0 ? db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Id) && x.EstatusId.Equals(24)).Count() * 100 / res.horariosRequi.Sum(v => v.numeroVacantes) : 0,
                     }).ToList();
 
+                    total = total.DistinctBy(d => d.requisicionId).ToList();
 
                     if (orden == 1)
                     {
@@ -390,9 +390,8 @@ namespace SAGA.API.Controllers.Equipos
                         default:
                             break;
                     }
-                    var clientes = db.Requisiciones.Where(x => unidadNegocio.Contains(x.Direccion.EstadoId)).Select(c => c.ClienteId).Distinct();
 
-                    var total = db.Requisiciones.Where(x => clientes.Contains(x.ClienteId) && !estatusId.Contains(x.EstatusId) && !x.Confidencial).Select(res => new
+                    var total = db.Requisiciones.Where(x => unidadNegocio.Contains(x.Direccion.EstadoId) && !estatusId.Contains(x.EstatusId) && !x.Confidencial).Select(res => new
                     {
                         requisicionId = res.Id,
                         estatusId = res.EstatusId,
@@ -410,7 +409,7 @@ namespace SAGA.API.Controllers.Equipos
                         cumplimiento = res.horariosRequi.Sum( h=> h.numeroVacantes ) > 0 ? db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Id) && x.EstatusId.Equals(24)).Count() * 100 / res.horariosRequi.Sum(v => v.numeroVacantes) : 0,
                     }).ToList();
 
-
+                    total = total.DistinctBy(d => d.requisicionId).ToList();
                     if (orden == 1)
                     {
                         total = total.OrderByDescending(o => o.vacantes).ThenBy(oo => oo.fch_Cumplimiento).ToList();
@@ -440,7 +439,7 @@ namespace SAGA.API.Controllers.Equipos
 
                     var asignadas = db.AsignacionRequis
                       .OrderByDescending(e => e.Id)
-                      .Where(a => uids.Distinct().Contains(a.GrpUsrId)
+                      .Where(a => uids.Distinct().Contains(a.GrpUsrId) 
                           && !estatusId.Contains(a.Requisicion.EstatusId) && !a.Requisicion.Confidencial)
                       .Select(a => a.RequisicionId)
                       .Distinct()
@@ -451,11 +450,9 @@ namespace SAGA.API.Controllers.Equipos
                         && !estatusId.Contains(e.EstatusId) && !e.Confidencial)
                     .Select(a => a.Id).ToList();
 
-                    var AllRequis = requis.Union(asignadas);
+                    var AllRequis = requis.Union(asignadas).Distinct().ToList();
 
-                    var clientes = db.Requisiciones.Where(x => AllRequis.Contains(x.Id)).Select(c => c.ClienteId).Distinct();
-
-                    var total = db.Requisiciones.Where(x => clientes.Contains(x.ClienteId) && !estatusId.Contains(x.EstatusId) && !x.Confidencial).Select(res => new
+                    var total = db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id) && !estatusId.Contains(x.EstatusId) && x.Activo).Select(res => new
                     {
                         requisicionId = res.Id,
                         estatusId = res.EstatusId,
@@ -471,8 +468,7 @@ namespace SAGA.API.Controllers.Equipos
                                        ),
                         faltantes = (res.horariosRequi.Count() > 0 ? res.horariosRequi.Sum(v => v.numeroVacantes) : 0) - db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Id) && x.EstatusId.Equals(24)).Count(),
                         cumplimiento = res.horariosRequi.Sum(h => h.numeroVacantes) > 0 ? db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(res.Id) && x.EstatusId.Equals(24)).Count() * 100 / res.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                    }).ToList();
-
+                    }).OrderBy(o => o.cliente).ToList();
 
                     if (orden == 1)
                     {

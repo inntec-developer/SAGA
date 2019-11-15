@@ -1197,6 +1197,11 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         df.competenciasAreaPerfil = pf.Collections.competenciasAreaPerfil;
                         df.competenciasCardinalPerfil = pf.Collections.competenciasCardinalPerfil;
                         df.competetenciasGerencialPerfil = pf.Collections.competetenciasGerencialPerfil;
+                        // costos 
+                        if (!pf.Headers.Costos)
+                        {
+                            df.costosPerfil = pf.Collections.costos;
+                        }
                         df.FlexibilidadHorario = false;
                         df.JornadaLaboralId = 0;
                         df.TipoModalidadId = 0;
@@ -1215,6 +1220,11 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         var apt = db.AptitudesPerfil.Where(x => x.DAMFO290Id == pf.Headers.Id);
                         db.AptitudesPerfil.RemoveRange(apt);
                         db.AptitudesPerfil.AddRange(pf.Collections.aptitudesPerfil);
+
+                        // costos 
+                        var cost = db.CostosDamfo290.Where(x => x.DAMFO290Id == pf.Headers.Id);
+                        db.CostosDamfo290.RemoveRange(cost);
+                        db.CostosDamfo290.AddRange(pf.Collections.costos);
 
                         var up = db.DAMFO290.Find(pf.Headers.Id);
                         db.Entry(up).State = EntityState.Modified;
