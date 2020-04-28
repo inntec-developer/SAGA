@@ -39,7 +39,9 @@ namespace SAGA.API.Dtos
         public string ActividadEmpresa { get; set; }
         public float Porcentaje { get; set; }
         public string Propietario { get; set; }
+        public List<string> coordinador { get; set; }
         public List<string> ComentarioReclutador { get; set; }
         public int diasTrans { get; set; }
+        public int UnidadNegocioId { get; set; }
     }
 }

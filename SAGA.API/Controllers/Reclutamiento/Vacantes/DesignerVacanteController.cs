@@ -311,6 +311,8 @@ namespace SAGA.API.Controllers
                         caja.Resumen = item.resumen;
                         caja.R_D = ResumenDetalle(item.resumen, item.detalle);
                         caja.IdEstructura = item.idCampo;
+                        caja.Fch_Modificacion = DateTime.Now;
+                        caja.UsuarioId = item.usuarioId;
                         db.ConfiguracionRequis.Add(caja);
                         db.SaveChanges();
                     }
@@ -371,6 +373,8 @@ namespace SAGA.API.Controllers
                             caja.Resumen = item.resumen;
                             caja.R_D = ResumenDetalle(item.resumen, item.detalle);
                             caja.IdEstructura = item.idCampo;
+                            caja.UsuarioId = item.usuarioId;
+                            caja.Fch_Modificacion = DateTime.Now;
                             db.ConfiguracionRequis.Add(caja);
                             db.SaveChanges();
                         }
@@ -413,6 +417,9 @@ namespace SAGA.API.Controllers
                         pieza.R_D = item.R_D;
                         pieza.Campo = datos2.Where(e => e.IdMov == item.Id).Select(e=>e.Nombre).FirstOrDefault();
                         pieza.RequisicionId = Requi;
+                        pieza.UsuarioId = ListadoJson.usuarioId;
+                        pieza.Fch_Modificacion = DateTime.Now;
+
                         var add = db.ConfiguracionRequis.Add(pieza);
                         db.SaveChanges();
                     }
@@ -435,6 +442,7 @@ namespace SAGA.API.Controllers
         [Route("setResumen")]
         public IHttpActionResult ActualizarResumen(Guid Requi, int Idcampo, bool resumen)
         {
+            //falta poner el usuario y fecha
             string mensaje;
             bool bandera;
             try
@@ -768,6 +776,7 @@ namespace SAGA.API.Controllers
             public bool detalle { get; set; }
             public bool resumen { get; set; }
             public int idCampo { get; set; }
+           public Guid usuarioId { get; set; }
             public Guid id { get; set; }
         }
 
@@ -775,6 +784,7 @@ namespace SAGA.API.Controllers
         {
             public List<listaPublicar> ListaPublicar { get; set; }
             public string RequiId { get; set; }
+            public Guid usuarioId { get; set; }
         }
     }
 }

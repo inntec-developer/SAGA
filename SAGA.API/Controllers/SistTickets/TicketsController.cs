@@ -284,8 +284,6 @@ namespace SAGA.API.Controllers
             }
         }
 
-     
-
         [HttpPost]
         [Route("registrarCandidato")]
         public IHttpActionResult RegistrarCandidato(CandidatosGralDto datos)
@@ -397,7 +395,7 @@ namespace SAGA.API.Controllers
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "Bolsa de Trabajo DAMSA");
                 m.Subject = "Datos de Registro a Bolsa de Trabajo DAMSA";
-                m.To.Add("bmorales@damsa.com.mx");
+                m.To.Add(email);
             
 
                 m.Subject = "Tu acceso a Bolsa de Trabajo DAMSA está listo!";

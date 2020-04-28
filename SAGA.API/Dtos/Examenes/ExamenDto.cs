@@ -14,10 +14,10 @@ namespace SAGA.API.Dtos.Examenes
         //public int TipoExamenId { get; set; }
         //public int PreguntaId { get; set; }
         public PreguntaDto Pregunta { get; set; }
-        //public Guid RespuestaId { get; set; }
-        //public string Respuesta { get; set; }
-       // public int Validacion { get; set; }
-       //public int Tipo { get; set; } //tipo pregunta abierta o seleccion
+        public Guid usuarioId { get; set; }
+        public DateTime fch_Creacion { get; set; }
+        public DateTime fch_Modificacion { get; set; }
+        public string Descripcion { get; set; }
         public List<RespuestaDto> Respuestas { get; set; }
         public TipoExamenDto TipoExamen { get; set; }
 
@@ -26,8 +26,10 @@ namespace SAGA.API.Dtos.Examenes
 
     public class PreguntaDto
     {
+        public int preguntaId { get; set; }
         public string Pregunta { get; set; }
         public int Tipo { get; set; }
+        public int Orden { get; set; }
         public string file { get; set; }
         public string name { get; set; }
         public string type { get; set; }

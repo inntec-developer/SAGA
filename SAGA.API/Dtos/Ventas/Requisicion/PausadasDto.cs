@@ -22,9 +22,11 @@ namespace SAGA.API.Dtos
         public string aprobador { get; set; }
         public Guid aprobadorId { get; set; }
         public string estatus { get; set; }
+        public int estatusId { get; set; }
         public DateTime fch_Modificacion { get; set; }
         public int vacantes { get; set; }
         public int cubiertas { get; set; }
-        
+        public int estadoId { get; set; }
+
     }
 }

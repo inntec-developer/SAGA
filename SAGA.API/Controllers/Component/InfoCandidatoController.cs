@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using SAGA.API.Utilerias;
 
 namespace SAGA.API.Controllers.Component
 {
@@ -40,7 +41,23 @@ namespace SAGA.API.Controllers.Component
                     Genero = p.Candidato.Genero.genero,
                     //FechaNacimiento = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(pp => pp.FechaNacimiento).FirstOrDefault(),
                     FechaNacimiento = p.Candidato.FechaNacimiento,
-                    Candidato = p.Candidato,
+                    Candidato = new { p.Candidato.FechaNacimiento,
+                        p.Candidato.estadoNacimiento.estado,
+                        p.Candidato.paisNacimiento.pais,
+                        p.Candidato.esDiscapacitado,
+                        p.Candidato.TipoDiscapacidad.tipoDiscapacidad,
+                        p.Candidato.OtraDiscapacidad,
+                        p.Candidato.tieneLicenciaConducir,
+                        p.Candidato.TipoLicencia.tipoLicencia,
+                        p.Candidato.TipoLicencia.Descripcion,
+                        p.Candidato.tieneVehiculoPropio,
+                        p.Candidato.puedeViajar,
+                        p.Candidato.puedeRehubicarse,
+                        p.Candidato.CURP,
+                        p.Candidato.RFC,
+                        p.Candidato.NSS,
+                    },
+                    email = p.Candidato.emails.FirstOrDefault().email,
                     AboutMe = p.AboutMe,
                     Cursos = p.Cursos,
                     Conocimientos = p.Conocimientos,
@@ -48,9 +65,34 @@ namespace SAGA.API.Controllers.Component
                     Formaciones = p.Formaciones,
                     Experiencias = p.Experiencias,
                     Certificaciones = p.Certificaciones,
-                    Direccion = p.Candidato.direcciones.FirstOrDefault(),
-                    Email = p.Candidato.emails.FirstOrDefault(),
-                    Telefono = p.Candidato.telefonos.ToList(),
+                    Direccion = p.Candidato.direcciones.Select(dd => new {
+                        dd.Municipio.municipio,
+                        dd.Estado.estado,
+                       dd.Pais.pais,
+                        dd.Colonia.TipoColonia,
+                        dd.Colonia.colonia,
+                        dd.Calle,
+                        dd.NumeroExterior,
+                        dd.NumeroInterior,
+                        dd.CodigoPostal
+                        //p.Candidato.direcciones.FirstOrDefault().Municipio.municipio,
+                        //p.Candidato.direcciones.FirstOrDefault().Estado.estado,
+                        //p.Candidato.direcciones.FirstOrDefault().Pais.pais,
+                        //p.Candidato.direcciones.FirstOrDefault().Colonia.TipoColonia,
+                        //p.Candidato.direcciones.FirstOrDefault().Colonia.colonia,
+                        //p.Candidato.direcciones.FirstOrDefault().Calle,
+                        //p.Candidato.direcciones.FirstOrDefault().NumeroExterior,
+                        //p.Candidato.direcciones.FirstOrDefault().NumeroInterior,
+                        //p.Candidato.direcciones.FirstOrDefault().CodigoPostal
+
+                    }).FirstOrDefault(),
+
+                        //Email = p.Candidato.emails.FirstOrDefault(),
+                    Telefono = p.Candidato.telefonos.Select(tt => new
+                    {
+                        tt.TipoTelefono.Tipo,
+                        tt.telefono
+                    }),
                     Estatus = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(e => e.CandidatoId.Equals(p.CandidatoId)).Select(PC => new {
                         id = PC.Id,
                         EstatusId = PC.EstatusId,
@@ -94,7 +136,9 @@ namespace SAGA.API.Controllers.Component
             }
             catch (Exception ex)
             {
-                var msg = ex.Message;
+                APISAGALog obj = new APISAGALog();
+                obj.WriteError(ex.Message);
+                obj.WriteError(ex.InnerException.Message);
                 return Ok(StatusCode(HttpStatusCode.NotFound));
             }
         }

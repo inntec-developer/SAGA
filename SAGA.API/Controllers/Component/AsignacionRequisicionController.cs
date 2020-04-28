@@ -20,6 +20,33 @@ namespace SAGA.API.Controllers.Component
         {
             db = new SAGADBContext();
         }
+        [HttpGet]
+        [Route("getUserByType")]
+        public IHttpActionResult GetUserByType(string type, string dep)
+        {
+            try
+            {
+                var entidad = db.Usuarios.Where(x => type.Contains(x.TipoUsuario.Tipo.ToLower())
+                    && dep.Contains(x.Departamento.Clave.ToLower()) && x.Activo).Select(u => new UsuariosDto
+                    {
+                        Id = u.Id,
+                        Nombre = u.Nombre + " " + u.ApellidoPaterno,
+                        Usuario = u.Usuario,
+                        Email = db.Emails.Where(e => e.EntidadId.Equals(u.Id)).Select(e => e.email).FirstOrDefault(),
+                        TipoUsuario = u.TipoUsuario.Tipo
+                    }).ToList();
+
+                if(entidad.Count() == 0 )
+                {
+                    return Ok(HttpStatusCode.NoContent);
+                }
+                return Ok(entidad);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
         //api/AsignacionRequi/getUserGroup VENTAS
         [HttpGet]
         [Route("getUserGroup")]

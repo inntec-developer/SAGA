@@ -42,7 +42,7 @@ namespace SAGA.API.Utilerias
                 m.From = new MailAddress(from, "SAGA Inn");
 
                 m.To.Add(email);
-                m.Subject = string.Format("[NUEVA] Requisición {0}", Folio);
+                m.Subject = string.Format("[SAGA] Nueva Requisición {0}", Folio);
                 var inicio = "<html><head><style>td { border: solid #2471A3 1px; padding-left:5px; padding-right:5px;padding-top:1px; padding-bottom:1px;font-size:9pt; color: #3498DB;font-family:'calibri'; width: 25%; text-align: left; vertical-align: top; border-spacing: 0; border-collapse: collapse;} ";
                 inicio = inicio + "p { font - family:'calibri'; } th { font - family:'calibri'; width: 25 %; text - align: left; vertical - align: top; border: solid blue 1px; border - spacing: 0; border - collapse: collapse; background: #3498DB; color:white;}";
                 inicio = inicio + "h3 { font - family:'calibri'; } table { width: 100 %; }</style></head><body style =\"text-align:center; font-family:'calibri'; font-size:10pt;\"><br><br><p> Nueva Requisición:</p>";
@@ -230,7 +230,7 @@ namespace SAGA.API.Utilerias
                     if (action == "C")
                     {
 
-                        m.Subject = "Asignacion de Requisicion " + Folio;
+                        m.Subject = "[SAGA] Asignacion de Requisicion " + Folio;
 
                         var inicio = "<html><head><style>td { border: solid #2471A3 1px; padding-left:5px; padding-right:5px;padding-top:1px; padding-bottom:1px;font-size:9pt; color: #3498DB;font-family:'calibri'; width: 25%; text-align: left; vertical-align: top; border-spacing: 0; border-collapse: collapse;} ";
                         inicio = inicio + "p { font - family:'calibri'; } th { font - family:'calibri'; width: 25 %; text - align: left; vertical - align: top; border: solid blue 1px; border - spacing: 0; border - collapse: collapse; background: #3498DB; color:white;}";
@@ -259,14 +259,14 @@ namespace SAGA.API.Utilerias
                     }
                     if (action == "D")
                     {
-                        m.Subject = "Des-asignación  de Requisicion";
+                        m.Subject = "[SAGA] Des-asignación  de Requisicion";
                         body = "<p>Des-asignación  de Requisición:</p>";
                         body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha desasignado de la vacante <strong>{1}</strong> la cual se encuentra en la requisición FOLIO: <strong><big><a href=\"{3}/login/{2}\">{2}</a></big></strong>.", Usuario, VBr, Folio, sitioWeb);
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
                     }
                     if (action == "RD")
                     {
-                        m.Subject = "Eliminación de Requisicion";
+                        m.Subject = "[SAGA] Eliminación de Requisicion";
                         body = "<p>Eliminación de Requisición:</p>";
                         body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big><a href=\"{2}/login/{1}\">{1}</a></big></strong>, fue eliminada.", VBr, Folio, sitioWeb);
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
@@ -274,7 +274,7 @@ namespace SAGA.API.Utilerias
 
                     if (action == "RU")
                     {
-                        m.Subject = "Cancelación de Requisicion";
+                        m.Subject = "[SAGA] Cancelación de Requisicion";
                         body = "<p>Cancelación de Requisición:</p>";
                         body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big><a href=\"{2}/login/{1}\">{1}</a></big></strong>, fue cancelada.", VBr, Folio, sitioWeb);
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
@@ -429,7 +429,7 @@ namespace SAGA.API.Utilerias
 
                 m.Bcc.Add("bmorales@damsa.com.mx");
 
-                m.Subject = "Solicitud liberación de candidato";
+                m.Subject = "[SAGA] Solicitud liberación de candidato";
                 body = "<html><body>";
                 body = body + string.Format("<p>Por este medio se le informa que {0} gener&oacute; una solicitud de liberaci&oacute;n</p>", dtos.nombre);
                 body = body + string.Format("<p>Candidato {0} para iniciar proceso en otra vacante que cumple con el perfil.</p>", dtos.nombreCandidato);
@@ -463,7 +463,7 @@ namespace SAGA.API.Utilerias
                 m.From = new MailAddress(from, "SAGA Inn");
                 m.To.Add(email);
 
-                m.Subject = "Asignacion de Requisicion " + Folio;
+                m.Subject = "[SAGA] Asignacion de Requisicion " + Folio;
 
                 var inicio = "<html><head><style>td { border: solid #2471A3 1px; padding-left:5px; padding-right:5px;padding-top:1px; padding-bottom:1px;font-size:9pt; color: #3498DB;font-family:'calibri'; width: 25%; text-align: left; vertical-align: top; border-spacing: 0; border-collapse: collapse;} ";
                 inicio = inicio + "p { font - family:'calibri'; } th { font - family:'calibri'; width: 25 %; text - align: left; vertical - align: top; border: solid blue 1px; border - spacing: 0; border - collapse: collapse; background: #3498DB; color:white;}";
@@ -495,14 +495,9 @@ namespace SAGA.API.Utilerias
         {
             try
             {
-                int[] mty = {6,7,10,19,28,24};
-                int[] gdl = {1,3,8,11,14,16,18,2,25,26,32};
-                int[] mx = {4,5,9,12,13,15,17,20,21,22,23,27,29,30,31};
                 string GrVtasEmail = "", GVtasEmail = "", GGEmail = "";
                 List<string> GrVEmails = null;
                 List<string> GVEmails = null;
-                bool isDurango = false;
-
 
                 bool facturada = false;
                 int[] estatus = { 44,45,46};
@@ -555,301 +550,164 @@ namespace SAGA.API.Utilerias
                         montoContratado = f.MontoContratado,
                     }).FirstOrDefault();
 
-                if(requi.estadoId != 10)
-                {
-                    if (gdl.Contains(Convert.ToInt32(requi.estadoId)))
-                    {
-                        GrVtasEmail = db.Usuarios
-                             .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(1) && u.Activo.Equals(true))
-                             .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                             .FirstOrDefault();
-                        GVtasEmail = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(1) && u.Activo.Equals(true))
-                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                            .FirstOrDefault();
-
-                    }
-
-                    if (mx.Contains(Convert.ToInt32(requi.estadoId)))
-                    {
-                        GrVtasEmail = db.Usuarios
-                             .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(2) && u.Activo.Equals(true))
-                             .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                             .FirstOrDefault();
-                        GVtasEmail = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(2) && u.Activo.Equals(true))
-                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                            .FirstOrDefault();
-                    }
-
-                    if (mty.Contains(Convert.ToInt32(requi.estadoId)))
-                    {
-                        GrVtasEmail = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(3) && u.Activo.Equals(true))
-                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                            .FirstOrDefault();
-                        GVtasEmail = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(3) && u.Activo.Equals(true))
-                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                            .FirstOrDefault();
-                    }
-                }
-                else
-                {
-                    GrVEmails = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS") && (u.Sucursal.UnidadNegocio.Id.Equals(1) || u.Sucursal.UnidadNegocio.Id.Equals(3)) && u.Activo.Equals(true))
-                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                            .ToList();
-                    GVEmails = db.Usuarios
-                        .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("VTAS") && (u.Sucursal.UnidadNegocio.Id.Equals(1) || u.Sucursal.UnidadNegocio.Id.Equals(3)) && u.Activo.Equals(true))
-                        .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                        .ToList();
-
-                    isDurango = true;
-                }
-                
-                if(requi.estatusId == 46)
-                {
-                    GGEmail = db.Usuarios
-                        .Where(u => u.TipoUsuarioId.Equals(14) && u.Departamento.Clave.Equals("GRTS") && u.Activo.Equals(true))
+                GrVtasEmail = db.Usuarios.Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS")
+                    && u.Sucursal.estadoId.Equals(requi.estadoId) && u.Activo.Equals(true))
+                         .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
+                         .FirstOrDefault();
+                GVtasEmail = db.Usuarios
+                        .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("VTAS") 
+                        && u.Sucursal.estadoId.Equals(requi.estadoId) && u.Activo.Equals(true))
                         .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
                         .FirstOrDefault();
-                }
-                
-                
+        
+                    if (requi.estatusId == 46)
+                    {
+                        GGEmail = db.Usuarios
+                            .Where(u => u.TipoUsuarioId.Equals(14) && u.Departamento.Clave.Equals("GRTS") && u.Activo.Equals(true))
+                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
+                            .FirstOrDefault();
+                    }
+
+                var coorEmail = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(RequisicionId)).Select(r =>
+                   db.Usuarios.Where(x => x.Id.Equals(r.GrpUsrId)).Select(ee => ee.emails.Select(eee => eee.email).FirstOrDefault()).FirstOrDefault()
+                  ).FirstOrDefault();
+
                 var emailProp = db.Emails.Where(x => x.EntidadId.Equals(requi.propietarioid)).Select(x => x.email).FirstOrDefault();
 
-                string body = "";
-                string from = "noreply@damsa.com.mx";
-                MailMessage m = new MailMessage();
-                m.Priority = MailPriority.High;
-                m.From = new MailAddress(from, "SAGA Inn");
-                body = string.Format("<html><head></head> <body style=\"text-align:justify; font-size:14px; font-family:'calibri'\"><div style =\"margin-left: 5px\">");
-                var auxEstatusId = (requi.estatusId == 34 || requi.estatusId == 35 || requi.estatusId == 36 ) ? 34 : requi.estatusId;
-                switch (auxEstatusId)
-                {
-                    case 4:
-                        m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
-                        m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
-                        m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
+                    string body = "";
+                    string from = "noreply@damsa.com.mx";
+                    MailMessage m = new MailMessage();
+                    m.Priority = MailPriority.High;
+                    m.From = new MailAddress(from, "SAGA Inn");
+                    body = string.Format("<html><head></head> <body style=\"text-align:justify; font-size:14px; font-family:'calibri'\"><div style =\"margin-left: 5px\">");
+                    var auxEstatusId = (requi.estatusId == 34 || requi.estatusId == 35 || requi.estatusId == 36) ? 34 : requi.estatusId;
+                    switch (auxEstatusId)
+                    {
+                        case 4:
+                            m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
 
-                        var coorEmail = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(RequisicionId)).Select(r =>
-                         db.Usuarios.Where(x => x.Id.Equals(r.GrpUsrId)).Select(ee => ee.emails.Select(eee => eee.email).FirstOrDefault()).FirstOrDefault()
-                        ).FirstOrDefault();
-
-                        if (!isDurango)
-                        {
-                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
-                        }
-                        else
-                        {
-                            foreach (var e in GrVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                            //foreach (var e in GVEmails)
-                            //{
-                            //    m.CC.Add(e);
-                            //}
-                        }
+                        m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
+                        m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+                           
                         m.CC.Add(emailProp);
                         m.Subject = string.Format("[SAGA] FACTURAR FOLIO Solicitud de Facturación de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                         body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa, que se requiere factura para el nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb, requi.folio);
 
                         SendEmailAignacionRequiPuro(coorEmail, requi.solicita.nombre.ToUpper(), requi.folio.ToString(), requi.puesto);
                         break;
-                    case 8:
+                  case 8:
                         m.To.Add(emailProp);
-                        if (!isDurango)
+                         
+                        m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
+                        if(coorEmail.Length > 0)
                         {
-                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
-                        }
-                        else
-                        {
-                            foreach (var e in GrVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                            foreach (var e in GVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                        };
-                        if (facturada)
-                        {
-                            m.CC.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
-                            m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
-                            m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
-                        }
-                        m.Subject = string.Format("[SAGA] Cancelación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha cancelado el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a></strong>", requi.folio, sitioWeb);
-                        break;
-                    case 9:
-                        m.To.Add(emailProp);
-                        if (!isDurango)
-                        {
-                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
-                        }
-                        else
-                        {
-                            foreach(var e in GrVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                            foreach(var e in GVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                        }
-                        
-                        if (facturada)
-                        {
-                            m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
-                            m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
-                            m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
-                        }
-                        m.Subject = string.Format("[SAGA] Eliminación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha elimino el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>.</strong>", requi.folio, sitioWeb);
-                        m.To.Add(emailProp);
-                        break;
-                    case 43:
-                        m.To.Add(GrVtasEmail);
-                        if (!isDurango)
-                        {
-                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
-                            //if (requi.asignados.Count() > 0)
-                            //{
-                            //    var mocos = Array.Exists(requi.asignados, e => e != "CRCL");
-                            //    if(mocos)
-                            //    {
-                            //        m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
-                            //    }
-                            //}
-                        }
-                        else
-                        {
-                            foreach (var e in GrVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                            foreach (var e in GVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                        }
-                        m.CC.Add(emailProp);
-                        m.Subject = string.Format("[SAGA] AUTORIZAR FOLIO Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb,requi.folio);
-                        break;
-                    case 34:
-                        m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
-                        if (!isDurango)
-                        {
-                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
-                        }
-                        else
-                        {
-                            foreach (var e in GrVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                            foreach (var e in GVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                        };
-                        m.Subject = string.Format("[SAGA] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong>Por este medio se les informa que se requiere facturar el cierre de reclutamiento puro con el n&uacute;mero de folio {0} </strong>", requi.folio);
-                        body = body + "<p><h3>INFORMACIÓN DE AJUSTE.</h3></p>";
-                        body = body + string.Format("<p>{0}</p>", requi.ajustes);
-                        break;
-                    case 45:
-                        if (!isDurango)
-                        {
-                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            //m.To.Add(GVtasEmail != null ? GVtasEmail : emailProp);
-                        }
-                        else
-                        {
-                            foreach (var e in GrVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                            foreach (var e in GVEmails)
-                            {
-                                m.To.Add(e);
-                            }
-                        }
-                        m.CC.Add(emailProp);
-                        m.Subject = string.Format("[SAGA] AUTORIZADA PENDIENTE PAGO Seguimiento de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">La requisiciones esta autorizada, con un pago pendiente.</strong>");
-                        break;
-                    case 46:
-                        m.To.Add(GGEmail);
-                        if (!isDurango)
-                        {
-                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                            //m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
-                        }
-                        else
-                        {
-                            foreach (var e in GrVEmails)
-                            {
-                                m.CC.Add(e);
-                            }
-                            foreach (var e in GVEmails)
-                            {
-                                m.To.Add(e);
-                            }
-                        }
-                        m.CC.Add(emailProp);
-                        m.Subject = string.Format("[SAGA] AUTORIZAR FOLIO Vacante con Reclutamiento Puro Porcentaje menor de 50% {0} - {1}", requi.folio, requi.empresa.ToUpper());
-                        body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>, el cual se esta solicitando una facturación por debajo del 50%. Es necesaria previa autorización para continuar con el proceso. </strong>",sitioWeb, requi.folio);
-                        break;
-                }
-                m.Bcc.Add("mventura@damsa.com.mx");
-                if(facturacion != null)
-                {
-                    body = body + string.Format("<p><h3>INFORMACIÓN PRINCIPAL DE FACTURACIÓN.</h3></p> ");
-                    body = body + string.Format("<div style=\"background-color: #FFFAD6; width: max-content; margin-left: 15px;\"><div style=\"padding: 15px 20px 15px\"> ");
-                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">FACTURAR: </strong>{0}%</label></p>", facturacion.porcentaje);
-                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO A FACTURAR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.monto));
-                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> AL CUBRIR: </strong>{0} %</label><p>", facturacion.perContratado);
-                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO AL CUBRIR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.montoContratado));
-                    body = body + string.Format("</div></div>");
-                }
-               
-                body = body + string.Format("<p><h3>INFORMACIÓN DE REQUISICIÓN</h3></p> ");
-                body = body + string.Format("<div style=\"background-color: #FFFAD6; width: max-content; margin-left: 15px;\"><div style=\"padding: 15px 20px 15px\"> ");
-                body = body + string.Format("<p><label><strong style=\"color: #159EF7\">FECHA SOLICITUD: </strong>{0}</label><p>", requi.fch_Creacion);
-                body = body + string.Format("<p><label><strong style=\"color: #159EF7\">SOLICITANTE: </strong>{0}</label></p>", requi.solicita.nombre.ToUpper());
-                body = body + string.Format("<p><label><strong style=\"color: #159EF7\">EMPRESA: </strong>{0}</label></p>", requi.empresa.ToUpper());
-                body = body + string.Format("<p><label><strong style=\"color: #159EF7\">ESTADO: </strong>{0}</label></p>", requi.estado.ToUpper());
-                body = body + string.Format("<p><label><strong style=\"color: #159EF7\">NÚMERO VACANTES: </strong>{0}</label></p>", requi.noVacantes);
-                body = body + string.Format("<p><label><strong style=\"color: #159EF7\">PUESTO: </strong>{0}</label></p>", requi.puesto.ToUpper());
-                body = body + string.Format("<p><label><strong style=\"color: #159EF7\">SUELDO: </strong>{0} a {1}</label></p>", String.Format("{0:C}", requi.sueldoMinimo), String.Format("{0:C}", requi.sueldoMaximo));
-                body = body + string.Format("<p><label><strong style=\"color: #159EF7\">ESTATUS VACANTE: </strong>{0}</label></p>", requi.estaus);              
-                body = body + string.Format("</div></div>");
-                body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> Favor de corroborar esta información y dar el seguimiento correspondiente </strong></label></p>");
-                body = body + string.Format("<p><label><strong style=\"color: #159EF7\">Me despido de usted(es) agradeciendo su atención y enviándole un cordial saludo. </strong></label></p>");
-                body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>");
-                body = body + string.Format("</div></body></html>");
-                m.Body = body;
-                m.IsBodyHtml = true;
+                            m.CC.Add(coorEmail);
 
-                SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
-                smtp.EnableSsl = true;
-                smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-                smtp.Send(m);
-                m.Dispose();
+                        }
+                            
+                            if (facturada)
+                            {
+                                m.CC.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                                m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
+                                m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
+                            }
+                            m.Subject = string.Format("[SAGA] Cancelación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                            body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha cancelado el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a></strong>", requi.folio, sitioWeb);
+                            break;
+                        case 9:
+                            m.To.Add(emailProp);
+                          
+                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
+
+                            if (coorEmail.Length > 0)
+                            {
+                                m.CC.Add(coorEmail);
+
+                            }
+                        if (facturada)
+                            {
+                                m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                                m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
+                                m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
+                            }
+                            m.Subject = string.Format("[SAGA] Eliminación de Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                            body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que se ha elimino el Reclutamiento Puro con el número de folio <a href=\"{1}/login/{0}\">{0}</a>.</strong>", requi.folio, sitioWeb);
+                            m.To.Add(emailProp);
+                            break;
+                        case 43:
+                            m.To.Add(emailProp);
+                           m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
+                               
+              
+                            m.Subject = string.Format("[SAGA] AUTORIZAR FOLIO Nueva Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                            body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb, requi.folio);
+                            break;
+                        case 34:
+                            m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
+                           
+                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
+                        m.CC.Add(emailProp);
+                         
+                            m.Subject = string.Format("[SAGA] Vacante con Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                            body = body + string.Format("<strong>Por este medio se les informa que se requiere facturar el cierre de reclutamiento puro con el n&uacute;mero de folio {0} </strong>", requi.folio);
+                            body = body + "<p><h3>INFORMACIÓN DE AJUSTE.</h3></p>";
+                            body = body + string.Format("<p>{0}</p>", requi.ajustes);
+                            break;
+                        case 45:
+                       
+                            m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
+                              
+                            m.To.Add(emailProp);
+                            m.Subject = string.Format("[SAGA] AUTORIZADA PENDIENTE PAGO Seguimiento de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                            body = body + string.Format("<strong style=\"color: #159EF7\">La requisiciones esta autorizada, con un pago pendiente.</strong>");
+                            break;
+                        case 46:
+                            m.To.Add(GGEmail);
+                            
+                                m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
+                          
+                            m.CC.Add(emailProp);
+                            m.Subject = string.Format("[SAGA] AUTORIZAR FOLIO Vacante con Reclutamiento Puro Porcentaje menor de 50% {0} - {1}", requi.folio, requi.empresa.ToUpper());
+                            body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa que existe un Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>, el cual se esta solicitando una facturación por debajo del 50%. Es necesaria previa autorización para continuar con el proceso. </strong>", sitioWeb, requi.folio);
+                            break;
+                    }
+                    
+                    if (facturacion != null)
+                    {
+                        body = body + string.Format("<p><h3>INFORMACIÓN PRINCIPAL DE FACTURACIÓN.</h3></p> ");
+                        body = body + string.Format("<div style=\"background-color: #FFFAD6; width: max-content; margin-left: 15px;\"><div style=\"padding: 15px 20px 15px\"> ");
+                        body = body + string.Format("<p><label><strong style=\"color: #159EF7\">FACTURAR: </strong>{0}%</label></p>", facturacion.porcentaje);
+                        body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO A FACTURAR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.monto));
+                        body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> AL CUBRIR: </strong>{0} %</label><p>", facturacion.perContratado);
+                        body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> MONTO AL CUBRIR </strong>{0}</label><p>", String.Format("{0:C}", facturacion.montoContratado));
+                        body = body + string.Format("</div></div>");
+                    }
+
+                    body = body + string.Format("<p><h3>INFORMACIÓN DE REQUISICIÓN</h3></p> ");
+                    body = body + string.Format("<div style=\"background-color: #FFFAD6; width: max-content; margin-left: 15px;\"><div style=\"padding: 15px 20px 15px\"> ");
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">FECHA SOLICITUD: </strong>{0}</label><p>", requi.fch_Creacion);
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">SOLICITANTE: </strong>{0}</label></p>", requi.solicita.nombre.ToUpper());
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">EMPRESA: </strong>{0}</label></p>", requi.empresa.ToUpper());
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">ESTADO: </strong>{0}</label></p>", requi.estado.ToUpper());
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">NÚMERO VACANTES: </strong>{0}</label></p>", requi.noVacantes);
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">PUESTO: </strong>{0}</label></p>", requi.puesto.ToUpper());
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">SUELDO: </strong>{0} a {1}</label></p>", String.Format("{0:C}", requi.sueldoMinimo), String.Format("{0:C}", requi.sueldoMaximo));
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">ESTATUS VACANTE: </strong>{0}</label></p>", requi.estaus);
+                    body = body + string.Format("</div></div>");
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\"> Favor de corroborar esta información y dar el seguimiento correspondiente </strong></label></p>");
+                    body = body + string.Format("<p><label><strong style=\"color: #159EF7\">Me despido de usted(es) agradeciendo su atención y enviándole un cordial saludo. </strong></label></p>");
+                    body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>");
+                    body = body + string.Format("</div></body></html>");
+                    m.Body = body;
+                    m.IsBodyHtml = true;
+
+                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                    smtp.EnableSsl = true;
+                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                    smtp.Send(m);
+                    m.Dispose();
 
                 return true;
-
             }
             catch(Exception ex)
             {
@@ -1044,59 +902,17 @@ namespace SAGA.API.Utilerias
                         montoContratado = f.MontoContratado,
                     }).FirstOrDefault();
 
-                if (requi.estadoId != 10)
-                {
-                    if (gdl.Contains(Convert.ToInt32(requi.estadoId)))
-                    {
-                        GrVtasEmail = db.Usuarios
-                             .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(1) && u.Activo.Equals(true))
+                GrVtasEmail = db.Usuarios
+                             .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS") && 
+                             u.Sucursal.Equals(requi.estadoId) && u.Activo.Equals(true))
                              .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
                              .FirstOrDefault();
-                        GVtasEmail = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(1) && u.Activo.Equals(true))
-                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                            .FirstOrDefault();
-
-                    }
-
-                    if (mx.Contains(Convert.ToInt32(requi.estadoId)))
-                    {
-                        GrVtasEmail = db.Usuarios
-                             .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(2) && u.Activo.Equals(true))
-                             .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                             .FirstOrDefault();
-                        GVtasEmail = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(2) && u.Activo.Equals(true))
-                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                            .FirstOrDefault();
-                    }
-
-                    if (mty.Contains(Convert.ToInt32(requi.estadoId)))
-                    {
-                        GrVtasEmail = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(3) && u.Activo.Equals(true))
-                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                            .FirstOrDefault();
-                        GVtasEmail = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("VTAS") && u.Sucursal.UnidadNegocio.Id.Equals(3) && u.Activo.Equals(true))
-                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                            .FirstOrDefault();
-                    }
-                }
-                else
-                {
-                    GrVEmails = db.Usuarios
-                            .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS") && (u.Sucursal.UnidadNegocio.Id.Equals(1) || u.Sucursal.UnidadNegocio.Id.Equals(3)) && u.Activo.Equals(true))
-                            .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                            .ToList();
-                    GVEmails = db.Usuarios
-                        .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("VTAS") && (u.Sucursal.UnidadNegocio.Id.Equals(1) || u.Sucursal.UnidadNegocio.Id.Equals(3)) && u.Activo.Equals(true))
-                        .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
-                        .ToList();
-
-                    isDurango = true;
-                }
-
+                GVtasEmail = db.Usuarios
+                    .Where(u => u.TipoUsuarioId.Equals(3) && u.Departamento.Clave.Equals("VTAS") && 
+                    u.Sucursal.estadoId.Equals(1) && u.Activo.Equals(true))
+                    .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
+                    .FirstOrDefault();
+            
                 if (requi.estatusId == 46)
                 {
                     GGEmail = db.Usuarios
@@ -1118,26 +934,13 @@ namespace SAGA.API.Utilerias
                 m.To.Add(ConfigurationManager.AppSettings["FacturacionEmail"].ToString());
                 m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail2"].ToString());
                 m.Bcc.Add(ConfigurationManager.AppSettings["FacturacionEmail3"].ToString());
-                if (!isDurango)
-                {
-                    m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
-                    m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
-                }
-                else
-                {
-                    foreach (var e in GrVEmails)
-                    {
-                        m.CC.Add(e);
-                    }
-                    foreach (var e in GVEmails)
-                    {
-                        m.CC.Add(e);
-                    }
-                }
+             
+                m.CC.Add(GrVtasEmail != null ? GrVtasEmail : emailProp);
+                m.CC.Add(GVtasEmail != null ? GVtasEmail : emailProp);
+              
                 m.CC.Add(emailProp);
                 m.Subject = string.Format("[FACTURAR FOLIO] Solicitud de Facturación de Reclutamiento Puro {0} - {1}", requi.folio, requi.empresa.ToUpper());
                 body = body + string.Format("<strong style=\"color: #159EF7\">Por este medio se les informa, que se requiere factura para el nuevo Reclutamiento Puro con el número de folio <a href=\"{0}/login/{1}\">{1}</a>.</strong>", sitioWeb, requi.folio);
-
 
                 if (facturacion != null)
                 {

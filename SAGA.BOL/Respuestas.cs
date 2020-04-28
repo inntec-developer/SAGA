@@ -14,7 +14,8 @@ namespace SAGA.BOL
         public int PreguntaId { get; set; }
         public string Respuesta { get; set; }
         public int Validacion { get; set; }
-       
+        public int Orden { get; set; }
+
         public Preguntas Pregunta { get; set; }
 
     }

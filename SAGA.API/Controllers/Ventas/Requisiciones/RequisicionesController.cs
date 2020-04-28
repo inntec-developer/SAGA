@@ -15,6 +15,7 @@ using System.Configuration;
 using static SAGA.API.Controllers.DesignerVacanteController;
 using System.IO;
 using System.Diagnostics;
+using SAGA.API.Dtos.Reporte;
 
 namespace SAGA.API.Controllers
 {
@@ -28,7 +29,7 @@ namespace SAGA.API.Controllers
         private SendEmails SendEmail;
         private DesignerVacanteController Dvc;
         private PrivilegiosController objP;
-
+        public Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
         public RequisicionesController()
         {
             db = new SAGADBContext();
@@ -558,7 +559,6 @@ namespace SAGA.API.Controllers
             {
                 if (folio != 0)
                 {
-
                     var requisicion = db.Requisiciones.Where(x => x.Folio.Equals(folio)).Select(r => new {
                         r.Id,
                         r.Folio,
@@ -574,11 +574,12 @@ namespace SAGA.API.Controllers
                         asignadosN = r.AsignacionRequi.Where(x => x.RequisicionId.Equals(r.Id) && !x.GrpUsrId.Equals(r.AprobadorId)).Select(x => new {
                             x.GrpUsr.Nombre,
                             x.GrpUsr.ApellidoMaterno,
-                            x.GrpUsr.ApellidoPaterno
+                            x.GrpUsr.ApellidoPaterno,
+                            x.Tipo
                         }),
                         vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         r.VBtra,
-                        HorariosDamfo = db.HorariosPerfiles.Where(h => h.DAMFO290Id.Equals(r.DAMFO290Id)).ToList()
+                       // HorariosDamfo = db.HorariosPerfiles.Where(h => h.DAMFO290Id.Equals(r.DAMFO290Id)).ToList()
                     }).FirstOrDefault();
                     return Ok(requisicion);
                 }
@@ -625,8 +626,20 @@ namespace SAGA.API.Controllers
                         x.Folio,
                         x.VBtra,
                         x.EstatusId,
-                        x.horariosRequi,
+                        horariosRequi = x.horariosRequi.Select(h => new
+                        {
+                            h.Id,
+                            requisicionId = x.Id,
+                            h.Nombre,
+                            h.deDia,
+                            h.aDia,
+                            h.deHora,
+                            h.aHora,
+                            h.numeroVacantes,
+                            h.Especificaciones
+                        }),
                         x.TipoReclutamientoId,
+                        x.ClienteId
                     }).FirstOrDefault();              
 
                 return Ok(infoRequi);
@@ -647,12 +660,16 @@ namespace SAGA.API.Controllers
             
             int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37, 47, 48 };
 
+            Stopwatch stopwatch = new Stopwatch();
+
             try
             {
-                byte tipo = db.Usuarios.Where(x => x.Id.Equals(propietario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
+                stopwatch.Start();
+                var tipo = db.Usuarios.Where(x => x.Id.Equals(propietario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
                 var permisos = objP.GetPrivilegios(propietario);
-
                 bool confidencial = permisos.Where(x => x.Nombre.Equals("Confidencial") && x.TipoEstructuraId.Equals(8)).Select(c => c.Read).FirstOrDefault();
+                //var mm = stopwatch.Elapsed;
+                //stopwatch.Start();
                 if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
                 {
                     var requisicion = db.Requisiciones
@@ -696,9 +713,9 @@ namespace SAGA.API.Controllers
                            estatusId = d.EstatusId
                        }),
                        Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
-                       coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                       coordinador = e.AsignacionRequi.Where(xx => xx.Tipo.Equals(1)).Select(c => db.Usuarios.Where(x => x.Id.Equals(c.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()),
                        Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
-                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
                       db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                                        ).ToList(),
 
@@ -709,6 +726,8 @@ namespace SAGA.API.Controllers
                     {
                         requisicion = requisicion.Where(x => !x.Confidencial).ToList();
                     }
+                    var mm = stopwatch.Elapsed;
+
                     return Ok(requisicion);
                 }
                 else if (tipo == 10) //ejecutivo de cuenta
@@ -755,9 +774,9 @@ namespace SAGA.API.Controllers
                            estatusId = d.EstatusId
                        }),
                        Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
-                       coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                       coordinador = e.AsignacionRequi.Where(xx => xx.Tipo.Equals(1)).Select(c => db.Usuarios.Where(x => x.Id.Equals(c.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()),
                        Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
-                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
                       db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                                        ).ToList(),
 
@@ -825,9 +844,9 @@ namespace SAGA.API.Controllers
                            estatusId = d.EstatusId
                        }),
                        Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
-                       coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                       coordinador = e.AsignacionRequi.Where(xx => xx.Tipo.Equals(1)).Select(c => db.Usuarios.Where(x => x.Id.Equals(c.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()),
                        Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault().ToUpper(),
-                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
                       db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                                        ).ToList(),
                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion.ToUpper() + " - ") + c.Comentario.ToUpper()).ToList()
@@ -837,11 +856,10 @@ namespace SAGA.API.Controllers
                     {
                         requisicion = requisicion.Where(x => !x.Confidencial).ToList();
                     }
-
                     return Ok(requisicion);
-
+                  
                 }
-
+            
             }
             catch(Exception ex)
             {
@@ -1045,38 +1063,42 @@ namespace SAGA.API.Controllers
 
                 bool confidencial = permisos.Where(x => x.Nombre.Equals("Confidencial") && x.TipoEstructuraId.Equals(8)).Select(c => c.Read).FirstOrDefault();
 
-                var UnidadNegocio = db.Usuarios
-                    .Where(u => u.Id.Equals(propietario)).Select(u => u.Sucursal.UnidadNegocioId).FirstOrDefault();
-                    var requisicion = db.Requisiciones
-                        .Where(e => e.Activo.Equals(true) && e.TipoReclutamientoId.Equals(tipo) && (e.EstatusId.Equals(43) || e.EstatusId.Equals(44)))
-                        .Select(e => new RequisicionGrallDto
-                        {
-                            Id = e.Id,
-                            EstadoId = e.Direccion.EstadoId,
-                            VBtra = e.VBtra,
-                            SueldoMinimo = e.SueldoMinimo,
-                            SueldoMaximo = e.SueldoMaximo,
-                            fch_Creacion = e.fch_Creacion,
-                            fch_Modificacion = e.fch_Modificacion,
-                            fch_Cumplimiento = e.fch_Cumplimiento,
-                            Estatus = e.Estatus.Descripcion,
-                            EstatusId = e.EstatusId,
-                            EstatusOrden = e.Estatus.Orden,
-                            Prioridad = e.Prioridad.Descripcion,
-                            PrioridadId = e.PrioridadId,
-                            Cliente = e.Cliente.Nombrecomercial,
-                            razon = e.Cliente.RazonSocial,
-                            factura = e.Cliente.RazonSocial,
-                            TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
-                            GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
-                            ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
-                            Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-                            Folio = e.Folio,
-                            Confidencial = e.Confidencial,
-                            Porcentaje = db.FacturacionPuro.Where(x => x.RequisicionId.Equals(e.Id)).Select(p => p.Porcentaje).FirstOrDefault(),
-                            Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
-                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
-                        }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
+                //var UnidadNegocio = db.Usuarios
+                //    .Where(u => u.Id.Equals(propietario)).Select(u => 
+                //    db.UnidadNegocioEstados.Where(x => x.estadoId.Equals(u.Sucursal.estadoId))
+                //    .Select(un => un.unidadnegocioId).FirstOrDefault()).FirstOrDefault();
+                var requisicion = db.Requisiciones
+                    .Where(e => e.Activo.Equals(true) && e.TipoReclutamientoId.Equals(tipo) && (e.EstatusId.Equals(43) || e.EstatusId.Equals(44)))
+                    .Select(e => new RequisicionGrallDto
+                    {
+                        Id = e.Id,
+                        EstadoId = e.Direccion.EstadoId,
+                        UnidadNegocioId = db.UnidadNegocioEstados.Where(x => x.estadoId.Equals(e.Direccion.EstadoId)).Select(u => u.unidadnegocioId).FirstOrDefault(),
+                        VBtra = e.VBtra,
+                        SueldoMinimo = e.SueldoMinimo,
+                        SueldoMaximo = e.SueldoMaximo,
+                        fch_Creacion = e.fch_Creacion,
+                        fch_Modificacion = e.fch_Modificacion,
+                        fch_Cumplimiento = e.fch_Cumplimiento,
+                        Estatus = e.Estatus.Descripcion,
+                        EstatusId = e.EstatusId,
+                        EstatusOrden = e.Estatus.Orden,
+                        Prioridad = e.Prioridad.Descripcion,
+                        PrioridadId = e.PrioridadId,
+                        Cliente = e.Cliente.Nombrecomercial,
+                        razon = e.Cliente.RazonSocial,
+                        factura = e.Cliente.RazonSocial,
+                        TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                        GiroEmpresa = e.Cliente.GiroEmpresas.giroEmpresa,
+                        ActividadEmpresa = e.Cliente.ActividadEmpresas.actividadEmpresa,
+                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                        Folio = e.Folio,
+                        Confidencial = e.Confidencial,
+                        coordinador = e.AsignacionRequi.Where(xx => xx.Tipo.Equals(1)).Select(c => db.Usuarios.Where(x => x.Id.Equals(c.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()).ToList(),
+                        Porcentaje = db.FacturacionPuro.Where(x => x.RequisicionId.Equals(e.Id)).Select(p => p.Porcentaje).FirstOrDefault(),
+                        Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
+                        ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
+                    }).OrderBy(x => x.EstatusOrden).ThenByDescending(x => x.Folio).ToList();
 
                 if (!confidencial)
                 {
@@ -1187,7 +1209,7 @@ namespace SAGA.API.Controllers
                 {
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                         .Where(e => e.Activo
-                        && !estatusId.Contains(e.EstatusId))
+                        && !estatusId.Contains(e.EstatusId)) 
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -1204,6 +1226,7 @@ namespace SAGA.API.Controllers
                             EstatusOrden = e.Estatus.Orden,
                             Cliente = e.Cliente.Nombrecomercial.ToUpper(),
                             ClienteId = e.Cliente.Id,
+                            tipoReclutamientoId = e.TipoReclutamientoId,
                             Sucursal = db.Direcciones.Where(x => x.Id.Equals(e.DireccionId)).Select(d => d.Calle + " " + d.NumeroExterior + " C.P: " + d.CodigoPostal + " Col: " + d.Colonia.colonia).FirstOrDefault().ToUpper(),
                             Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                             Folio = e.Folio,
@@ -1213,17 +1236,16 @@ namespace SAGA.API.Controllers
                             EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
                             EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
                             contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
-                            coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                            coordinador = e.AsignacionRequi.Where(xx => xx.Tipo.Equals(1)).Select(c => db.Usuarios.Where(x => x.Id.Equals(c.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()),
                             Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                             PropietarioId = e.PropietarioId,
                             AprobadorId = e.AprobadorId,
                             Aprobada = e.Aprobada,
                             DiasEnvio = e.DiasEnvio,
                             asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
-                            reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
-                            
+                            reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
                                 db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()).ToList(),
-                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion.ToUpper() + " - ") + c.Comentario.ToUpper()).ToList(),
+                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
                             Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null,
                             Ponderacion = db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).Select(p => new
                             {
@@ -1273,6 +1295,7 @@ namespace SAGA.API.Controllers
                             VBtra = e.VBtra.ToUpper(),
                             ClaseReclutamiento = e.ClaseReclutamiento.clasesReclutamiento.ToUpper(),
                             ClaseReclutamientoId = e.ClaseReclutamientoId,
+                            tipoReclutamientoId = e.TipoReclutamientoId,
                             SueldoMinimo = e.SueldoMinimo,
                             SueldoMaximo = e.SueldoMaximo,
                             fch_Creacion = e.fch_Creacion,
@@ -1292,17 +1315,17 @@ namespace SAGA.API.Controllers
                             EnProcesoFR = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 21).Count(),
                             EnProcesoFC = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 23).Count(),
                             contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId == 24).Count(),
-                            coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                            coordinador = e.AsignacionRequi.Where(xx => xx.Tipo.Equals(1)).Select(c => db.Usuarios.Where(x => x.Id.Equals(c.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()),
                             Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                             PropietarioId = e.PropietarioId,
                             AprobadorId = e.AprobadorId,
                             aprobada = e.Aprobada,
                             DiasEnvio = e.DiasEnvio,
                             asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
-                            reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                            reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
                                db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                             ).ToList(),
-                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion.ToUpper() + " - ") + c.Comentario.ToUpper()).ToList(),
+                            ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
                             Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null,
                             Ponderacion = db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).Count() > 0 ? db.PonderacionRequisiciones.Where(x => x.RequisicionId.Equals(e.Id)).Select( p => new
                             {
@@ -1342,7 +1365,7 @@ namespace SAGA.API.Controllers
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(IdUsuario)).Select(u => u.TipoUsuarioId).FirstOrDefault();
                 if (tipo == 8)
                 {
-                   
+
                     var vacantes = db.Requisiciones.OrderByDescending(e => e.Folio)
                         .Where(e => e.Activo.Equals(true))
                         .Select(e => new
@@ -1456,41 +1479,39 @@ namespace SAGA.API.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [Route("getReporte70")]
-        public IHttpActionResult GetReporte70(string clave, string ofc, string tipo, string fini,
-           string ffin, string emp, string sol, string trcl, string cor, string stus, string recl, string usuario)
+        [Authorize]
+        public IHttpActionResult GetReporte70(ReportesDto source)
         {
-
             try
             {
 
                 //Stopwatch stopwatch = new Stopwatch();
 
                 //stopwatch.Start();
-                List<int> estatus = new List<int> { 6, 7,8,9, 29, 30, 33, 38 };
-                var vacantes = db.Database.SqlQuery<ReporteGeneralDto>("dbo.ReporteGeneral");
+                var permisos = objP.GetPrivilegios(source.usuario);
+
+                bool confidencial = permisos.Where(x => x.Nombre.Equals("Confidencial") && x.TipoEstructuraId.Equals(8)).Select(c => c.Read).FirstOrDefault();
+
+                List<int> estatus = new List<int> { 6, 7, 8, 9, 29, 30, 33, 38 };
+                int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37, 47, 48 };
+
+                var objeto = db.Database.SqlQuery<ReporteGeneralDto>("dbo.ReporteGeneral @fi, @ff", new SqlParameter("fi", source.fini), new SqlParameter("ff", source.ffin)).ToList();
 
 
-
-                var t = db.EstatusRequisiciones.GroupBy(g => g.RequisicionId)
-                    .Select(T => new
+                var t = db.EstatusRequisiciones.GroupBy(g => g.RequisicionId).Select(T => new
+                {
+                    RequisicionId = T.Key,
+                    Estatus = T.Select(x => new EstatusRequiDto
                     {
-
-                        RequisicionId = T.Key,
-
-                        Estatus = T.Select(x => new EstatusRequiDto
-                        {
-                            EstatusId = x.EstatusId,
-                            Estatus = x.Estatus.Descripcion.ToUpper(),
-                            fch_Modificacion = x.fch_Modificacion.Value,
-                            diasTrans = 0,
-                            diasTotal = 0,
-                        }).OrderBy(o => o.fch_Modificacion).ToList()
-
-                    }).ToList();
-
-
+                        EstatusId = x.EstatusId,
+                        Estatus = x.Estatus.Descripcion.ToUpper(),
+                        fch_Modificacion = x.fch_Modificacion.Value,
+                        diasTrans = 0,
+                        diasTotal = 0,
+                    }).OrderBy(o => o.fch_Modificacion).ToList()
+                }).ToList();
 
                 foreach (var r in t)
                 {
@@ -1517,236 +1538,117 @@ namespace SAGA.API.Controllers
                     }
                 }
 
-                DateTime FechaF = DateTime.Now;
-                DateTime FechaI = DateTime.Now;
-                try
+                // se tiene que omptimizar esta parte
+                if (source.clave != null && objeto.Count() > 0)
                 {
-                    if (fini != null)
-                    {
-                        FechaI = Convert.ToDateTime(fini);
-                    }
-                    if (ffin != null)
-                    {
-                        FechaF = Convert.ToDateTime(ffin);
-                    }
-                }
-                catch (Exception error)
-                {
-                    string errorf = error.Message;
-                }
-                //  FechaF = FechaF.AddDays(1);
-                
-                var asig = vacantes.Select(e => e.Id).ToList();
-                var requi = db.Requisiciones.Where(e => asig.Contains(e.Id)).ToList();
-                
-                var objeto = vacantes.Where(e => e.fch_Creacion >= FechaI
-                    && e.fch_Creacion < FechaF.AddDays(1)).OrderByDescending(o => o.fch_Creacion).Select(e => new
-                {
-                    Id = e.Id,
-                    Folio = e.Folio,
-                    fch_Modificacion = requi.Where(x => x.Id == e.Id).Select(a => a.fch_Modificacion).FirstOrDefault(),
-                    fch_Solicitud = e.fch_Creacion,
-                    reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id)).Select(a =>
-                        db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
-                                       ).ToList(),
-                    sucursal = e.RazonSocial.ToUpper(),
-                    Cliente = e.Nombrecomercial.ToUpper(),
-                    estado = e.estado.ToUpper(),
-                    domicilio_trabajo = e.domicilio_trabajo.ToUpper(),
-                    Solicita = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper() : "SIN REGISTRO",
-                    coordinador = db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper() : "SIN REGISTRO",
-                    ClienteId = requi.Where(x => x.Id == e.Id).Select(a => a.ClienteId).FirstOrDefault(),
-                    ClaseReclutamientoId = requi.Where(x => x.Id == e.Id).Select(a => a.ClaseReclutamientoId).FirstOrDefault(),
-                    TipoReclutamientoId = requi.Where(x => x.Id == e.Id).Select(a => a.TipoReclutamientoId).FirstOrDefault(),
-                    EstadoId = requi.Where(x => x.Id == e.Id).Select(a => a.Direccion.EstadoId).FirstOrDefault(),
-                    Usuario = db.Usuarios.Where(x => x.Id == e.PropietarioId).FirstOrDefault().Usuario,
-                    Vacantes = e.vacantes,
-                    porcentaje = e.porcentaje,
-                    EnProcesoEC = e.enProcesoEC,
-                    EnProcesoFC = e.enProcesoFC,
-                    contratados = e.contratados,
-                    faltantes = e.faltante,
-                    diasTrans = e.diasTrans,
-                    VBtra = e.VBtra.ToUpper(),
-                    SueldoMaximo = e.SueldoMaximo.ToString("c"),
-                    Estatus = t.Where(x => x.RequisicionId.Equals(e.Id)).Select(E => E.Estatus).FirstOrDefault(),
-                    EstatusId = requi.Where(a=>a.Id == e.Id).FirstOrDefault().EstatusId,
-                    TipoReclutamiento = e.tipoReclutamiento.ToUpper(),
-                    ClaseReclutamiento = e.clasesReclutamiento.ToUpper(),
-                    comentarios_coord = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
-                          c.fch_Creacion + " " + c.Comentario.ToUpper()).ToList(),
-                    comentarios_solicitante = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && x.ReclutadorId.Equals(e.PropietarioId) && !x.ReclutadorId.Equals(e.AprobadorId)).Select(c =>
-                    c.fch_Creacion + " " + c.Comentario.ToUpper()).ToList(),
-                    comentarios_reclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id) && !x.ReclutadorId.Equals(e.AprobadorId) && !x.ReclutadorId.Equals(e.PropietarioId)).GroupBy(g => g.ReclutadorId).Select(c => new
-                    {
-
-                        reclutador = db.Usuarios.Where(x => x.Id.Equals(c.Key)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault().ToUpper(),
-                        comentario = c.Select(cc => new
-                        {
-                            fch_Creacion = cc.fch_Creacion,
-                            comentario = cc.Comentario.ToUpper()
-                        }).ToList()
-                    }).ToList()
-                });
-                
-                
-                if (stus != "0" && stus != null)
-                {
-                    var obj = stus.Split(',');
-                    List<int> listaAreglo = new List<int>();
-                    for (int i = 0; i < obj.Count() - 1; i++)
-                    {
-                        listaAreglo.Add(Convert.ToInt32(obj[i]));
-                    }
-                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
-                    if (obb.Count == 0)
-                    {
-                        objeto = objeto.Where(e => listaAreglo.Contains(e.EstatusId)).ToList();
-                    }
+                    objeto = objeto.Where(e => e.VBtra.ToLower().Contains(source.clave.ToLower())).ToList();
                 }
 
-                if (clave != null)
+                if (source.stus.Count() > 0 && source.stus != null && objeto.Count() > 0)
                 {
-                    objeto = objeto.Where(e => e.VBtra.ToLower().Contains(clave.ToLower())).ToList();
+                    objeto = objeto.Where(e => source.stus.Contains(e.EstatusId)).ToList();
+                }
+                if (source.sol.Count() > 0 && objeto.Count() > 0)
+                {
+                    objeto = objeto.Where(e => source.sol.Contains(e.PropietarioId)).ToList();
+                }
+                if (source.coord.Count() > 0 && objeto.Count() > 0)
+                {
+                    objeto = objeto.Where(e => source.coord.Contains(e.ClaseReclutamientoId)).ToList();
+                }
+                if (source.trcl.Count() > 0 && objeto.Count() > 0)
+                {
+                    objeto = objeto.Where(e => source.trcl.Contains(e.TipoReclutamientoId)).ToList();
+                }
+                if (source.emp.Count() > 0 && objeto.Count() > 0)
+                {
+                    objeto = objeto.Where(e => source.emp.Contains(e.ClienteId)).ToList();
                 }
 
-                if (sol != "0" && sol != null)
-                {
-                    var obj = sol.Split(',');
-                    List<string> listaAreglo = new List<string>();
-                    for (int i = 0; i < obj.Count() - 1; i++)
-                    {
-                        listaAreglo.Add(obj[i]);
-                    }
-                    var obb = listaAreglo.Where(e => e.Equals("0")).ToList();
-                    if (obb.Count == 0)
-                    {
-                        objeto = objeto.Where(e => listaAreglo.Contains(e.Usuario)).ToList();
-                    }
-                }
-
-                if (emp != "0" && emp != "00000000-0000-0000-0000-000000000000," && emp != null)
-                {
-                    var obj = emp.Split(',');
-                    List<Guid> listaAreglo = new List<Guid>();
-                    for (int i = 0; i < obj.Count() - 1; i++)
-                    {
-                        listaAreglo.Add(new Guid(obj[i]));
-                    }
-                    var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
-                    if (obb.Count == 0)
-                    {
-                        objeto = objeto.Where(e => listaAreglo.Contains(e.ClienteId)).ToList();
-                    }
-                }
-
-                if (cor != "0" && cor != null)
-                {
-                    var obj = cor.Split(',');
-                    List<int> listaAreglo = new List<int>();
-                    for (int i = 0; i < obj.Count() - 1; i++)
-                    {
-                        listaAreglo.Add(Convert.ToInt32(obj[i]));
-                    }
-                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
-                    if (obb.Count == 0)
-                    {
-                        objeto = objeto.Where(e => listaAreglo.Contains(e.ClaseReclutamientoId)).ToList();
-                    }
-                }
-
-                if (trcl != "0" && trcl != null)
-                {
-                    var obj = trcl.Split(',');
-                    List<int> listaAreglo = new List<int>();
-                    for (int i = 0; i < obj.Count() - 1; i++)
-                    {
-                        listaAreglo.Add(Convert.ToInt32(obj[i]));
-                    }
-                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
-                    if (obb.Count == 0)
-                    {
-                        objeto = objeto.Where(e => listaAreglo.Contains(e.TipoReclutamientoId)).ToList();
-                    }
-                }
-
-                Guid id = new Guid(usuario);
+                Guid id = source.usuario;
                 int usertipo = db.Usuarios.Where(e => e.Id == id).Select(e => e.TipoUsuarioId).FirstOrDefault();
+                if (usertipo == 11 && objeto.Count() > 0)
+                {
+                    var requiID = objeto.Select(x => x.Id).ToList();
+                    var asigna = db.AsignacionRequis.Where(e => requiID.Contains(e.RequisicionId)).ToList();
+                    var requien = asigna.Where(e => e.GrpUsrId == id).Select(x => x.RequisicionId).ToList();
+                    objeto = objeto.Where(e => e.AprobadorId == id || requien.Contains(e.Id)).ToList();
+                }
+                else
+                {
+                    if (source.usercoor.Count() > 0 && objeto.Count() > 0)
+                    {
 
-                if (usertipo == 11)
+                        var asigna = db.AsignacionRequis.Where(e => source.usercoor.Contains(e.GrpUsrId) && e.Requisicion.EstatusId == 4).Select(e => e.RequisicionId).ToList();
+                        var asigna2 = objeto.Where(e => source.usercoor.Contains(e.AprobadorId)).Select(r => r.Id).ToList();
+                        var todas = asigna.Union(asigna2).Distinct().ToList();
+                        objeto = objeto.Where(e => todas.Contains(e.Id)).ToList();
+                    }
+                }
+
+                if (usertipo == 11 && objeto.Count() > 0)
                 {
                     var asigna = db.AsignacionRequis.Where(e => e.GrpUsrId == id).Select(e => e.RequisicionId).ToList();
                     objeto = objeto.Where(e => asigna.Contains(e.Id)).ToList();
                 }
                 else
                 {
-
-                    if (recl != "0" && recl != "00000000-0000-0000-0000-000000000000," && recl != null)
+                    if (source.recl.Count() > 0 && objeto.Count() > 0)
                     {
-                        var obj = recl.Split(',');
-                        List<Guid> listaAreglo = new List<Guid>();
-                        for (int i = 0; i < obj.Count() - 1; i++)
-                        {
-                            listaAreglo.Add(new Guid(obj[i]));
-                        }
-                        var obb = listaAreglo.Where(e => e.Equals(new Guid("00000000-0000-0000-0000-000000000000"))).ToList();
-                        if (obb.Count == 0)
-                        {
-                            var asigna = db.AsignacionRequis.Where(e => listaAreglo.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
-                            objeto = objeto.Where(e => asigna.Contains(e.Id)).ToList();
-                        }
+                        var asigna = db.AsignacionRequis.Where(e => source.recl.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                        objeto = objeto.Where(e => asigna.Contains(e.Id)).ToList();
                     }
+
                 }
 
-                if (ofc != "0" && ofc != "0," && ofc != null)
+                if (source.ofc.Count() > 0 && objeto.Count() > 0)
                 {
-                    var obj = ofc.Split(',');
-                    List<int> listaAreglo = new List<int>();
-                    for (int i = 0; i < obj.Count() - 1; i++)
+                    var estado = db.UnidadNegocioEstados.Where(e => source.ofc.Contains(e.unidadnegocioId)).Select(e => e.estadoId).Distinct().ToList();
+                    objeto = objeto.Where(e => estado.Contains(e.EstadoId)).ToList();
+                }
+
+                if (!confidencial && objeto.Count() > 0)
+                {
+                    objeto = objeto.Where(x => !x.Confidencial).ToList();
+                }
+
+                var countObj = objeto.Count();
+                var posActivas = objeto.Count() > 0 ? objeto.Where(x => !estatusId.Contains(x.EstatusId)).Select(r => r.vacantes).ToList().Sum() : 0;
+
+                if (objeto.Count() > 0)
+                {
+                    var rowi = objeto[source.rowIndex[0]].rowIndex;
+                    if (source.rowIndex[1] > countObj)
                     {
-                        listaAreglo.Add(Convert.ToInt32(obj[i]));
+                        source.rowIndex[1] = countObj - 1;
                     }
+                    var rowe = objeto[source.rowIndex[1]].rowIndex;
+                    objeto = objeto.Where(e => e.rowIndex >= rowi && e.rowIndex <= rowe).ToList();
 
-                    var obb = listaAreglo.Where(e => e.Equals(0)).ToList();
-                    if (obb.Count == 0)
+                    foreach (var row in objeto)
                     {
-                        // Estado = db.Direcciones.Where(x => x.EntidadId == db.Usuarios.Where(a => a.Usuario == e.Propietario).FirstOrDefault().SucursalId).FirstOrDefault().Estado.estado,
-                        //int unidad = Convert.ToInt32(ofc);
-
-                        var negocio = db.OficinasReclutamiento.Where(e => listaAreglo.Contains(e.UnidadNegocioId)).Select(e => e.Id).ToList();
-                        var estado = db.Direcciones.Where(e => negocio.Contains(e.EntidadId)).Select(e => e.EstadoId).Distinct().ToList();
-                        foreach (var item in listaAreglo)
+                        row.totalFolios = countObj;
+                        row.posActivas = posActivas;
+                        row.reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(row.Id) && x.GrpUsrId != row.AprobadorId).Select(a =>
+                            db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
+                                               ).ToList();
+                        //row.solicita = db.Usuarios.Where(x => x.Id.Equals(row.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(row.PropietarioId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper() : "SIN REGISTRO";
+                        //row.coordinador = db.Usuarios.Where(x => x.Id.Equals(row.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno).FirstOrDefault() != null ? db.Usuarios.Where(x => x.Id.Equals(row.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper() : "SIN REGISTRO";
+                        row.Estatus = t.Where(x => x.RequisicionId.Equals(row.Id)).Select(E => E.Estatus).FirstOrDefault();
+                        row.comentarios_coord = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(row.Id) && x.ReclutadorId.Equals(row.AprobadorId)).Select(c =>
+                            c.fch_Creacion + " " + c.Comentario.ToUpper()).ToList();
+                        row.comentarios_solicitante = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(row.Id) && x.ReclutadorId.Equals(row.PropietarioId) && !x.ReclutadorId.Equals(row.AprobadorId)).Select(c =>
+                        c.fch_Creacion + " " + c.Comentario.ToUpper()).ToList();
+                        row.comentarios_reclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(row.Id) && !x.ReclutadorId.Equals(row.AprobadorId) && !x.ReclutadorId.Equals(row.PropietarioId)).GroupBy(g => g.ReclutadorId).Select(c => new CR
                         {
-                            string monterrey = "6,7,10,28,19,24";
-                            string jalisco = "1,32,3,8,10,11,14,16,18,2,25,26";
-                            string mexico = "4,5,9,13,15,22,27,30,20,12,31,23,21,29,17";
-                            if (item == 1)
+
+                            reclutador = db.Usuarios.Where(x => x.Id.Equals(c.Key)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault().ToUpper(),
+                            comentario = c.Select(cc => new comentariosRecl
                             {
-                                var array = jalisco.Split(',');
-                                for (int i = 0; i < array.Length; i++)
-                                {
-                                    estado.Add(Int32.Parse(array[i]));
-                                }
-                            }
-                            if (item == 2)
-                            {
-                                var array = mexico.Split(',');
-                                for (int i = 0; i < array.Length; i++)
-                                {
-                                    estado.Add(Int32.Parse(array[i]));
-                                }
-                            }
-                            if (item == 3)
-                            {
-                                var array = monterrey.Split(',');
-                                for (int i = 0; i < array.Length; i++)
-                                {
-                                    estado.Add(Int32.Parse(array[i]));
-                                }
-                            }
-                        }
-                        estado = estado.Distinct().ToList();
-                        objeto = objeto.Where(e => estado.Contains(e.EstadoId)).ToList();
+                                fch_Creacion = cc.fch_Creacion,
+                                comentario = cc.Comentario.ToUpper()
+                            }).ToList()
+                        }).ToList();
                     }
                 }
                 return Ok(objeto);
@@ -1812,7 +1714,7 @@ namespace SAGA.API.Controllers
                 if (tipo == 8)
                 {
                     var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento)
-                       .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 ).Select(h => new
+                       .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 && e.EstatusId != 8).Select(h => new
                        {
                            Id = h.Id,
                            Folio = h.Folio,
@@ -1823,6 +1725,7 @@ namespace SAGA.API.Controllers
                            Vacantes = h.horariosRequi.Count() > 0 ? h.horariosRequi.Sum(v => v.numeroVacantes) : 0,
                            Confidencial = h.Confidencial,
                            Fch_limite = h.fch_Cumplimiento,
+                           h.TipoReclutamientoId,
                            Postulados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(10)).Select(c => c.CandidatoId).Distinct().Count(),
                            Abandono = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 26).Count(),
                            Descartados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 27).Count(),
@@ -1857,7 +1760,7 @@ namespace SAGA.API.Controllers
 
                     var asig = db.AsignacionRequis
                         .OrderByDescending(e => e.Id)
-                        .Where(a => uids.Distinct().Contains(a.GrpUsrId) && a.Requisicion.Activo)
+                        .Where(a => uids.Distinct().Contains(a.GrpUsrId) && a.Requisicion.Activo && a.Requisicion.EstatusId != 8)
                         .Select(a => a.RequisicionId)
                         .Distinct()
                         .ToList();
@@ -1872,6 +1775,7 @@ namespace SAGA.API.Controllers
                             cliente = h.Cliente.Nombrecomercial,
                             Vacantes = h.horariosRequi.Count() > 0 ? h.horariosRequi.Sum(v => v.numeroVacantes) : 0,
                             Fch_limite = h.fch_Cumplimiento,
+                            h.TipoReclutamientoId,
                             Postulados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(10)).Select(c => c.CandidatoId).Distinct().Count(),
                             Abandono = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 26).Count(),
                             Descartados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 27).Count(),
@@ -1919,7 +1823,7 @@ namespace SAGA.API.Controllers
                     .ToList();
 
                 var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => asig.Contains(e.Id))
-                    .Where(e => e.Activo.Equals(true) && e.EstatusId != 9).Select(h => new
+                    .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 && e.EstatusId != 8).Select(h => new
                     {
                         Id = h.Id,
                         Folio = h.Folio,
@@ -1928,6 +1832,7 @@ namespace SAGA.API.Controllers
                         EstatusId = h.EstatusId,
                         cliente = h.Cliente.Nombrecomercial,
                         Vacantes = h.horariosRequi.Count() > 0 ? h.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        fch_Creacion = h.fch_Creacion,
                         Fch_limite = h.fch_Cumplimiento,
                         Postulados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(10)).Select(c => c.CandidatoId).Distinct().Count(),
                         Abandono = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 26).Count(),
@@ -2418,9 +2323,7 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult AsginarRequi(AsignarVacanteReclutador requi)
         {
-            //Stopwatch stopwatch = new Stopwatch();
-
-            //stopwatch.Start();
+           
             //db.Database.Log = Console.Write;
             using (DbContextTransaction beginTran = db.Database.BeginTransaction())
             {
@@ -2428,108 +2331,6 @@ namespace SAGA.API.Controllers
                 {
                     var requisicion = db.Requisiciones.Find(requi.Id);
 
-                    // Requisicion a coincidir.
-                    var Requi = db.Requisiciones
-                             .Where(r => r.Folio == requisicion.Folio)
-                             .Select(r => new RequisicionCoin
-                             {
-                                 Categoria = r.Area.Id,
-                                 CategoriaDesc = r.Area.areaExperiencia,
-                                 SalarioMinimo = r.SueldoMinimo,
-                                 SalarioMaximo = r.SueldoMaximo,
-                                 Genero = r.GeneroId,
-                                 GeneroDesc = r.Genero.genero,
-                                 EdadMinima = r.EdadMinima,
-                                 EdadMaxima = r.EdadMaxima,
-                                 EstadoCivil = r.EstadoCivilId,
-                                 EstadoCivilDesc = r.EstadoCivil.estadoCivil,
-                                 Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList(),
-                                 EscolaridadesDesc = r.escolaridadesRequi.Select(e => e.Escolaridad.gradoEstudio).ToList()
-                             })
-                            .FirstOrDefault();
-                    //stopwatch.Stop();
-                    //var t = stopwatch.Elapsed;
-                    // Candidatos Activos
-                    //var Activos = db.AspNetUsers
-                    //    .Where(c => c.Activo == 0)
-                    //    .OrderBy(c => c.UltimoInicio)
-                    //    .Select(c => c.IdPersona)
-                    //    .ToList();
-
-                    // Candidatos con todas las coincidencias.
-                    //    var Candidatos = db.PerfilCandidato
-                    //        .Where(c => Activos.Contains(c.CandidatoId))
-                    //        .Select(c => new CoincidenciasDto
-                    //        {
-                    //            Nombre = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + (c.Candidato.ApellidoMaterno != null ? c.Candidato.ApellidoMaterno : ""),
-                    //            Subcategoria = db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() != 0 ? 
-                    //                           db.AreasInteres.Where(x => x.Id.Equals(c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault())).Select(s => s.areaInteres).FirstOrDefault() : "",
-                    //            AreaExpId = db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() != 0 ?
-                    //                        db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() : 0,
-                    //            //Subcategoria = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() != null ? c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
-                    //            //AreaExpId = c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() != 0 ? c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() : 0,
-                    //            SueldoMinimo = c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
-                    //            SueldoMaximo = c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() : 0,
-                    //            Genero = c.Candidato.Genero.genero,
-                    //            GeneroId = c.Candidato.GeneroId > 0 ? c.Candidato.GeneroId : 0,
-                    //            EstadoCivil = c.Candidato.EstadoCivil.estadoCivil,
-                    //            EstadoCivilId = c.Candidato.EstadoCivilId.Value > 0 ? c.Candidato.EstadoCivilId.Value : 0,
-                    //            FormacionId = c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault(),
-                    //            Formaciones = c.Formaciones.Select(x => x.GradosEstudio.gradoEstudio).FirstOrDefault(),
-                    //            Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year,
-                    //            Requisicion = db.Requisiciones
-                    //             .Where(r => r.Folio == requisicion.Folio)
-                    //             .Select(r => new RequisicionCoin
-                    //             {
-                    //                 Categoria = r.Area.Id,
-                    //                 CategoriaDesc = r.Area.areaExperiencia,
-                    //                 SalarioMinimo = r.SueldoMinimo,
-                    //                 SalarioMaximo = r.SueldoMaximo,
-                    //                 Genero = r.GeneroId,
-                    //                 GeneroDesc = r.Genero.genero,
-                    //                 EdadMinima = r.EdadMinima,
-                    //                 EdadMaxima = r.EdadMaxima,
-                    //                 EstadoCivil = r.EstadoCivilId,
-                    //                 EstadoCivilDesc = r.EstadoCivil.estadoCivil,
-                    //                 Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList(),
-                    //                 EscolaridadesDesc = r.escolaridadesRequi.Select(e => e.Escolaridad.gradoEstudio).ToList()
-                    //             })
-                    //            .FirstOrDefault()
-                    //})
-                    //        .ToList();
-
-                    //    List<CoincidenciasDto> CandidatosFiltro = new List<CoincidenciasDto>();
-
-                    //    CandidatosFiltro = Candidatos
-                    //        .Where(c => c.AreaExpId == Requi.Categoria)
-                    //        .ToList();
-
-                    //    CandidatosFiltro = CandidatosFiltro
-                    //           .Where(c => Requi.Escolaridades.Contains(c.FormacionId))
-                    //           .ToList();
-
-                    //    CandidatosFiltro = CandidatosFiltro
-                    //        .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo && c.SueldoMinimo <= Requi.SalarioMaximo 
-                    //                 || c.SueldoMaximo >= Requi.SalarioMinimo && c.SueldoMaximo <= Requi.SalarioMaximo)
-                    //        .ToList();
-
-                    //    CandidatosFiltro = CandidatosFiltro
-                    //        .Where(c => c.Edad >= Requi.EdadMinima && c.Edad <= Requi.EdadMaxima)
-                    //        .ToList();
-
-                    //if (Requi.Genero > 0)
-                    //{
-                    //   CandidatosFiltro = CandidatosFiltro.Where(c => c.GeneroId.Equals(Requi.Genero)).ToList();
-                    //}
-
-                    //if (Requi.EstadoCivil > 0)
-                    //{
-                    //    CandidatosFiltro =  CandidatosFiltro.Where(c => c.EstadoCivilId == Requi.EstadoCivil).ToList();
-                    //}
-
-                    //// Solo tomamos el top 5 de candidatos que coinciderion.
-                    //CandidatosFiltro = CandidatosFiltro.Take(5).ToList();
-                    //stopwatch.Start();
                     db.Entry(requisicion).State = EntityState.Modified;
                     requisicion.fch_Cumplimiento = requi.fch_Cumplimiento;
                     if (requisicion.EstatusId == 4 || requisicion.EstatusId == 46)
@@ -2697,6 +2498,209 @@ namespace SAGA.API.Controllers
 
         }
 
+        [HttpPost]
+        [Route("topCandidatos")]
+        [Authorize]
+        public void TopCandidatos(AsignarVacanteReclutador requi)
+        {
+            try
+            {
+                Stopwatch stopwatch = new Stopwatch();
+
+                stopwatch.Start();
+                var requisicion = db.Requisiciones.Find(requi.Id);
+
+                //Requisicion a coincidir.
+                var Requi = db.Requisiciones
+                         .Where(r => r.Folio == requisicion.Folio)
+                         .Select(r => new RequisicionCoin
+                         {
+                             Categoria = r.Area.Id,
+                             CategoriaDesc = r.Area.areaExperiencia,
+                             SalarioMinimo = r.SueldoMinimo,
+                             SalarioMaximo = r.SueldoMaximo,
+                             Genero = r.GeneroId,
+                             GeneroDesc = r.Genero.genero,
+                             EdadMinima = r.EdadMinima,
+                             EdadMaxima = r.EdadMaxima,
+                             EstadoCivil = r.EstadoCivilId,
+                             EstadoCivilDesc = r.EstadoCivil.estadoCivil,
+                             Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList(),
+                             EscolaridadesDesc = r.escolaridadesRequi.Select(e => e.Escolaridad.gradoEstudio).ToList()
+                         })
+                        .FirstOrDefault();
+                stopwatch.Stop();
+                var t = stopwatch.Elapsed;
+                //  Candidatos Activos
+                var Activos = db.AspNetUsers
+                    .Where(c => c.Activo == 0)
+                    .OrderBy(c => c.UltimoInicio)
+                    .Select(c => c.IdPersona)
+                    .ToList();
+
+                // Candidatos con todas las coincidencias.
+                var Candidatos = db.PerfilCandidato
+                    .Where(c => Activos.Contains(c.CandidatoId))
+                    .Select(c => new CoincidenciasDto
+                    {
+                        Nombre = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + (c.Candidato.ApellidoMaterno != null ? c.Candidato.ApellidoMaterno : ""),
+                        Subcategoria = db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() != 0 ?
+                                       db.AreasInteres.Where(x => x.Id.Equals(c.AboutMe.Select(a => a.AreaExperienciaId).FirstOrDefault())).Select(s => s.areaInteres).FirstOrDefault() : "",
+                        AreaExpId = db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() != 0 ?
+                                    db.AreasInteres.Where(a => a.Id.Equals(c.AboutMe.Select(x => x.AreaExperienciaId).FirstOrDefault())).Select(s => s.AreaExperienciaId).FirstOrDefault() : 0,
+                        //Subcategoria = c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() != null ? c.AboutMe.Select(a => a.AreaInteres.areaInteres).FirstOrDefault() : "",
+                        //AreaExpId = c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() != 0 ? c.AboutMe.Select(a => a.AreaInteres.AreaExperienciaId).FirstOrDefault() : 0,
+                        SueldoMinimo = c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioAceptable).FirstOrDefault() : 0,
+                        SueldoMaximo = c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() > 0 ? c.AboutMe.Select(a => a.SalarioDeseado).FirstOrDefault() : 0,
+                        Genero = c.Candidato.Genero.genero,
+                        GeneroId = c.Candidato.GeneroId > 0 ? c.Candidato.GeneroId : 0,
+                        EstadoCivil = c.Candidato.EstadoCivil.estadoCivil,
+                        EstadoCivilId = c.Candidato.EstadoCivilId.Value > 0 ? c.Candidato.EstadoCivilId.Value : 0,
+                        FormacionId = c.Formaciones.Select(x => x.GradoEstudioId).FirstOrDefault(),
+                        Formaciones = c.Formaciones.Select(x => x.GradosEstudio.gradoEstudio).FirstOrDefault(),
+                        Edad = DateTime.Now.Year - c.Candidato.FechaNacimiento.Value.Year,
+                        Requisicion = db.Requisiciones
+                         .Where(r => r.Folio == requisicion.Folio)
+                         .Select(r => new RequisicionCoin
+                         {
+                             Categoria = r.Area.Id,
+                             CategoriaDesc = r.Area.areaExperiencia,
+                             SalarioMinimo = r.SueldoMinimo,
+                             SalarioMaximo = r.SueldoMaximo,
+                             Genero = r.GeneroId,
+                             GeneroDesc = r.Genero.genero,
+                             EdadMinima = r.EdadMinima,
+                             EdadMaxima = r.EdadMaxima,
+                             EstadoCivil = r.EstadoCivilId,
+                             EstadoCivilDesc = r.EstadoCivil.estadoCivil,
+                             Escolaridades = r.escolaridadesRequi.Select(e => e.Escolaridad.Id).ToList(),
+                             EscolaridadesDesc = r.escolaridadesRequi.Select(e => e.Escolaridad.gradoEstudio).ToList()
+                         })
+                        .FirstOrDefault()
+                    })
+                    .ToList();
+
+                List<CoincidenciasDto> CandidatosFiltro = new List<CoincidenciasDto>();
+
+                CandidatosFiltro = Candidatos
+                    .Where(c => c.AreaExpId == Requi.Categoria)
+                    .ToList();
+
+                CandidatosFiltro = CandidatosFiltro
+                       .Where(c => Requi.Escolaridades.Contains(c.FormacionId))
+                       .ToList();
+
+                CandidatosFiltro = CandidatosFiltro
+                    .Where(c => c.SueldoMinimo >= Requi.SalarioMinimo && c.SueldoMinimo <= Requi.SalarioMaximo
+                             || c.SueldoMaximo >= Requi.SalarioMinimo && c.SueldoMaximo <= Requi.SalarioMaximo)
+                    .ToList();
+
+                CandidatosFiltro = CandidatosFiltro
+                    .Where(c => c.Edad >= Requi.EdadMinima && c.Edad <= Requi.EdadMaxima)
+                    .ToList();
+
+                if (Requi.Genero > 0)
+                {
+                    CandidatosFiltro = CandidatosFiltro.Where(c => c.GeneroId.Equals(Requi.Genero)).ToList();
+                }
+
+                if (Requi.EstadoCivil > 0)
+                {
+                    CandidatosFiltro = CandidatosFiltro.Where(c => c.EstadoCivilId == Requi.EstadoCivil).ToList();
+                }
+                if (CandidatosFiltro != null && CandidatosFiltro.Count() > 0)
+                {
+                    // Solo tomamos el top 5 de candidatos que coinciderion.
+                    CandidatosFiltro = CandidatosFiltro.Take(5).ToList();
+                var distintEmails = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi.Id) && x.Tipo.Equals(2))
+                    .Select(E =>
+                        db.Usuarios.Where(x => x.Id.Equals(E.GrpUsrId))
+                        .Select(ee => ee.emails.Select(eee => eee.email)).FirstOrDefault()).ToList();
+                if (distintEmails.Count() > 0)
+                {
+                    string body = string.Empty;
+                    string Escolaridades = string.Empty;
+                    string from = ConfigurationManager.AppSettings["ToEmail"];
+                    MailMessage m = new MailMessage();
+                        m.To.Add("mventura@damda.com.mx");
+                        m.Bcc.Add("bmorales@damsa.com.mx");
+                    m.From = new MailAddress(from, "SAGA Inn");
+
+                        var index = CandidatosFiltro[0].Requisicion.EscolaridadesDesc.Count() - 1;
+
+                        for (int e = 0; e < CandidatosFiltro[0].Requisicion.EscolaridadesDesc.Count(); e++)
+                        {
+                            if (e < index)
+                            {
+                                Escolaridades = Escolaridades + CandidatosFiltro[0].Requisicion.EscolaridadesDesc[e] + ", ";
+                            }
+                            else
+                            {
+                                Escolaridades = Escolaridades + CandidatosFiltro[0].Requisicion.EscolaridadesDesc[e];
+                            }
+                        }
+                        foreach (var x in distintEmails)
+                        {
+                            m.To.Add(x.ToString());
+                        }
+
+                        m.Subject = "[SAGA] Asignacion de Requisicion " + requisicion.Folio;
+
+                        var inicio = "<html><head><style>td { border: solid #2471A3 1px; padding-left:5px; padding-right:5px;padding-top:1px; padding-bottom:1px;font-size:9pt; color: #3498DB;font-family:'calibri'; width: 25%; text-align: left; vertical-align: top; border-spacing: 0; border-collapse: collapse;} ";
+                        inicio = inicio + "p { font - family:'calibri'; } th { font - family:'calibri'; width: 25 %; text - align: left; vertical - align: top; border: solid blue 1px; border - spacing: 0; border - collapse: collapse; background: #3498DB; color:white;}";
+                        inicio = inicio + "h3 { font - family:'calibri'; } table { width: 100 %; }</style></head><body style =\"text-align:center; font-family:'calibri'; font-size:10pt;\"><br><br><p> Asignación de Requisición:</p>";
+
+
+                        body = inicio;
+                        //body = body + string.Format("<br/>El usuario <strong>{0}</strong> te ha asignado para trabajar la vacante <strong>{1}</strong> la cual se encuentra con un folio de requisición: <strong style='background-color:yellow;'><big><a href=\"{3}/login/{2}\">{2}</a></big></strong>.", Usuario, VBr, Folio, sitioWeb);
+
+
+                        body = body + string.Format("<br><p>Los siguientes candidatos coinciden para <b>Categoría</b> (" + CandidatosFiltro[0].Requisicion.CategoriaDesc + "), <b>Salario</b> ($" + CandidatosFiltro[0].Requisicion.SalarioMinimo + "- $" + CandidatosFiltro[0].Requisicion.SalarioMaximo + "), <b>Genero</b> (" + CandidatosFiltro[0].Requisicion.GeneroDesc + "),");
+                        body = body + string.Format(" <b>Edad:</b> (" + CandidatosFiltro[0].Requisicion.EdadMinima + "-" + CandidatosFiltro[0].Requisicion.EdadMaxima + "), <b>Estado civil</b> (" + CandidatosFiltro[0].Requisicion.EstadoCivilDesc + "), <b>Escolaridad</b> (" + Escolaridades + ")</p>");
+                        body = body + "<table class='table'>";
+                        body = body + "<tr><th align=center>Candidato</th><th align=center>Subcategoria</th><th align=center>Rango Salarial</th><th align=center>Edad</th></tr>";
+                        for (int i = 0; i < CandidatosFiltro.Count(); i++)
+                        {
+                            body = body + "<tr><td align=center> " + CandidatosFiltro[i].Nombre + "</td><td align=center>" + CandidatosFiltro[i].Subcategoria + "</td><td align=center>" + CandidatosFiltro[i].SueldoMinimo + " - " + CandidatosFiltro[i].SueldoMaximo + "</td><td align=center>" + CandidatosFiltro[i].Edad + "</td></tr>";
+                        }
+                        body = body + "</table>";
+
+                        body = body + "<p>Para ver tus requisiciones asignadas ingresa a tu panel de <b>Reclutamiento</b>, selecciona la opción de <b>Vacantes</b> para dar el seguimiento correspondiente.</p> ";
+                        body = body + "<p>Podrás acceder mediante la siguiente dirección: https://weberp.damsa.com.mx/login" + "</p>";
+                        body = body + "<p>Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx</p><p>Gracias por tu atención. </p><p>Saludos</p>";
+                        body = body + "</body></html>";
+
+
+                        m.Body = body;
+                        m.IsBodyHtml = true;
+                        SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                        smtp.EnableSsl = true;
+                        smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                        smtp.Send(m);
+                        stopwatch.Start();
+                    }
+                }
+                else
+                {
+                    string from = ConfigurationManager.AppSettings["ToEmail"];
+                    MailMessage m = new MailMessage();
+                    m.From = new MailAddress(from, "SAGA Inn");
+                    m.Subject = "[SAGA] Asignacion de Requisicion " + requisicion.Folio;
+                    m.To.Add("mventura@damsa.com.mx");
+                    m.Bcc.Add("bmorales@damsa.com.mx");
+                    m.Body = "<p>esta cosa no encuentra coincidencias de candidatos conshepshon :( </p>";
+                    m.IsBodyHtml = true;
+                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                    smtp.EnableSsl = true;
+                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                    smtp.Send(m);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
         public List<Guid> GetGrupo(Guid grupo, List<Guid> listaIds)
         {
             if (!listaIds.Contains(grupo))
@@ -2759,13 +2763,13 @@ namespace SAGA.API.Controllers
         [Route("execProcedurePause")]
         public IHttpActionResult ExecProcedurePause()
         {
-            int[] estatus = { 8, 9, 34, 35, 36, 37 };
+            int[] estatus = { 8, 9, 34, 35, 36, 37, 47, 48 };
             try
             {
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA INN");
-                m.Subject = "Vacantes en Pausa";
+                m.Subject = "[SAGA] Vacantes en Pausa";
 
                 var datos = db.Database.SqlQuery<PausadasDto>("dbo.sp_RequisPausadas").ToList();
 
@@ -2787,9 +2791,7 @@ namespace SAGA.API.Controllers
                         var emailSol = aux[0].emailSol;
                         m.To.Add(email);
                         m.Bcc.Add(emailSol);
-                        m.Bcc.Add("idelatorre@damsa.com.mx");
-                        m.Bcc.Add("mventura@damsa.com.mx");
-                        m.Bcc.Add("bmorales@damsa.com.mx");
+
                         foreach (var r in aux)
                         {
                             var reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(r.Id) && !x.GrpUsrId.Equals(r.aprobadorId)).Select(rec => new
@@ -2855,10 +2857,9 @@ namespace SAGA.API.Controllers
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA INN");
-                m.Subject = "Requisiciones sin cambio de estatus";
+                m.Subject = "[SAGA] Requisiciones sin cambio de estatus";
 
                 var datos = db.Database.SqlQuery<PausadasDto>("dbo.sp_RequisSinCambio").ToList();
-
 
                 if (datos.Count > 0)
                 {
@@ -2875,7 +2876,6 @@ namespace SAGA.API.Controllers
 
                         m.To.Add(aux[0].email);
                         m.Bcc.Add(aux[0].emailSol);
-                        m.Bcc.Add("idelatorre@damsa.com.mx");
                         m.Bcc.Add("mventura@damsa.com.mx");
                         m.Bcc.Add("bmorales@damsa.com.mx");
                         foreach (var r in aux)
@@ -2941,22 +2941,27 @@ namespace SAGA.API.Controllers
         {
             try
             {
+               
+                string GGEmail = "";
+
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA INN");
-                m.Subject = "Requisiciones pendientes autorizar - Reclutamiento Puro";
+                m.Subject = "[SAGA] Requisiciones pendientes autorizar - Reclutamiento Puro";
 
                 var datos = db.Database.SqlQuery<PausadasDto>("dbo.sp_RequisPuroPendientes").ToList();
-            
-                m.To.Add("idelatorre@damsa.com.mx");
-                m.Bcc.Add("mventura@damsa.com.mx");
-                m.Bcc.Add("bmorales@damsa.com.mx");
+                var datosPA = datos.Where(x => x.estatusId.Equals(43)).ToList();
 
+                GGEmail = db.Usuarios
+                        .Where(u => u.TipoUsuarioId.Equals(14) && u.Departamento.Clave.Equals("GRTS") && u.Activo.Equals(true))
+                        .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
+                        .FirstOrDefault();
+                m.To.Add(GGEmail);
+
+                var inicio = "<html><head><style>td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:9pt;color:Black;font-family:'calibri';} " +
+                                               "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA CREACI&Oacute;N</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>SOLICITA</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th></tr>";
                 if (datos.Count > 0)
                 {
-                    var inicio = "<html><head><style>td {border: solid black 1px;padding-left:5px;padding-right:5px;padding-top:1px;padding-bottom:1px;font-size:9pt;color:Black;font-family:'calibri';} " +
-                                                "</style></head><body style=\"text-align:center; font-family:'calibri'; font-size:10pt;\"><table class='table'><tr><th align=center>DIAS SIN MODIFICAR</th><th align=center>FOLIO</th><th align=center>PERFIL</th><th align=center>FECHA CREACI&Oacute;N</th><th align=center>FECHA CUMPLIMIENTO</th><th align=center>CLIENTE</th><th align=center>SOLICITA</th><th align=center>ESTATUS</th><th align=center>CAMBIO DE ESTATUS</th></tr>";
-
                     var body = "";
                     foreach (var r in datos)
                     {
@@ -2977,8 +2982,47 @@ namespace SAGA.API.Controllers
                     body = "";
 
                     m.To.Clear();
-                    m.Bcc.Clear();
                 }
+                if (datosPA.Count > 0)
+                {
+                    var estados = datosPA.Select(x => x.estadoId).Distinct().ToList();
+                    foreach (var ee in estados)
+                    {
+                        var dtos = datosPA.Where(x => x.estadoId.Equals(ee));
+                        var GrtsEmail = db.Usuarios
+                           .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("GRTS")
+                           && u.Sucursal.estadoId.Equals(ee) && u.Activo.Equals(true))
+                           .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
+                           .ToList();
+                        if (GrtsEmail.Count() > 0)
+                        {
+                            foreach (var e in GrtsEmail)
+                            {
+                                m.To.Add(e);
+                            }
+                            var body = "";
+                            foreach (var r in dtos)
+                            {
+                                body = body + string.Format("<tr><td align=center>{0}</td><td align=center>{1}</td><td align=center>{2}</td><td align=center>{3}</td><td align=center>{4}</td>" +
+                                                               "<td align=center>{5}</td><td align=center>{6}</td><td align=center>{7}</td><td align=center>{8}</td></tr>",
+                                                               r.dias, r.Folio, r.VBtra, r.fch_Creacion, r.fch_Cumplimiento, r.Cliente, r.solicitante, r.estatus, r.fch_Modificacion);
+                            }
+
+                            body = inicio + body + "</table><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
+                            body = body + "</body></html>";
+                            m.Body = body;
+                            m.IsBodyHtml = true;
+                            SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                            smtp.EnableSsl = true;
+                            smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                            smtp.Send(m);
+
+                            m.Body = "";
+                            m.To.Clear();
+                        }
+                    }
+                }
+                
                 return Ok(HttpStatusCode.OK);
 
             }
@@ -2998,7 +3042,7 @@ namespace SAGA.API.Controllers
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA INN");
-                m.Subject = "Requisiciones sin asignar";
+                m.Subject = "[SAGA] Requisiciones sin asignar";
 
                 var datos = db.Database.SqlQuery<PausadasDto>("dbo.sp_RequisSinAsignar").ToList();
 
@@ -3019,7 +3063,6 @@ namespace SAGA.API.Controllers
 
                         m.To.Add(aux[0].email);
                         m.Bcc.Add(aux[0].emailSol);
-                        m.Bcc.Add("idelatorre@damsa.com.mx");
                         m.Bcc.Add("mventura@damsa.com.mx");
                         m.Bcc.Add("bmorales@damsa.com.mx");
                         foreach (var r in aux)
@@ -3089,7 +3132,7 @@ namespace SAGA.API.Controllers
                 string from = "noreply@damsa.com.mx";
                 MailMessage m = new MailMessage();
                 m.From = new MailAddress(from, "SAGA INN");
-                m.Subject = "Requisiciones Vencidas";
+                m.Subject = "[SAGA] Requisiciones Vencidas";
 
                 var datos = db.Database.SqlQuery<PausadasDto>("dbo.sp_RequisVencidas").ToList();
 
@@ -3109,7 +3152,7 @@ namespace SAGA.API.Controllers
 
                         m.To.Add(aux[0].email);
                         m.Bcc.Add(aux[0].emailSol);
-                        m.Bcc.Add("idelatorre@damsa.com.mx");
+
                         m.Bcc.Add("mventura@damsa.com.mx");
                         m.Bcc.Add("bmorales@damsa.com.mx");
                         foreach (var r in aux)

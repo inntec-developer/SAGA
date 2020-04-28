@@ -19,7 +19,9 @@ namespace SAGA.BOL
         public int R_D { get; set; }
         public bool Resumen { get; set; }
         public bool Detalle { get; set; }
+        public Guid UsuarioId { get; set; }
+        public DateTime Fch_Modificacion { get; set; }
 
-        //public virtual Requisicion Requi { get; set; }
+        public virtual Usuarios Usuario { get; set; }
     }
 }

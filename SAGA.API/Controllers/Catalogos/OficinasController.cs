@@ -86,7 +86,7 @@ namespace SAGA.API.Controllers.Catalogos
                 ofi.Activo = true;
                 ofi.fch_Creacion = DateTime.Now;
                 ofi.TipoOficinaId = Convert.ToInt32(tipoOfi);
-                ofi.UnidadNegocioId = 1;
+                ofi.estadoId = Convert.ToInt32(estado);
                 ofi.Orden = 11;
                 ofi.Latitud = latitud;
                 ofi.Longitud = longitud;

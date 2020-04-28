@@ -854,6 +854,83 @@ namespace SAGA.API.Controllers
                 }).ToList().OrderBy(x => x.colonia);
             return Ok(info);
         }
+
+        [HttpGet]
+        [Route("getInstBancaria")]
+        [Authorize]
+        public IHttpActionResult GetInstBancaria()
+        {
+            var bancos = db.CatalogoBancos.OrderBy(o => o.Nombre).Where(x => x.Activo).Select(b => new
+            {
+                b.Id,
+                b.Nombre
+            });
+                
+            return Ok(bancos);
+        }
+
+        [HttpGet]
+        [Route("getMotContratacion")]
+        [Authorize]
+        public IHttpActionResult GetMotContratacion()
+        {
+            var motivos = db.MotivosContratacion.Where(x => x.Activo).Select(m => new
+            {
+                m.Id,
+                motivo = m.Clave + " " + m.Descripcion,
+            });
+
+            return Ok(motivos);
+        }
+
+        [HttpGet]
+        [Route("getEstadoCivil")]
+        [Authorize]
+        public IHttpActionResult GetEstadoCivil()
+        {
+            var motivos = db.EstadosCiviles.Where(x => x.Activo).Select(m => new
+            {
+                m.Id,
+                m.estadoCivil
+            });
+
+            return Ok(motivos);
+        }
+
+        [HttpGet]
+        [Route("getGrupoSanguineo")]
+        [Authorize]
+        public IHttpActionResult GetGrupoSanguineo()
+        {
+            var motivos = db.GrupoSanguineo.Where(x => x.Activo).Select(m => new
+            {
+                m.Id,
+                m.Grupo
+            }).OrderBy(o => o.Grupo);
+
+            return Ok(motivos);
+        }
+        [Route("getEscolaridades")]
+        [Authorize]
+        public IHttpActionResult GetEscolaridades()
+        {
+            var grados = db.GradosEstudios
+                        .Select(e => new
+                        {
+                            Id = e.Id,
+                            gradoEstudio = e.gradoEstudio
+                        })
+                        .OrderBy(c => c.Id);
+            return Ok(grados);
+        }
+        [Route("getFormaPago")]
+        [Authorize]
+        public IHttpActionResult GetFormaPago()
+        {
+            var grados = db.FormaPago
+                        .OrderBy(c => c.Id);
+            return Ok(grados);
+        }
         #endregion
 
         #region Menu de Catalogos

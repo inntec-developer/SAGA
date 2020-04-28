@@ -30,7 +30,8 @@ namespace SAGA.API.Controllers
                     tipos = db.TipoCostos.Where(x => x.CostosId.Equals(c.Id)).Select(cc => new
                     {
                         tipoId = cc.Id,
-                        tipo = cc.Descripcion
+                        tipo = cc.Descripcion,
+                        value = 0
                     })
                 });
                 return Ok(costos);
@@ -43,24 +44,24 @@ namespace SAGA.API.Controllers
         }
         [HttpGet]
         [Route("getCostosByDamfo")]
-        //[Authorize]
+        [Authorize]
         public IHttpActionResult GetCostosByDamfo(Guid damfoId)
         {
             try
             {
-                var costos = db.CostosDamfo290.Where(x => x.Equals(damfoId)).Select(cc => new
+                var costos = db.CostosDamfo290.Where(x => x.DAMFO290Id.Equals(damfoId)).Select(cc => new
                 {
                     costo = cc.TipoCostos.Costos.Descripcion,
-                    tipos = db.TipoCostos.Where(x => x.Id.Equals(cc.TipoCostosId)).Select(tc => new {
-                        tipoId = tc.Id,
-                        tipo = tc.Descripcion,
+                    tipos = new
+                    {
+                        tipoId = cc.TipoCostosId,
+                        tipo = cc.TipoCostos.Descripcion,
                         value = cc.Costo
-                    })
-                
-                }).ToList();
+                    }
+                });
                 return Ok(costos);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Ok(HttpStatusCode.BadRequest);
                 throw;

@@ -905,7 +905,7 @@ namespace SAGA.API.Controllers
                      * Verifica que el usario que intenta ingresar al sistea un se sea empleado de DAMSA.
                      */
                     var activo = db.Database.SqlQuery<Int32>("exec sp_ValidatorLogin @CLAVE", _params).FirstOrDefault();
-
+                    
                     var grupos = db.GruposUsuarios
                                  .Where(g => g.EntidadId.Equals(Data.Id))
                                  .Select(d => d.GrupoId)

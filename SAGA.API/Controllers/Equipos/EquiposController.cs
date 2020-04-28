@@ -109,6 +109,7 @@ namespace SAGA.API.Controllers.Equipos
 
         [HttpGet]
         [Route("getRportGG")]
+        [Authorize]
         public IHttpActionResult GetRportGG(Guid gg)
         {
             List<Guid> uids = new List<Guid>();
@@ -122,7 +123,6 @@ namespace SAGA.API.Controllers.Equipos
                    
                     uids = GetSub(gerentes, uids);
                     uids.Add(gg);
-
 
                     var asignadas = db.AsignacionRequis
                       .OrderByDescending(e => e.Id)

@@ -25,7 +25,6 @@ namespace SAGA.API.Controllers.Equipos
         {
             List<Guid> uids = new List<Guid>();
             int[] estatusId = { 8, 9, 34, 35, 36, 37, 47, 48 };
-            int?[] unidadNegocio = { 0 };
 
             GetSub obj = new GetSub();
            
@@ -96,35 +95,34 @@ namespace SAGA.API.Controllers.Equipos
                 }
                 else if(tipo == 12)
                 {
-                    var UnidadNegocio = db.Usuarios
-                  .Where(u => u.Id.Equals(usuarioId)).Select(u => new { u.Sucursal.UnidadNegocioId, u.Sucursal.UnidadNegocio.Descripcion }).FirstOrDefault();
+                    var estado = db.Usuarios
+               .Where(u => u.Id.Equals(usuarioId)).Select(u => u.Sucursal.estadoId).FirstOrDefault();
+                    //switch (UnidadNegocio.UnidadNegocioId)
+                    //{
+                    //    case 3: //mty
+                    //        int?[] mty = { 6, 7, 10, 19, 28, 24 };
+                    //        unidadNegocio = mty;
+                    //        break;
+                    //    case 1:
+                    //        int?[] gdl = { 1, 3, 8, 11, 14, 16, 18, 2, 25, 26, 32 };
+                    //        unidadNegocio = gdl;
+                    //        break;
+                    //    case 2:
+                    //        int?[] mx = { 4, 5, 9, 12, 13, 15, 17, 20, 21, 22, 23, 27, 29, 30, 31 };
+                    //        unidadNegocio = mx;
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
 
-                    switch (UnidadNegocio.UnidadNegocioId)
-                    {
-                        case 3: //mty
-                            int?[] mty = { 6, 7, 10, 19, 28, 24 };
-                            unidadNegocio = mty;
-                            break;
-                        case 1:
-                            int?[] gdl = { 1, 3, 8, 11, 14, 16, 18, 2, 25, 26, 32 };
-                            unidadNegocio = gdl;
-                            break;
-                        case 2:
-                            int?[] mx = { 4, 5, 9, 12, 13, 15, 17, 20, 21, 22, 23, 27, 29, 30, 31 };
-                            unidadNegocio = mx;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    var reclutadores = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && unidadNegocio.Contains(x.Requisicion.Direccion.EstadoId)).Select(u => new
+                    var reclutadores = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && estado.Equals(x.Requisicion.Direccion.EstadoId)).Select(u => new
                     {
                         clienteId = u.Requisicion.ClienteId,
                         reclutadorId = u.GrpUsrId,
                         tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
-                    }).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && unidadNegocio.Contains(x.Direccion.EstadoId)).Select(u => new
+                    }).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && estado.Equals(x.Direccion.EstadoId)).Select(u => new
                     {
                         clienteId = u.ClienteId,
                         reclutadorId = u.AprobadorId,
@@ -142,7 +140,7 @@ namespace SAGA.API.Controllers.Equipos
 
                     reclutadores.Distinct();
 
-                    var requisTodas = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && unidadNegocio.Contains(x.Direccion.EstadoId)).Select(r => new
+                    var requisTodas = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && estado.Equals(x.Direccion.EstadoId)).Select(r => new
                     {
                         clienteId = r.ClienteId,
                         cliente = r.Cliente.Nombrecomercial,
@@ -280,7 +278,7 @@ namespace SAGA.API.Controllers.Equipos
             {
 
                 var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => e.ClienteId.Equals(cc))
-                    .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 && !e.Confidencial).Select(h => new
+                    .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 && !e.Confidencial && e.EstatusId != 8).Select(h => new
                     {
                         Id = h.Id,
                         Folio = h.Folio,
@@ -289,6 +287,7 @@ namespace SAGA.API.Controllers.Equipos
                         EstatusId = h.EstatusId,
                         cliente = h.Cliente.Nombrecomercial,
                         Vacantes = h.horariosRequi.Count() > 0 ? h.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        fch_Creacion = h.fch_Creacion,
                         Fch_limite = h.fch_Cumplimiento,
                         Postulados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(10)).Select(c => c.CandidatoId).Distinct().Count(),
                         Abandono = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 26).Count(),
@@ -320,7 +319,6 @@ namespace SAGA.API.Controllers.Equipos
         public IHttpActionResult GetRportTableClientes(Guid usuarioId, int orden)
         {
             GetSub obj = new GetSub();
-            int?[] unidadNegocio = { 0 };
             //1 posiciones activas. 2 cubiertas. 3 faltantes. 4 cumplimiento
             List<Guid> uids = new List<Guid>();
             int[] estatusId = { 8, 9, 34, 35, 36, 37, 47, 48 };
@@ -330,7 +328,7 @@ namespace SAGA.API.Controllers.Equipos
 
                 if (tipo == 14 || tipo == 8 || tipo == 13)
                 {
-                    var total = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && !x.Confidencial).Select(res => new
+                    var total = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && !x.Confidencial && x.EstatusId != 8).Select(res => new
                     {
                         requisicionId = res.Id,
                         estatusId = res.EstatusId,
@@ -370,28 +368,10 @@ namespace SAGA.API.Controllers.Equipos
                 }
                 else if (tipo == 12)
                 {
-                    var UnidadNegocio = db.Usuarios
-                  .Where(u => u.Id.Equals(usuarioId)).Select(u => new { u.Sucursal.UnidadNegocioId, u.Sucursal.UnidadNegocio.Descripcion }).FirstOrDefault();
+                    var estado = db.Usuarios
+                  .Where(u => u.Id.Equals(usuarioId)).Select(u => u.Sucursal.estadoId).FirstOrDefault();
 
-                    switch (UnidadNegocio.UnidadNegocioId)
-                    {
-                        case 3: //mty
-                            int?[] mty = { 6, 7, 10, 19, 28, 24 };
-                            unidadNegocio = mty;
-                            break;
-                        case 1:
-                            int?[] gdl = { 1, 3, 8, 11, 14, 16, 18, 2, 25, 26, 32 };
-                            unidadNegocio = gdl;
-                            break;
-                        case 2:
-                            int?[] mx = { 4, 5, 9, 12, 13, 15, 17, 20, 21, 22, 23, 27, 29, 30, 31 };
-                            unidadNegocio = mx;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    var total = db.Requisiciones.Where(x => unidadNegocio.Contains(x.Direccion.EstadoId) && !estatusId.Contains(x.EstatusId) && !x.Confidencial).Select(res => new
+                    var total = db.Requisiciones.Where(x => estado.Equals(x.Direccion.EstadoId) && !estatusId.Contains(x.EstatusId) && !x.Confidencial && x.EstatusId != 8).Select(res => new
                     {
                         requisicionId = res.Id,
                         estatusId = res.EstatusId,
@@ -440,7 +420,7 @@ namespace SAGA.API.Controllers.Equipos
                     var asignadas = db.AsignacionRequis
                       .OrderByDescending(e => e.Id)
                       .Where(a => uids.Distinct().Contains(a.GrpUsrId) 
-                          && !estatusId.Contains(a.Requisicion.EstatusId) && !a.Requisicion.Confidencial)
+                          && !estatusId.Contains(a.Requisicion.EstatusId) && !a.Requisicion.Confidencial )
                       .Select(a => a.RequisicionId)
                       .Distinct()
                       .ToList();
@@ -452,7 +432,7 @@ namespace SAGA.API.Controllers.Equipos
 
                     var AllRequis = requis.Union(asignadas).Distinct().ToList();
 
-                    var total = db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id) && !estatusId.Contains(x.EstatusId) && x.Activo).Select(res => new
+                    var total = db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id) && !estatusId.Contains(x.EstatusId) && x.Activo && x.EstatusId != 8).Select(res => new
                     {
                         requisicionId = res.Id,
                         estatusId = res.EstatusId,

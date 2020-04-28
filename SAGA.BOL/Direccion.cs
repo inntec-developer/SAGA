@@ -15,7 +15,7 @@ namespace SAGA.BOL
         public string NumeroExterior { get; set; } 
         public int PaisId { get; set; }
         public virtual Pais Pais { get; set; } 
-        public int? EstadoId { get; set; }         
+        public int EstadoId { get; set; }         
         public virtual Estado Estado { get; set; } 
         public int? MunicipioId { get; set; }        
         public virtual Municipio Municipio { get; set; }        

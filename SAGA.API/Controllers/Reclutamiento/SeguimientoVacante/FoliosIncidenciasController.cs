@@ -89,8 +89,8 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                RastreabilidadMes RM = new RastreabilidadMes();
-                Transferencias Transf = new Transferencias();
+                //RastreabilidadMes RM = new RastreabilidadMes();
+                //Transferencias Transf = new Transferencias();
 
                 var folio = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(F => F.Folio).FirstOrDefault();
                 var datos = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(requi) && x.ReclutadorId.Equals(reclutadorId)).Select(r => new
@@ -100,28 +100,28 @@ namespace SAGA.API.Controllers
                     candidatoId = r.CandidatoId
                 }).ToList();
 
-                var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
-                var tmId = aux.Where(x => x.folio == folio.ToString()).Select(ID => new { id = ID.id }).ToList();
+               // var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
+               // var tmId = aux.Where(x => x.folio == folio.ToString()).Select(ID => new { id = ID.id }).ToList();
 
-               var trans = db.Database.BeginTransaction();
+               //var trans = db.Database.BeginTransaction();
 
                 try
                 {
-                    Transf.antId = reclutadorId;
-                    Transf.actId = reclutadorId2;
-                    Transf.requisicionId = requi;
-                    Transf.tipoTransferenciaId = 2;
-                    Transf.fch_Modificacion = DateTime.Now;
+                    //Transf.antId = reclutadorId;
+                    //Transf.actId = reclutadorId2;
+                    //Transf.requisicionId = requi;
+                    //Transf.tipoTransferenciaId = 2;
+                    //Transf.fch_Modificacion = DateTime.Now;
 
-                    db.Transferencias.Add(Transf);
-                    db.SaveChanges();
+                    //db.Transferencias.Add(Transf);
+                    //db.SaveChanges();
 
-                    RM.TrazabilidadMesId = tmId[0].id;
-                    RM.TipoAccionId = 3;
-                    RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
-                    RM.Descripcion = "Actualizacion (UPDATE)";
-                    db.RastreabilidadMes.Add(RM);
-                    db.SaveChanges();
+                    //RM.TrazabilidadMesId = tmId[0].id;
+                    //RM.TipoAccionId = 3;
+                    //RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
+                    //RM.Descripcion = "Actualizacion (UPDATE)";
+                    //db.RastreabilidadMes.Add(RM);
+                    //db.SaveChanges();
 
                  
                     foreach (var p in datos) //nuevo reclutador
@@ -156,7 +156,7 @@ namespace SAGA.API.Controllers
                         db.SaveChanges();
                     }
 
-                    trans.Commit();
+                    //trans.Commit();
 
                     var descripcion = "Se realizó una transferencia del usuario " + db.Usuarios.Where(x => x.Id.Equals(reclutadorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault() + " a " + db.Usuarios.Where(x => x.Id.Equals(reclutadorId2)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault() + " se transfirieron " + datos.Count() + " candidatos en proceso";
                     this.EnviarEmailTransfer(requi, usuario, descripcion, reclutadorId, reclutadorId2);
@@ -164,7 +164,7 @@ namespace SAGA.API.Controllers
                 }
                 catch (Exception ex)
                 {
-                    trans.Rollback();
+                    //trans.Rollback();
                 }
 
                 return Ok(HttpStatusCode.OK);
@@ -176,72 +176,43 @@ namespace SAGA.API.Controllers
 
         }
 
-        //public IHttpActionResult TransferRequiCandidato(Guid requiAnt, Guid requiAct, Guid usuario, Guid candidatoId)
-        //{
-        //    try
-        //    {
-        //        RastreabilidadMes RM = new RastreabilidadMes();
-        //        Transferencias Transf = new Transferencias();
+        public IHttpActionResult TransferDamfo(Guid damfoId, Guid usuarioAnt, Guid usuarioTransfer)
+        {
+            try
+            {
+                Transferencias Transf = new Transferencias();
+                var user = db.Usuarios.Where(x => x.Id.Equals(usuarioTransfer)).Select(u => u.Usuario).FirstOrDefault();
+                var idDamfo = db.DAMFO290.Find(damfoId);
+                db.Entry(idDamfo).Property(x => x.UsuarioAlta).IsModified = true;
+                db.Entry(idDamfo).Property(x => x.UsuarioMod).IsModified = true;
 
-        //        var folio = db.Requisiciones.Where(x => x.Id.Equals(requiAct)).Select(F => F.Folio).FirstOrDefault();
-        //        var datos = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(requiAnt) && x.CandidatoId.Equals(candidatoId)).Select(r => new
-        //        {
-        //            id = r.Id,
-        //            candidato = db.Usuarios.Where(x => x.Id.Equals(r.CandidatoId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault(),
-        //            candidatoId = r.CandidatoId,
-        //            folio = r.Requisicion.Folio
-        //        }).ToList();
+                idDamfo.UsuarioAlta = user;
+                idDamfo.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuarioAnt)).Select(u => u.Usuario).FirstOrDefault();
 
-        //        var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
-        //        var tmId = aux.Where(x => x.folio == folio.ToString()).Select(ID => new { id = ID.id }).ToList();
+                Transf.antId = usuarioAnt;
+                Transf.actId = usuarioTransfer;
+                Transf.requisicionId = damfoId;
+                Transf.tipoTransferenciaId = 4;
+                Transf.fch_Modificacion = DateTime.Now;
 
-        //        var trans = db.Database.BeginTransaction();
+                db.Transferencias.Add(Transf);
+                db.SaveChanges();
 
-        //        var descripcion = "Se realizó una transferencia de requisición " + datos[0].folio + " a " + folio;
-           
-        //        try
-        //        {
-        //            Transf.antId = candidatoId;
-        //            Transf.actId = candidatoId;
-        //            Transf.requisicionId = requiAct;
-        //            Transf.tipoTransferenciaId = 3; 
-        //            Transf.fch_Modificacion = DateTime.Now;
+                //this.EnviarEmailTransfer(requi, usuario, descripcion, usuarioAux, coorId);
 
-        //            db.Transferencias.Add(Transf);
-        //            db.SaveChanges();
-
-        //            RM.TrazabilidadMesId = tmId[0].id;
-        //            RM.TipoAccionId = 5; // movimiento especial
-        //            RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
-        //            RM.Descripcion = "Actualizacion (UPDATE)";
-        //            db.RastreabilidadMes.Add(RM);
-        //            db.SaveChanges();
-
-        //            var c = db.ProcesoCandidatos.Find(datos[0].id);
-        //            db.Entry(c).Property(x => x.EstatusId).IsModified = true;
-
-        //            c.Fch_Modificacion = DateTime.Now;
-        //            c.EstatusId = 27;
-
-        //            db.SaveChanges();
-        //            trans.Commit();
-
-        //            //this.EnviarEmailTransfer(requi, usuario, descripcion, usuarioAux, coorId);
-
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            trans.Rollback();
-        //        }
-
-        //        return Ok(HttpStatusCode.OK);
-        //    }
+                return Ok(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
         public IHttpActionResult TransferRequi(Guid requi, Guid coorId, Guid usuario, int tipo)
         {
             try
             {
-                RastreabilidadMes RM = new RastreabilidadMes();
-                Transferencias Transf = new Transferencias();
+                //RastreabilidadMes RM = new RastreabilidadMes();
+                //Transferencias Transf = new Transferencias();
                 RequisicionesController rc = new RequisicionesController();
                 
                 string descripcion = "";
@@ -258,8 +229,8 @@ namespace SAGA.API.Controllers
                     VBtra = r.VBtra
                 }).ToList();
 
-                var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
-                var tmId = aux.Where(x => x.folio == datos[0].folio.ToString()).Select(ID => new { id = ID.id }).ToList();
+                //var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
+                //var tmId = aux.Where(x => x.folio == datos[0].folio.ToString()).Select(ID => new { id = ID.id }).ToList();
 
                 if (tipo == 1) //cambio coord
                 {
@@ -272,25 +243,25 @@ namespace SAGA.API.Controllers
                     descripcion = "Se realizó una transferencia del usuario " + datos[0].solicitante + " a " + db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault();
                 }
                 
-                var trans = db.Database.BeginTransaction();
+                //var trans = db.Database.BeginTransaction();
 
-                try
-                {
-                    Transf.antId = usuarioAux;
-                    Transf.actId = coorId;
-                    Transf.requisicionId = requi;
-                    Transf.tipoTransferenciaId = tipo;
-                    Transf.fch_Modificacion = DateTime.Now;
+                //try
+                //{
+                //    Transf.antId = usuarioAux;
+                //    Transf.actId = coorId;
+                //    Transf.requisicionId = requi;
+                //    Transf.tipoTransferenciaId = tipo;
+                //    Transf.fch_Modificacion = DateTime.Now;
 
-                    db.Transferencias.Add(Transf);
-                    db.SaveChanges();
+                //    db.Transferencias.Add(Transf);
+                //    db.SaveChanges();
 
-                    RM.TrazabilidadMesId = tmId[0].id;
-                    RM.TipoAccionId = 3;
-                    RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
-                    RM.Descripcion = "Actualizacion (UPDATE)";
-                    db.RastreabilidadMes.Add(RM);
-                    db.SaveChanges();
+                //    RM.TrazabilidadMesId = tmId[0].id;
+                //    RM.TipoAccionId = 3;
+                //    RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
+                //    RM.Descripcion = "Actualizacion (UPDATE)";
+                //    db.RastreabilidadMes.Add(RM);
+                //    db.SaveChanges();
 
                     var R = db.Requisiciones.Find(requi);
                     if (tipo == 1)
@@ -302,9 +273,8 @@ namespace SAGA.API.Controllers
                             {
                                 RequisicionId = requi,
                                 GrpUsrId = coorId,
-                                CRUD = "",
-                                UsuarioAlta = RM.UsuarioMod,
-                                UsuarioMod = RM.UsuarioMod,
+                                UsuarioAlta = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault(),
+                                UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault(),
                                 fch_Modificacion = DateTime.Now
                             };
                             ar.Add(asg);
@@ -313,7 +283,9 @@ namespace SAGA.API.Controllers
                         else
                         {
                             db.Entry(R).Property(r => r.AprobadorId).IsModified = true;
+                            db.Entry(R).Property(r => r.Aprobador).IsModified = true;
                             R.AprobadorId = coorId;
+                            R.Aprobador = db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(u => u.Usuario).FirstOrDefault();
                             db.SaveChanges();
                         }
                         
@@ -321,18 +293,20 @@ namespace SAGA.API.Controllers
                     else
                     {
                         db.Entry(R).Property(r => r.PropietarioId).IsModified = true;
+                        db.Entry(R).Property(r => r.Propietario).IsModified = true;
                         R.PropietarioId = coorId;
+                        R.Propietario = db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(u => u.Usuario).FirstOrDefault();
                         db.SaveChanges();
                     }
-                    trans.Commit();
+                    //trans.Commit();
 
                     this.EnviarEmailTransfer(requi, usuario, descripcion, usuarioAux, coorId);
 
-                }
-                catch(Exception ex)
-                {
-                    trans.Rollback();
-                }
+                //}
+                //catch(Exception ex)
+                //{
+                //    trans.Rollback();
+                //}
                
                 return Ok(HttpStatusCode.OK);
             }
@@ -380,7 +354,7 @@ namespace SAGA.API.Controllers
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
-                    m.Subject = "Solicitud vacante en pausa Requisición, " + propietario.folio;
+                    m.Subject = "[SAGA] Solicitud vacante en pausa Requisición, " + propietario.folio;
 
                     m.To.Add(emailCoord);
                     m.Bcc.Add(emailSolicitante);
@@ -453,7 +427,7 @@ namespace SAGA.API.Controllers
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
-                    m.Subject = "Solicitud vacante en pausa Requisición, " + propietario.folio;
+                    m.Subject = "[SAGA] Solicitud vacante en pausa Requisición, " + propietario.folio;
 
                     m.To.Add(emailCoord);
                     m.Bcc.Add(emailSolicitante);
@@ -546,7 +520,7 @@ namespace SAGA.API.Controllers
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
-                    m.Subject = "Reporte posible NR en Requisición, " + folio;
+                    m.Subject = "[SAGA] Reporte posible NR en Requisición, " + folio;
 
                     m.To.Add(emailSolicitante);
                     m.Bcc.Add(usuario.email.ToString());
@@ -644,7 +618,7 @@ namespace SAGA.API.Controllers
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
-                    m.Subject = "Seguimiento posible NR Requisición, " + folio;
+                    m.Subject = "[SAGA] Seguimiento posible NR Requisición, " + folio;
 
                     m.To.Add(emailSolicitante);
                     m.Bcc.Add(aprovadorEmail);
@@ -722,7 +696,7 @@ namespace SAGA.API.Controllers
                     string from = "noreply@damsa.com.mx";
                     MailMessage m = new MailMessage();
                     m.From = new MailAddress(from, "SAGA Inn");
-                    m.Subject = "Transferencia de Requisición";
+                    m.Subject = "[SAGA] Transferencia de Requisición";
 
                     //m.To.Add("idelatorre@damsa.com.mx");
                     m.To.Add(user.email);
@@ -739,7 +713,7 @@ namespace SAGA.API.Controllers
                         m.Bcc.Add(e.emails.ToString());
                     }
 
-                    m.Bcc.Add("idelatorre@damsa.com.mx");
+                    m.Bcc.Add("mventura@damsa.com.mx");
 
                     body = "<html><head></head>";
                     body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";

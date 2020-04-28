@@ -11,7 +11,10 @@ namespace SAGA.BOL
         public int Id { get; set; }
         public string Descripcion { get; set; }
         public bool Activo { get; set; }
-
-        public ICollection<OficinaReclutamiento> OficinasReclutamiento { get; set; }
+        public string Clave { get; set; }
+        public DateTime fch_Creacion { get; set; }
+        public DateTime fch_Modificacion { get; set; }
+        public Guid usuarioAlta { get; set; }
+        public Guid usuarioMod { get; set; }
     }
 }

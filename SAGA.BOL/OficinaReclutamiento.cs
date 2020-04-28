@@ -18,9 +18,9 @@ namespace SAGA.BOL
         public DateTime fch_Creacion { get; set; }
         public string UsuarioMod { get; set; }
         public DateTime? fch_Modificacion { get; set; }
-        public int UnidadNegocioId { get; set; }
+        public int estadoId { get; set; }
 
-        public UnidadNegocio UnidadNegocio { get; set; }
+        public Estado Estado { get; set; }
         public TipoOficina TipoOficina { get; set; }
     }
 }

@@ -59,8 +59,10 @@ namespace SAGA.API.Controllers
                 {
                     E.TipoExamenId = Objeto[0].TipoExamen.Id;
                     E.Nombre = Objeto[0].TipoExamen.Nombre;
-                    E.Descripcion = "SIN ASIGNAR";
-
+                    E.Descripcion = Objeto[0].Descripcion;
+                    E.UsuarioId = Objeto[0].usuarioId;
+                    E.fch_Modificacion = DateTime.Now;
+                    
                     db.Examenes.Add(E);
                     db.SaveChanges();
 
@@ -84,7 +86,7 @@ namespace SAGA.API.Controllers
                             this.GuardarImagen(nom, obj.Pregunta.file, obj.Pregunta.type);
                           
                         }
-                        if(obj.Pregunta.Tipo == 2)
+                        if(obj.Pregunta.Tipo >= 2)
                         {
                             foreach (RespuestaDto r in obj.Respuestas)
                             {
@@ -200,10 +202,33 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getExamenes")]
+        public IHttpActionResult GetExamenes()
+        {
+            var examenes = db.Examenes.Select(e => new
+            {
+                id = e.Id,
+                tipo = e.TipoExamen.Nombre,
+                examen = e.Nombre,
+                descripcion = e.Descripcion,
+                fch_Creacion = DateTime.Now,
+                usuario = "INNTEC",
+                numPreguntas = db.Preguntas.Where(x => x.ExamenId.Equals(e.Id)).Count()
+            }).OrderBy(o => o.tipo);
+            return Ok(examenes);
+        }
+        [HttpGet]
+        [Route("getExamenes")]
         public IHttpActionResult GetExamenes(int tipoexamenId)
         {
-            var examenes = db.Examenes.Where(x => x.TipoExamenId.Equals(tipoexamenId)).ToList();
-            return Ok(examenes);
+            try
+            {
+                var examenes = db.Examenes.Where(x => x.TipoExamenId.Equals(tipoexamenId)).ToList();
+                return Ok(examenes);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
         }
 
         public string GetImage(string ruta, string nom)
@@ -252,7 +277,8 @@ namespace SAGA.API.Controllers
                         respuestaId = R.Id,
                         resp = string.IsNullOrEmpty(R.Respuesta) ? "Pregunta Abierta" : R.Respuesta,
                         value = R.Validacion,
-                    }).OrderBy(o => Guid.NewGuid()).ToList(),
+
+                    }).OrderByDescending(o => o.value).ToList(),
                     tipo = E.Tipo,
 
                 }).ToList();
@@ -264,7 +290,12 @@ namespace SAGA.API.Controllers
                     preguntaId = E.preguntaId,
                     pregunta = E.pregunta,
                     file = GetImage("/utilerias/img/Examenes/Preguntas/", "_" + E.preguntaId + "_"),
-                    respuestas = E.respuestas,
+                    respuestas = E.respuestas.Select(r => new {
+                        respuestaId = r.respuestaId,
+                        resp = r.resp,
+                        value = r.value,
+                        file = GetImage("/utilerias/img/Examenes/Respuestas/", "_" + r.respuestaId + "_"),
+                    }),
                     tipo = E.tipo,
                 });
 
@@ -442,17 +473,17 @@ namespace SAGA.API.Controllers
                 clientes.Add(new Guid("9ACB8014-7C54-E811-80E0-9E274155325E"));
                 clientes.Add(new Guid("DB654F3E-7C54-E811-80E0-9E274155325E"));
 
-                var candidatosFac = db.MedicosCandidato.Where(x => clientes.Contains(x.ClienteId)).Select(c => c.CandidatoId).ToList();
-
-                var requis = db.Requisiciones.OrderBy(o => o.fch_Creacion).Where(x => clientes.Contains(x.ClienteId) && x.Activo).GroupBy(g => g.ClienteId).Select(R => new {
+                var candidatosFac = db.MedicosCandidato.Select(c => c.CandidatoId).ToList();
+                var damfo = db.CostosDamfo290.Where(x => x.TipoCostos.Costos.Descripcion.Equals("MEDICOS")).Select(r => r.DAMFO290Id).ToList();
+                var requis = db.Requisiciones.OrderBy(o => o.fch_Creacion).Where(x => damfo.Contains(x.DAMFO290Id) && x.Activo).GroupBy(g => g.ClienteId).Select(R => new {
                     clienteId = R.Key,
                     cliente = db.Clientes.Where(x => x.Id.Equals(R.Key)).Select(C => C.Nombrecomercial).FirstOrDefault(),
                     razon = db.Clientes.Where(x => x.Id.Equals(R.Key)).Select(C => C.RazonSocial).FirstOrDefault(),
                     examenes = R.Select(e => 
-                        db.ExamenesMedicosCliente.Where(x => x.ClienteId.Equals(e.ClienteId)).Select(ee => new
+                        db.CostosDamfo290.Where(x => x.DAMFO290Id.Equals(e.DAMFO290Id)).Select(ee => new
                         {
                             id = ee.Id,
-                            examen = ee.TipoExamenMedico.Descripcion,
+                            examen = ee.TipoCostos.Descripcion,
                             costo = ee.Costo
                         })
                     ).ToList(),
@@ -493,25 +524,25 @@ namespace SAGA.API.Controllers
             try
             {
                 MedicoCandidato RC = new MedicoCandidato();
-
+                List<Guid> requis = new List<Guid>();
+                TipoExamenDto aux = new TipoExamenDto();
                 foreach (var rc in resultado)
                 {
                     RC.CandidatoId = rc.CandidatoId;
-                    RC.ClienteId = rc.ClienteId;
+                    RC.RequisicionId = rc.RequisicionId;
                     RC.Resultado = rc.Resultado;
                     RC.Facturado = rc.Facturado;
                     RC.fch_Modificacion = DateTime.Now;
 
                     db.MedicosCandidato.Add(RC);
-                    db.SaveChanges();
-
+                    //   db.SaveChanges();
+                    requis.Add(rc.RequisicionId);
                     RC = new MedicoCandidato();
                 }
-                Guid mocos = resultado[0].ClienteId;
-                var costoExamen = db.ExamenesMedicosCliente.Where(x => x.ClienteId.Equals(mocos) && x.TipoExamenMedicoId.Equals(1)).Select(C => C.Costo).FirstOrDefault();
-                double monto = Convert.ToDouble(costoExamen * resultado.Count());
+         //      List<Guid> damfos = db.Requisiciones.Where(x => requis.Distinct().Contains(x.Id)).Select(d => d.DAMFO290Id).Distinct().ToList();
 
-                this.EnviarEmailMedicos(resultado[0].ClienteId, resultado.Count(), monto);
+           
+                this.EnviarEmailMedicos(requis, resultado.Count());
                 return Ok(HttpStatusCode.OK);
             }
             catch (Exception ex)
@@ -585,24 +616,23 @@ namespace SAGA.API.Controllers
             return Ok(resultado);
         }
 
-        public IHttpActionResult EnviarEmailMedicos(Guid clienteId, int num, double monto)
+        public IHttpActionResult EnviarEmailMedicos(List<Guid> requis, int candidatos)
         {
             try
             {
-                var informacion = db.Clientes.Where(x => x.Id.Equals(clienteId)).Select(p => new {
-                    cliente = p.Nombrecomercial,
-                    razon = p.RazonSocial,
-                    estado = p.direcciones.Select(d => d.Estado.estado).FirstOrDefault()
+                Guid requi = requis[0];
+
+                var requisiciones = db.Requisiciones.Where(x => x.Id.Equals(requi) && x.Activo).Select(R => new {
+                    clienteId = R.ClienteId,
+                    cliente = R.Cliente.Nombrecomercial,
+                    razon = R.Cliente.RazonSocial,
+                    estado = R.Cliente.direcciones.Select(x => x.Estado.estado).FirstOrDefault(),
+                    examenes = db.CostosDamfo290.Where(x => x.DAMFO290Id.Equals(R.DAMFO290Id)).Select(e => new {
+                        examen = e.TipoCostos.Descripcion,
+                        costo = e.Costo
+                    }).ToList()
                 }).FirstOrDefault();
-                //var emailCoord = db.Emails.Where(x => x.EntidadId.Equals(informacion.coordinador)).Select(e => e.email).FirstOrDefault();
-                //var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(informacion.solicitante)).Select(e => e.email).FirstOrDefault();
-                //var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi)).Select(A => new
-                //{
-                //    emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
-                //}).ToList();
-
-        
-
+      
                 string email = "bmorales@damsa.com.mx";
                 string body = "";
                 // email = "idelatorre@damsa.com.mx";
@@ -613,18 +643,20 @@ namespace SAGA.API.Controllers
                     m.From = new MailAddress(from, "SAGA Inn");
                     m.Subject = "Solicitud de Facturación REACTIVOS MEDICOS";
 
-                    m.To.Add("idelatorre@damsa.com.mx");
-                    //m.Bcc.Add(emailSolicitante);
-                   
-                    m.Bcc.Add("bmorales@damsa.com.mx");
+                    m.To.Add(email);
 
-                    body = string.Format("<p>Por este medio se les informa que se requiere facturar #Reactivos M&eacute;dicos al cliente <strong>{0}</strong>.</p>", informacion.cliente);
-                    //body = body + string.Format("<br/><br/><p>Empresa: {0}</p>", informacion.cliente);
-                    body = body + string.Format("<br/><p>Raz&oacute;n Social: {0}</p>", informacion.razon);
-                    body = body + string.Format("<p>Estado: {0}</p>", informacion.estado);
-                    //body = body + string.Format("<p>Puesto: {0}</p>", informacion.vbtra);
-                    body = body + string.Format("<p>N&uacute;mero Reactivos: {0}</p>", num);
-                    body = body + string.Format("<p>Monto a Facturar: ${0} </p>", monto);
+                    body = string.Format("<p>Por este medio se les informa que se requiere facturar #Reactivos M&eacute;dicos para el cliente {0}</p>", requisiciones.cliente);
+                        body = body + string.Format("<br/><p>Raz&oacute;n Social: {0}</p>", requisiciones.razon);
+                        body = body + string.Format("<p>Estado: {0}</p><br/>", requisiciones.estado);
+                        foreach (var rr in requisiciones.examenes)
+                        {
+                            body = body + string.Format("<p>Tipo Examen: {0}</p>", rr.examen);
+                            body = body + string.Format("<p>Costo Reactivo: ${0} </p>", rr.costo);
+
+                        }
+                    body = body + string.Format("<p>N&uacute;mero Reactivos: {0}</p>", requis.Count());
+                    body = body + string.Format("<p>Monto a Facturar: ${0} </p><br/><br/>", requisiciones.examenes.Sum(s => s.costo) * requis.Count() );
+                
                     body = body + "<br/><br/><br/><p>Favor de corroborar esta informaci&oacute;n y dar el seguimiento correspondiente.</p>";
                     body = body + "<br/><br/><p>Me despido de usted agradeciendo su atenci&oacute;n y enviandole un cordial saludo.</p>";
 

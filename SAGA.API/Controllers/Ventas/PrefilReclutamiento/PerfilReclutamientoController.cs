@@ -310,7 +310,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                             Competencia = cc.Competencia.competenciaGerencial,
                             CompetenciaId = cc.CompetenciaId
                         }).ToList(),
-                        Arte = @"https://apisb.damsa.com.mx/utilerias/" + "img/ArteRequi/BG/" + p.Arte,
+                        Arte = p.Arte,
                     })
                     .FirstOrDefault();
                 return Ok(anexos);
@@ -340,6 +340,23 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                 })
             };
             return Ok(reclutamiento);
+        }
+
+        [HttpGet]
+        [Route("getTopHorarios")]
+        public IHttpActionResult GetTopHorarios()
+        {
+            var horarios = db.HorariosPerfiles.Where(x => x.aDia.tipo.Equals(3)).Select(h => new
+            {
+                nombre = h.Nombre,
+                deDiaId = h.deDiaId,
+                deDia = h.deDia.diaSemana,
+                aDiaId = h.aDiaId,
+                aDia = h.aDia.diaSemana,
+                deHora = h.deHora,
+                aHora = h.aHora
+            }).ToList().Distinct();
+            return Ok(horarios);
         }
         #endregion
 
@@ -1222,10 +1239,16 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         db.AptitudesPerfil.AddRange(pf.Collections.aptitudesPerfil);
 
                         // costos 
-                        var cost = db.CostosDamfo290.Where(x => x.DAMFO290Id == pf.Headers.Id);
-                        db.CostosDamfo290.RemoveRange(cost);
-                        db.CostosDamfo290.AddRange(pf.Collections.costos);
-
+                        var cost = db.CostosDamfo290.Where(x => x.DAMFO290Id == pf.Headers.Id).ToList();
+                        if(cost.Count() > 0 && !pf.Headers.Costos)
+                        {
+                            db.CostosDamfo290.RemoveRange(cost);
+                            db.CostosDamfo290.AddRange(pf.Collections.costos);
+                        }
+                        else if(cost.Count() == 0 && !pf.Headers.Costos)
+                        {
+                            db.CostosDamfo290.AddRange(pf.Collections.costos);
+                        }
                         var up = db.DAMFO290.Find(pf.Headers.Id);
                         db.Entry(up).State = EntityState.Modified;
                         up.TipoReclutamientoId = pf.Headers.TipoReclutamientoId;

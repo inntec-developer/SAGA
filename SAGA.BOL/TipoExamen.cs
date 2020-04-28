@@ -14,7 +14,12 @@ namespace SAGA.BOL
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public bool Activo { get; set; }
+        public Guid UsuarioId { get; set; }
+        public DateTime fch_Creacion { get; set; }
+        public Guid UsuarioMod { get; set; }
+        public DateTime fch_Modificacion { get; set; }
 
+        public Usuarios Usuario { get; set; }
 
     }
 }

@@ -29,6 +29,7 @@ namespace SAGA.API.Dtos
         public byte OpcionRegistro { get; set; }
         public Guid requisicionId { get; set; }
         public Guid reclutadorId { get; set; }
+        public Guid reclutadorCampoId { get; set; }
         public Guid horarioId { get; set; }
         public int tipoMediosId { get; set; }
 

@@ -77,137 +77,108 @@ namespace SAGA.API.Controllers
             ProcesoCandidato proceso = new ProcesoCandidato();
             PerfilCandidato PC = new PerfilCandidato();
             ProcesoDto PCDto = new ProcesoDto();
+            AspNetUsers usuario = new AspNetUsers();
 
-            //foreach (var r in datos)
-            //{
-                //var tran = db.Database.BeginTransaction();
-                try
-                {
-                    AspNetUsers usuario = new AspNetUsers();
-                    var username = "";
-                    var pass = datos.Nombre.Substring(0, 1).ToLower() + datos.ApellidoPaterno.Trim().ToLower();
-                    if(pass.Length < 7)
-                    {
-                        pass.PadLeft(7, '0');
-                    }
-                    if (datos.OpcionRegistro == 1)
-                    {
-                        username = datos.Email[0].email.ToString();
-                    }
-                    else
-                    {
-                        username = datos.Telefono[0].ClaveLada.ToString() + datos.Telefono[0].telefono.ToString();
-                    }
-                    usuario.Id = Guid.NewGuid().ToString();
-                    usuario.PhoneNumber = datos.Telefono[0].telefono.ToString();
-                    usuario.Clave = "00000";
-                    usuario.Pasword = pass;
-                    usuario.RegistroClave = DateTime.Now;
-                    usuario.PhoneNumberConfirmed = false;
-                    usuario.EmailConfirmed = true;
-                    usuario.LockoutEnabled = false;
-                    usuario.AccessFailedCount = 0;
-                    usuario.Email = datos.Email[0].email.ToString();
-                    usuario.UserName = username;
-                    usuario.Activo = 0;
-
-                    db.AspNetUsers.Add(usuario);
-                    db.SaveChanges();
-
-                    var add = db.Database.ExecuteSqlCommand("spEncriptarPasword @id", new SqlParameter("id", usuario.Id));
-
-                    candidato.CURP = datos.Curp;
-                    candidato.Nombre = datos.Nombre;
-                    candidato.ApellidoPaterno = datos.ApellidoPaterno;
-                    candidato.ApellidoMaterno = datos.ApellidoMaterno;
+            try
+            {
+                candidato.CURP = datos.Curp;
+                candidato.Nombre = datos.Nombre;
+                candidato.ApellidoPaterno = datos.ApellidoPaterno;
+                candidato.ApellidoMaterno = datos.ApellidoMaterno;
                        
-                    candidato.PaisNacimientoId = 42;
-                    candidato.EstadoNacimientoId = datos.EstadoNacimientoId;
-                    candidato.MunicipioNacimientoId = 0;
-                        
-                    candidato.GeneroId = datos.GeneroId;
-                    candidato.TipoEntidadId = 2;
-                    candidato.FechaNacimiento = datos.FechaNac;
+                candidato.PaisNacimientoId = 42;
+                candidato.EstadoNacimientoId = datos.EstadoNacimientoId;
+                candidato.MunicipioNacimientoId = 0;
+                      
+                candidato.GeneroId = datos.GeneroId;
+                candidato.TipoEntidadId = 2;
+                candidato.FechaNacimiento = datos.FechaNac;
+                candidato.emails = datos.Email;
+                candidato.telefonos = datos.Telefono;
 
-                    if(datos.OpcionRegistro == 1)
-                    {
-                        candidato.emails = datos.Email;
-                    }
-                    else
-                    {
-                        candidato.telefonos = datos.Telefono;
-                    }
+                db.Candidatos.Add(candidato);
+                db.SaveChanges();
 
-                    db.Candidatos.Add(candidato);
-                    db.SaveChanges();
+                PC.CandidatoId = candidato.Id;
+                PC.Estatus = 41;
 
-                    PC.CandidatoId = candidato.Id;
-                    PC.Estatus = 41;
+                db.PerfilCandidato.Add(PC);
 
-                    db.PerfilCandidato.Add(PC);
+                var horario = auxID;
+                if (datos.horarioId == auxID)
+                {
+                    horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(datos.requisicionId)).Select(h => h.Id).FirstOrDefault();
+                }
+                else
+                {
+                    horario = datos.horarioId;
+                }
 
-                    db.SaveChanges();
+                proceso.CandidatoId = candidato.Id;
+                proceso.RequisicionId = datos.requisicionId;
+                proceso.Folio = db.Requisiciones.Where(x => x.Id.Equals(datos.requisicionId)).Select(R => R.Folio).FirstOrDefault();
+                proceso.Reclutador = "SIN ASIGNAR";
+                proceso.ReclutadorId = datos.reclutadorId;
+                proceso.EstatusId = 12;
+                proceso.TpContrato = 0;
+                proceso.HorarioId = horario;
+                proceso.Fch_Modificacion = DateTime.Now;
+                proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
+                proceso.TipoMediosId = datos.tipoMediosId;
 
-                    var t = db.AspNetUsers.Find(usuario.Id);
+                db.ProcesoCandidatos.Add(proceso);
+                db.SaveChanges();
+
+                candidatosIds.Add(candidato.Id);
+
+                var username = "";
+                var pass = datos.Nombre.Substring(0, 1).ToLower() + datos.ApellidoPaterno.Trim().ToLower();
+                if (pass.Length < 7)
+                {
+                    pass.PadLeft(7, '0');
+                }
+                if (datos.OpcionRegistro == 1)
+                {
+                    username = datos.Email[0].email.ToString();
+                }
+                else
+                {
+                    username = datos.Telefono[0].ClaveLada.ToString() + datos.Telefono[0].telefono.ToString();
+                }
+                usuario.Id = Guid.NewGuid().ToString();
+                usuario.PhoneNumber = datos.Telefono[0].telefono.ToString();
+                usuario.Clave = "00000";
+                usuario.Pasword = pass;
+                usuario.RegistroClave = DateTime.Now;
+                usuario.PhoneNumberConfirmed = false;
+                usuario.EmailConfirmed = true;
+                usuario.LockoutEnabled = false;
+                usuario.AccessFailedCount = 0;
+                usuario.Email = datos.Email[0].email.ToString();
+                usuario.UserName = username;
+                usuario.Activo = 0;
+
+                db.AspNetUsers.Add(usuario);
+                db.SaveChanges();
+
+                var add = db.Database.ExecuteSqlCommand("spEncriptarPasword @id", new SqlParameter("id", usuario.Id));
+                var t = db.AspNetUsers.Find(usuario.Id);
                     db.Entry(t).Property(x => x.IdPersona).IsModified = true;
 
                     t.IdPersona = candidato.Id;
                     db.SaveChanges();
 
-                    var horario = auxID;
-                    if (datos.horarioId == auxID)
-                    {
-                        horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(datos.requisicionId)).Select(h => h.Id).FirstOrDefault();
-                    }
-                    else
-                    {
-                        horario = datos.horarioId;
-                    }
-
-                    proceso.CandidatoId = candidato.Id;
-                    proceso.RequisicionId = datos.requisicionId;
-                    proceso.Folio = db.Requisiciones.Where(x => x.Id.Equals(datos.requisicionId)).Select(R => R.Folio).FirstOrDefault();
-                    proceso.Reclutador = "SIN ASIGNAR";
-                    proceso.ReclutadorId = datos.reclutadorId;
-                    proceso.EstatusId = 12;
-                    proceso.TpContrato = 0;
-                    proceso.HorarioId = horario;
-                    proceso.Fch_Modificacion = DateTime.Now;
-                    proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
-                    proceso.TipoMediosId = datos.tipoMediosId;
-
-                    db.ProcesoCandidatos.Add(proceso);
-                    db.SaveChanges();
-
-                    candidatosIds.Add(candidato.Id);
-
-                    //var IDR = db.Requisiciones.Find(datos.requisicionId);
-                    //if (IDR.EstatusId != 33 && IDR.EstatusId != 8 && IDR.Activo)
-                    //{
-                    //    db.Entry(IDR).Property(u => u.EstatusId).IsModified = true;
-                    //    db.Entry(IDR).Property(u => u.fch_Modificacion).IsModified = true;
-
-                    //    IDR.EstatusId = 33;
-                    //    IDR.fch_Modificacion = DateTime.Now;
-
-                    //    db.SaveChanges();
-                    //}
-
-                    //tran.Commit();
-
                     candidato = new Candidato();
                     PC = new PerfilCandidato();
                     proceso = new ProcesoCandidato();
-                  //  obj = new CandidatosInfo();
 
                 return Ok(candidatosIds);
             }
-                catch
-                {
-                    //tran.Rollback();
-                    return Ok(HttpStatusCode.ExpectationFailed);
-                }
-           
+            catch
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+
+            }
         }
 
         [HttpPost]
