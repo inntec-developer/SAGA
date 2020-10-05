@@ -51,7 +51,7 @@ namespace SAGA.API.Controllers.Component.Graficas
                 var DateActivas = DateTime.Now.AddDays(3);
 
                 var TipoUsuario = db.Usuarios.Where(u => u.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
-                if (TipoUsuario == 8 || TipoUsuario == 3 || TipoUsuario == 12 || TipoUsuario == 13 || TipoUsuario == 14)
+                if (TipoUsuario == 8 || TipoUsuario == 3 || TipoUsuario == 12 || TipoUsuario == 13 || TipoUsuario == 14 || TipoUsuario == 0)
                 {
                     var Vigentes = db.Requisiciones
                         .Where(r => r.fch_Cumplimiento >= DateActivas)
@@ -142,7 +142,7 @@ namespace SAGA.API.Controllers.Component.Graficas
             try
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(UsuarioId)).Select(u => u.TipoUsuarioId).FirstOrDefault();
-                if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
+                if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14 || tipo == 0)
                 {
                     #region tipo admin
                     if (estado == "Todas")

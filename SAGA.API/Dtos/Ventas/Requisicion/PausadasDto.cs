@@ -9,6 +9,7 @@ namespace SAGA.API.Dtos
     {
         public Guid Id { get; set; }
         public int dias { get; set; }
+        public int diasEnvio { get; set; }
         public string email { get; set; }
         public string emailSol { get; set; }
         public string VBtra { get; set; }
@@ -16,6 +17,8 @@ namespace SAGA.API.Dtos
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Aprobacion { get; set; }
         public DateTime fch_Cumplimiento { get; set; }
+        public DateTime? fch_Envio { get; set; }
+        public DateTime fch_Cierre { get; set; }
         public string Cliente { get; set; }
         public string solicitante { get; set; }
         public Guid propietarioId { get; set; }
@@ -27,6 +30,7 @@ namespace SAGA.API.Dtos
         public int vacantes { get; set; }
         public int cubiertas { get; set; }
         public int estadoId { get; set; }
+        public int claseReclutamientoId { get; set; }
 
     }
 }

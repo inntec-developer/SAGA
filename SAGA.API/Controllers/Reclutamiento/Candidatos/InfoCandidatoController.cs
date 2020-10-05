@@ -12,7 +12,7 @@ using SAGA.API.Utilerias;
 
 namespace SAGA.API.Controllers.Component
 {
-    [RoutePrefix("api/reclutamiento/SeguimientoVacante")]
+    [RoutePrefix("api/Candidatos")]
     public class InfoCandidatoController : ApiController
     {
         private SAGADBContext db;
@@ -20,6 +20,130 @@ namespace SAGA.API.Controllers.Component
         public InfoCandidatoController()
         {
             db = new SAGADBContext();
+        }
+        [HttpGet]
+        [Route("get")]
+        public IHttpActionResult GetPaises()
+        {
+            CandidatosDto Paises = new CandidatosDto();
+
+            Paises.Paises = (from pais in db.Paises
+                             where pais.Id == 42
+                             select pais).ToList();
+
+            return Ok(Paises);
+        }
+
+        [HttpGet]
+        [Route("getestados")]
+        public IHttpActionResult GetEstados(int Pais)
+        {
+
+            CandidatosDto Estados = new CandidatosDto();
+
+            Estados.Estados = (from estado in db.Estados
+                               where estado.PaisId == Pais
+                               select estado).ToList();
+
+            return Ok(Estados);
+        }
+
+        [HttpGet]
+        [Route("getmunicipios")]
+        public IHttpActionResult GetMunicipios(int Estado)
+        {
+
+            CandidatosDto Municipios = new CandidatosDto();
+
+            Municipios.Municipios = (from municipios in db.Municipios
+                                     where municipios.EstadoId == Estado
+                                     select municipios).ToList();
+
+            return Ok(Municipios);
+        }
+
+        [HttpGet]
+        [Route("getcolonias")]
+        public IHttpActionResult GetColonias(int Municipio)
+        {
+
+            CandidatosDto Colonias = new CandidatosDto();
+
+            Colonias.Colonias = (from colonias in db.Colonias
+                                 where colonias.MunicipioId == Municipio
+                                 select colonias).ToList();
+
+            return Ok(Colonias);
+        }
+
+        [HttpGet]
+        [Route("getareasexp")]
+        public IHttpActionResult GetAreasExp()
+        {
+
+            var areasexp = db.AreasInteres.Where(a => a.Id != 0).ToList().OrderBy(a => a.areaInteres);
+
+            return Ok(areasexp);
+        }
+
+        [HttpGet]
+        [Route("getperfiles")]
+        public IHttpActionResult GetPerfiles()
+        {
+
+            var perfil = db.PerfilExperiencia.ToList();
+
+            return Ok(perfil);
+        }
+
+        [HttpGet]
+        [Route("getgeneros")]
+        public IHttpActionResult GetGeneros()
+        {
+
+            var genero = db.Generos.ToList();
+
+            return Ok(genero);
+        }
+
+        [HttpGet]
+        [Route("getdescapacidad")]
+        public IHttpActionResult GetDiscapacidad()
+        {
+
+            var discapacidad = db.TiposDiscapacidades.ToList();
+
+            return Ok(discapacidad);
+        }
+
+        [HttpGet]
+        [Route("gettplicencia")]
+        public IHttpActionResult GetTpLicencia()
+        {
+
+            var tplicencia = db.TiposLicencias.ToList();
+
+            return Ok(tplicencia);
+        }
+
+        [HttpGet]
+        [Route("getnivelestudio")]
+        public IHttpActionResult GetNivelestudio()
+        {
+
+            var nvestudio = db.GradosEstudios.ToList();
+
+            return Ok(nvestudio);
+        }
+
+        [HttpGet]
+        [Route("getidiomas")]
+        public IHttpActionResult GetIdiomas()
+        {
+
+            var idiomas = db.Idiomas.ToList();
+
+            return Ok(idiomas);
         }
 
         [Route("getInfoCandidato")]
@@ -143,96 +267,9 @@ namespace SAGA.API.Controllers.Component
             }
         }
 
-        [Route("getMisVacantes")]
-        [HttpGet]
-        public IHttpActionResult _GetMisVacantes(Guid Id)
-        {
-            try
-            {
-                List<Guid> grp = new List<Guid>();
-
-                var Grupos = db.GruposUsuarios
-                    .Where(g => g.EntidadId.Equals(Id) & g.Grupo.Activo)
-                           .Select(g => g.GrupoId)
-                           .ToList();
-
-
-                foreach (var grps in Grupos)
-                {
-                    grp = GetGrupo(grps, grp);
-                }
-
-
-                grp.Add(Id);
-
-                var asig = db.AsignacionRequis
-                    .OrderByDescending(e => e.Id)
-                    .Where(a => grp.Distinct().Contains(a.GrpUsrId))
-                    .Select(a => a.RequisicionId)
-                    .Distinct()
-                    .ToList();
-
-                var vacantes = db.Requisiciones
-                    .Where(e => asig.Contains(e.Id) && e.Activo.Equals(true))
-                    .Where(e => e.EstatusId.Equals(6)
-                    || e.EstatusId.Equals(7)
-                    || e.EstatusId.Equals(29)
-                    || e.EstatusId.Equals(30)
-                    || e.EstatusId.Equals(31)
-                    || e.EstatusId.Equals(32)
-                    || e.EstatusId.Equals(33)
-                    || e.EstatusId.Equals(38)
-                    || e.EstatusId.Equals(39))
-                    .Select(e => new
-                    {
-                        Id = e.Id,
-                        Folio = e.Folio,
-                        VBtra = e.VBtra,
-                        Cliente = e.Cliente.Nombrecomercial,
-                        TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
-                        tipoReclutamientoId = e.TipoReclutamientoId,
-                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
-                        fch_Cumplimiento = e.fch_Cumplimiento,
-                        Estatus = e.Estatus.Descripcion,
-                        EstatusId = e.EstatusId,
-                        Confidencial = e.Confidencial,
-                        contratados = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(e.Id) && x.EstatusId == 24).Count()
-                    }).ToList().OrderByDescending(x => x.Folio.ToString());
-                return Ok(vacantes);
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                return Ok(HttpStatusCode.NotFound);
-            }
-        }
-
-        public List<Guid> GetGrupo(Guid grupo, List<Guid> listaIds)
-        {
-            if (!listaIds.Contains(grupo))
-            {
-                listaIds.Add(grupo);
-                var listadoNuevo = db.GruposUsuarios
-                    .Where(g => g.EntidadId.Equals(grupo) & g.Grupo.Activo)
-                           .Select(g => g.GrupoId)
-                           .ToList();
-                foreach (Guid g in listadoNuevo)
-                {
-                    var gp = db.GruposUsuarios
-                        .Where(x => x.EntidadId.Equals(g))
-                        .Select(x => x.GrupoId)
-                        .ToList();
-                    foreach (Guid gr in gp)
-                    {
-                        GetGrupo(gr, listaIds);
-                    }
-                }
-            }
-            return listaIds;
-        }
-
         [Route("getPostulaciones")]
         [HttpGet]
+        [Authorize]
         public IHttpActionResult GetPostulaciones(Guid Id)
         {
             try
@@ -255,116 +292,5 @@ namespace SAGA.API.Controllers.Component
             }
         }
 
-        [Route("apartarCandidato")]
-        [HttpPost]
-        public IHttpActionResult ApartarCandidato(ProcesoCandidato proceso)
-        {
-            try
-            {
-                ProcesoDto datos = new ProcesoDto();
-                PostulateVacantController obj = new PostulateVacantController();
-
-                var horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(proceso.RequisicionId)).Select(h => h.Id).FirstOrDefault();
-                var candidato = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(proceso.CandidatoId) && x.RequisicionId.Equals(proceso.RequisicionId)).FirstOrDefault();
-                var estatus = 12;
-                if (candidato == null)
-                {
-                    proceso.HorarioId = horario;
-                    proceso.Fch_Modificacion = DateTime.Now;
-                    proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
-                    proceso.TipoMediosId = 2;
-
-                    db.ProcesoCandidatos.Add(proceso);
-                    db.SaveChanges();
-
-                    var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(proceso.RequisicionId) && x.EstatusId.Equals(29)).Count();
-                    if (requi == 0)
-                    {
-                        datos.requisicionId = proceso.RequisicionId;
-                        datos.estatusId = 29;
-                        obj.UpdateStatusVacante(datos);
-
-                    }
-
-                    return Ok(HttpStatusCode.OK);
-                }
-                else if (candidato.EstatusId == 27 || candidato.EstatusId == 40)
-                {
-                    if(candidato.EstatusId == 40)
-                    {
-                        estatus = db.InformeRequisiciones.OrderByDescending(f => f.fch_Modificacion).Where(x => x.CandidatoId.Equals(proceso.CandidatoId) && !x.EstatusId.Equals(40)).Select(e => e.EstatusId).FirstOrDefault();
-                    }
-                    db.Entry(candidato).State = EntityState.Modified;
-                    candidato.Reclutador = proceso.Reclutador;
-                    candidato.ReclutadorId = proceso.ReclutadorId;
-                    candidato.RequisicionId = proceso.RequisicionId;
-                    candidato.Folio = proceso.Folio;
-                    candidato.EstatusId = estatus;
-                    candidato.Fch_Modificacion = DateTime.Now;
-                    candidato.HorarioId = horario;
-
-                    db.SaveChanges();
-
-                    var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(proceso.RequisicionId) && x.EstatusId.Equals(29)).Count();
-                    if (requi == 0)
-                    {
-                        datos.requisicionId = proceso.RequisicionId;
-                        datos.estatusId = 29;
-                        obj.UpdateStatusVacante(datos);
-
-                    }
-
-                    return Ok(HttpStatusCode.OK);
-                }
-                else
-                {
-                    return Ok(HttpStatusCode.NotModified);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                var msg = ex.Message;
-                return Ok(HttpStatusCode.NotFound);
-            }
-        }
-
-        [Route("liberarCandidato")]
-        [HttpPost]
-        public IHttpActionResult LiberarCandidato(LiberarCandidatoDto lc)
-        {
-            try
-            {
-                Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
-
-                if (lc.ProcesoCandidatoId == auxID)
-                {
-                    var pc = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.RequisicionId.Equals(lc.RequisicionId) && x.CandidatoId.Equals(lc.CandidatoId)).Select(PC => PC.Id).FirstOrDefault();
-
-                    lc.ProcesoCandidatoId = pc;
-                }
-
-                ProcesoCandidato liberar = db.ProcesoCandidatos.Find(lc.ProcesoCandidatoId);
-                db.Entry(liberar).State = EntityState.Modified;
-                liberar.EstatusId = 27;
-
-                CandidatoLiberado cl = new CandidatoLiberado();
-                cl.RequisicionId = lc.RequisicionId;
-                cl.CandidatoId = lc.CandidatoId;
-                cl.ReclutadorId = lc.ReclutadorId;
-                cl.MotivoId = lc.MotivoId;
-                cl.Comentario = lc.Comentario;
-
-                db.CandidatosLiberados.Add(cl);
-
-                db.SaveChanges();
-                return Ok(HttpStatusCode.OK);
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                return Ok(HttpStatusCode.NotFound);
-            }
-        }
     }
 }

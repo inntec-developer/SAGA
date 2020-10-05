@@ -889,7 +889,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                                         nombreAux = c.Nombre + " " + c.ApellidoPaterno,
                                         Puesto = c.Puesto,
                                         InfoAdicional = c.InfoAdicional != null ? c.InfoAdicional : "",
-                                        Telefonos = c.telefonos
+                                        Telefonos = c.telefonos.Where(a => a.Activo)
                                                     .Select(ct => new
                                                     {
                                                         Id = ct.Id,

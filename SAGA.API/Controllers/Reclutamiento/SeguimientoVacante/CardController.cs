@@ -76,13 +76,13 @@ namespace SAGA.API.Controllers
                         ApellidoPaterno = E.ApellidoPaterno,
                         ApellidoMaterno = E.ApellidoMaterno,
                         Foto = E.Foto,
-                        data = db.GruposUsuarios.Where(x => x.GrupoId.Equals(E.Id)).Select(G => new
-                        {
-                            Foto = G.Entidad.Foto,
-                            Nombre = G.Entidad.Nombre,
-                            ApellidoPaterno = G.Entidad.ApellidoPaterno,
-                            ApellidoMaterno = G.Entidad.ApellidoMaterno
-                        })
+                        //data = db.GruposUsuarios.Where(x => x.GrupoId.Equals(E.Id)).Select(G => new
+                        //{
+                        //    Foto = G.Entidad.Foto,
+                        //    Nombre = G.Entidad.Nombre,
+                        //    ApellidoPaterno = G.Entidad.ApellidoPaterno,
+                        //    ApellidoMaterno = G.Entidad.ApellidoMaterno
+                        //})
                     }).ToList()
 
                 }).ToList();

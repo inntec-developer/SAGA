@@ -68,6 +68,7 @@ namespace SAGA.API.Controllers.Equipos
                 nombre = u.nombre,
                 clave = u.clave,
                 tipoUsuario = u.tipoUsuario,
+                tipo = u.tipo,
                 totalCub = u.totalCub,
                 totalPos = u.totalPos,
                 totalPosAux = u.totalPosAux,
@@ -146,6 +147,7 @@ namespace SAGA.API.Controllers.Equipos
                         nombre = r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno,
                         clave = r.Clave,
                         tipoUsuario = r.TipoUsuarioId,
+                        tipo = r.TipoUsuario.Tipo,
                         foto = @"https://apierp.damsa.com.mx/img/" + r.Clave + ".jpg",
                         requis = db.AsignacionRequis.Where(x => AllRequis.Contains(x.RequisicionId) && (x.GrpUsrId.Equals(r.Id) || x.Requisicion.AprobadorId.Equals(r.Id) || x.Requisicion.PropietarioId.Equals(r.Id))).Select(sum => new RequisDtos
                         {
@@ -201,6 +203,7 @@ namespace SAGA.API.Controllers.Equipos
                         nombre = r.nombre,
                         clave = r.clave,
                         tipoUsuario = r.tipoUsuario,
+                        tipo = r.tipo,
                         totalCub = r.totalCub,
                         totalPos = r.totalPos,
                         totalPosAux = r.totalPosAux,

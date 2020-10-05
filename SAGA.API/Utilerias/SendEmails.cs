@@ -6,6 +6,9 @@ using System.Configuration;
 using System.Linq;
 using System.Net.Mail;
 using SAGA.API.Dtos;
+using System.Net.Mime;
+using System.Data.SqlClient;
+using SAGA.API.Dtos.SistFirmas;
 
 namespace SAGA.API.Utilerias
 {
@@ -31,6 +34,45 @@ namespace SAGA.API.Utilerias
             grpUserNotChange = new List<GrupoUsuarios>();
         }
 
+        public bool EmailSistFirmas(FirmasDto datos, string path, string fileName)
+        {
+            try
+            {
+                string body = "";
+                var asunto = string.Format("[SAGA] Sist. Firmas - {0}", datos.subject);
+              
+              //  body = "&lt;html&gt;&lt;body&gt;&lt;p&gt;no se como enviar html&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;";
+                body = body + string.Format("&lt;html&gt;&lt;body style =\"text-align:left; font-family:'calibri'; font-size:10pt;\">&lt;h3>A quien corresponda&lt;/h3>&lt;br>&lt;p>Por medio del presente se informa que se anexa "
+                    + "archivo de incidencias para el proceso de nomina para {0}. &lt;/p>&lt;br>"
+                    + "&lt;p>Para enviar pre nomina a Ejecutivo ingresa a tu panel de Sistema de Firmas, selecciona la opción Pre nomina. "
+                    + "Podrás acceder mediante la siguiente dirección: https://weberp.damsa.com.mx/login &lt;/p>&lt;br>&lt;br>"
+                    + "&lt;p>Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx &lt;/p>&lt;br>&lt;br>"
+                    + "&lt;p>Gracias por tu atención. Saludos&lt;/p>&lt;/body&gt;&lt;/html>", datos.cliente.ToUpper());
+
+                var xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
+                         + "Para=\"mventura@damsa.com.mx\" Copia=\"bmorales@damsa.com.mx\"  CopiaOculta=\"\" Asunto=\"{0}\" Msg=\"{1}\"/> "
+                         + "<Adjuntos><Adjunto Ruta_Archivo=\"{2}\" Nombre_Archivo=\"{3}\" Eliminar_Archivo=\"0\" /></Adjuntos></Parametros>", asunto, body, path, fileName );
+
+
+                SqlParameter[] Parameters = { new SqlParameter("@ParametrosXML", xml) };
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return false;
+            }
+            //// Create  the file attachment for this email message.
+            //Attachment data = new Attachment(file, MediaTypeNames.Application.Octet);
+            //// Add time stamp information for the file.
+            //ContentDisposition disposition = data.ContentDisposition;
+            //disposition.CreationDate = System.IO.File.GetCreationTime(file);
+            //disposition.ModificationDate = System.IO.File.GetLastWriteTime(file);
+            //disposition.ReadDate = System.IO.File.GetLastAccessTime(file);
+            //m.Attachments.Add(data);
+        }
         public void EmailNuevaRequisicion(Int64 Folio, string VBtra, string email)
         {
             try
@@ -74,25 +116,25 @@ namespace SAGA.API.Utilerias
         {
             foreach (var gp in grp)
             {
-                var grupoInGrupo = db.GruposUsuarios.Where(x => x.GrupoId.Equals(gp)).ToList();
-                if(grupoInGrupo.Count > 0)
-                {
-                    foreach (var grupo in grupoInGrupo)
-                    {
-                        var email = db.Emails.Where(x => x.EntidadId.Equals(grupo.EntidadId)).Select(x => x.email).FirstOrDefault();
-                        var tipoEntidad = grupo.Entidad.TipoEntidadId;
-                        if (tipoEntidad != 4)
-                        {
-                            /*Agrega el correo encontrado a la lista de correos.*/
-                            AddEmail.Add(email);
-                        }
-                    }
-                }
-                else
-                {
+                //var grupoInGrupo = db.GruposUsuarios.Where(x => x.GrupoId.Equals(gp)).ToList();
+                //if(grupoInGrupo.Count > 0)
+                //{
+                //    foreach (var grupo in grupoInGrupo)
+                //    {
+                //        var email = db.Emails.Where(x => x.EntidadId.Equals(grupo.EntidadId)).Select(x => x.email).FirstOrDefault();
+                //        var tipoEntidad = grupo.Entidad.TipoEntidadId;
+                //        if (tipoEntidad != 4)
+                //        {
+                //            /*Agrega el correo encontrado a la lista de correos.*/
+                //            AddEmail.Add(email);
+                //        }
+                //    }
+                //}
+                //else
+                //{
                     var email = db.Emails.Where(x => x.EntidadId.Equals(gp)).Select(x => x.email).FirstOrDefault();
                     AddEmail.Add(email);
-                }
+                //}
                
             }
             return AddEmail;
@@ -108,42 +150,42 @@ namespace SAGA.API.Utilerias
         {
             foreach (GrupoUsuarios gp in grpNc)
             {
-                var grupoInGrupo = db.GruposUsuarios.Where(x => x.GrupoId.Equals(gp)).ToList();
-                foreach(var grupo in grupoInGrupo)
-                {
-                    var email = db.Emails.Where(x => x.EntidadId.Equals(grupo.EntidadId)).Select(x => x.email).FirstOrDefault();
-                    var tipoEntidad = grupo.Entidad.TipoEntidadId;
+                //var grupoInGrupo = db.GruposUsuarios.Where(x => x.GrupoId.Equals(gp)).ToList();
+                //foreach(var grupo in grpNc)
+                //{
+                    var email = db.Emails.Where(x => x.EntidadId.Equals(gp)).Select(x => x.email).FirstOrDefault();
+                var tipoEntidad = db.Usuarios.Where(x => x.Id.Equals(gp)).Select(x => x.TipoEntidadId).FirstOrDefault();
                     if (tipoEntidad != 4)
                     {
                         /*Agrega el correo encontrado a la lista de correos.*/
                         emailNoChange.Add(email);
                     }
-                }
+                //}
             }
             return emailNoChange;
         }
 
         public List<Guid> GetGrupo(Guid grupo, List<Guid> listaIds)
         {
-            if (!listaIds.Contains(grupo))
-            {
-                listaIds.Add(grupo);
-                var listadoNuevo = db.GruposUsuarios
-                    .Where(g => g.GrupoId.Equals(grupo) & g.Grupo.Activo)
-                           .Select(g => g.GrupoId)
-                           .ToList();
-                foreach (Guid g in listadoNuevo)
-                {
-                    var gp = db.GruposUsuarios
-                        .Where(x => x.GrupoId.Equals(g))
-                        .Select(x => x.EntidadId)
-                        .ToList();
-                    foreach (Guid gr in gp)
-                    {
-                        GetGrupo(gr, listaIds);
-                    }
-                }
-            }
+            //if (!listaIds.Contains(grupo))
+            //{
+            //    listaIds.Add(grupo);
+            //    var listadoNuevo = db.GruposUsuarios
+            //        .Where(g => g.GrupoId.Equals(grupo) & g.Grupo.Activo)
+            //               .Select(g => g.GrupoId)
+            //               .ToList();
+            //    foreach (Guid g in listadoNuevo)
+            //    {
+            //        var gp = db.GruposUsuarios
+            //            .Where(x => x.GrupoId.Equals(g))
+            //            .Select(x => x.EntidadId)
+            //            .ToList();
+            //        foreach (Guid gr in gp)
+            //        {
+            //            GetGrupo(gr, listaIds);
+            //        }
+            //    }
+            //}
             return listaIds;
         }
 
@@ -902,9 +944,9 @@ namespace SAGA.API.Utilerias
                         montoContratado = f.MontoContratado,
                     }).FirstOrDefault();
 
-                GrVtasEmail = db.Usuarios
+               GrVtasEmail = db.Usuarios
                              .Where(u => u.TipoUsuarioId.Equals(12) && u.Departamento.Clave.Equals("VTAS") && 
-                             u.Sucursal.Equals(requi.estadoId) && u.Activo.Equals(true))
+                             u.Sucursal.estadoId.Equals(requi.estadoId) && u.Activo.Equals(true))
                              .Select(u => u.emails.Select(e => e.email).FirstOrDefault())
                              .FirstOrDefault();
                 GVtasEmail = db.Usuarios

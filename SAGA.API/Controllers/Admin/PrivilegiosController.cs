@@ -24,30 +24,30 @@ namespace SAGA.API.Controllers
 
         public List<Guid> GetGrupo(Guid grupo, List<Guid> listaIds)
         {
-            if (!listaIds.Contains(grupo))
-            {
-                listaIds.Add(grupo);
+            //if (!listaIds.Contains(grupo))
+            //{
+            //    listaIds.Add(grupo);
 
-                var idG = db.GruposUsuarios
-                        .Where(x => x.EntidadId == grupo)
-                        .Select(g => g.GrupoId).ToList();
+            //    var idG = db.GruposUsuarios
+            //            .Where(x => x.EntidadId == grupo)
+            //            .Select(g => g.GrupoId).ToList();
 
-                if (idG.Count > 0)
-                {
-                    foreach (var id in idG)
-                    {
-                        var idG2 = db.GruposUsuarios
-                       .Where(x => x.EntidadId == id)
-                       .Select(g => g.GrupoId).ToList();
+            //    if (idG.Count > 0)
+            //    {
+            //        foreach (var id in idG)
+            //        {
+            //            var idG2 = db.GruposUsuarios
+            //           .Where(x => x.EntidadId == id)
+            //           .Select(g => g.GrupoId).ToList();
 
-                        foreach (var x in idG2)
-                        {
-                            GetGrupo(x, listaIds);
-                        }
-                        listaIds.Add(id);
-                    }
-                }
-            }
+            //            foreach (var x in idG2)
+            //            {
+            //                GetGrupo(x, listaIds);
+            //            }
+            //            listaIds.Add(id);
+            //        }
+            //    }
+            //}
             return listaIds;
         }
 
@@ -60,17 +60,17 @@ namespace SAGA.API.Controllers
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
             List<Guid> listGrupos = new List<Guid>();
 
-            var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
-                           .Where(g => g.EntidadId.Equals(idUser) & g.Grupo.Activo)
-                           .Select(g => g.GrupoId)
-                           .ToList();
+            //var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
+            //               .Where(g => g.EntidadId.Equals(idUser) & g.Grupo.Activo)
+            //               .Select(g => g.GrupoId)
+            //               .ToList();
 
-            //falta el for para los demas grupos
+            ////falta el for para los demas grupos
             
-            foreach(var idg in Grupos)
-            {
-                var mocos = GetGrupo(idg, listGrupos);
-            }
+            //foreach(var idg in Grupos)
+            //{
+            //    var mocos = GetGrupo(idg, listGrupos);
+            //}
 
 
             listGrupos.Add(idUser);
@@ -152,17 +152,17 @@ namespace SAGA.API.Controllers
             List<PrivilegiosDtos> privilegios = new List<PrivilegiosDtos>();
             List<Guid> listGrupos = new List<Guid>();
 
-            var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
-                           .Where(g => g.EntidadId.Equals(idUser) & g.Grupo.Activo)
-                           .Select(g => g.GrupoId)
-                           .ToList();
+            //var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
+            //               .Where(g => g.EntidadId.Equals(idUser) & g.Grupo.Activo)
+            //               .Select(g => g.GrupoId)
+            //               .ToList();
 
-            //falta el for para los demas grupos
+            ////falta el for para los demas grupos
 
-            foreach (var idg in Grupos)
-            {
-                var mocos = GetGrupo(idg, listGrupos);
-            }
+            //foreach (var idg in Grupos)
+            //{
+            //    var mocos = GetGrupo(idg, listGrupos);
+            //}
 
 
             listGrupos.Add(idUser);

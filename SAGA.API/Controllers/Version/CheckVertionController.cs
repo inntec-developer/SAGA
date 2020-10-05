@@ -33,7 +33,14 @@ namespace SAGA.API.Controllers.Version
                         version = x.Version
                     })
                     .FirstOrDefault();
-                if(check.version == version)
+            //    var check = db.VertionSistem
+            //.OrderByDescending(x => x.Id)
+            //.Select(x => new
+            //{
+            //    version = x.Version
+            //})
+            //.FirstOrDefault();
+                if (check.version == version)
                 {
                     Actualizado = true;
                 }

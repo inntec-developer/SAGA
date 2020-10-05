@@ -37,7 +37,7 @@ namespace SAGA.BOL
         public Guid ReclutadorId { get; set; }
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Modificacion { get; set; }
-
+        public Guid UsuarioMod { get; set; }
 
     }
 }

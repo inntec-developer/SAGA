@@ -16,7 +16,7 @@ namespace SAGA.BOL
         public int TipoEmpresaId { get; set; }
         public int TipoBaseId { get; set; }
         public bool otraAgencia { get; set; }
-       
+
         public bool esCliente { get; set; }
         public string Clasificacion { get; set; }
         public int NumeroEmpleados { get; set; }

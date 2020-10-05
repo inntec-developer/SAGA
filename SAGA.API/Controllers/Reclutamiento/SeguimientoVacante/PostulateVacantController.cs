@@ -34,6 +34,134 @@ namespace SAGA.API.Controllers
             SendEmail = new SendEmails();
         }
 
+        public List<Guid> GetGrupo(Guid grupo, List<Guid> listaIds)
+        {
+            if (!listaIds.Contains(grupo))
+            {
+                //listaIds.Add(grupo);
+                //var listadoNuevo = db.GruposUsuarios
+                //    .Where(g => g.EntidadId.Equals(grupo) & g.Grupo.Activo)
+                //           .Select(g => g.GrupoId)
+                //           .ToList();
+                //foreach (Guid g in listadoNuevo)
+                //{
+                //    var gp = db.GruposUsuarios
+                //        .Where(x => x.EntidadId.Equals(g))
+                //        .Select(x => x.GrupoId)
+                //        .ToList();
+                //    foreach (Guid gr in gp)
+                //    {
+                //        GetGrupo(gr, listaIds);
+                //    }
+                //}
+            }
+            return listaIds;
+        }
+
+        [HttpGet]
+        [Route("getAreasRecl")]
+        public IHttpActionResult GetAreasRecl()
+        {
+            try
+            {
+                var areas = db.Departamentos.Where(x => x.AreaId.Equals(16)).Select(a => new
+                {
+                    Id = a.Id,
+                    Nombre = a.Nombre
+                }).ToList();
+
+                return Ok(areas);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("getMotivos")]
+        public IHttpActionResult GetMotivos(int estatus)
+        {
+            try
+            {
+                var motivos = db.MotivosLiberacion.Where(x => x.EstatusId.Equals(estatus) && x.Activo).Select(a => new
+                {
+                    Id = a.Id,
+                    Descripcion = a.Descripcion
+                }).ToList();
+
+                return Ok(motivos);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+        [Route("getMisVacantes")]
+        [HttpGet]
+        [Authorize]
+        public IHttpActionResult _GetMisVacantes(Guid Id)
+        {
+            try
+            {
+                //List<Guid> grp = new List<Guid>();
+
+                //var Grupos = db.GruposUsuarios
+                //    .Where(g => g.EntidadId.Equals(Id) & g.Grupo.Activo)
+                //           .Select(g => g.GrupoId)
+                //           .ToList();
+
+
+                //foreach (var grps in Grupos)
+                //{
+                //    grp = GetGrupo(grps, grp);
+                //}
+
+
+                //grp.Add(Id);
+
+                var asig = db.AsignacionRequis
+                    .OrderByDescending(e => e.Id)
+                    .Where(a => a.GrpUsrId.Equals(Id))
+                    .Select(a => a.RequisicionId)
+                    .Distinct()
+                    .ToList();
+
+                var vacantes = db.Requisiciones
+                    .Where(e => asig.Contains(e.Id) && e.Activo.Equals(true))
+                    .Where(e => e.EstatusId.Equals(6)
+                    || e.EstatusId.Equals(7)
+                    || e.EstatusId.Equals(29)
+                    || e.EstatusId.Equals(30)
+                    || e.EstatusId.Equals(31)
+                    || e.EstatusId.Equals(32)
+                    || e.EstatusId.Equals(33)
+                    || e.EstatusId.Equals(38)
+                    || e.EstatusId.Equals(39))
+                    .Select(e => new
+                    {
+                        Id = e.Id,
+                        Folio = e.Folio,
+                        VBtra = e.VBtra,
+                        Cliente = e.Cliente.Nombrecomercial,
+                        TipoReclutamiento = e.TipoReclutamiento.tipoReclutamiento,
+                        tipoReclutamientoId = e.TipoReclutamientoId,
+                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
+                        fch_Cumplimiento = e.fch_Cumplimiento,
+                        Estatus = e.Estatus.Descripcion,
+                        EstatusId = e.EstatusId,
+                        Confidencial = e.Confidencial,
+                        contratados = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(e.Id) && x.EstatusId == 24).Count()
+                    }).ToList().OrderByDescending(x => x.Folio.ToString());
+                return Ok(vacantes);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
         [HttpGet]
         [Route("validarEmailCandidato")]
         //[Authorize]
@@ -207,6 +335,7 @@ namespace SAGA.API.Controllers
 
                     obj.fch_Modificacion = DateTime.Now;
                     obj.fch_Modificacion.ToUniversalTime();
+                    obj.UsuarioMod = r.ReclutadorId;
 
                     db.CandidatosInfo.Add(obj);
                     db.SaveChanges();
@@ -696,22 +825,42 @@ namespace SAGA.API.Controllers
             }
             
         }
-        
-   
-        public IHttpActionResult LiberarCandidatos(ProcesoDto datos)
+       
+        [Route("liberarCandidato")]
+        [HttpPost]
+        public IHttpActionResult LiberarCandidatos(LiberarCandidatoDto datos)
         {
             Guid aux = new Guid("00000000-0000-0000-0000-000000000000");
             try
             {
-                var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.candidatoId) && x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).FirstOrDefault();
+                var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(datos.CandidatoId) && x.RequisicionId.Equals(datos.RequisicionId)).Select(x => x.Id).FirstOrDefault();
                 var c = db.ProcesoCandidatos.Find(id);
 
                 db.Entry(c).Property(x => x.EstatusId).IsModified = true;
-                c.EstatusId = datos.estatusId;
+                c.EstatusId = 27;
 
                 db.SaveChanges();
 
-                var ids = db.Postulaciones.Where(x => x.RequisicionId.Equals(datos.requisicionId) && x.CandidatoId.Equals(datos.candidatoId)).Select(x => x.Id).FirstOrDefault();
+                CandidatoLiberado cl = new CandidatoLiberado();
+                cl.RequisicionId = datos.RequisicionId;
+                cl.CandidatoId = datos.CandidatoId;
+                cl.ReclutadorId = datos.ReclutadorId;
+                if (datos.MotivoId == 0) {
+                    int idM = db.MotivosLiberacion.Where(x => x.Descripcion.ToLower().Equals(datos.Motivo.ToLower())).Select(m => m.Id).FirstOrDefault();
+                    cl.MotivoId = idM;
+                } else
+                {
+                    cl.MotivoId = datos.MotivoId;
+                }
+
+                cl.Comentario = datos.Comentario;
+
+                db.CandidatosLiberados.Add(cl);
+
+                db.SaveChanges();
+
+
+                var ids = db.Postulaciones.Where(x => x.RequisicionId.Equals(datos.RequisicionId) && x.CandidatoId.Equals(datos.CandidatoId)).Select(x => x.Id).FirstOrDefault();
                 if (ids != auxID)
                 {
                     var cc = db.Postulaciones.Find(ids);
@@ -722,7 +871,7 @@ namespace SAGA.API.Controllers
                     db.SaveChanges();
                 }
                     
-                return Ok(HttpStatusCode.Created);
+                return Ok(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -1209,8 +1358,14 @@ namespace SAGA.API.Controllers
                     
                     if (e.email.Contains("@"))
                     {
-                        var res = LiberarCandidatos(e);
+                        var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(e.candidatoId) && x.RequisicionId.Equals(e.requisicionId)).Select(x => x.Id).FirstOrDefault();
+                        var c = db.ProcesoCandidatos.Find(id);
 
+                        db.Entry(c).Property(x => x.EstatusId).IsModified = true;
+                        c.EstatusId = 27;
+
+                        db.SaveChanges();
+              
                         m.To.Add(e.email);
                         body = "<html><head></head><body style=\"text-align:center; font-family:'calibri'\">";
                         body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
@@ -1256,8 +1411,14 @@ namespace SAGA.API.Controllers
 
                         conn.Close();
 
-                        var result = LiberarCandidatos(e);
-                        
+                        var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(e.candidatoId) && x.RequisicionId.Equals(e.requisicionId)).Select(x => x.Id).FirstOrDefault();
+                        var c = db.ProcesoCandidatos.Find(id);
+
+                        db.Entry(c).Property(x => x.EstatusId).IsModified = true;
+                        c.EstatusId = 27;
+
+                        db.SaveChanges();
+
 
                         if (usuario != "")
                         {

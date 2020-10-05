@@ -41,6 +41,7 @@ namespace SAGA.API.Dtos
         public ICollection<AptitudesPerfil> aptitudesPerfil { get; set; }
         public ICollection<HorarioPerfil> horariosPerfil { get; set; }
         public ICollection<ActividadesPerfil> actividadesPerfil { get; set; }
+        public ICollection<ActividadesPerfiles> actividadesPerfiles { get; set; }
         public ICollection<ObservacionesPerfil> observacionesPerfil { get; set; }
         public ICollection<PsicometriasDamsa> psicometriasDamsa { get; set; }
         public ICollection<PsicometriasCliente> psicometriasCliente { get; set; }
@@ -93,9 +94,12 @@ namespace SAGA.API.Dtos
     {
         public Guid Id { get; set; }
         public string  Actividades { get; set; }
+        public Guid ActividadId { get; set; }
         public Guid DAMFO290Id { get; set; }
         public string Usuario { get; set; }
+        public Guid UsuarioId { get; set; }
         public string Action { get; set; }
+        public int PerfilDamfoId { get; set; }
     }
     public class ObsPerfilDto
     {

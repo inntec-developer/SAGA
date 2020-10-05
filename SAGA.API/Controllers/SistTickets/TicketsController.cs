@@ -255,7 +255,7 @@ namespace SAGA.API.Controllers
                             obj2.CandidatoId = datos.candidatoId;
                             obj2.RequisicionId = datos.Id;
 
-                            O.ApartarCandidato(obj2);
+                            //O.ApartarCandidato(obj2);
 
                             nombre = db.Candidatos.Where(x => x.Id.Equals(datos.candidatoId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault();
                         }

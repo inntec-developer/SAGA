@@ -67,6 +67,8 @@ namespace SAGA.API.Controllers.Component
         {
             try
             {
+                var FechaI = Convert.ToDateTime(_event.Start);
+                var Fechaf = Convert.ToDateTime(_event.End);
                 CalendarioEvent ce = new CalendarioEvent();
                 ce.EntidadId = _event.EntidadId;
                 ce.Title = _event.Title;
@@ -182,7 +184,7 @@ namespace SAGA.API.Controllers.Component
             var email = db.Usuarios.Where(x => x.Id.Equals(entidadId)).Select(mail => mail.emails.Select(x => x.email).FirstOrDefault()).FirstOrDefault();
 
             m.To.Add(email);
-            //m.Bcc.Add("idelatorre@damsa.com.mx");
+
             m.Body = msg;
 
             DateTime s = start.ToUniversalTime();

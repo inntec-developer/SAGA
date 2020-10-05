@@ -149,28 +149,28 @@ namespace SAGA.API.Controllers
             {
                 EntidadId = u.Id,
                 userActivo = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
-                grupoActivo = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
+              //  grupoActivo = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
                 Foto = u.TipoEntidadId == 1 ? String.IsNullOrEmpty(u.Foto) ? @"https://apierp.damsa.com.mx/utilerias/img/user/default.jpg" : @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault() + ".jpg" : @"https://apierp.damsa.com.mx/" + u.Foto,
                 Clave = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault(),
                 nombre = u.Nombre,
                 apellidoPaterno = string.IsNullOrEmpty(u.ApellidoPaterno) ? "" : u.ApellidoPaterno,
                 apellidoMaterno = string.IsNullOrEmpty(u.ApellidoMaterno) ? "" : u.ApellidoMaterno,
                 Usuario = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Usuario).FirstOrDefault(),
-                Descripcion = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(x => string.IsNullOrEmpty(x.Descripcion) ? "" : x.Descripcion).FirstOrDefault(),
-                Departamento = u.TipoEntidadId == 1 ? db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault() : db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(c => c.TipoGrupo.Tipo).FirstOrDefault(),
+            //    Descripcion = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(x => string.IsNullOrEmpty(x.Descripcion) ? "" : x.Descripcion).FirstOrDefault(),
+                Departamento = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
                 Emails = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => string.IsNullOrEmpty(e.email) ? "SIN REGISTRO" : e.email).FirstOrDefault(),
-                grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
-                {
-                    Id = g.GrupoId,
-                    Grupo = g.Grupo.Nombre,
-                    Rol = db.RolEntidades.Where(x => x.EntidadId.Equals(g.GrupoId)).Select(r => new
-                    {
-                        id = r.RolId,
-                        rol = r.Rol.Rol
+                //grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
+                //{
+                //    Id = g.GrupoId,
+                //    Grupo = g.Grupo.Nombre,
+                //    Rol = db.RolEntidades.Where(x => x.EntidadId.Equals(g.GrupoId)).Select(r => new
+                //    {
+                //        id = r.RolId,
+                //        rol = r.Rol.Rol
 
-                    })
+                //    })
 
-                }),
+                //}),
                 roles = db.RolEntidades.Where(x => x.EntidadId.Equals(u.Id)).Select(r => new
                 {
                     id = r.RolId,
@@ -201,20 +201,20 @@ namespace SAGA.API.Controllers
                 Foto = String.IsNullOrEmpty(u.Foto) ? "utilerias/img/user/default.jpg" : u.Foto,
                 Clave = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Clave).FirstOrDefault(),
                 userActivo = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
-                grupoActivo = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
+             //   grupoActivo = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(c => c.Activo).FirstOrDefault(),
                 nombre = u.Nombre,
                 apellidoPaterno = string.IsNullOrEmpty(u.ApellidoPaterno) ? "" : u.ApellidoPaterno,
                 apellidoMaterno = string.IsNullOrEmpty(u.ApellidoMaterno) ? "" : u.ApellidoMaterno,
                 Usuario = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Usuario).FirstOrDefault(),
-                Descripcion = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(x => string.IsNullOrEmpty(x.Descripcion) ? "" : x.Descripcion).FirstOrDefault(),
+            //    Descripcion = db.Grupos.Where(x => x.Id.Equals(u.Id)).Select(x => string.IsNullOrEmpty(x.Descripcion) ? "" : x.Descripcion).FirstOrDefault(),
                 Departamento = db.Usuarios.Where(x => x.Id.Equals(u.Id)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
                 Emails = db.Emails.Where(x => x.EntidadId.Equals(u.Id)).Select(e => e.email).FirstOrDefault(),
-                grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
-                {
-                    Id = g.GrupoId,
-                    Grupo = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault(),
+                //grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.Id)).Select(g => new
+                //{
+                //    Id = g.GrupoId,
+                //  //  Grupo = db.Grupos.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault(),
 
-                }),
+                //}),
                 roles = db.RolEntidades.Where(x => x.EntidadId.Equals(u.Id)).Select(r => new
                 {
                     id = r.RolId,
@@ -222,7 +222,7 @@ namespace SAGA.API.Controllers
 
                 })
 
-            }).Where(a => a.grupoActivo || a.userActivo).OrderBy(o => o.nombre).ToList();
+            }).Where(a => a.userActivo).OrderBy(o => o.nombre).ToList();
 
             //foreach (var g in persona)
             //{
@@ -284,24 +284,24 @@ namespace SAGA.API.Controllers
             List<PersonasDtos> data = new List<PersonasDtos>();
             try
             {
-                var persona = db.GruposUsuarios.Where(x => x.GrupoId.Equals(id) & x.Grupo.Activo).Select(u => new
-                {
-                    EntidadId = u.EntidadId,
-                    clave = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => c.Clave).FirstOrDefault(),
-                    Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(f => String.IsNullOrEmpty(f.Foto) ? "utilerias/img/user/default.jpg" : f.Foto).FirstOrDefault(),
-                    TipoEntidadId = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.TipoEntidadId).FirstOrDefault(),
-                    nombre = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.Nombre).FirstOrDefault(),
-                    apellidoPaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoPaterno) ? "" : n.ApellidoPaterno).FirstOrDefault(),
-                    apellidoMaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoMaterno) ? "" : n.ApellidoMaterno).FirstOrDefault(),
-                    Usuario = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => string.IsNullOrEmpty(c.Usuario) ? "" : c.Usuario).FirstOrDefault(),
-                    Departamento = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
-                    grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.EntidadId)).Select(g => new
-                    {
-                        Id = g.GrupoId,
-                        Grupo = db.Entidad.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault()
-                    })
+                //var persona = db.GruposUsuarios.Where(x => x.GrupoId.Equals(id) & x.Grupo.Activo).Select(u => new
+                //{
+                //    EntidadId = u.EntidadId,
+                //    clave = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => c.Clave).FirstOrDefault(),
+                //    Foto = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(f => String.IsNullOrEmpty(f.Foto) ? "utilerias/img/user/default.jpg" : f.Foto).FirstOrDefault(),
+                //    TipoEntidadId = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.TipoEntidadId).FirstOrDefault(),
+                //    nombre = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => n.Nombre).FirstOrDefault(),
+                //    apellidoPaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoPaterno) ? "" : n.ApellidoPaterno).FirstOrDefault(),
+                //    apellidoMaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoMaterno) ? "" : n.ApellidoMaterno).FirstOrDefault(),
+                //    Usuario = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => string.IsNullOrEmpty(c.Usuario) ? "" : c.Usuario).FirstOrDefault(),
+                //    Departamento = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
+                //    grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.EntidadId)).Select(g => new
+                //    {
+                //        Id = g.GrupoId,
+                //        Grupo = db.Entidad.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault()
+                //    })
 
-                }).OrderBy(o => o.TipoEntidadId).ToList();
+                //}).OrderBy(o => o.TipoEntidadId).ToList();
 
                 //foreach (var g in persona)
                 //{
@@ -319,7 +319,7 @@ namespace SAGA.API.Controllers
                 //    });
                 //}
 
-                return Ok(persona);
+                return Ok(HttpStatusCode.OK);
             }
             catch( Exception ex)
             {
@@ -346,12 +346,12 @@ namespace SAGA.API.Controllers
                     apellidoMaterno = db.Entidad.Where(x => x.Id.Equals(u.EntidadId)).Select(n => string.IsNullOrEmpty(n.ApellidoMaterno) ? "" : n.ApellidoMaterno).FirstOrDefault(),
                     Usuario = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => string.IsNullOrEmpty(c.Usuario) ? "" : c.Usuario).FirstOrDefault(),
                     Departamento = db.Usuarios.Where(x => x.Id.Equals(u.EntidadId)).Select(c => c.Departamento.Nombre).FirstOrDefault(),
-                    Descripcion = db.GruposUsuarios.Where(x => x.GrupoId.Equals(u.EntidadId)).Select(d => d.Grupo.Descripcion).FirstOrDefault(),
-                    grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.EntidadId)).Select(g => new
-                    {
-                        Id = g.GrupoId,
-                        Grupo = db.Entidad.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault()
-                    })
+                    //Descripcion = db.GruposUsuarios.Where(x => x.GrupoId.Equals(u.EntidadId)).Select(d => d.Grupo.Descripcion).FirstOrDefault(),
+                    //grupos = db.GruposUsuarios.Where(gu => gu.EntidadId.Equals(u.EntidadId)).Select(g => new
+                    //{
+                    //    Id = g.GrupoId,
+                    //    Grupo = db.Entidad.Where(x => x.Id.Equals(g.GrupoId)).Select(x => x.Nombre).FirstOrDefault()
+                    //})
 
                 }).OrderBy(o => o.TipoEntidadId).ToList();
 
@@ -796,16 +796,16 @@ namespace SAGA.API.Controllers
         {
             try
             {
-               var idGU =  db.GruposUsuarios
-                    .Where(x => x.EntidadId.Equals(indices.EntidadId))
-                    .Where(x => x.GrupoId.Equals(indices.GrupoId))
-                    .Select(x => x.Id).FirstOrDefault();
+               //var idGU =  db.GruposUsuarios
+               //     .Where(x => x.EntidadId.Equals(indices.EntidadId))
+               //     .Where(x => x.GrupoId.Equals(indices.GrupoId))
+               //     .Select(x => x.Id).FirstOrDefault();
        
-                var dts = db.GruposUsuarios.Find(idGU);
+               // var dts = db.GruposUsuarios.Find(idGU);
 
-                db.Entry(dts).State = EntityState.Deleted;
+                //db.Entry(dts).State = EntityState.Deleted;
 
-                db.SaveChanges();
+                //db.SaveChanges();
 
                 return Ok(HttpStatusCode.Created);
             }
@@ -906,10 +906,10 @@ namespace SAGA.API.Controllers
                      */
                     var activo = db.Database.SqlQuery<Int32>("exec sp_ValidatorLogin @CLAVE", _params).FirstOrDefault();
                     
-                    var grupos = db.GruposUsuarios
-                                 .Where(g => g.EntidadId.Equals(Data.Id))
-                                 .Select(d => d.GrupoId)
-                                 .ToList();
+                    //var grupos = db.GruposUsuarios
+                    //             .Where(g => g.EntidadId.Equals(Data.Id))
+                    //             .Select(d => d.GrupoId)
+                    //             .ToList();
 
                     if (activo > 0 && Data.Activo)
                     {
@@ -940,7 +940,7 @@ namespace SAGA.API.Controllers
                         userData.DepartamentoId = Data.DepartamentoId;
                         userData.Departamento = Data.Departamento;
                         userData.Roles = db.RolEntidades
-                            .Where(r => grupos.Contains(r.EntidadId))
+                            .Where(r => r.EntidadId.Equals(Data.Id))
                             .Select(r => r.Rol.Rol)
                             .ToList();
                         //userData.Roles = db.RolEntidades

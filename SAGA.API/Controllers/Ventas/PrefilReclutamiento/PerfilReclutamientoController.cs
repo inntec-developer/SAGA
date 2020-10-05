@@ -13,7 +13,7 @@ using System.Web.Http;
 namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
 {
     [RoutePrefix("api/PerfilReclutamiento")]
-    //[Authorize]
+    [Authorize]
     public class PerfilReclutamientoController : ApiController
     {
         private SAGADBContext db;
@@ -36,6 +36,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                     .Select(c => new
                     {
                         c.Id,
+                        clienteId = c.Id,
                         c.RazonSocial,
                         c.Nombrecomercial,
                         c.RFC,
@@ -94,7 +95,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                     Where(c => c.Id.Equals(ClienteId))
                     .Select(c => new
                     {
-                        direcciones = c.direcciones.Select(d => new
+                        direcciones = c.direcciones.Where(a => a.Activo).Select(d => new
                         {
                             id = d.Id,
                             tipoDireccion = d.TipoDireccion.tipoDireccion,
@@ -110,7 +111,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                             esPrincipal = d.esPrincipal,
                         }).ToList(),
                         telefonos = db.Telefonos
-                                    .Where(t => t.EntidadId == ClienteId)
+                                    .Where(t => t.EntidadId == ClienteId && t.Activo)
                                     .Select(t => new {
                                         Calle = db.DireccionesTelefonos
                                             .Where(dt => dt.TelefonoId.Equals(t.Id)).FirstOrDefault() != null ?
@@ -178,6 +179,20 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                 .Where(x => x.Id.Equals(PerfilId))
                 .Select(x => new
                 {
+                    Perfil = x.actividadesPerfil.Select(a => new
+                    {
+                        a.ActividadesPerfiles.PerfilesDamfo.Perfil,
+                        a.ActividadesPerfiles.PerfilesDamfo.Id,
+                        actividades = x.actividadesPerfil.Select(aa => new
+                        {
+                            aa.ActividadesPerfiles.Id,
+                            aa.ActividadesPerfiles.Actividades
+                        })
+                        //actividades = new {
+                        //    a.ActividadesPerfiles.Id,
+                        //    a.ActividadesPerfiles.Actividades
+                        //}
+                    }).FirstOrDefault(),
                     x.NombrePerfil,
                     x.GeneroId,
                     x.EdadMinima,
@@ -243,16 +258,16 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                             aDia = h.aDia.diaSemana,
                             deDiaId = h.deDiaId,
                             aDiaId = h.aDiaId,
-                            deHora = h.deHora,
-                            aHora = h.aHora,
+                            deHora = h.deHora.Hour + ":" + h.deHora.Minute,
+                            aHora = h.aHora.Hour + ":" + h.aHora.Minute,
                             vacantes = h.numeroVacantes,
                             especificaciones = h.Especificaciones,
                             activo = h.Activo,
                         }).ToList(),
                         Actividades = p.actividadesPerfil.Select(a => new
                         {
-                            id = a.Id,
-                            actividad = a.Actividades
+                            id = a.ActividadesPerfilesId,
+                            actividad = a.ActividadesPerfiles.Actividades
                         }).ToList(),
                         Observaciones = p.observacionesPerfil.Select(o => new
                         {
@@ -357,6 +372,18 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                 aHora = h.aHora
             }).ToList().Distinct();
             return Ok(horarios);
+        }
+
+        [HttpGet]
+        [Route("getTopProcesos")]
+        public IHttpActionResult GetTopProcesos()
+        {
+            var procesos = db.ProcesosPerfil.Select(h => new
+            {
+                descripcion = h.Proceso,
+                orden = h.Orden
+            }).OrderBy(o => o.orden).Distinct().ToList();
+            return Ok(procesos);
         }
         #endregion
 
@@ -586,43 +613,52 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
         #region Actividades
         [HttpPost]
         [Route("crudActividades")]
-        public IHttpActionResult CurdActividades(ActPerfilDto act)
+        public IHttpActionResult CurdActividades(ActividadesPerfiles act)
         {
             try
             {
-                switch (act.Action)
-                {
-                    case "create":
-                        var c = new ActividadesPerfil();
-                        c.Actividades = act.Actividades.ToUpper().Trim();
-                        c.UsuarioAlta = act.Usuario;
-                        c.DAMFO290Id = act.DAMFO290Id;
-                        db.ActividadesPerfil.Add(c);
-                        db.SaveChanges();
-                        var actividadId = db.ActividadesPerfil
-                            .Where(e => e.DAMFO290Id.Equals(act.DAMFO290Id))
-                            .OrderByDescending(e => e.fch_Creacion)
-                            .Select(e => e.Id)
-                            .Take(1)
-                            .FirstOrDefault();
-                        return Ok(actividadId);
-                    case "update":
-                        var u = db.ActividadesPerfil.Find(act.Id);
-                        db.Entry(u).State = EntityState.Modified;
-                        u.Actividades = act.Actividades.ToUpper().Trim();
-                        u.DAMFO290Id = act.DAMFO290Id;
-                        u.UsuarioMod = act.Usuario;
-                        u.fch_Modificacion = DateTime.Now;
-                        db.SaveChanges();
-                        return Ok(u);
-                    case "delete":
-                        var d = db.ActividadesPerfil.Find(act.Id);
-                        db.Entry(d).State = EntityState.Deleted;
-                        db.SaveChanges();
-                        return Ok(HttpStatusCode.OK);
-                    default:
+                //switch (act.Action)
+                //{
+                //    case "create":
+                //        var a = new ActividadesPerfiles();
+                //        var c = new ActividadesPerfil();
+                //        a.Actividades = act.Actividades.ToUpper().Trim();
+                //        a.UsuarioAlta = act.UsuarioAlta;
+                //        a.fch_Creacion = DateTime.Now;
+                //        a.UsuarioMod = act.UsuarioAlta;
+                //        a.PerfilesDamfoId = act.PerfilesDamfoId;
+                //        a.fch_Modificacion = DateTime.Now;
+
+                //        db.ActividadesPerfiles.Add(a);
+                //        db.SaveChanges();
+
+                //        //c.DAMFO290Id = act.DAMFO290Id;
+                //        //c.ActividadesPerfilesId = a.Id;
+
+                //        //db.ActividadesPerfil.Add(c);
+                //        //db.SaveChanges();
+
+                //        //var actividadId = db.ActividadesPerfil
+                //        //    .Where(e => e.DAMFO290Id.Equals(act.DAMFO290Id))
+                //        //    .Select(e => e.Id)
+                //        //    .Take(1)
+                //        //    .FirstOrDefault();
+                //        return Ok(a.Id);
+                //    case "update":
+                //        var u = db.ActividadesPerfiles.Find(act.Id);
+                //        db.Entry(u).State = EntityState.Modified;
+                //        u.Actividades = act.Actividades.ToUpper().Trim();
+
+                //        db.SaveChanges();
+                //        return Ok(u);
+                //    case "delete":
+                //        var d = db.ActividadesPerfiles.Find(act.Id);
+                //        db.Entry(d).State = EntityState.Deleted;
+                //        db.SaveChanges();
+                //        return Ok(HttpStatusCode.OK);
+                //    default:
                         return Ok(HttpStatusCode.NotAcceptable);
-                }
+                
             }
             catch (Exception ex)
             {
@@ -1203,7 +1239,55 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         df.escolardadesPerfil = pf.Collections.escolardadesPerfil;
                         df.aptitudesPerfil = pf.Collections.aptitudesPerfil;
                         df.horariosPerfil = pf.Collections.horariosPerfil;
-                        df.actividadesPerfil = pf.Collections.actividadesPerfil;
+                        List<ActividadesPerfil> ap = new List<ActividadesPerfil>();
+                        foreach (var x in pf.Collections.actividadesPerfiles)
+                        {
+                            if (x.Id == new Guid("00000000-0000-0000-0000-000000000000"))
+                            {
+                                var a = new ActividadesPerfiles();
+                                var b = new ActividadesPerfil();
+                                var pd = new PerfilesDamfo();
+                                a.Actividades = x.Actividades.ToUpper().Trim();
+                                a.UsuarioAlta = x.UsuarioAlta;
+                                a.fch_Creacion = DateTime.Now;
+                                a.UsuarioMod = x.UsuarioAlta;
+
+                                if(a.PerfilesDamfoId == 0)
+                                {
+                                   
+                                    pd.Perfil = pf.Headers.NombrePerfil;
+                                    pd.EntidadId = x.UsuarioAlta;
+                                    pd.Activo = true;
+
+                                    db.PerfilesDamfo.Add(pd);
+                                    db.SaveChanges();
+
+                                    a.PerfilesDamfoId = pd.Id;
+                                } else
+                                {
+                                    a.PerfilesDamfoId = x.PerfilesDamfoId;
+                                }
+  
+                                a.fch_Modificacion = DateTime.Now;
+                                a.Activo = true;
+                                db.ActividadesPerfiles.Add(a);
+                                db.SaveChanges();
+
+                                b.ActividadesPerfilesId = a.Id;
+                                b.Actividades = x.Actividades;
+                                ap.Add(b);
+                            } else
+                            {
+                                var b = new ActividadesPerfil();
+
+                                b.ActividadesPerfilesId = x.Id;
+                                b.Actividades = x.Actividades;
+
+                                ap.Add(b);
+
+                            }
+                        }
+                        df.actividadesPerfil = ap;
                         df.observacionesPerfil = pf.Collections.observacionesPerfil;
                         df.psicometriasDamsa = pf.Collections.psicometriasDamsa;
                         df.psicometriasCliente = pf.Collections.psicometriasCliente;
@@ -1238,6 +1322,61 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         db.AptitudesPerfil.RemoveRange(apt);
                         db.AptitudesPerfil.AddRange(pf.Collections.aptitudesPerfil);
 
+                        var act = db.ActividadesPerfil.Where(x => x.DAMFO290Id == pf.Headers.Id);
+                        db.ActividadesPerfil.RemoveRange(act);
+
+                        List<ActividadesPerfil> apList = new List<ActividadesPerfil>();
+                        foreach (var x in pf.Collections.actividadesPerfiles)
+                        {
+                            if (x.Id == new Guid("00000000-0000-0000-0000-000000000000"))
+                            {
+                                var a = new ActividadesPerfiles();
+                                var b = new ActividadesPerfil();
+                                var pd = new PerfilesDamfo();
+                                a.Actividades = x.Actividades.ToUpper().Trim();
+                                a.UsuarioAlta = x.UsuarioAlta;
+                                a.fch_Creacion = DateTime.Now;
+                                a.UsuarioMod = x.UsuarioAlta;
+
+                                if (a.PerfilesDamfoId == 0)
+                                {
+
+                                    pd.Perfil = pf.Headers.NombrePerfil;
+                                    pd.EntidadId = x.UsuarioAlta;
+                                    pd.Activo = true;
+                                    db.PerfilesDamfo.Add(pd);
+                                    db.SaveChanges();
+
+                                    a.PerfilesDamfoId = pd.Id;
+                                }
+                                else
+                                {
+                                    a.PerfilesDamfoId = x.PerfilesDamfoId;
+                                }
+  
+                                a.fch_Modificacion = DateTime.Now;
+                                a.Activo = true;
+                                db.ActividadesPerfiles.Add(a);
+                                db.SaveChanges();
+
+                                b.ActividadesPerfilesId = a.Id;
+                                b.Actividades = x.Actividades;
+                                b.DAMFO290Id = pf.Headers.Id;
+                                apList.Add(b);
+                            }
+                            else
+                            {
+                                var b = new ActividadesPerfil();
+
+                                b.ActividadesPerfilesId = x.Id;
+                                b.Actividades = x.Actividades;
+                                b.DAMFO290Id = pf.Headers.Id;
+                                apList.Add(b);
+
+                            }
+                        }
+                        db.ActividadesPerfil.AddRange(apList);
+
                         // costos 
                         var cost = db.CostosDamfo290.Where(x => x.DAMFO290Id == pf.Headers.Id).ToList();
                         if(cost.Count() > 0 && !pf.Headers.Costos)
@@ -1251,6 +1390,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                         }
                         var up = db.DAMFO290.Find(pf.Headers.Id);
                         db.Entry(up).State = EntityState.Modified;
+                        up.ClienteId = pf.Headers.ClienteId;
                         up.TipoReclutamientoId = pf.Headers.TipoReclutamientoId;
                         up.ClaseReclutamientoId = pf.Headers.ClaseReclutamientoId;
                         up.NombrePerfil = pf.Headers.NombrePerfil;

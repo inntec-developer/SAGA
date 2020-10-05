@@ -1,4 +1,5 @@
 ﻿using Microsoft.Ajax.Utilities;
+using SAGA.API.Dtos.Equipos;
 using SAGA.API.Utilerias;
 using SAGA.DAL;
 using System;
@@ -27,154 +28,224 @@ namespace SAGA.API.Controllers.Equipos
             int[] estatusId = { 8, 9, 34, 35, 36, 37, 47, 48 };
 
             GetSub obj = new GetSub();
-           
+            List<ReclutadoresDto> reclutadores = new List<ReclutadoresDto>();
+            List<RequisicionesDto> requisTodas = new List<RequisicionesDto>();
             try
             {
                 var tipo = db.Usuarios.Where(x => x.Id.Equals(usuarioId)).Select(t => t.TipoUsuarioId).FirstOrDefault();
 
                 if (tipo == 14 || tipo == 8 || tipo == 13)
                 {
-                    var reclutadores = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId)).Select(u => new
+                    reclutadores = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId)).Select(u => new ReclutadoresDto
                     {
                         clienteId = u.Requisicion.ClienteId,
                         reclutadorId = u.GrpUsrId,
+                        requisicionId = u.Requisicion.Id,
+                        posiciones = u.Requisicion.horariosRequi.Count() > 0 ? u.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(u.RequisicionId) && x.EstatusId.Equals(24)
+                        && x.ReclutadorId.Equals(u.GrpUsrId)).Count(),
                         tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                        tipo = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.TipoUsuario.Tipo).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
-                    }).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new
+                    }).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new ReclutadoresDto
                     {
                         clienteId = u.ClienteId,
                         reclutadorId = u.AprobadorId,
+                        requisicionId = u.Id,
+                        posiciones = u.horariosRequi.Count() > 0 ? u.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(u.Id) && x.EstatusId.Equals(24)
+                        && x.ReclutadorId.Equals(u.AprobadorId)).Count(),
                         tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                        tipo = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.TipoUsuario.Tipo).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
-                    })).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new
+                    })).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new ReclutadoresDto
                     {
                         clienteId = u.ClienteId,
                         reclutadorId = u.PropietarioId,
+                        requisicionId = u.Id,
+                        posiciones = u.horariosRequi.Count() > 0 ? u.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(u.Id) && x.EstatusId.Equals(24)
+                        && x.ReclutadorId.Equals(u.PropietarioId)).Count(),
                         tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                        tipo = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.TipoUsuario.Tipo).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
-                    })).ToList().Distinct();
+                    })).ToList<ReclutadoresDto>();
 
-                    var requisTodas = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && !x.Confidencial).Select(r => new
+                    requisTodas = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && !x.Confidencial).Select(r => new RequisicionesDto
                     {
                         clienteId = r.ClienteId,
                         cliente = r.Cliente.Nombrecomercial,
+                        razon = r.Cliente.RazonSocial,
                         requisicionId = r.Id,
+                        fch_Modificacion = r.fch_Modificacion,
+                        estatusId = r.EstatusId,
+                        estatus = r.Estatus.Descripcion,
                         folio = r.Folio,
                         cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(r.Id) && x.EstatusId.Equals(24)).Count(),
                         posiciones = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                                
-                    }).ToList();
-                    reclutadores.Distinct();
-                    var clientes = requisTodas.GroupBy(g => g.clienteId).Select(d => new {
-                        clienteId = d.Key,
-                        cliente = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.cliente).FirstOrDefault(),
-                        reclutadores = reclutadores.Where(x => x.clienteId.Equals(d.Key)).Distinct(),
-                        requisiciones = d.Select(x => new
-                        {
-                            requisicionId = x.requisicionId,
-                            folio = x.folio,
-                            cubiertas = x.cubiertas,
-                            posiciones = x.posiciones
-                        }),
-                        totalPos = d.Select(x => new
-                        {
-                            requisicionId = x.requisicionId,
-                            pos = x.posiciones
-                        }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.pos }).Distinct().Sum(s => s.pos),
-                        totalCub = d.Select(x => new
-                        {
-                            requisicionId = x.requisicionId,
-                            cub = x.cubiertas
-                        }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.cub }).Distinct().Sum(s => s.cub),
-                    }).OrderByDescending(o => o.totalPos).ToList();
 
-                    return Ok(clientes);
+                    }).ToList<RequisicionesDto>();
+
+                    //var totRaclutadores = reclutadores.GroupBy(g => g.clienteId).Select(cc => new
+                    //{
+                    //    clienteId = cc.Key,
+                    //    reclutadores = cc.GroupBy(gg => gg.reclutadorId).Select(rr => new {
+                    //        reclutadorId = rr.Key,
+                    //        nombre = rr.Select(n => n.nombre).FirstOrDefault(),
+                    //        tipoUsuario = rr.Select(n => n.tipoUsuario).FirstOrDefault(),
+                    //        tipo = rr.Select(n => n.tipo).FirstOrDefault(),
+                    //        foto = rr.Select(n => n.foto).FirstOrDefault(),
+                    //        posiciones = rr.Where(x => x.clienteId.Equals(cc.Key) && x.reclutadorId.Equals(rr.Key)).Select(x => new
+                    //        {
+                    //            clienteId = x.clienteId,
+                    //            pos = x.posiciones
+                    //        }).OrderBy(o => o.clienteId).Select(xx => new { xx.clienteId, xx.pos }).Distinct().Sum(s => s.pos),
+                    //        cubiertas = rr.Where(x => x.clienteId.Equals(cc.Key) && x.reclutadorId.Equals(rr.Key)).Select(x => new
+                    //        {
+                    //            clienteId = x.clienteId,
+                    //            cub = x.cubiertas
+                    //        }).OrderBy(o => o.clienteId).Select(xx => new { xx.clienteId, xx.cub }).Distinct().Sum(s => s.cub)
+                    //    }).ToList()                        
+                    //}).ToList();
+
+                    //var clientes = requisTodas.GroupBy(g => g.clienteId).Select(d => new {
+                    //    clienteId = d.Key,
+                    //    cliente = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.cliente).FirstOrDefault(),
+                    //    razon = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.razon).FirstOrDefault(),
+                    //    reclutadores = totRaclutadores.Where(x => x.clienteId.Equals(d.Key)).Select(r => r.reclutadores).FirstOrDefault(),
+                    //    requisiciones = d.Select(x => new
+                    //    {
+                    //        requisicionId = x.requisicionId,
+                    //        folio = x.folio,
+                    //        cubiertas = x.cubiertas,
+                    //        posiciones = x.posiciones,
+                    //        fch_Modificacion = x.fch_Modificacion,
+                    //        estatusId = x.estatusId,
+                    //        estatus = x.estatus
+                    //    }),
+                    //    totalPos = d.Select(x => new
+                    //    {
+                    //        requisicionId = x.requisicionId,
+                    //        pos = x.posiciones
+                    //    }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.pos }).Distinct().Sum(s => s.pos),
+                    //    totalCub = d.Select(x => new
+                    //    {
+                    //        requisicionId = x.requisicionId,
+                    //        cub = x.cubiertas
+                    //    }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.cub }).Distinct().Sum(s => s.cub),
+                    //}).OrderByDescending(o => o.totalPos).ToList();
+
+                    //return Ok(clientes);
                 }
                 else if(tipo == 12)
                 {
-                    var estado = db.Usuarios
-               .Where(u => u.Id.Equals(usuarioId)).Select(u => u.Sucursal.estadoId).FirstOrDefault();
-                    //switch (UnidadNegocio.UnidadNegocioId)
-                    //{
-                    //    case 3: //mty
-                    //        int?[] mty = { 6, 7, 10, 19, 28, 24 };
-                    //        unidadNegocio = mty;
-                    //        break;
-                    //    case 1:
-                    //        int?[] gdl = { 1, 3, 8, 11, 14, 16, 18, 2, 25, 26, 32 };
-                    //        unidadNegocio = gdl;
-                    //        break;
-                    //    case 2:
-                    //        int?[] mx = { 4, 5, 9, 12, 13, 15, 17, 20, 21, 22, 23, 27, 29, 30, 31 };
-                    //        unidadNegocio = mx;
-                    //        break;
-                    //    default:
-                    //        break;
-                    //}
-
-                    var reclutadores = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && estado.Equals(x.Requisicion.Direccion.EstadoId)).Select(u => new
+                    var estado = db.Usuarios.Where(u => u.Id.Equals(usuarioId)).Select(u => u.Sucursal.estadoId).FirstOrDefault();
+                 
+                    reclutadores = db.AsignacionRequis.Where(x => !estatusId.Contains(x.Requisicion.EstatusId) && estado.Equals(x.Requisicion.Direccion.EstadoId)).Select(u => new ReclutadoresDto
                     {
                         clienteId = u.Requisicion.ClienteId,
                         reclutadorId = u.GrpUsrId,
+                        requisicionId = u.Requisicion.Id,
+                        posiciones = u.Requisicion.horariosRequi.Count() > 0 ? u.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(u.RequisicionId) && x.EstatusId.Equals(24)
+                        && x.ReclutadorId.Equals(u.GrpUsrId)).Count(),
                         tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                        tipo = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.TipoUsuario.Tipo).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
-                    }).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && estado.Equals(x.Direccion.EstadoId)).Select(u => new
+                    }).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && estado.Equals(x.Direccion.EstadoId)).Select(u => new ReclutadoresDto
                     {
                         clienteId = u.ClienteId,
                         reclutadorId = u.AprobadorId,
+                        requisicionId = u.Id,
+                        posiciones = u.horariosRequi.Count() > 0 ? u.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(u.Id) && x.EstatusId.Equals(24)
+                        && x.ReclutadorId.Equals(u.AprobadorId)).Count(),
                         tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                        tipo = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.TipoUsuario.Tipo).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
-                    })).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new
+                    })).Union(db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId)).Select(u => new ReclutadoresDto
                     {
                         clienteId = u.ClienteId,
                         reclutadorId = u.PropietarioId,
+                        requisicionId = u.Id,
+                        posiciones = u.horariosRequi.Count() > 0 ? u.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(u.Id) && x.EstatusId.Equals(24)
+                        && x.ReclutadorId.Equals(u.PropietarioId)).Count(),
                         tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                        tipo = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.TipoUsuario.Tipo).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
-                    })).ToList().Distinct();
+                    })).ToList<ReclutadoresDto>();
 
-                    reclutadores.Distinct();
-
-                    var requisTodas = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && estado.Equals(x.Direccion.EstadoId)).Select(r => new
+                    requisTodas = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && estado.Equals(x.Direccion.EstadoId)).Select(r => new RequisicionesDto
                     {
                         clienteId = r.ClienteId,
                         cliente = r.Cliente.Nombrecomercial,
+                        razon = r.Cliente.RazonSocial,
                         requisicionId = r.Id,
+                        fch_Modificacion = r.fch_Modificacion,
+                        estatusId = r.EstatusId,
+                        estatus = r.Estatus.Descripcion,
                         folio = r.Folio,
                         cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(r.Id) && x.EstatusId.Equals(24)).Count(),
                         posiciones = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(v => v.numeroVacantes) : 0,
                     }).ToList();
 
+                    //var totReclutadores = reclutadores.GroupBy(g => g.clienteId).Select(cc => new
+                    //{
+                    //    clienteId = cc.Key,
+                    //    reclutadores = cc.GroupBy(gg => gg.reclutadorId).Select(rr => new {
+                    //        reclutadorId = rr.Key,
+                    //        nombre = rr.Select(n => n.nombre).FirstOrDefault(),
+                    //        tipoUsuario = rr.Select(n => n.tipoUsuario).FirstOrDefault(),
+                    //        tipo = rr.Select(n => n.tipo).FirstOrDefault(),
+                    //        foto = rr.Select(n => n.foto).FirstOrDefault(),
+                    //        posiciones = rr.Where(x => x.clienteId.Equals(cc.Key) && x.reclutadorId.Equals(rr.Key)).Select(x => new
+                    //        {
+                    //            clienteId = x.clienteId,
+                    //            pos = x.posiciones
+                    //        }).OrderBy(o => o.clienteId).Select(xx => new { xx.clienteId, xx.pos }).Distinct().Sum(s => s.pos),
+                    //        cubiertas = rr.Where(x => x.clienteId.Equals(cc.Key) && x.reclutadorId.Equals(rr.Key)).Select(x => new
+                    //        {
+                    //            clienteId = x.clienteId,
+                    //            cub = x.cubiertas
+                    //        }).OrderBy(o => o.clienteId).Select(xx => new { xx.clienteId, xx.cub }).Distinct().Sum(s => s.cub)
+                    //    }).ToList()
+                    //}).ToList();
 
-                    var clientes = requisTodas.GroupBy(g => g.clienteId).Select(d => new {
-                        clienteId = d.Key,
-                        cliente = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.cliente).FirstOrDefault(),
-                        reclutadores = reclutadores.Where(x => x.clienteId.Equals(d.Key)).ToList().Distinct(),
-                        requisiciones = d.Select(x => new
-                        {
-                            requisicionId = x.requisicionId,
-                            folio = x.folio,
-                            cubiertas = x.cubiertas,
-                            posiciones = x.posiciones
-                        }),
-                        totalPos = d.Select(x => new
-                        {
-                            requisicionId = x.requisicionId,
-                            pos = x.posiciones
-                        }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.pos }).Distinct().Sum(s => s.pos),
-                        totalCub = d.Select(x => new
-                        {
-                            requisicionId = x.requisicionId,
-                            cub = x.cubiertas
-                        }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.cub }).Distinct().Sum(s => s.cub),
-                    }).OrderByDescending(o => o.totalPos).ToList();
+                    //var clientes = requisTodas.GroupBy(g => g.clienteId).Select(d => new {
+                    //    clienteId = d.Key,
+                    //    cliente = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.cliente).FirstOrDefault(),
+                    //    razon = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.razon).FirstOrDefault(),
+                    //    reclutadores = totReclutadores.Where(x => x.clienteId.Equals(d.Key)).Select(r => r.reclutadores).FirstOrDefault(),
+                    //    requisiciones = d.Select(x => new
+                    //    {
+                    //        requisicionId = x.requisicionId,
+                    //        folio = x.folio,
+                    //        cubiertas = x.cubiertas,
+                    //        posiciones = x.posiciones,
+                    //        fch_Modificacion = x.fch_Modificacion,
+                    //        estatusId = x.estatusId,
+                    //        estatus = x.estatus
+                    //    }),
+                    //    totalPos = d.Select(x => new
+                    //    {
+                    //        requisicionId = x.requisicionId,
+                    //        pos = x.posiciones
+                    //    }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.pos }).Distinct().Sum(s => s.pos),
+                    //    totalCub = d.Select(x => new
+                    //    {
+                    //        requisicionId = x.requisicionId,
+                    //        cub = x.cubiertas
+                    //    }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.cub }).Distinct().Sum(s => s.cub),
+                    //}).OrderByDescending(o => o.totalPos).ToList();
 
-                    return Ok(clientes);
+                    //return Ok(clientes);
                 }
                 else
                 {
@@ -197,71 +268,115 @@ namespace SAGA.API.Controllers.Equipos
                     .Select(a => a.Id).ToList();
 
                     var AllRequis = requis.Union(asignadas);
-                 
-                    var reclutadores = db.AsignacionRequis.Where(x => AllRequis.Distinct().Contains(x.RequisicionId) && uids.Distinct().Contains(x.GrpUsrId)).Select(u => new
+
+                    reclutadores = db.AsignacionRequis.Where(x => AllRequis.Distinct().Contains(x.RequisicionId) && uids.Distinct().Contains(x.GrpUsrId)).Select(u => new ReclutadoresDto
                     {
                         clienteId = u.Requisicion.ClienteId,
                         reclutadorId = u.GrpUsrId,
+                        requisicionId = u.Requisicion.Id,
+                        posiciones = u.Requisicion.horariosRequi.Count() > 0 ? u.Requisicion.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                        cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(u.RequisicionId) && x.EstatusId.Equals(24)
+                        && x.ReclutadorId.Equals(u.GrpUsrId)).Count(),
                         tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                        tipo = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.TipoUsuario.Tipo).FirstOrDefault(),
                         nombre = db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.GrpUsrId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
                     }).Union(
-                              db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id) && (uids.Distinct().Contains(x.AprobadorId))).Select(u => new
+                              db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id) && (uids.Distinct().Contains(x.AprobadorId))).Select(u => new ReclutadoresDto
                               {
                                   clienteId = u.ClienteId,
                                   reclutadorId = u.AprobadorId,
+                                  requisicionId = u.Id,
+                                  posiciones = u.horariosRequi.Count() > 0 ? u.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                                  cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(u.Id) && x.EstatusId.Equals(24)
+                                  && x.ReclutadorId.Equals(u.AprobadorId)).Count(),
                                   tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                                  tipo = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.TipoUsuario.Tipo).FirstOrDefault(),
                                   nombre = db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                                   foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.AprobadorId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
-                              })).Distinct().Union(db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id) && (uids.Distinct().Contains(x.PropietarioId))).Select(u => new
+                              })).Distinct().Union(db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id) && (uids.Distinct().Contains(x.PropietarioId))).Select(u => new ReclutadoresDto
                               {
                                   clienteId = u.ClienteId,
                                   reclutadorId = u.PropietarioId,
+                                  requisicionId = u.Id,
+                                  posiciones = u.horariosRequi.Count() > 0 ? u.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                                  cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(u.Id) && x.EstatusId.Equals(24)
+                                  && x.ReclutadorId.Equals(u.PropietarioId)).Count(),
                                   tipoUsuario = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.TipoUsuarioId).FirstOrDefault(),
+                                  tipo = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.TipoUsuario.Tipo).FirstOrDefault(),
                                   nombre = db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                                   foto = @"https://apierp.damsa.com.mx/img/" + db.Usuarios.Where(x => x.Id.Equals(u.PropietarioId)).Select(n => n.Clave).FirstOrDefault() + ".jpg",
-                              })).ToList().Distinct();
+                              })).ToList();
 
-                    reclutadores.ToList().Distinct();
-
-                    var requisTodas = db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id)).Select(r => new
+                    requisTodas = db.Requisiciones.Where(x => AllRequis.Distinct().Contains(x.Id)).Select(r => new RequisicionesDto
                     {
                         clienteId = r.ClienteId,
                         cliente = r.Cliente.Nombrecomercial,
+                        razon = r.Cliente.RazonSocial,
                         requisicionId = r.Id,
+                        fch_Modificacion = r.fch_Modificacion,
+                        estatusId = r.EstatusId,
+                        estatus = r.Estatus.Descripcion,
                         folio = r.Folio,
                         cubiertas = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(r.Id) && x.EstatusId.Equals(24)).Count(),
                         posiciones = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(v => v.numeroVacantes) : 0,
-                      
+
                     }).ToList();
 
 
-                    var clientes = requisTodas.GroupBy(g => g.clienteId).Select(d => new {
-                        clienteId = d.Key,
-                        cliente = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.cliente).FirstOrDefault(),
-                        reclutadores = reclutadores.Where(x => x.clienteId.Equals(d.Key)).ToList().Distinct(),
-                        requisiciones = d.Select(x => new
-                        {
-                            requisicionId = x.requisicionId,
-                            folio = x.folio,
-                            cubiertas = x.cubiertas,
-                            posiciones = x.posiciones
-                        }),
-                        totalPos = d.Select(x => new
+                }
+
+                var totReclutadores = reclutadores.GroupBy(g => g.clienteId).Select(cc => new
+                {
+                    clienteId = cc.Key,
+                    reclutadores = cc.GroupBy(gg => gg.reclutadorId).Select(rr => new
+                    {
+                        reclutadorId = rr.Key,
+                        nombre = rr.Select(n => n.nombre).FirstOrDefault(),
+                        tipoUsuario = rr.Select(n => n.tipoUsuario).FirstOrDefault(),
+                        tipo = rr.Select(n => n.tipo).FirstOrDefault(),
+                        foto = rr.Select(n => n.foto).FirstOrDefault(),
+                        posiciones = rr.Where(x => x.clienteId.Equals(cc.Key) && x.reclutadorId.Equals(rr.Key)).Select(x => new
                         {
                             requisicionId = x.requisicionId,
                             pos = x.posiciones
                         }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.pos }).Distinct().Sum(s => s.pos),
-                        totalCub = d.Select(x => new
+                        cubiertas = rr.Where(x => x.clienteId.Equals(cc.Key) && x.reclutadorId.Equals(rr.Key)).Select(x => new
                         {
                             requisicionId = x.requisicionId,
                             cub = x.cubiertas
-                        }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.cub }).Distinct().Sum(s => s.cub),
-                    }).OrderByDescending(o => o.totalPos).ToList();
+                        }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.cub }).Distinct().Sum(s => s.cub)
+                    }).ToList()
+                }).ToList();
 
-                    return Ok(clientes);
-                }
+                var clientes = requisTodas.GroupBy(g => g.clienteId).Select(d => new {
+                    clienteId = d.Key,
+                    cliente = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.cliente).FirstOrDefault(),
+                    razon = d.Where(x => x.clienteId.Equals(d.Key)).Select(c => c.razon).FirstOrDefault(),
+                    reclutadores = totReclutadores.Where(x => x.clienteId.Equals(d.Key)).Select(r => r.reclutadores).FirstOrDefault(),
+                    requisiciones = d.Select(x => new
+                    {
+                        requisicionId = x.requisicionId,
+                        folio = x.folio,
+                        cubiertas = x.cubiertas,
+                        posiciones = x.posiciones,
+                        fch_Modificacion = x.fch_Modificacion,
+                        estatusId = x.estatusId,
+                        estatus = x.estatus
+                    }),
+                    totalPos = d.Select(x => new
+                    {
+                        requisicionId = x.requisicionId,
+                        pos = x.posiciones
+                    }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.pos }).Distinct().Sum(s => s.pos),
+                    totalCub = d.Select(x => new
+                    {
+                        requisicionId = x.requisicionId,
+                        cub = x.cubiertas
+                    }).OrderBy(o => o.requisicionId).Select(xx => new { xx.requisicionId, xx.cub }).Distinct().Sum(s => s.cub),
+                }).OrderByDescending(o => o.totalPos).ToList();
 
+                return Ok(clientes);
             }
             catch (Exception ex)
             {
@@ -276,7 +391,6 @@ namespace SAGA.API.Controllers.Equipos
         {
             try
             {
-
                 var informe = db.Requisiciones.OrderByDescending(f => f.fch_Cumplimiento).Where(e => e.ClienteId.Equals(cc))
                     .Where(e => e.Activo.Equals(true) && e.EstatusId != 9 && !e.Confidencial && e.EstatusId != 8).Select(h => new
                     {

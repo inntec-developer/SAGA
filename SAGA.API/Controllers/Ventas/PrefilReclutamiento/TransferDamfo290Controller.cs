@@ -24,13 +24,14 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
         {
             try
             {
-                List<Guid> uids = new List<Guid>();
-                Utilerias.GetSub obj = new Utilerias.GetSub();
-                var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(lider) && x.LiderId.Equals(lider)).Select(u => u.UsuarioId).ToList();
+                //List<Guid> uids = new List<Guid>();
+                //Utilerias.GetSub obj = new Utilerias.GetSub();
+                //var ids = db.Subordinados.Where(x => !x.UsuarioId.Equals(lider) && x.LiderId.Equals(lider)).Select(u => u.UsuarioId).ToList();
 
-                uids = obj.RecursividadSub(ids, uids);
+                //uids = obj.RecursividadSub(ids, uids);
 
-                var usuarios = db.Usuarios.Where(x => uids.Contains(x.Id)).Select(n => new {
+                var usuarios = db.Usuarios.Where(x => x.TipoUsuario.Tipo.ToUpper().Equals("EJECUTIVO DE CUENTA") || (x.TipoUsuario.Tipo.ToUpper().Equals("LIDER") && x.Departamento.Nombre.ToUpper().Equals("ADMINISTRACION DE PERSONAL")))
+                    .Select(n => new {
                     usuarioId = n.Id,
                     nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno
                 });

@@ -34,11 +34,11 @@ namespace SAGA.API.Controllers
                 grupo.Nombre = listJson.Nombre;
                 grupo.Activo = listJson.Activo;
                 grupo.Descripcion = listJson.Descripcion;
-                grupo.UsuarioAlta = "INNTEC";
-                grupo.TipoEntidadId = 4;
-                grupo.Foto = listJson.Foto;
-                grupo.TipoGrupoId = listJson.TipoGrupoId;
-                db.Grupos.Add(grupo);
+                //grupo.UsuarioAlta = "INNTEC";
+                //grupo.TipoEntidadId = 4;
+                //grupo.Foto = listJson.Foto;
+                //grupo.TipoGrupoId = listJson.TipoGrupoId;
+                //db.Grupos.Add(grupo);
                 db.SaveChanges();
 
                 return Ok(HttpStatusCode.Created);
@@ -56,12 +56,12 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var g = db.Grupos.Find(data.Id);
+                //var g = db.Grupos.Find(data.Id);
 
-                db.Entry(g).State = EntityState.Modified;
-                g.Activo = data.Activo;
+                //db.Entry(g).State = EntityState.Modified;
+                //g.Activo = data.Activo;
 
-                db.SaveChanges();
+                //db.SaveChanges();
 
                 return Ok(HttpStatusCode.OK);
             }
@@ -80,16 +80,16 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var g = db.Grupos.Find(listJson.Id);
+                //var g = db.Grupos.Find(listJson.Id);
 
-                db.Entry(g).State = EntityState.Modified;
-                g.Nombre = listJson.Nombre;
-                g.Descripcion = listJson.Descripcion;
-                g.UsuarioAlta = "INNTEC";
-                g.Activo = listJson.Activo;
-                g.Foto = listJson.Foto;
-                g.TipoGrupoId = listJson.TipoGrupoId;
-                db.SaveChanges();
+                //db.Entry(g).State = EntityState.Modified;
+                //g.Nombre = listJson.Nombre;
+                //g.Descripcion = listJson.Descripcion;
+                ////g.UsuarioAlta = "INNTEC";
+                //g.Activo = listJson.Activo;
+                ////g.Foto = listJson.Foto;
+                ////g.TipoGrupoId = listJson.TipoGrupoId;
+                //db.SaveChanges();
 
                 return Ok(HttpStatusCode.Created);
             }
@@ -108,11 +108,11 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var r = db.Grupos.Find(listJson.Id);
+                //var r = db.Grupos.Find(listJson.Id);
 
-                db.Entry(r).State = EntityState.Deleted;
+                //db.Entry(r).State = EntityState.Deleted;
 
-                db.SaveChanges();
+                //db.SaveChanges();
 
                 return Ok(HttpStatusCode.Created);
             }
@@ -132,11 +132,11 @@ namespace SAGA.API.Controllers
             {
                 List<GrupoUsuarios> obj = new List<GrupoUsuarios>();
 
-                foreach (GrupoUsuarios gu in listJson)
-                {
-                    db.GruposUsuarios.Add(gu);
-                    db.SaveChanges();
-                }
+                //foreach (GrupoUsuarios gu in listJson)
+                //{
+                //    db.GruposUsuarios.Add(gu);
+                //    db.SaveChanges();
+                //}
 
                 return Ok(HttpStatusCode.Created);
             }
@@ -151,26 +151,10 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult GetGruposRoles()
         {
-            var grupos = db.Grupos.Where(x => x.Activo == true).Select(g => new
-            {
-                Id = g.Id,
-                Foto = @"https://apisb.damsa.com.mx/" + g.Foto,
-                Activo = g.Activo,
-                Descripcion = g.Descripcion,
-                Nombre = db.Entidad.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre).FirstOrDefault(),
-                UsuarioAlta = g.UsuarioAlta,
-                roles = db.RolEntidades.Where(x => x.EntidadId.Equals(g.Id)).Select(r => new
-                {
-                    id = r.Id,
-                    rol = r.Rol.Rol
-
-                })
-            }).OrderBy(o => o.Nombre).ToList();
-
-            //var grupos = db.Grupos.Where(g => g.Activo == true).Select(g => new
+            //var grupos = db.Grupos.Where(x => x.Activo == true).Select(g => new
             //{
             //    Id = g.Id,
-            //    Foto = g.Foto,
+            //    //Foto = @"https://apisb.damsa.com.mx/" + g.Foto,
             //    Activo = g.Activo,
             //    Descripcion = g.Descripcion,
             //    Nombre = db.Entidad.Where(p => p.Id.Equals(g.Id)).Select(p => p.Nombre).FirstOrDefault(),
@@ -184,7 +168,9 @@ namespace SAGA.API.Controllers
             //}).OrderBy(o => o.Nombre).ToList();
 
 
-            return Ok(grupos);
+
+
+            return Ok(HttpStatusCode.BadRequest);
 
         }
 

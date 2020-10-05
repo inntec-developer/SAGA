@@ -11,6 +11,7 @@ using AutoMapper;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using SAGA.API.Utilerias;
+using System.Data.Entity;
 
 namespace SAGA.API.Controllers
 
@@ -24,131 +25,6 @@ namespace SAGA.API.Controllers
         public CandidatosController()
         {
             db = new SAGADBContext();
-        }
-
-        [HttpGet]
-        [Route("get")]
-        public IHttpActionResult GetPaises()
-        {
-            CandidatosDto Paises = new CandidatosDto();
-
-            Paises.Paises = (from pais in db.Paises
-                             where pais.Id == 42
-                             select pais).ToList();
-
-            return Ok(Paises);
-        }
-
-        [HttpGet]
-        [Route("getestados")]
-        public IHttpActionResult GetEstados(int Pais)
-        {
-
-            CandidatosDto Estados = new CandidatosDto();
-
-            Estados.Estados = (from estado in db.Estados
-                               where estado.PaisId == Pais
-                               select estado).ToList();
-
-            return Ok(Estados);
-        }
-
-        [HttpGet]
-        [Route("getmunicipios")]
-        public IHttpActionResult GetMunicipios(int Estado)
-        {
-
-            CandidatosDto Municipios = new CandidatosDto();
-
-            Municipios.Municipios = (from municipios in db.Municipios
-                                     where municipios.EstadoId == Estado
-                                     select municipios).ToList();
-
-            return Ok(Municipios);
-        }
-
-        [HttpGet]
-        [Route("getcolonias")]
-        public IHttpActionResult GetColonias(int Municipio)
-        {
-
-            CandidatosDto Colonias = new CandidatosDto();
-
-            Colonias.Colonias = (from colonias in db.Colonias
-                                 where colonias.MunicipioId == Municipio
-                                 select colonias).ToList();
-
-            return Ok(Colonias);
-        }
-
-        [HttpGet]
-        [Route("getareasexp")]
-        public IHttpActionResult GetAreasExp()
-        {
-
-            var areasexp = db.AreasInteres.Where(a => a.Id != 0).ToList().OrderBy(a => a.areaInteres);
-
-            return Ok(areasexp);
-        }
-
-        [HttpGet]
-        [Route("getperfiles")]
-        public IHttpActionResult GetPerfiles()
-        {
-
-            var perfil = db.PerfilExperiencia.ToList();
-
-            return Ok(perfil);
-        }
-
-        [HttpGet]
-        [Route("getgeneros")]
-        public IHttpActionResult GetGeneros()
-        {
-
-            var genero = db.Generos.ToList();
-
-            return Ok(genero);
-        }
-
-        [HttpGet]
-        [Route("getdescapacidad")]
-        public IHttpActionResult GetDiscapacidad()
-        {
-
-            var discapacidad = db.TiposDiscapacidades.ToList();
-
-            return Ok(discapacidad);
-        }
-
-        [HttpGet]
-        [Route("gettplicencia")]
-        public IHttpActionResult GetTpLicencia()
-        {
-
-            var tplicencia = db.TiposLicencias.ToList();
-
-            return Ok(tplicencia);
-        }
-
-        [HttpGet]
-        [Route("getnivelestudio")]
-        public IHttpActionResult GetNivelestudio()
-        {
-
-            var nvestudio = db.GradosEstudios.ToList();
-
-            return Ok(nvestudio);
-        }
-
-        [HttpGet]
-        [Route("getidiomas")]
-        public IHttpActionResult GetIdiomas()
-        {
-
-            var idiomas = db.Idiomas.ToList();
-
-            return Ok(idiomas);
         }
 
         [HttpPost]
@@ -352,8 +228,6 @@ namespace SAGA.API.Controllers
             //        requisicionId = db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).Count() > 0 ? db.ProcesoCandidatos.Where(p => p.CandidatoId.Equals(x.IdCandidato)).OrderByDescending(o => o.Fch_Modificacion).Select(id => id.RequisicionId).FirstOrDefault() : new Guid("00000000-0000-0000-0000-000000000000"),
         }
 
-
-
         [HttpGet]
         [Route("getMisCandidatos")]
         public IHttpActionResult GetMisCandidatos(Guid Id)
@@ -540,40 +414,36 @@ namespace SAGA.API.Controllers
             return Ok(Estatus);
         }
 
-        [HttpGet]
-        [Route("getpostulaciones")]
-        public IHttpActionResult GetPostulaciones(Guid IdCandidato)
-        {
-            //var Postulaciones = db.Postulaciones
-            //    .Where(p => p.CandidatoId == IdCandidato)
-            //    .ToList();
+        //[HttpGet]
+        //[Route("getpostulaciones")]
+        //public IHttpActionResult GetPostulaciones(Guid IdCandidato)
+        //{
+        //    var postulacion = (from ps in db.Postulaciones
+        //                       join st in db.StatusPostulaciones on ps.StatusId equals st.Id
+        //                       join rq in db.Requisiciones on ps.RequisicionId equals rq.Id
+        //                       where (ps.CandidatoId == IdCandidato)
+        //                       select new
+        //                       {
+        //                           st.Status,
+        //                           rq.VBtra
+        //                       }).ToList();
 
-            var postulacion = (from ps in db.Postulaciones
-                               join st in db.StatusPostulaciones on ps.StatusId equals st.Id
-                               join rq in db.Requisiciones on ps.RequisicionId equals rq.Id
-                               where (ps.CandidatoId == IdCandidato)
-                               select new
-                               {
-                                   st.Status,
-                                   rq.VBtra
-                               }).ToList();
-
-            return Ok(postulacion);
-        }
+        //    return Ok(postulacion);
+        //}
 
         [HttpGet]
         [Route("getvacantes")]
         public IHttpActionResult GetVacantes(Guid IdUsuario)
         {
-            var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
-                .Where(g => g.EntidadId.Equals(IdUsuario))
-                .Select(g => g.GrupoId)
-                .ToList();
+            //var Grupos = db.GruposUsuarios // Obtenemos los Ids de las celulas o grupos a los que pertenece.
+            //    .Where(g => g.EntidadId.Equals(IdUsuario))
+            //    .Select(g => g.GrupoId)
+            //    .ToList();
 
-            var RequisicionesGrupos = db.AsignacionRequis
-                .Where(r => Grupos.Contains(r.GrpUsrId))
-                .Select(r => r.RequisicionId)
-                .ToList();
+            //var RequisicionesGrupos = db.AsignacionRequis
+            //    .Where(r => Grupos.Contains(r.GrpUsrId))
+            //    .Select(r => r.RequisicionId)
+            //    .ToList();
 
             var RequisicionesInd = db.AsignacionRequis
                 .Where(r => r.GrpUsrId.Equals(IdUsuario))
@@ -581,7 +451,7 @@ namespace SAGA.API.Controllers
                 .ToList();
 
             var vacantes = db.Requisiciones
-                .Where(v => RequisicionesGrupos.Contains(v.Id) || RequisicionesInd.Contains(v.Id))
+                .Where(v => RequisicionesInd.Contains(v.Id))
                 .ToList();
 
             return Ok(vacantes);
@@ -599,43 +469,100 @@ namespace SAGA.API.Controllers
             return Ok(vacantesdtl);
         }
 
+        [Route("apartarCandidato")]
         [HttpPost]
-        [Route("postapartado")]
-        public IHttpActionResult ApartarCandidato(ProcesoCandidato cdto)
+        [Authorize]
+        public IHttpActionResult ApartarCandidato(ProcesoCandidato proceso)
         {
             try
             {
-                if (db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(cdto.CandidatoId)).Count() == 0)
+                ProcesoDto datos = new ProcesoDto();
+                PostulateVacantController obj = new PostulateVacantController();
+
+                var horario = db.HorariosRequis.Where(x => x.RequisicionId.Equals(proceso.RequisicionId)).Select(h => h.Id).FirstOrDefault();
+                var candidato = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(proceso.CandidatoId) && x.RequisicionId.Equals(proceso.RequisicionId)).FirstOrDefault();
+                var estatus = 12;
+                if (candidato == null)
                 {
-                    cdto.Fch_Creacion = DateTime.Now;
-                    cdto.Fch_Creacion.ToUniversalTime();
-                    db.ProcesoCandidatos.Add(cdto);
+                    proceso.HorarioId = horario;
+                    proceso.Fch_Modificacion = DateTime.Now;
+                    proceso.DepartamentoId = new Guid("d89bec78-ed5b-4ac5-8f82-24565ff394e5");
+                    proceso.TipoMediosId = 2;
+
+                    db.ProcesoCandidatos.Add(proceso);
                     db.SaveChanges();
+
+                    var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(proceso.RequisicionId) && x.EstatusId.Equals(29)).Count();
+                    if (requi == 0)
+                    {
+                        datos.requisicionId = proceso.RequisicionId;
+                        datos.estatusId = 29;
+                        obj.UpdateStatusVacante(datos);
+
+                    }
+
+                    return Ok(HttpStatusCode.OK);
                 }
-            }
-            catch (Exception)
-            {
+                else if (candidato.EstatusId == 27 || candidato.EstatusId == 40)
+                {
+                    if (candidato.EstatusId == 40)
+                    {
+                        estatus = db.InformeRequisiciones.OrderByDescending(f => f.fch_Modificacion).Where(x => x.CandidatoId.Equals(proceso.CandidatoId) && !x.EstatusId.Equals(40)).Select(e => e.EstatusId).FirstOrDefault();
+                    }
+                    db.Entry(candidato).State = EntityState.Modified;
+                    candidato.Reclutador = proceso.Reclutador;
+                    candidato.ReclutadorId = proceso.ReclutadorId;
+                    candidato.RequisicionId = proceso.RequisicionId;
+                    candidato.Folio = proceso.Folio;
+                    candidato.EstatusId = estatus;
+                    candidato.Fch_Modificacion = DateTime.Now;
+                    candidato.HorarioId = horario;
 
-            }
-            return Ok(cdto);
-        }
+                    db.SaveChanges();
 
-        [HttpGet]
-        [Route("postliberado")]
-        public IHttpActionResult LiberarCandidato(int Id)
-        {
-            try
-            {
-                ProcesoCandidato ProcesoCandidato = db.ProcesoCandidatos.Find(Id);
-                db.ProcesoCandidatos.Remove(ProcesoCandidato);
-                Save();
-                return Ok(true);
+                    var requi = db.EstatusRequisiciones.Where(x => x.RequisicionId.Equals(proceso.RequisicionId) && x.EstatusId.Equals(29)).Count();
+                    if (requi == 0)
+                    {
+                        datos.requisicionId = proceso.RequisicionId;
+                        datos.estatusId = 29;
+                        obj.UpdateStatusVacante(datos);
+
+                    }
+
+                    return Ok(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.NotModified);
+                }
+
             }
             catch (Exception ex)
             {
-                return Ok(ex.Message);
+                var msg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
             }
         }
+        //[HttpPost]
+        //[Route("postapartado")]
+        //public IHttpActionResult ApartarCandidato(ProcesoCandidato cdto)
+        //{
+        //    try
+        //    {
+        //        if (db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(cdto.CandidatoId)).Count() == 0)
+        //        {
+        //            cdto.Fch_Creacion = DateTime.Now;
+        //            cdto.Fch_Creacion.ToUniversalTime();
+        //            db.ProcesoCandidatos.Add(cdto);
+        //            db.SaveChanges();
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //    }
+        //    return Ok(cdto);
+        //}
 
         private void Save()
         {
@@ -656,46 +583,6 @@ namespace SAGA.API.Controllers
                 }
 
             } while (saveFailed);
-        }
-
-        [HttpGet]
-        [Route("getAreasRecl")]
-        public IHttpActionResult GetAreasRecl()
-        {
-            try
-            {
-                var areas = db.Departamentos.Where(x => x.AreaId.Equals(16)).Select(a => new
-                {
-                    Id = a.Id,
-                    Nombre = a.Nombre
-                }).ToList();
-
-                return Ok(areas);
-            }
-            catch (Exception ex)
-            {
-                return Ok(ex.Message);
-            }
-        }
-
-        [HttpGet]
-        [Route("getMotivos")]
-        public IHttpActionResult GetMotivos(int estatus)
-        {
-            try
-            {
-                var motivos = db.MotivosLiberacion.Where(x => x.EstatusId.Equals(estatus) && x.Activo).Select(a => new
-                {
-                    Id = a.Id,
-                    Descripcion = a.Descripcion
-                }).ToList();
-
-                return Ok(motivos);
-            }
-            catch (Exception ex)
-            {
-                return Ok(ex.Message);
-            }
         }
 
         [HttpGet]
@@ -792,6 +679,7 @@ namespace SAGA.API.Controllers
                             fch_Creacion = p.fch_Creacion,
                             fch_Modificacion = p.fch_Modificacion,
                             folio = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Select(v => v.Requisicion.Folio).FirstOrDefault(),
+                            requisicionId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Select(v => v.Requisicion.Id).FirstOrDefault(),
                             vbtra = String.IsNullOrEmpty(db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Select(v => v.Requisicion.VBtra).FirstOrDefault()) ? "Sin registro" : db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Select(v => v.Requisicion.VBtra).FirstOrDefault(),
                             clienteId = c.Requisicion.Cliente.Id,
                             nombrecomercial = c.Requisicion.Cliente.Nombrecomercial,
@@ -921,6 +809,56 @@ namespace SAGA.API.Controllers
         }
 
         [HttpPost]
+        [Route("updateCURPRFC")]
+        public IHttpActionResult UpdateCURPRFC(ProcesoDto datos)
+        {
+            var aux = new Guid("00000000-0000-0000-0000-000000000000");
+            CandidatosInfo obj = new CandidatosInfo();
+            try
+            {
+                var cc = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(datos.candidatoId)).Select(c => c.Id).FirstOrDefault();
+
+                if (cc != aux)
+                {
+                    if (datos.curp.Length > 0 || datos.rfc.Length > 0)
+                    {
+                        var ccc = db.CandidatosInfo.Find(cc);
+                        if (datos.curp.Length > 0)
+                        {
+                            db.Entry(ccc).Property(x => x.CURP).IsModified = true;
+                            ccc.CURP = datos.curp;
+                        }
+                        else if (datos.rfc.Length > 0)
+                        {
+                            db.Entry(ccc).Property(x => x.RFC).IsModified = true;
+                            ccc.RFC = datos.rfc;
+                        }
+
+                        ccc.fch_Modificacion = DateTime.Now;
+                        ccc.fch_Modificacion.ToUniversalTime();
+                        //ccc.UsuarioMod = datos.ReclutadorId;
+
+                        db.SaveChanges();
+
+                        return Ok(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        return Ok(HttpStatusCode.Conflict);
+                    }
+
+                }
+
+                return Ok(HttpStatusCode.BadRequest);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+
+        }
+
+        [HttpPost]
         [Route("updateContratados")]
         public IHttpActionResult UpdateContratados(ProcesoDto datos)
         {
@@ -945,9 +883,10 @@ namespace SAGA.API.Controllers
                     obj.MunicipioNacimientoId = datos.estadoNacimientoId;
                     obj.GeneroId = datos.generoId;
                     obj.ReclutadorId = datos.ReclutadorId;
-
+                                       
                     obj.fch_Modificacion = DateTime.Now;
                     obj.fch_Modificacion.ToUniversalTime();
+                    obj.UsuarioMod = datos.ReclutadorId;
 
                     db.CandidatosInfo.Add(obj);
                     db.SaveChanges();
@@ -969,9 +908,9 @@ namespace SAGA.API.Controllers
                     ccc.CURP = datos.curp;
                     ccc.RFC = datos.rfc;
                     ccc.NSS = datos.nss;
-                    ccc.ReclutadorId = datos.ReclutadorId;
                     ccc.fch_Modificacion = DateTime.Now;
                     ccc.fch_Modificacion.ToUniversalTime();
+                    ccc.UsuarioMod = datos.ReclutadorId;
 
                     db.SaveChanges();
 

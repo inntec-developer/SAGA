@@ -12,6 +12,7 @@ namespace SAGA.API.Dtos.Equipos
         public string nombre { get; set; }
         public string clave { get; set; }
         public int tipoUsuario { get; set; }
+        public string tipo { get; set; }
         public int totalCub { get; set; }
         public int totalPos { get; set; }
         public int totalPosAux { get; set; }

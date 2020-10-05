@@ -55,31 +55,19 @@ namespace SAGA.API.Controllers.Component
             var rol = db.Privilegios.Where(p => p.EstructuraId.Equals(130)).Select(x => x.RolId).ToList();
             var entidad = db.RolEntidades.Where(x => rol.Contains(x.RolId)).Select(x => x.EntidadId).ToList();
 
-            var asignacion = db.Grupos.OrderBy(x => x.Nombre)
-                .Where(g => g.Activo.Equals(true) && entidad.Contains(g.Id))
-                .Where(g => (g.TipoGrupoId > 3 && g.TipoGrupoId <= 5) || g.TipoGrupoId == 10)
-                .Select(g => new
-                {
-                    id = g.Id,
-                    nombre = g.Nombre,
-                    usuarios = db.Usuarios
-                                .Where(u => (db.GruposUsuarios
-                                            .Where(x => x.GrupoId.Equals(g.Id))
-                                            .Where(x => x.Entidad.TipoEntidadId.Equals(1))
-                                            .Select(x => x.EntidadId)
-                                            .ToList()).Contains(u.Id) )
-                                .Where(u =>  u.Activo.Equals(true))
-                                .Where(u => (u.TipoUsuarioId > 3 && u.TipoUsuarioId <= 5) || u.TipoUsuarioId == 10)
-                                .Where(u => (u.Departamento.Clave == "RECL" || u.Departamento.Clave == "RCMP" || u.Departamento.Clave == "RECM"))
-                                .Select(u => new UsuariosDto
-                                {
-                                    Id = u.Id,
-                                    Nombre = u.Nombre + " " + u.ApellidoPaterno,
-                                    Usuario = u.Usuario,
-                                    Email = db.Emails.Where(e => e.EntidadId.Equals(u.Id)).Select(e => e.email).FirstOrDefault(),
-                                    TipoUsuario = u.TipoUsuario.Tipo
-                                }).ToList()
-                }).ToList();
+            var asignacion = db.Usuarios
+                                  .Where(u => u.Activo.Equals(true))
+                                  .Where(u => (u.TipoUsuarioId > 3 && u.TipoUsuarioId <= 5) || u.TipoUsuarioId == 10)
+                                  .Where(u => (u.Departamento.Clave == "RECL" || u.Departamento.Clave == "RCMP" || u.Departamento.Clave == "RECM"))
+                                  .Select(u => new UsuariosDto
+                                  {
+                                      Id = u.Id,
+                                      Nombre = u.Nombre + " " + u.ApellidoPaterno,
+                                      Usuario = u.Usuario,
+                                      Email = db.Emails.Where(e => e.EntidadId.Equals(u.Id)).Select(e => e.email).FirstOrDefault(),
+                                      TipoUsuario = u.TipoUsuario.Tipo
+                                  }).ToList();
+  
             return Ok(asignacion);
         }
 
@@ -92,22 +80,7 @@ namespace SAGA.API.Controllers.Component
             var rol = db.Privilegios.Where(p => p.EstructuraId.Equals(130)).Select(x => x.RolId).ToList();
             var entidad = db.RolEntidades.Where(x => rol.Contains(x.RolId)).Select(x => x.EntidadId).ToList();
 
-            var asignacion = db.Grupos.OrderBy(x => x.Nombre)
-               .Where(g => g.Activo.Equals(true) 
-                && (g.TipoGrupoId == 11 || g.TipoGrupoId == 5) 
-                && entidad.Contains(g.Id))
-               .Select(g => new
-               {
-                   id = g.Id,
-                   nombre = g.Nombre,
-                   usuarios = db.Usuarios
-                               .Where(u => (db.GruposUsuarios
-                                            .Where(x => x.GrupoId.Equals(g.Id))
-                                            .Where(x => x.Entidad.TipoEntidadId.Equals(1))
-                                            .Select(x => x.EntidadId)
-                                            .ToList()
-                                           ).Contains(u.Id)
-                                     )
+            var asignacion = db.Usuarios
                                 .Where(u => u.Activo.Equals(true))
                                 .Where(u => (u.TipoUsuarioId == 11 || u.TipoUsuarioId == 5) || u.TipoUsuarioId.Equals(11))
                                 .Where(u => (u.Departamento.Clave == "RECL" || u.Departamento.Clave == "RCMP" || u.Departamento.Clave == "RECM"))
@@ -118,8 +91,7 @@ namespace SAGA.API.Controllers.Component
                                     Usuario = u.Usuario,
                                     Email = db.Emails.Where(e => e.EntidadId.Equals(u.Id)).Select(e => e.email).FirstOrDefault(),
                                     TipoUsuario = u.TipoUsuario.Tipo
-                                }).ToList()
-               }).ToList();
+                                }).ToList();
             return Ok(asignacion);
         }
 

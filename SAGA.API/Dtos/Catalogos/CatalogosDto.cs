@@ -11,7 +11,7 @@ namespace SAGA.API.Dtos
         public int opt { get; set; }
         public string Usuario { get; set; }
         #region Sistema
-        public Catalogos Catalogos { get; set; }
+        public SAGA.BOL.Catalogos Catalogos { get; set; }
         public List<Pais> Pais { get; set; }
         public List<EstadoDto> Estado { get; set; }
         public List<MunicipioDto> Municipio { get; set; }

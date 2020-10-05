@@ -41,8 +41,7 @@ namespace SAGA.API.Controllers
                         Foto = x.Reclutador.Foto,
                         fchComentario = x.fch_Creacion
                     })
-                    .ToList()
-                    .OrderBy(x => x.fchComentario);
+                    .OrderBy(x => x.fchComentario).ToList();
                 return Ok(comentarios);
             }
             catch (Exception ex)

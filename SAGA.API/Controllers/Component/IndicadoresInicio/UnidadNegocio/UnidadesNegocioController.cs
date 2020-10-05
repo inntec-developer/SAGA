@@ -10,7 +10,7 @@ using System.Web.Http;
 namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
 {
     [RoutePrefix("api/contadores")]
-    [Authorize]
+    //[Authorize]
     public class UnidadesNegocioController : ApiController
     {
         private SAGADBContext db;
@@ -37,8 +37,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                 var Vigentes = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento >= DateActivas)
                     .Where(r => mty.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(r => new {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         })
@@ -57,8 +56,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                 var Vencidas = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento < DateTime.Now)
                     .Where(r => mty.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(r => new {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         })
@@ -93,8 +91,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                 var Vigentes = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento >= DateActivas)
                     .Where(r => gdl.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(r => new {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         })
@@ -103,8 +100,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                 var PorVencer = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
                     .Where(r => gdl.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(r => new {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         })
@@ -113,8 +109,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                 var Vencidas = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento < DateTime.Now)
                     .Where(r => gdl.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(r => new {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         })
@@ -149,8 +144,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                 var Vigentes = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento >= DateActivas)
                     .Where(r => mx.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(r => new {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         })
@@ -159,8 +153,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                 var PorVencer = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
                     .Where(r => mx.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(r => new {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         })
@@ -169,8 +162,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                 var Vencidas = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento < DateTime.Now)
                     .Where(r => mx.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(r => new {
                             Vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         })
@@ -222,8 +214,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                 {
                     var Todas = db.Requisiciones
                    .Where(r => unidadNegocio.Contains(r.Direccion.EstadoId)
-                       && estatus.Contains(r.EstatusId)
-                       && !r.Confidencial)
+                       && estatus.Contains(r.EstatusId))
                        .Select(e => new
                        {
                            Id = e.Id,
@@ -231,7 +222,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                            fch_Creacion = e.fch_Creacion,
                            fch_Cumplimiento = e.fch_Cumplimiento,
                            Cliente = e.Cliente.Nombrecomercial.ToUpper(),
-                           VBtra = e.VBtra.ToUpper(),
+                           VBtra = e.Confidencial ? "CONFIDENCIAL" : e.VBtra.ToUpper(),
                            Estatus = e.Estatus.Descripcion.ToUpper(),
                            EstatusId = e.EstatusId,
                            EstatusOrden = e.Estatus.Orden,
@@ -252,8 +243,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                     var Vigentes = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento >= DateActivas)
                     .Where(r => unidadNegocio.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -261,7 +251,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                             fch_Creacion = e.fch_Creacion,
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Cliente = e.Cliente.Nombrecomercial.ToUpper(),
-                            VBtra = e.VBtra.ToUpper(),
+                            VBtra = e.Confidencial ? "CONFIDENCIAL" : e.VBtra.ToUpper(),
                             Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
                             EstatusOrden = e.Estatus.Orden,
@@ -282,8 +272,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                     var PorVencer = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento >= DateTime.Now && r.fch_Cumplimiento < DateActivas)
                     .Where(r => unidadNegocio.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -291,7 +280,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                             fch_Creacion = e.fch_Creacion,
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Cliente = e.Cliente.Nombrecomercial.ToUpper(),
-                            VBtra = e.VBtra.ToUpper(),
+                            VBtra = e.Confidencial ? "CONFIDENCIAL" : e.VBtra.ToUpper(),
                             Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
                             EstatusOrden = e.Estatus.Orden,
@@ -312,8 +301,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                     var Vencidas = db.Requisiciones
                     .Where(r => r.fch_Cumplimiento < DateTime.Now)
                     .Where(r => unidadNegocio.Contains(r.Direccion.EstadoId)
-                        && estatus.Contains(r.EstatusId)
-                        && !r.Confidencial)
+                        && estatus.Contains(r.EstatusId))
                         .Select(e => new
                         {
                             Id = e.Id,
@@ -321,7 +309,7 @@ namespace SAGA.API.Controllers.Component.IndicadoresInicio.UnidadNegocio
                             fch_Creacion = e.fch_Creacion,
                             fch_Cumplimiento = e.fch_Cumplimiento,
                             Cliente = e.Cliente.Nombrecomercial.ToUpper(),
-                            VBtra = e.VBtra.ToUpper(),
+                            VBtra = e.Confidencial ? "CONFIDENCIAL" : e.VBtra.ToUpper(),
                             Estatus = e.Estatus.Descripcion.ToUpper(),
                             EstatusId = e.EstatusId,
                             EstatusOrden = e.Estatus.Orden,

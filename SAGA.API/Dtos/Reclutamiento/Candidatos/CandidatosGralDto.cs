@@ -16,7 +16,8 @@ namespace SAGA.API.Dtos
         public string Curp { get; set; }
         public string Rfc { get; set; }
         public string Nss { get; set; }
-       
+        public string Credencial { get; set; }
+        public string Foto { get; set; }
 
         //Melina
         public List<Email> Email { get; set; }

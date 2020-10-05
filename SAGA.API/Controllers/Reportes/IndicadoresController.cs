@@ -9,6 +9,7 @@ using SAGA.BOL;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SAGA.API.Utilerias;
 
 namespace SAGA.API.Controllers.Reportes
 {
@@ -40,11 +41,11 @@ namespace SAGA.API.Controllers.Reportes
 
             //   DateTime fecha = DateTime.Now.AddMonths(-3);
             var datos2 = db.EstatusRequisiciones.Where(e => ListaUsuario.Contains(e.PropietarioId)).Select(e => e.RequisicionId).ToList();
-            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e =>e.RequisicionId).ToList();
+            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
             var datos3 = db.Requisiciones.Where(e => datos2.Contains(e.Id) || asigna.Contains(e.Id)).Select(e => e.Id).ToList();
             var datos = db.Requisiciones.Where(e => datos3.Contains(e.Id) && e.Activo == true && e.Confidencial == false).ToList();
-        //    int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 46 };
-            int[] EstatusList = new[] { 34, 35, 36, 37, 47, 48};
+            //    int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 46 };
+            int[] EstatusList = new[] { 34, 35, 36, 37, 47, 48 };
             datos = datos.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
             int tipo = db.Usuarios.Where(e => e.Id == id).Select(e => e.TipoUsuarioId).FirstOrDefault();
             if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
@@ -53,8 +54,8 @@ namespace SAGA.API.Controllers.Reportes
                 datos = datos.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
             }
 
-            int[] rango = new[] { 0, 1, 2, 3, 4, 5,6};
-           
+            int[] rango = new[] { 0, 1, 2, 3, 4, 5, 6 };
+
             int mes = 0;
             DateTime fechaInicio = DateTime.Now;
             DateTime fechaFinal = DateTime.Now;
@@ -69,9 +70,9 @@ namespace SAGA.API.Controllers.Reportes
 
             foreach (var item in rango)
             {
-               
+
                 var lista = new Dtos.Reporte.IndicadorDto();
-                
+
                 lista.nombre = DateTime.Now.AddMonths(mes).ToString("MMMM");
                 fechaInicio = new DateTime(fechaInicio.Year, DateTime.Now.AddMonths(mes).Month, 1);
                 fechaFinal = new DateTime(fechaInicio.Year, fechaInicio.Month, fechaInicio.AddMonths(1).AddDays(-1).Day);
@@ -80,11 +81,11 @@ namespace SAGA.API.Controllers.Reportes
                 //var cubierto = proseso.Where(e => e.EstatusId == 24).Select(e => e.RequisicionId).Distinct().ToList();
                 //datos = datos.Where(e => cubierto.Contains(e.Id)).ToList();
 
-                var datos4 = datos.Where(e => e.fch_Modificacion  > fechaInicio && e.fch_Modificacion  <= fechaFinal).ToList();
+                var datos4 = datos.Where(e => e.fch_Modificacion > fechaInicio && e.fch_Modificacion <= fechaFinal).ToList();
 
                 lista.id = mes;
 
-                var cubierID = datos4.Where(e => e.EstatusId == 34).Select(e=>e.Id).ToList();
+                var cubierID = datos4.Where(e => e.EstatusId == 34).Select(e => e.Id).ToList();
                 lista.cubierta = 0;
                 if (cubierID.Count > 0)
                 {
@@ -93,7 +94,7 @@ namespace SAGA.API.Controllers.Reportes
                     lista.cubierta = cubierID.ToList().Count();
                 }
 
-                var mediosID = datos4.Where(e => e.EstatusId == 36 ).Select(e => e.Id).ToList();
+                var mediosID = datos4.Where(e => e.EstatusId == 36).Select(e => e.Id).ToList();
                 lista.medios = 0;
                 if (mediosID.Count > 0)
                 {
@@ -102,7 +103,7 @@ namespace SAGA.API.Controllers.Reportes
                     lista.medios = mediosID.ToList().Count();
                 }
 
-                var parcialID = datos4.Where(e => e.EstatusId == 35 ).Select(e => e.Id).ToList();
+                var parcialID = datos4.Where(e => e.EstatusId == 35).Select(e => e.Id).ToList();
                 lista.parcial = 0;
                 if (parcialID.Count > 0)
                 {
@@ -110,8 +111,8 @@ namespace SAGA.API.Controllers.Reportes
                     parcialPos = db.HorariosRequis.Where(x => parcialID.Contains(x.RequisicionId)).Sum(x => x.numeroVacantes);
                     lista.parcial = parcialID.ToList().Count();
                 }
-                
-                var clienteID = datos4.Where(e => e.EstatusId == 37 ).Select(e => e.Id).ToList();
+
+                var clienteID = datos4.Where(e => e.EstatusId == 37).Select(e => e.Id).ToList();
                 lista.cliente = 0;
                 if (clienteID.Count > 0)
                 {
@@ -120,7 +121,7 @@ namespace SAGA.API.Controllers.Reportes
                     lista.cliente = clienteID.ToList().Count();
                 }
 
-                var operacionID = datos4.Where(e => e.EstatusId == 48 ).Select(e => e.Id).ToList();
+                var operacionID = datos4.Where(e => e.EstatusId == 48).Select(e => e.Id).ToList();
                 lista.operacion = 0;
                 if (operacionID.Count > 0)
                 {
@@ -129,7 +130,7 @@ namespace SAGA.API.Controllers.Reportes
                     lista.operacion = operacionID.ToList().Count();
                 }
 
-                var promocionID = datos4.Where(e => e.EstatusId == 47 ).Select(e => e.Id).ToList();
+                var promocionID = datos4.Where(e => e.EstatusId == 47).Select(e => e.Id).ToList();
                 lista.promo = 0;
                 if (promocionID.Count > 0)
                 {
@@ -142,12 +143,12 @@ namespace SAGA.API.Controllers.Reportes
                 lista.Totalcubierta = cubierta;
                 DatosLista.Add(lista);
                 mes--;
-                 cubiertaPos = 0;
-                 mediosPos = 0;
-                 parcialPos = 0;
-                 clientePos = 0;
-                 operacionPos = 0;
-                 promocionPos = 0;
+                cubiertaPos = 0;
+                mediosPos = 0;
+                parcialPos = 0;
+                clientePos = 0;
+                operacionPos = 0;
+                promocionPos = 0;
                 cubierta = 0;
             }
 
@@ -160,93 +161,105 @@ namespace SAGA.API.Controllers.Reportes
 
         [HttpGet]
         [Route("vactiva")]
-        
+
         public IHttpActionResult vactiva(string usuario)
         {
             Guid id = new Guid(usuario);
-
-            var ListaUsuario = new List<Guid>();
-            ListaUsuario.Add(id);
-            var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
-            if (arbol.Count > 0)
-            {
-                ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
-                foreach (var item in arbol)
-                {
-                    var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
-                    if (hijos.Count > 0)
-                    {
-                        ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
-                    }
-                }
-            }
-
+            GetSub getSub = new GetSub();
+            List<Guid> ListaUsuario = new List<Guid>();
+            int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 46 };
             DateTime fecha = DateTime.Now.AddMonths(-1);
-            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
-            int[] EstatusList = new[] { 4,6,7,29,30,31,32,33,38,39, 43, 46 };
-            var datos = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.AprobadorId) && e.Activo == true && e.Confidencial == false).ToList();
-            int tipo = db.Usuarios.Where(e => e.Id == id).Select(e => e.TipoUsuarioId).FirstOrDefault();
-            if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
+            try
             {
-                datos = db.Requisiciones.Where(e => e.Activo == true && e.Confidencial == false).ToList();
+                var arbol = db.Subordinados.Where(x => !x.UsuarioId.Equals(id) && x.LiderId.Equals(id)).Select(u => u.UsuarioId).ToList();
+
+                if (arbol.Count() > 0)
+                {
+                    ListaUsuario = getSub.RecursividadSub(arbol, ListaUsuario);
+                }
+
+                ListaUsuario.Add(id);
+                var Activalista = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId) && e.Tipo.Equals(2) && EstatusList.Contains(e.Requisicion.EstatusId) && e.Requisicion.Activo)
+                    .Select(e => e.RequisicionId).Distinct().ToList();
+                var estatusRequi = db.Requisiciones.Where(e => Activalista.Contains(e.Id) && e.Activo == true).GroupBy(g => g.EstatusId)
+                    .Select(r => new
+                    {
+                        nuevo = r.Where(x => x.EstatusId.Equals(4)).Count(),
+                        aprobada = r.Where(e => e.EstatusId == 6).Count(),
+                        Publicada = r.Where(e => e.EstatusId == 7).Count(),
+                        BusCandidatos = r.Where(e => e.EstatusId == 29).Count(),
+                        EnvCliente = r.Where(e => e.EstatusId == 30).Count(),
+                        NuBusqueda = r.Where(e => e.EstatusId == 31).Count(),
+                        Socioeconomicos = r.Where(e => e.EstatusId == 32).Count(),
+                        Espera = r.Where(e => e.EstatusId == 33).Count(),
+                        Pausada = r.Where(e => e.EstatusId == 39).Count(),
+                        Garantia = r.Where(e => e.EstatusId == 38).Count(),
+                        Pendiente = r.Where(e => e.EstatusId == 43).Count(),
+                        PendienteGG = r.Where(e => e.EstatusId == 46).Count(),
+                    }).ToList();
+
+                //int tipo = db.Usuarios.Where(e => e.Id == id).Select(e => e.TipoUsuarioId).FirstOrDefault();
+                //if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
+                //{
+                //    datos = db.Requisiciones.Where(e => e.Activo == true && e.Confidencial == false).ToList();
+                //}
+
+                //int Nuevo = datos.Where(e => e.estatusId == 4).ToList().Count;
+                //int Aprobada = datos.Where(e => e.EstatusId == 6).ToList().Count;
+                //int Publicada = datos.Where(e => e.EstatusId == 7).ToList().Count;
+                //int BusCandidatos = datos.Where(e => e.EstatusId == 29).ToList().Count;
+                //int EnvCliente = datos.Where(e => e.EstatusId == 30).ToList().Count;
+                //int NuBusqueda = datos.Where(e => e.EstatusId == 31).ToList().Count;
+                //int Socioeconomicos = datos.Where(e => e.EstatusId == 32).ToList().Count;
+                //int Espera = datos.Where(e => e.EstatusId == 33).ToList().Count;
+                //int Pausada = datos.Where(e => e.EstatusId == 39).ToList().Count;
+                //int Garantia = datos.Where(e => e.EstatusId == 38).ToList().Count;
+                //int Pendiente = datos.Where(e => e.EstatusId == 43).ToList().Count;
+                //int PendienteGG = datos.Where(e => e.EstatusId == 46).ToList().Count;
+               
+                int numeropos = 0;
+                if (Activalista.Count() > 0)
+                {
+                    numeropos = db.HorariosRequis.Where(x => Activalista.Contains(x.RequisicionId)).Sum(x => x.numeroVacantes);
+                }
+                int[] evaID = new[] { 13, 14, 15 };
+                var proceso = db.ProcesoCandidatos.Where(e => Activalista.Contains(e.RequisicionId)).GroupBy(g => g.RequisicionId).Select(p => new
+                {
+                    cubierto = p.Where( e => e.EstatusId == 24).Count(),
+                    apartado = p.Where(e => e.EstatusId == 12).Count(),
+                    cita = p.Where(e => e.EstatusId == 17 || e.EstatusId == 16).Count(),
+                    entrevista = p.Where(e => e.EstatusId == 18).Count(),
+                    evaluacion = p.Where(e => evaID.Contains(e.EstatusId)).Count(),
+                    finalista = p.Where(e => e.EstatusId == 21).Count(),
+                    entrevistacliente = p.Where(e => e.EstatusId == 22).Count(),
+                    finalistacliente = p.Where(e => e.EstatusId == 23).Count()
+                }).ToList();
+
+                int faltante = 0;
+                faltante = numeropos - proceso.Select(c => c.cubierto).Sum();
+
+                //var apartado = proseso.Where(e => e.EstatusId == 12).Distinct().ToList();
+                //var cita = proseso.Where(e => e.EstatusId == 17 && e.EstatusId == 16).Distinct().ToList();
+                //var entrevista = proseso.Where(e => e.EstatusId == 18).Distinct().ToList();
+                //var evaluacion = proseso.Where(e => evaID.Contains(e.EstatusId)).Distinct().ToList();
+                //var finalista = proseso.Where(e => e.EstatusId == 21).Distinct().ToList();
+                //var entrevistacliente = proseso.Where(e => e.EstatusId == 22).Distinct().ToList();
+                //var finalistacliente = proseso.Where(e => e.EstatusId == 23).Distinct().ToList();
+
+                var obj = new
+                {
+                    estatusRequi,
+                    total = Activalista.Count(),
+                    numeropos = numeropos,
+                    proceso,
+                    faltante
+                };
+                return Ok(obj);
             }
-            
-            int Nuevo = datos.Where(e => e.EstatusId == 4).ToList().Count;
-            int Aprobada = datos.Where(e => e.EstatusId == 6).ToList().Count;
-            int Publicada = datos.Where(e => e.EstatusId == 7).ToList().Count;
-            int BusCandidatos = datos.Where(e => e.EstatusId == 29).ToList().Count;
-            int EnvCliente = datos.Where(e => e.EstatusId == 30).ToList().Count;
-            int NuBusqueda = datos.Where(e => e.EstatusId == 31).ToList().Count;
-            int Socioeconomicos = datos.Where(e => e.EstatusId == 32).ToList().Count;
-            int Espera = datos.Where(e => e.EstatusId == 33).ToList().Count;
-            int Pausada = datos.Where(e => e.EstatusId == 39).ToList().Count;
-            int Garantia = datos.Where(e => e.EstatusId == 38).ToList().Count;
-            int Pendiente = datos.Where(e => e.EstatusId == 43).ToList().Count;
-            int PendienteGG = datos.Where(e => e.EstatusId == 46).ToList().Count;
-            var Activalista = datos.Where(e => EstatusList.Contains(e.EstatusId)).Select(e=>e.Id).ToList();
-            int numeropos = db.HorariosRequis.Where(x => Activalista.Contains(x.RequisicionId)).Sum(x => x.numeroVacantes);
-
-            var requien = datos.Where(e=> EstatusList.Contains(e.EstatusId)).Select(e => e.Id).ToList();
-            var proseso = db.ProcesoCandidatos.Where(e => requien.Contains(e.RequisicionId)).ToList();
-            int cubierto = proseso.Where(e => e.EstatusId == 24).Distinct().ToList().Count;
-            int faltante = 0;
-            faltante = numeropos - cubierto;
-            
-            var apartado = proseso.Where(e => e.EstatusId == 12).Distinct().ToList();
-            var cita = proseso.Where(e => e.EstatusId == 17 && e.EstatusId == 16).Distinct().ToList();
-            var entrevista = proseso.Where(e => e.EstatusId == 18).Distinct().ToList();
-            int[] evaID = new[] { 13, 14, 15 };
-            var evaluacion = proseso.Where(e => evaID.Contains(e.EstatusId)).Distinct().ToList();
-            var finalista = proseso.Where(e => e.EstatusId == 21).Distinct().ToList();
-            var entrevistacliente = proseso.Where(e => e.EstatusId == 22).Distinct().ToList();
-            var finalistacliente = proseso.Where(e => e.EstatusId == 23).Distinct().ToList();
-
-            var obj = new {
-                total = Nuevo + Aprobada + Publicada + BusCandidatos + EnvCliente + NuBusqueda + Socioeconomicos + Espera + Pausada + Garantia + PendienteGG + Pendiente,
-                Nuevo = Nuevo,
-                Aprobada = Aprobada,
-                Publicada = Publicada,
-                BusCandidatos = BusCandidatos,
-                EnvCliente = EnvCliente,
-                NuBusqueda = NuBusqueda,
-                Socioeconomicos = Socioeconomicos,
-                Espera = Espera,
-                Pausada = Pausada,
-                Garantia = Garantia,
-                Pendiente = Pendiente,
-                Pendientegg = PendienteGG,
-                numeropos = numeropos,
-                cubierto = cubierto,
-                faltante = faltante,
-                apartado = apartado.Count,
-                cita = cita.Count,
-                entrevista = entrevista.Count,
-                evaluacion = evaluacion.Count,
-                finalista = finalista.Count,
-                entrecliente = entrevistacliente.Count,
-                fincliente = finalistacliente.Count
-            };
-            return Ok(obj);
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
         }
 
         [HttpGet]
@@ -543,50 +556,56 @@ namespace SAGA.API.Controllers.Reportes
 
             var ListaUsuario = new List<Guid>();
             ListaUsuario.Add(id);
-            var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
-            if (arbol.Count > 0)
+            try
             {
-                ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
-                foreach (var item in arbol)
+                var arbol = db.Subordinados.Where(e => e.LiderId == id).ToList();
+                if (arbol.Count > 0)
                 {
-                    var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
-                    if (hijos.Count > 0)
+                    ListaUsuario.AddRange(arbol.Select(e => e.UsuarioId));
+                    foreach (var item in arbol)
                     {
-                        ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                        var hijos = db.Subordinados.Where(e => e.LiderId == item.UsuarioId).ToList();
+                        if (hijos.Count > 0)
+                        {
+                            ListaUsuario.AddRange(hijos.Select(e => e.UsuarioId));
+                        }
                     }
                 }
-            }
-            var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
-            int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 46 };
-            var requi = db.Requisiciones.Where(e=> asigna.Contains(e.Id) || ListaUsuario.Contains(e.AprobadorId) && e.Activo == true && e.Confidencial == false).ToList();
-            requi = requi.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
-            int tipo = db.Usuarios.Where(e => e.Id == id).Select(e => e.TipoUsuarioId).FirstOrDefault();
-            if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
-            {
-                requi = db.Requisiciones.Where(e => EstatusList.Contains(e.EstatusId) && e.Activo == true && e.Confidencial == false).ToList();
-            }
-            var masivo = requi.Where(e => e.ClaseReclutamientoId == 3 && e.Activo == true).Select(e => new {
-                e.Id,
-                e.EstatusId
-            }).ToList();
+                var asigna = db.AsignacionRequis.Where(e => ListaUsuario.Contains(e.GrpUsrId)).Select(e => e.RequisicionId).ToList();
+                int[] EstatusList = new[] { 4, 6, 7, 29, 30, 31, 32, 33, 38, 39, 43, 46 };
+                var requi = db.Requisiciones.Where(e => asigna.Contains(e.Id) || ListaUsuario.Contains(e.AprobadorId) && e.Activo == true && e.Confidencial == false).ToList();
+                requi = requi.Where(e => EstatusList.Contains(e.EstatusId)).ToList();
+                int tipo = db.Usuarios.Where(e => e.Id == id).Select(e => e.TipoUsuarioId).FirstOrDefault();
+                if (tipo == 8 || tipo == 3 || tipo == 12 || tipo == 13 || tipo == 14)
+                {
+                    requi = db.Requisiciones.Where(e => EstatusList.Contains(e.EstatusId) && e.Activo == true && e.Confidencial == false).ToList();
+                }
+                var masivo = requi.Where(e => e.ClaseReclutamientoId == 3 && e.Activo == true).Select(e => new
+                {
+                    e.Id,
+                    e.EstatusId
+                }).ToList();
 
-            var operativo = requi.Where(e => e.ClaseReclutamientoId == 2 && e.Activo == true).Select(e => new {
-                e.Id,
-                e.EstatusId
-            }).ToList();
+                var operativo = requi.Where(e => e.ClaseReclutamientoId == 2 && e.Activo == true).Select(e => new
+                {
+                    e.Id,
+                    e.EstatusId
+                }).ToList();
 
-            var ezpeciali = requi.Where(e => e.ClaseReclutamientoId == 1 && e.Activo == true).Select(e => new {
-                e.Id,
-                e.EstatusId
-            }).ToList();
-            var masivolist = masivo.Select(x => x.Id).ToList();
-            var operativolist = operativo.Select(x => x.Id).ToList();
-            var especiallist = ezpeciali.Select(x => x.Id).ToList();
-            int masivopos = masivolist.Count == 0?0: db.HorariosRequis.Where(e => masivolist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
-            int operativopos = operativolist.Count == 0 ? 0 : db.HorariosRequis.Where(e => operativolist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
-            int especialpos = especiallist.Count == 0 ? 0 : db.HorariosRequis.Where(e => especiallist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
+                var ezpeciali = requi.Where(e => e.ClaseReclutamientoId == 1 && e.Activo == true).Select(e => new
+                {
+                    e.Id,
+                    e.EstatusId
+                }).ToList();
+                var masivolist = masivo.Select(x => x.Id).ToList();
+                var operativolist = operativo.Select(x => x.Id).ToList();
+                var especiallist = ezpeciali.Select(x => x.Id).ToList();
+                int masivopos = masivolist.Count == 0 ? 0 : db.HorariosRequis.Where(e => masivolist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
+                int operativopos = operativolist.Count == 0 ? 0 : db.HorariosRequis.Where(e => operativolist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
+                int especialpos = especiallist.Count == 0 ? 0 : db.HorariosRequis.Where(e => especiallist.Contains(e.RequisicionId)).Sum(e => e.numeroVacantes);
 
-            var datos = new {
+                var datos = new
+                {
                     masivo = masivo.Count,
                     masivopos = masivopos,
                     operativo = operativo.Count,
@@ -595,6 +614,11 @@ namespace SAGA.API.Controllers.Reportes
                     especialpos = especialpos,
                 };
                 return Ok(datos);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
         }
 
         [HttpGet]
@@ -763,6 +787,43 @@ namespace SAGA.API.Controllers.Reportes
               
             }
             return Ok(DatosLista);
+        }
+
+        [HttpGet]
+        [Route("vacantesPorRegion")]
+        [Authorize]
+        public IHttpActionResult VacantesPorRegion(int estado)
+        {
+            int[] estatusId = new int[] { 8, 9, 34, 35, 36, 37, 47, 48 };
+            try
+            {
+                var vacantes = db.Requisiciones.Where(x => !estatusId.Contains(x.EstatusId) && x.Direccion.EstadoId.Equals(estado)).Select(h => new
+                {
+                    Id = h.Id,
+                    Folio = h.Folio,
+                    unidad = db.UnidadNegocioEstados.Where(x => x.estadoId.Equals(estado)).Select(e => e.UnidadNegocio.Clave).FirstOrDefault(),
+                    vBtra = h.Confidencial ? "CONFIDENCIAL" : h.VBtra.ToUpper(),
+                    Estatus = h.Estatus.Descripcion.ToUpper(),
+                    EstatusId = h.EstatusId,
+                    cliente = h.Cliente.Nombrecomercial.ToUpper(),
+                    Vacantes = h.horariosRequi.Count() > 0 ? h.horariosRequi.Sum(v => v.numeroVacantes) : 0,
+                    Confidencial = h.Confidencial,
+                    h.fch_Creacion,
+                    h.fch_Cumplimiento,
+                    h.TipoReclutamientoId,
+                    Postulados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId.Equals(10)).Select(c => c.CandidatoId).Distinct().Count(),
+                    EnProceso = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId != 27 && p.EstatusId != 40 && p.EstatusId != 28).Count(),
+                    contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count(),
+                    porcentaje = h.horariosRequi.Count() > 0 && db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count() > 0 ? (db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(h.Id) && p.EstatusId == 24).Count() * 100) / h.horariosRequi.Sum(s => s.numeroVacantes) : 0,
+                    coordinador = h.AsignacionRequi.Where(xx => xx.Tipo.Equals(1)).Select(c => db.Usuarios.Where(x => x.Id.Equals(c.GrpUsrId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()),
+                    propietario = db.Usuarios.Where(x => x.Id.Equals(h.PropietarioId)).Select(p => p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno).FirstOrDefault()
+                });
+                return Ok(vacantes);
+            }
+            catch (Exception ex )
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
         }
 
     }

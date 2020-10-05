@@ -18,6 +18,8 @@ using System.Configuration;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Text;
+using System.IO;
+using SAGA.API.Utilerias;
 
 namespace SAGA.API.Controllers
 {
@@ -31,6 +33,28 @@ namespace SAGA.API.Controllers
         public CampoController()
         {
             db = new SAGADBContext();
+        }
+
+        public void GuardarImagen(string nombre, string id, string file, string type)
+        {
+            string x = file.Replace("data:image/jpeg;base64,", "");
+            byte[] imageBytes = Convert.FromBase64String(x);
+            MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+            ms.Write(imageBytes, 0, imageBytes.Length);
+            System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
+
+            string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/Candidatos");
+            if (!Directory.Exists(fullPath + '/' + id))
+            {
+                Directory.CreateDirectory(fullPath + '/' + id);
+            }
+
+           fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/Candidatos/" + id + '/' + nombre);
+
+            if (File.Exists(fullPath))
+                File.Delete(fullPath);
+
+            image.Save(fullPath);
         }
 
         [HttpGet]
@@ -125,6 +149,7 @@ namespace SAGA.API.Controllers
             var tran = db.Database.BeginTransaction();
             try
             {
+
                 candidato.CURP = datos.Curp;
                 candidato.Nombre = datos.Nombre;
                 candidato.ApellidoPaterno = datos.ApellidoPaterno;
@@ -141,12 +166,30 @@ namespace SAGA.API.Controllers
                 db.Candidatos.Add(candidato);
 
                 db.SaveChanges();
+                try
+                {
+                    if (datos.Credencial.Length > 0)
+                    {
+                        this.GuardarImagen("credencial.jpg", candidato.Id.ToString(), datos.Credencial, "jpeg");
+                    }
+                    if(datos.Foto.Length > 0)
+                    {
+                        this.GuardarImagen("foto.jpg", candidato.Id.ToString(), datos.Foto, "jpeg");
+                    }
+
+                }
+                catch(Exception ex)
+                {
+                    APISAGALog obj = new APISAGALog();
+                    obj.WriteError(ex.Message);
+                    obj.WriteError(ex.InnerException.Message);
+                }
 
                 PerfilCandidato PC = new PerfilCandidato();
 
                 PC.CandidatoId = candidato.Id;
                 PC.Estatus = 41;
-
+               
                 db.PerfilCandidato.Add(PC);
 
                 db.SaveChanges();
@@ -288,7 +331,8 @@ namespace SAGA.API.Controllers
            
             try
             {
-                var reclutadores = db.AsignacionRequis.Where(x => x.Requisicion.Activo && !estatusList.Contains(x.Requisicion.EstatusId) && !x.Requisicion.Confidencial).GroupBy(g => g.GrpUsrId)
+                var reclutadores = db.AsignacionRequis.Where(x => x.Requisicion.Activo && !estatusList.Contains(x.Requisicion.EstatusId)
+                && !x.Requisicion.Confidencial && x.Requisicion.ClaseReclutamientoId != 1).GroupBy(g => g.GrpUsrId)
                     .Select(R => new
                     {
                         oficinaId = db.Usuarios.Where(x => x.Id.Equals(R.Key)).Select(ofi => ofi.SucursalId).FirstOrDefault(),
@@ -332,7 +376,11 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var reclutadores = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId) && x.Requisicion.Activo && !estatusList.Contains(x.Requisicion.EstatusId) && !x.Requisicion.Confidencial)
+                var reclutadores = db.AsignacionRequis.Where(x => x.GrpUsrId.Equals(reclutadorId) 
+                && x.Requisicion.Activo && !estatusList.Contains(x.Requisicion.EstatusId)
+                && !x.Requisicion.Confidencial
+                && x.Requisicion.ClaseReclutamientoId != 1
+                && x.Tipo == 2)
                     .Select(r => new
                     {
                         r.Requisicion.Id,
@@ -419,6 +467,8 @@ namespace SAGA.API.Controllers
                     propietarioId = c.Requisicion.PropietarioId,
                     estatusId = c.EstatusId,
                     informacion = db.Candidatos.Where(x => x.Id.Equals(c.CandidatoId) && c.EstatusId.Equals(12)).Select(cc => new {
+                        foto = @"https://apisb.damsa.com.mx/utilerias/img/Candidatos/" + c.CandidatoId + "/foto.jpg",
+                        credencial = @"https://apisb.damsa.com.mx/utilerias/img/Candidatos/" + c.CandidatoId + "/credencial.jpg",
                         curp = String.IsNullOrEmpty(cc.CURP) ? "Sin registro" : cc.CURP,
                         nombre = cc.Nombre + " " + cc.ApellidoPaterno + " " + cc.ApellidoMaterno,
                         edad = cc.FechaNacimiento,
@@ -449,6 +499,7 @@ namespace SAGA.API.Controllers
                 {
                     procesoId = c.Id,
                     candidatoId = c.CandidatoId,
+                    foto = @"https://apisb.damsa.com.mx/utilerias/img/Candidatos/" + c.CandidatoId + "/foto.jpg",
                     requisiconId = requisicionId,
                     vacantes = db.HorariosRequis.Where(x => x.RequisicionId.Equals(c.RequisicionId)).Count() > 0 ? db.HorariosRequis.Where(x => x.RequisicionId.Equals(c.RequisicionId)).Sum(h => h.numeroVacantes) : 0,
                     curp = String.IsNullOrEmpty(c.Candidato.CURP) ? "Sin registro" : c.Candidato.CURP,
@@ -467,6 +518,7 @@ namespace SAGA.API.Controllers
                     estadoNacimiento = c.Candidato.estadoNacimiento.estado,
                     estadoNacimientoId = c.Candidato.EstadoNacimientoId,
                     clave = c.Candidato.estadoNacimiento.Clave,
+                    c.Fch_Creacion,
                     estatus = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(c.CandidatoId) && x.RequisicionId.Equals(requisicionId)).Select(e => e.Estatus.Descripcion).FirstOrDefault(),
                     estatusId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(c.CandidatoId) && x.RequisicionId.Equals(requisicionId)).Select(e => e.EstatusId).FirstOrDefault(),
                     horario = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(c.CandidatoId) && x.RequisicionId.Equals(requisicionId)).Select(h => h.Horario.Nombre).FirstOrDefault(),
@@ -493,6 +545,7 @@ namespace SAGA.API.Controllers
                 var candidatos = db.ProcesoCampo.OrderBy(f => f.Candidato.ApellidoPaterno).Where(x => x.UsuarioId.Equals(reclutadorId)).Select(c => new
                 {
                     candidatoId = c.CandidatoId,
+                    foto = @"https://apisb.damsa.com.mx/utilerias/img/Candidatos/" + c.CandidatoId + "/foto.jpg",
                     //vacantes = db.HorariosRequis.Where(x => x.RequisicionId.Equals(c.RequisicionId)).Count() > 0 ? db.HorariosRequis.Where(x => x.RequisicionId.Equals(c.RequisicionId)).Sum(h => h.numeroVacantes) : 0,
                     curp = String.IsNullOrEmpty(c.Candidato.CURP) ? "Sin registro" : c.Candidato.CURP,
                     nombreCompleto = c.Candidato.Nombre + " " + c.Candidato.ApellidoPaterno + " " + c.Candidato.ApellidoMaterno,
@@ -526,6 +579,8 @@ namespace SAGA.API.Controllers
                 var candidatos = db.Candidatos.Where(x => x.Id.Equals(candidatoId)).Select(c => new
                 {
                     candidatoId = c.Id,
+                    foto = @"https://apisb.damsa.com.mx/utilerias/img/Candidatos/" + c.Id + "/foto.jpg",
+                    credencial = @"https://apisb.damsa.com.mx/utilerias/img/Candidatos/" + c.Id + "/credencial.jpg",
                     apellidoP = c.ApellidoPaterno,
                     apellidoM = c.ApellidoMaterno,
                     name = c.Nombre,
@@ -585,6 +640,15 @@ namespace SAGA.API.Controllers
                 }
 
                 db.SaveChanges();
+
+                if(datos.Foto != "")
+                {
+                    this.GuardarImagen("foto", datos.Id.ToString(), datos.Foto, "jpeg");
+                }
+                if (datos.Credencial != "")
+                {
+                    this.GuardarImagen("foto", datos.Id.ToString(), datos.Credencial, "jpeg");
+                }
 
                 var horario = auxID;
                 if (datos.horarioId == auxID)
@@ -817,7 +881,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var info = db.Requisiciones.Where(x => x.Id.Equals(requisicionId)).Select(r => new
+                var info = db.Requisiciones.Where(x => x.Id.Equals(requisicionId) && !x.Confidencial).Select(r => new
                 {
                     vBtra = r.VBtra,
                     vacantes = r.horariosRequi.Count() > 0 ? r.horariosRequi.Sum(h => h.numeroVacantes) : 0,

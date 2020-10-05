@@ -8,6 +8,10 @@ using System.Net.Http;
 using System.Web.Http;
 using SAGA.API.Dtos;
 using SAGA.API.Controllers.Admin;
+using SAGA.API.Dtos.Catalogos;
+using SAGA.API.Utilerias;
+using System.Data.Entity;
+using System.Globalization;
 
 namespace SAGA.API.Controllers
 {
@@ -19,6 +23,1448 @@ namespace SAGA.API.Controllers
         {
             db = new SAGADBContext();
         }
+
+        #region CRUD INGRESOS
+        public HttpResponseMessage CRUDAreas(CrudIngresosDto datos)
+        {
+            
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    Area a = new Area();
+                    a.Nombre = datos.Descripcion;
+                    a.Clave = datos.Clave;
+                    a.Observaciones = datos.Comentario;
+                    a.Activo = true;
+                    a.fch_Modificacion = DateTime.Now;
+                    a.UsuarioAlta = datos.Usuario;
+                    a.UsuarioMod = datos.Usuario;
+
+                    db.Areas.Add(a);
+                    db.SaveChanges();
+
+                }
+                else if(datos.crud == 3)
+                {
+                    var a = db.Areas.Find(datos.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.Nombre = datos.Descripcion;
+                    a.Clave = datos.Clave;
+                    a.Observaciones = datos.Comentario;
+                    a.fch_Modificacion = DateTime.Now;
+                    a.UsuarioMod = datos.Usuario;
+                    
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.Areas.Find(datos.Id);
+                    db.Entry(a).Property(x => x.Activo).IsModified = true;
+                    db.Entry(a).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(a).Property(x => x.UsuarioMod).IsModified = true;
+
+                    a.Activo = false;
+                    a.fch_Modificacion = DateTime.Now;
+                    a.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();                       
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.Areas - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDDepartamentos(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    Departamento d = new Departamento();
+                    d.Nombre = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Activo = true;
+                    d.AreaId = datos.AreasId;
+                    d.Observaciones = datos.Comentario;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.Departamentos.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.Departamentos.Find(datos.IdG);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Nombre = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.AreaId = datos.AreasId;
+                    d.Observaciones = datos.Comentario;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.Departamentos.Find(datos.IdG);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.Departamentos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDSoporteFac(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    SoporteFacturacion d = new SoporteFacturacion();
+                    d.Clave = datos.Clave;
+                    d.Concepto = datos.Concepto;
+                    d.NombreHoja = datos.Hoja;
+                    d.ServicioNomina = datos.Servicio;
+                    d.MontoTope = datos.MontoTope;
+                    d.DepartamentoId = datos.DepartamentoId;
+                    d.TipodeNominaId = datos.Tipo;
+                    d.Observaciones = datos.Comentario;
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SoporteFacturacion.Add(d);
+                    db.SaveChanges();
+
+                    if (datos.Empleados.Count() > 0)
+                    {
+                        EmpleadosSoporte es = new EmpleadosSoporte();
+                        foreach(var de in datos.Empleados)
+                        {
+                            es.CandidatosInfoId = de;
+                            es.SoporteFacturacionId = d.Id;
+                            es.Porcentaje = datos.Porcentaje;
+
+                            db.EmpleadosSoporte.Add(es);
+                            db.SaveChanges();
+
+                            es = new EmpleadosSoporte();
+                        }
+                    }
+                    if (datos.Sucursales.Count() > 0)
+                    {
+                        SoporteSucursales es = new SoporteSucursales();
+                        foreach (var de in datos.Sucursales)
+                        {
+                            es.sucursalesId = de;
+                            es.SoporteFacturacionId = d.Id;
+                          
+                            db.SoporteSucursales.Add(es);
+                            db.SaveChanges();
+
+                            es = new SoporteSucursales();
+                        }
+                    }
+                    if (datos.Puestos.Count() > 0)
+                    {
+                        SoportePuestos es = new SoportePuestos();
+                        foreach (var de in datos.Sucursales)
+                        {
+                            es.puestoId = de;
+                            es.SoporteFacturacionId = d.Id;
+
+                            db.SoportePuestos.Add(es);
+                            db.SaveChanges();
+
+                            es = new SoportePuestos();
+                        }
+                    }
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.SoporteFacturacion.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Clave = datos.Clave;
+                    d.Concepto = datos.Concepto;
+                    d.NombreHoja = datos.Hoja;
+                    d.ServicioNomina = datos.Servicio;
+                    d.MontoTope = datos.MontoTope;
+                    d.DepartamentoId = datos.DepartamentoId;
+                    d.TipodeNominaId = datos.Tipo;
+                    d.Observaciones = datos.Comentario;
+
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+
+                    var apt = db.SoporteSucursales.Where(x => x.SoporteFacturacionId.Equals(datos.Id));
+                    db.SoporteSucursales.RemoveRange(apt);
+
+                    SoporteSucursales es = new SoporteSucursales();
+                    foreach (var de in datos.Sucursales)
+                    {
+                        es.sucursalesId = de;
+                        es.SoporteFacturacionId = datos.Id;
+
+                        db.SoporteSucursales.Add(es);
+                        db.SaveChanges();
+
+                        es = new SoporteSucursales();
+                    }
+
+                    var semp = db.EmpleadosSoporte.Where(x => x.SoporteFacturacionId.Equals(datos.Id));
+                    db.EmpleadosSoporte.RemoveRange(semp);
+
+                    if (datos.Empleados.Count() > 0)
+                    {
+                        EmpleadosSoporte emp = new EmpleadosSoporte();
+                        foreach (var de in datos.Empleados)
+                        {
+                            emp.CandidatosInfoId = de;
+                            emp.SoporteFacturacionId = datos.Id;
+                            emp.Porcentaje = datos.Porcentaje;
+
+                            db.EmpleadosSoporte.Add(emp);
+                            db.SaveChanges();
+
+                            emp = new EmpleadosSoporte();
+                        }
+                    }
+                    var epuest = db.SoportePuestos.Where(x => x.SoporteFacturacionId.Equals(datos.Id));
+                    db.SoportePuestos.RemoveRange(epuest);
+                    if (datos.Puestos.Count() > 0)
+                    {
+                        SoportePuestos pues = new SoportePuestos();
+                        foreach (var de in datos.Puestos)
+                        {
+                            pues.puestoId = de;
+                            pues.SoporteFacturacionId = d.Id;
+
+                            db.SoportePuestos.Add(pues);
+                            db.SaveChanges();
+
+                            pues = new SoportePuestos();
+                        }
+                    }
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.SoporteFacturacion.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.SoporteFacturacion - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDCatalogoBancos(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    CatalogoBancos d = new CatalogoBancos();
+                    d.Nombre = datos.Descripcion;
+                    d.Descripcion = datos.Comentario;
+                    d.RazonSocial = datos.razonSocial;
+                    d.Clave = datos.ClaveInt;
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.CatalogoBancos.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.CatalogoBancos.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Nombre = datos.Descripcion;
+                    d.Descripcion = datos.Comentario;
+                    d.RazonSocial = datos.razonSocial;
+                    d.Clave = datos.ClaveInt;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.CatalogoBancos.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.CatalogBancos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDFormaPago(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    FormaPago d = new FormaPago();
+                    d.Clave = datos.Clave;
+                    d.Descripcion = datos.Descripcion;
+                    d.Comentario = datos.Comentario;
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.FormaPago.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.FormaPago.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Clave = datos.Clave;
+                    d.Descripcion = datos.Descripcion;
+                    d.Comentario = datos.Comentario;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.FormaPago.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.FormaPago - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDMotivosContratacion(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    MotivosContratacion d = new MotivosContratacion();
+                    d.Descripcion = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Observaciones = datos.Comentario;
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.MotivosContratacion.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.MotivosContratacion.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Descripcion = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Observaciones = datos.Comentario;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.MotivosContratacion.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.MotivosContratacion - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDEstatusLaboral(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    EstatusLaboral d = new EstatusLaboral();
+                    d.Estatus = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Comentario = datos.Comentario;
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.EstatusLaboral.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.EstatusLaboral.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Estatus = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Comentario = datos.Comentario;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.EstatusLaboral.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.EstatusLaboral - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDPuestos(CrudIngresosDto datos)
+        {
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    Puesto p = new Puesto();
+                    p.Clave = datos.Clave;
+                    p.Nombre = datos.Descripcion;
+                    p.CoordinacionId = datos.CoordId;
+                    p.Activo = true;
+                    p.BTRA = true;
+                    p.ERP = true;
+
+                    db.Puestos.Add(p);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var p = db.Puestos.Find(datos.Id);
+                    db.Entry(p).State = EntityState.Modified;
+
+                    p.Clave = datos.Clave;
+                    p.Nombre = datos.Descripcion;
+                    p.CoordinacionId = datos.CoordId;
+                    p.Activo = true;
+                    p.BTRA = true;
+                    p.ERP = true;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.Puestos.Find(datos.Id);
+                    //db.Entry(d).State = EntityState.Deleted;
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+
+
+                    d.Activo = false;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.Puestos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDPuestosCliente(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    PuestosCliente p = new PuestosCliente();
+                    p.clienteId = datos.ClienteId;
+                    p.puestoId = datos.PuestoId;
+
+                    db.PuestosCliente.Add(p);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var p = db.PuestosCliente.Find(datos.Id);
+                    db.Entry(p).State = EntityState.Modified;
+
+                    p.clienteId = datos.ClienteId;
+                    p.puestoId = datos.PuestoId;
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.PuestosCliente.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PuestosClientes - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+
+        }
+        public HttpResponseMessage CRUDGrupos(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    Grupos p = new Grupos();
+                    p.Clave = datos.Clave;
+                    p.Nombre = datos.Descripcion;
+                    p.Descripcion = datos.Comentario;
+                    p.Activo = true;
+                    p.UsuarioAlta = datos.Usuario;
+                    p.UsuarioMod = datos.Usuario;
+                    p.fch_Modificacion = DateTime.Now;
+
+                  //  db.Grupos.Add(p);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                //    var p = db.Grupos.Find(datos.Id);
+                    //db.Entry(p).State = EntityState.Modified;
+
+                    //p.Clave = datos.Clave;
+                    //p.Nombre = datos.Descripcion;
+                    //p.Descripcion = datos.Comentario;
+                    //p.UsuarioMod = datos.Usuario;
+                    //p.fch_Modificacion = DateTime.Now;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    //var d = db.Grupos.Find(datos.Id);
+                    //db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    //db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    //db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    //d.Activo = false;
+                    //d.UsuarioMod = datos.Usuario;
+                    //d.fch_Modificacion = DateTime.Now;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PuestosClientes - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDSucursales(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    Sucursales d = new Sucursales();
+                    d.Nombre = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Comentario = datos.Comentario;
+                    d.ClienteId = datos.ClienteId;
+
+                    if(datos.RegistroPatronal.Id == 0)
+                    {
+                        RegistroPatronal rp = new RegistroPatronal();
+                        rp = datos.RegistroPatronal;
+                        rp.fch_Modificacion = DateTime.Now;
+
+                        db.RegistroPatronal.Add(rp);
+                        db.SaveChanges();
+
+                        d.RegistroPatronalId = rp.Id;                      
+                    }
+                    else
+                    {
+                        d.RegistroPatronalId = datos.RegistroPatronal.Id;
+                    }
+           
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.Sucursales.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.Sucursales.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Nombre = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Comentario = datos.Comentario;
+                    d.ClienteId = datos.ClienteId;
+
+                    if (datos.RegistroPatronal.Id == 0)
+                    {
+                        RegistroPatronal rp = new RegistroPatronal();
+                        rp = datos.RegistroPatronal;
+                        rp.fch_Modificacion = DateTime.Now;
+
+                        db.RegistroPatronal.Add(rp);
+                        db.SaveChanges();
+
+                        d.RegistroPatronalId = rp.Id;
+                    }
+                    else
+                    {
+                        d.RegistroPatronalId = datos.RegistroPatronal.Id;
+                    }
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.Sucursales.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.Sucursales - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDJustificacionTrabajo(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    JustificacionTrabajo d = new JustificacionTrabajo();
+                    d.Descripcion = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Comentario = datos.Comentario;
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.JustificacionTrabajo.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.JustificacionTrabajo.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Descripcion = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Comentario = datos.Comentario;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.JustificacionTrabajo.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.JustificacionTrabajo - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDHorarios(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    HorariosIngresos d = new HorariosIngresos();
+                    d.Nombre = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Especificaciones = datos.Comentario;
+                    d.Activo = true;
+                    d.TurnosHorariosId = datos.TurnosHorariosId;
+                    d.HorasTotales = datos.HorasTotales;
+                    d.HorasComida = datos.HorasComida;
+                    d.HorasDescanso = datos.HorasDescanso;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.HorariosIngresos.Add(d);
+                    db.SaveChanges();
+                    foreach (var x in datos.DiasHoras)
+                    {
+                        DiasHorasIngresos dh = new DiasHorasIngresos();
+                        dh = x;
+                        dh.HorariosIngresosId = d.Id;
+                        //dh.deDiaId = x.deDiaId;
+                        //dh.aDiaId = x.aDiaId;
+                        //dh.DeHora = x.DeHora;
+                        //dh.AHora = x.AHora;
+                        //dh.Activo = x.Activo;
+                        //dh.Tipo = x.Tipo;
+
+                        db.DiasHorasIngresos.Add(dh);
+                        db.SaveChanges();
+                    }
+                    if (datos.HorarioComida.Count() > 0)
+                    {
+                        foreach (var x in datos.HorarioComida)
+                        {
+                            DiasHorasIngresos dh = new DiasHorasIngresos();
+                            dh = x;
+                            dh.HorariosIngresosId = d.Id;
+                            //dh.deDiaId = x.deDiaId;
+                            //dh.aDiaId = x.aDiaId;
+                            //dh.DeHora = x.DeHora;
+                            //dh.AHora = x.AHora;
+                            //dh.Activo = x.Activo;
+                            //dh.Tipo = x.Tipo;
+
+                            db.DiasHorasIngresos.Add(dh);
+                            db.SaveChanges();
+                        }
+                    }
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.HorariosIngresos.Find(datos.IdG);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Nombre = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Especificaciones = datos.Comentario;
+                    d.TurnosHorariosId = datos.TurnosHorariosId;
+                    d.HorasTotales = datos.HorasTotales;
+                    d.HorasComida = datos.HorasComida;
+                    d.HorasDescanso = datos.HorasDescanso;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    var apt = db.DiasHorasIngresos.Where(x => x.HorariosIngresosId.Equals(datos.IdG));
+                    db.DiasHorasIngresos.RemoveRange(apt);
+                    db.DiasHorasIngresos.AddRange(datos.DiasHoras);
+                    db.SaveChanges();
+                    if (datos.HorarioComida.Count() > 0)
+                    {
+                        db.DiasHorasIngresos.AddRange(datos.HorarioComida);
+                        db.SaveChanges();
+                    }
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.HorariosIngresos.Find(datos.IdG);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.HorariosIngresos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDDiasFestivos(CrudIngresosDto datos)
+        {
+
+            try
+            {
+                int year = datos.Fecha.Year;
+                string monthName = datos.Fecha.ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+                int month = datos.Fecha.Month;
+                string dayName = datos.Fecha.ToString("dddd", CultureInfo.CreateSpecificCulture("es"));
+                int day = datos.Fecha.Day;
+                if (datos.crud == 1)
+                {
+                    DiasFestivos d = new DiasFestivos();
+                    d.Descripcion = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Comentario = datos.Comentario;
+                    d.Fecha = datos.Fecha;
+                    d.Anio = year;
+                    d.MesNombre = monthName;
+                    d.MesNum = month;
+                    d.DiaSemanaNombre = dayName;
+                    d.DiaSemanaNum = day;
+                    d.Tipo = datos.Tipo;
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.DiasFestivos.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.DiasFestivos.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Descripcion = datos.Descripcion;
+                    d.Clave = datos.Clave;
+                    d.Comentario = datos.Comentario;
+                    d.Fecha = datos.Fecha;
+                    d.Anio = year;
+                    d.MesNombre = monthName;
+                    d.MesNum = month;
+                    d.DiaSemanaNombre = dayName;
+                    d.DiaSemanaNum = day;
+                    d.Tipo = datos.Tipo;
+
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.DiasFestivos.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.DiasFestivos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        [HttpPost]
+        [Route("crudCatalogosIngresos")]
+        [Authorize]
+        public IHttpActionResult CRUDCatalogosIngresos(CrudIngresosDto datos)
+        {
+            try
+            {
+                if (datos.catalogo.ToLower().Equals("areas"))
+                {
+                    var result = this.CRUDAreas(datos).StatusCode;
+
+                    return Ok(result);
+                }
+                else if (datos.catalogo.ToLower().Equals("departamentos"))
+                {
+                    return Ok(this.CRUDDepartamentos(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("soporte"))
+                {
+                    return Ok(this.CRUDSoporteFac(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("bancos"))
+                {
+                    return Ok(this.CRUDCatalogoBancos(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("formapago"))
+                {
+                    return Ok(this.CRUDFormaPago(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("motivos"))
+                {
+                    return Ok(this.CRUDMotivosContratacion(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("estatus"))
+                {
+                    return Ok(this.CRUDEstatusLaboral(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("sucursales"))
+                {
+                    return Ok(this.CRUDSucursales(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("justificacion"))
+                {
+                    return Ok(this.CRUDJustificacionTrabajo(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("horarios"))
+                {
+                    return Ok(this.CRUDHorarios(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("diasfestivos"))
+                {
+                    return Ok(this.CRUDDiasFestivos(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("puestos"))
+                {
+                    return Ok(this.CRUDPuestos(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("grupos"))
+                {
+                    return Ok(this.CRUDGrupos(datos).StatusCode);
+                }
+                return Ok(HttpStatusCode.Continue);
+            }
+            catch
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+        }
+        #endregion
+        #region GET CATALOGOS INGRESOS
+        [HttpGet]
+        [Route("getCatalogoIngreso")]
+        //[Authorize]
+        public IHttpActionResult GetCatalogoIngreso(string nombre)
+        {
+            try
+            {
+                if (nombre.ToLower().Equals("areas"))
+                {
+                    var datos = db.Areas.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(a => new
+                    {
+                        a.Id,
+                        a.Clave,
+                        a.Nombre,
+                        a.Observaciones,
+                        activo = a.Activo ? "ACTIVO" : "INACTIVO",
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(a.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("departamentos"))
+                {
+                    var datos = db.Departamentos.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        d.Nombre,
+                        d.Observaciones,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                        d.AreaId,
+                        area = d.Area.Nombre,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("soporte"))
+                {
+                    var datos = db.SoporteFacturacion.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        Concepto = d.Concepto,
+                        descripcion = d.NombreHoja,
+                        servicio = d.ServicioNomina ? "D" : "C",
+                        MontoTope = d.MontoTope,
+                        d.Observaciones,
+                        d.TipodeNomina.tipoDeNomina,
+                        d.TipodeNominaId,
+                        Empresa = db.SoporteSucursales.Where(x => x.SoporteFacturacionId.Equals(d.Id)).Select( emp => new {
+                            emp.Sucursales.Cliente.Nombrecomercial,
+                            emp.Sucursales.ClienteId
+                        }).FirstOrDefault(),
+                        Sucursales = db.SoporteSucursales.Where(x => x.SoporteFacturacionId.Equals(d.Id)).Select(emp => new
+                        {
+                            emp.sucursalesId,
+                            emp.Sucursales.Nombre
+                        }).ToList(),
+                        Puestos = db.SoportePuestos.Where(x => x.SoporteFacturacionId.Equals(d.Id)).Select(p => new
+                        {
+                            p.puestoId,
+                            p.Puesto.Nombre
+                        }).ToList(),
+                        Empleados = db.EmpleadosSoporte.Where(x => x.SoporteFacturacionId.Equals(d.Id)).Select(p => new
+                        {
+                            p.CandidatosInfoId,
+                            nombre = p.candidatosInfo.Nombre + p.candidatosInfo.ApellidoPaterno + p.candidatosInfo.ApellidoMaterno,
+                            p.Porcentaje
+                        }).ToList(),
+                        Departemento = d.Departemento.Nombre,
+                        d.DepartamentoId,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("bancos"))
+                {
+                    var datos = db.CatalogoBancos.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        d.Nombre,
+                        d.Descripcion,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                        d.RazonSocial,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("formapago"))
+                {
+                    var datos = db.FormaPago.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        nombre = d.Descripcion,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                        d.Comentario,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("motivos"))
+                {
+                    var datos = db.MotivosContratacion.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        d.Descripcion,
+                        d.Observaciones,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("estatus"))
+                {
+                    var datos = db.EstatusLaboral.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        d.Comentario,
+                        nombre = d.Estatus,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("puestos"))
+                {
+                    var datos = db.Puestos.OrderByDescending(O => O.Id).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        d.Nombre,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                        d.Coordinacion.clasesReclutamiento,
+                        claseReclutamientoId = d.Coordinacion.Id
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("sucursales"))
+                {
+                    var datos = db.Sucursales.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        d.Nombre,
+                        d.Comentario,
+                        empresa = d.Cliente.Nombrecomercial,
+                        empresaId = d.ClienteId,
+                        d.RegistroPatronalId,
+                        d.RegistroPatronal.RP_Clave,
+                        d.RegistroPatronal.RP_IMSS,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    });
+
+                    var registro = db.RegistroPatronal.OrderByDescending(o => o.Id).Where(x => x.Activo).Select(r => new
+                    {
+                        r.Id,
+                        r.RP_Clave,
+                        r.RP_IMSS
+                    }).ToList().Distinct();
+                    return Ok( new { datos, registro });
+                }
+                else if (nombre.ToLower().Equals("justificacion"))
+                {
+                    var datos = db.JustificacionTrabajo.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        d.Descripcion,
+                        d.Comentario,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    });
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("horarios"))
+                {
+                    var datos = db.HorariosIngresos.Where(x => x.Activo).Select(h => new
+                    {
+                        h.Id,
+                        h.Nombre,
+                        h.Clave,
+                        turno = h.TurnosHorarios.Nombre,
+                        turnoId = h.TurnosHorariosId,
+                        h.Especificaciones,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(h.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                        diashoras = db.DiasHorasIngresos.Where(x => x.Activo && x.HorariosIngresosId.Equals(h.Id)).GroupBy(g => g.deDiaId)
+                        .Select(d => new
+                        {
+                            d.Key,
+                            deDia = db.DiasSemanas.Where(x => x.Id.Equals(d.Key)).Select(ds => ds.diaSemana).FirstOrDefault(),
+                            deHora = d.Where(x => x.deDiaId.Equals(d.Key) && x.Tipo.Equals(1)).Select(hh => hh.DeHora),
+                            aHora = d.Where(x => x.deDiaId.Equals(d.Key) && x.Tipo.Equals(1)).Select(hh => hh.AHora),
+                            deHoraComida = d.Where(x => x.deDiaId.Equals(d.Key) && x.Tipo.Equals(2)).Select(hh => hh.DeHora),
+                            aHoraComida = d.Where(x => x.deDiaId.Equals(d.Key) && x.Tipo.Equals(2)).Select(hh => hh.AHora),
+                        }).ToList(),
+                        horario = db.DiasHorasIngresos.Where(x => x.Activo && x.HorariosIngresosId.Equals(h.Id)).Count()
+                    });
+                    //var datos = db.DiasHorasIngresos.OrderByDescending(o => o.HorariosIngresos.fch_Modificacion).Where(x => x.HorariosIngresos.Activo).Select(d => new
+                    //{
+                    //    d.HorariosIngresos.Id,
+                    //    d.HorariosIngresos.Clave,
+                    //    d.HorariosIngresos.Nombre,
+                    //    diaHoraId = d.Id,
+                    //    deDia = d.deDia.diaSemana,
+                    //    aDia = d.aDia.diaSemana,
+                    //    deDiaId = d.deDiaId,
+                    //    aDiaId = d.aDiaId,
+                    //    deHora = d.DeHora,
+                    //    aHora = d.AHora,
+                    //    turno = d.HorariosIngresos.TurnosHorarios.Nombre,
+                    //    turnoId = d.HorariosIngresos.TurnosHorariosId,
+                    //    d.HorariosIngresos.Especificaciones,
+                    //    tipo = d.Tipo == 1 ? "LABORAL" : "COMIDA",
+                    //    activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                    //    usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.HorariosIngresos.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    //}).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("diasfestivos"))
+                {
+                    var datos = db.DiasFestivos.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        nombre = d.Descripcion,
+                        d.Fecha,
+                        d.Anio,
+                        d.MesNombre,
+                        d.DiaSemanaNombre,
+                        d.Comentario,
+                        oficial = d.Tipo,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("turnos"))
+                {
+                    var datos = db.TurnosHorarios.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Nombre,
+                        d.Descripcion,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("grupos"))
+                {
+                    //var datos = db.Grupos.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    //{
+                    //    d.Id,
+                    //    d.Clave,
+                    //    d.Nombre,
+                    //    observaciones = d.Descripcion,
+                    //    usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    //}).ToList();
+                    //return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("empleados"))
+                {
+                    var datos = db.CandidatosInfo.OrderBy(o => o.Nombre).Select(d => new
+                    {
+                        d.Id,
+                        d.CandidatoId,
+                        d.Nombre,
+                        d.ApellidoPaterno, 
+                        d.ApellidoMaterno,
+                        clave = "DAL0000"
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("tiposconfig"))
+                {
+                    var datos = db.TiposConfiguraciones.OrderBy(o => o.Nombre).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Nombre,
+                        d.Descripcion
+                    }).ToList();
+                    return Ok(datos);
+                }
+                return Ok(HttpStatusCode.Continue);
+            }
+            catch(Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+               
+                log.WriteError(ex.Message + " - InnerException: " + ex.InnerException.Message);
+
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+
+        [HttpGet]
+        [Route("getCatalogosIngreso")]
+        [Authorize]
+        public IHttpActionResult GetCatalogosIngreso()
+        {
+            try
+            {
+                var result = db.Catalogos.OrderBy(o => o.Nombre).Where(x => x.Estructura.Nombre.ToLower().Equals("gestión de personal")).Select(x => new
+                {
+                    x.Id,
+                    x.Nombre,
+                    x.Descripcion
+                }).ToList();
+
+                return Ok(result);
+
+            }
+            catch(Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("Catalogos ingresos - " + ex.Message + "InnerException - " + ex.InnerException);
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+        }
+
+        [HttpGet]
+        [Route("sucursalesByCliente")]
+        [Authorize]
+        public IHttpActionResult SucursalesByCliente(Guid clienteId)
+        {
+            try
+            {
+                var sucursales = db.Sucursales.Where(x => x.ClienteId.Equals(clienteId)).Select(s => new
+                {
+                    s.Id,
+                    s.Nombre,
+                    s.RegistroPatronal.RP_Clave,
+                    s.RegistroPatronal.RP_IMSS
+                }).ToList();
+
+                return Ok(sucursales);
+
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+
+        #endregion
 
         #region Catalogos
 
@@ -90,7 +1536,7 @@ namespace SAGA.API.Controllers
 
                 case 43: // Areas
 
-                    var Areas = db.Areas
+                    var Areas = db.Areas.Where(x => x.Activo)
                         .Select(a => new AreaDto
                         {
                             Id = a.Id,
@@ -411,6 +1857,7 @@ namespace SAGA.API.Controllers
                         {
                             Id = e.Id,
                             tipoDeNomina = e.tipoDeNomina,
+                            clave = e.Clave,
                             activo = e.activo
                         })
                         .OrderBy(c => c.Id)
@@ -613,17 +2060,19 @@ namespace SAGA.API.Controllers
         {
             PersonalController obj = new PersonalController();
             List<GruposDtos> data = new List<GruposDtos>();
-            var grupos = db.Grupos.Select(g => new
-            {
-                Id = g.Id,
-                Foto = @"https://apisb.damsa.com.mx/" + g.Foto,
-                Activo = g.Activo,
-                Descripcion = g.Descripcion,
-                Nombre = g.Nombre,
-                UsuarioAlta = g.UsuarioAlta,
-                TipoGrupoId = db.TiposUsuarios.Where(x => x.Id.Equals(g.TipoGrupoId)).Select(id => id.Id).FirstOrDefault(),
-                TipoGrupo = db.TiposUsuarios.Where(x => x.Id.Equals(g.TipoGrupoId)).Select(n => n.Tipo).FirstOrDefault()
-            }).OrderBy(g => g.Nombre).ToList();
+            //var grupos = db.Grupos.Select(g => new
+            //{
+            //    Id = g.Id,
+
+            //    Activo = g.Activo,
+            //    Descripcion = g.Descripcion,
+            //    Nombre = g.Nombre,
+            //    UsuarioAlta = g.UsuarioAlta,
+            //    TipoGrupoId = db.TiposUsuarios.Select(id => id.Id).FirstOrDefault(),
+            //    TipoGrupo = db.TiposUsuarios.Select(n => n.Tipo).FirstOrDefault(),
+            //    FotoAux = "",
+            //    Foto = ""
+            //}).OrderBy(g => g.Nombre).ToList();
 
             //foreach (var g in grupos)
             //{
@@ -643,7 +2092,7 @@ namespace SAGA.API.Controllers
             //}
 
 
-            return Ok(grupos);
+            return Ok(HttpStatusCode.OK);
         }
 
         [HttpGet]
@@ -696,6 +2145,54 @@ namespace SAGA.API.Controllers
                                 .Where(x => x.Activo.Equals(true))
                                 .ToList().OrderBy(x => x.Actividad);
             return Ok(actividad);
+        }
+
+        [HttpGet]
+        [Route("getPerfilesDamfo")]
+        [Authorize]
+        public IHttpActionResult GetPerfilesDamfo()
+        {
+            try
+            {
+                var perfil = db.PerfilesDamfo
+                               .Where(x => x.Activo.Equals(true))
+                               .Select(p => new
+                               {
+                                   p.Id,
+                                   p.Perfil,
+                                   actividades = db.ActividadesPerfiles.Where(x => x.PerfilesDamfoId.Equals(p.Id)).Select(pp =>
+                                   new {
+                                       pp.Actividades,
+                                       pp.Id
+                                   }).ToList()
+                               }).OrderBy(x => x.Perfil);
+                return Ok(perfil);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+           
+        }
+        [HttpGet]
+        [Route("getActividadesPerfil")]
+        [Authorize]
+        public IHttpActionResult GetActividadesPerfil(int perfilId)
+        {
+            try
+            {
+                var actividad = db.ActividadesPerfiles
+                    .Where(x => x.Activo.Equals(true) && x.PerfilesDamfoId.Equals(perfilId))
+                                    .Select(A => new {
+                                        A.Id,
+                                        A.Actividades                                        
+                                    }).OrderBy(x => x.Actividades);
+                return Ok(actividad);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
         }
 
         [HttpGet]

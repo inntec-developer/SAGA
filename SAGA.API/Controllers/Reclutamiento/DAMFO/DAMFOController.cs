@@ -324,9 +324,9 @@ namespace SAGA.API.Controllers
                     .Where(r => direccion.Contains(r.DireccionId))
                     .Select(r => new
                     {
-                        Direccion = r.Direccion.Calle,
-                        Ruta = r.Ruta,
-                        Via = r.Via
+                        Direccion = String.IsNullOrEmpty(r.Direccion.Calle) ? "S/R" : r.Direccion.Calle,
+                        Ruta = String.IsNullOrEmpty(r.Ruta) ? "S/R" : r.Ruta,
+                        Via = String.IsNullOrEmpty(r.Via) ? "S/R" : r.Via
                     }).ToList().OrderBy(r => r.Direccion);
                 return Ok(rutas);
             }

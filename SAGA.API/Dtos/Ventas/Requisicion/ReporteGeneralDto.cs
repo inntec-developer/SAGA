@@ -47,8 +47,8 @@ namespace SAGA.API.Dtos
         public int EstatusId { get; set; }
         public List<string> reclutadores { get; set; }
         public List<EstatusRequiDto> Estatus { get; set; }
-        public List<string> comentarios_solicitante { get; set; }
-        public List<string> comentarios_coord { get; set; }
+        public List<CR> comentarios_solicitante { get; set; }
+        public List<CR> comentarios_coord { get; set; }
         public List<CR> comentarios_reclutador { get; set; }
     }
 

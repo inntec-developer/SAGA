@@ -62,12 +62,12 @@ namespace SAGA.API.Controllers
                         d.NumeroInterior,
                         d.Colonia.CP
                     }),
-                    vacante = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(candidatoId) && x.EstatusId.Equals(24)).Select(v => new
+                    vacante = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(candidatoId)).Select(v => new
                     {
                         v.Requisicion.SueldoMinimo,
                         v.Requisicion.SueldoMaximo
                     }).FirstOrDefault()
-                });
+                }).ToList();
 
                 return Ok(datos);
 
@@ -84,11 +84,14 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var datos = db.CandidatosInfo.Where(x => !db.GaFETES.Where(xx => xx.Activo).Select(g => g.CandidatoId).ToList().Contains(x.CandidatoId)
+                var candidatos = db.Gafetes.Where(xx => xx.Activo).Select(g => g.CandidatoId).ToList();
+                var datos = db.CandidatosInfo.Where(
+                    x => candidatos.Contains(x.CandidatoId)
                 && db.CandidatoLaborales.Select(ci => ci.CandidatoInfoId).ToList().Contains(x.Id))
                 .Select(p => new
                 {
                     id = p.Id,
+                    requisicionId = db.ProcesoCandidatos.OrderByDescending(f => f.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(rr => rr.RequisicionId).FirstOrDefault(),
                     candidatoId = p.CandidatoId,
                     reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault(),
                     nom = p.Nombre,
@@ -104,21 +107,24 @@ namespace SAGA.API.Controllers
                     telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
                     email = String.IsNullOrEmpty(db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()) ? "SIN REGISTRO" : db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault(),
                     puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.Puesto).FirstOrDefault(),
-                    foto = db.DocumentosCandidato.Where(x => x.candidatoId.Equals(p.Id) && x.Documento.Descripcion.ToLower().Equals("foto")).Select(r => r.Ruta).FirstOrDefault()
-                    //direccion = db.PerfilCandidato
-                    //.Where(c => c.CandidatoId.Equals(p.CandidatoId))
-                    //.Select(c => c.Candidato.direcciones).FirstOrDefault().Select(d => new {
-                    //    d.EstadoId,
-                    //    d.MunicipioId,
-                    //    d.ColoniaId,
-                    //    d.Calle,
-                    //    d.NumeroExterior,
-                    //    d.NumeroInterior,
-                    //    d.Colonia.CP
-                    //})
+                    foto = db.DocumentosCandidato.Where(x => x.candidatoId.Equals(p.Id) && x.Documento.Descripcion.ToLower().Equals("foto")).Select(r => r.Ruta).FirstOrDefault(),
+                    direccion = db.CandidatoGenerales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(d => new
+                    {
+                        direccion = d.Calle + " " + d.NumeroExterior + " " + d.Colonia.colonia + " " + d.Colonia.CP + " " + d.Municipio.municipio + " " + d.Estado.estado
+                    })
                 }).OrderBy(o => o.fch_Ingreso).ThenBy(oo => oo.apellidoPaterno).ToList();
 
-                return Ok(datos);
+                var requis = datos.Select(c => c.requisicionId).Distinct().ToList();
+                var clientes = db.Requisiciones.Where(x => requis.Distinct().Contains(x.Id)).Select(c => new
+                {
+                    requisicionId = c.Id,
+                    c.Cliente.Id,
+                    c.Cliente.Nombrecomercial,
+                    c.Cliente.RazonSocial
+                }).ToList();
+
+                return Ok(
+                    new { datos, clientes });
 
             }
             catch (Exception ex)
@@ -133,7 +139,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var id = db.GaFETES.Where(x => x.Clave.ToLower().Equals(clave.ToLower())).Select(d => d.CandidatoId).FirstOrDefault();
+                var id = db.Gafetes.Where(x => x.Clave.ToLower().Equals(clave.ToLower())).Select(d => d.CandidatoId).FirstOrDefault();
                 var datos = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(id)
                 && db.CandidatoLaborales.Select(ci => ci.CandidatoInfoId).ToList().Contains(x.Id))
                 .Select(p => new
@@ -176,65 +182,8 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
-        [HttpGet]
-        [Route("getDatosIngresos")]
-        public IHttpActionResult GetDtosIngresos()
-        {
-            try
-            {
-                var id = db.GaFETES.Select(d => d.CandidatoId).ToList();
-                var datos = db.CandidatosInfo.Where(x => id.Contains(x.CandidatoId)
-                && db.CandidatoLaborales.Select(ci => ci.CandidatoInfoId).ToList().Contains(x.Id))
-                .Select(p => new
-                {
-                    id = p.Id,
-                    candidatoId = p.CandidatoId,
-                    reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault(),
-                    nombre = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
-                    fch_Creacion = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(f => f.FechaIngreso).FirstOrDefault(),
-                    edad = p.FechaNacimiento,
-                    rfc = String.IsNullOrEmpty(p.RFC) ? "" : p.RFC,
-                    curp = String.IsNullOrEmpty(p.CURP) ? "" : p.CURP,
-                    nss = String.IsNullOrEmpty(p.NSS) ? "" : p.NSS,
-                    genero = p.Genero.genero,
-                    lada = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.ClaveLada).FirstOrDefault(),
-                    telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
-                    email = String.IsNullOrEmpty(db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()) ? "SIN REGISTRO" : db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault(),
-                    folio = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.Folio).FirstOrDefault(),
-                    vbtra = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.Puesto).FirstOrDefault(),
-                    clienteId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.ClienteId ).FirstOrDefault(),
-                    nombrecomercial = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.Cliente.Nombrecomercial).FirstOrDefault(),
-                    razonSocial = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.Cliente.RazonSocial).FirstOrDefault(),
-                   
-                }).OrderByDescending(o => o.fch_Creacion).ThenBy(t => t.nombre);
-
-                return Ok(datos);
-
-            }
-            catch (Exception ex)
-            {
-                return Ok(HttpStatusCode.ExpectationFailed);
-            }
-        }
-        [HttpGet]
-        [Route("getTotales")]
-        public IHttpActionResult GetTotales()
-        {
-            try
-            {
-                var totales = new
-                {
-                    total = db.CandidatosInfo.Where(x => !db.CandidatoLaborales.Select(cinf => cinf.CandidatoInfoId).ToList().Contains(x.Id)).Count(),
-                    ingresos = db.CandidatosInfo.Where(x => db.CandidatoLaborales.Select(cinf => cinf.CandidatoInfoId).ToList().Contains(x.Id)).Count(),
-                };
-
-                return Ok(totales);
-            }
-            catch(Exception ex)
-            {
-                return Ok(HttpStatusCode.BadRequest);
-            }
-        }
+    
+       
         [HttpPost]
         [Route("agregarDatos")]
         [Authorize]
@@ -286,7 +235,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                db.GaFETES.AddRange(gafetes);
+                db.Gafetes.AddRange(gafetes);
                 db.SaveChanges();
                 return Ok(HttpStatusCode.OK);
             }
