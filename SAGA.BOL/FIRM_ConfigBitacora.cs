@@ -22,5 +22,6 @@ namespace SAGA.BOL
         public DateTime fch_Modificacion { get; set; }
         public Guid UsuarioAlta { get; set; }
         public Guid UsuarioMod { get; set; }
+
     }
 }

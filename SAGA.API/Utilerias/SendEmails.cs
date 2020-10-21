@@ -18,8 +18,8 @@ namespace SAGA.API.Utilerias
         List<string> emails;
         List<string> emailNoChange;
         List<string> AddEmail;
-        List<GrupoUsuarios> grpUser;
-        List<GrupoUsuarios> grpUserNotChange;
+        List<GrupoEmpleados> grpUser;
+        List<GrupoEmpleados> grpUserNotChange;
         IEnumerable<string> distintEmails;
         string emailString = string.Empty;
         string sitioWeb = ConfigurationManager.AppSettings["WEBERP"];
@@ -30,8 +30,8 @@ namespace SAGA.API.Utilerias
             emails = new List<string>();
             emailNoChange = new List<string>();
             AddEmail = new List<string>();
-            grpUser = new List<GrupoUsuarios>();
-            grpUserNotChange = new List<GrupoUsuarios>();
+            grpUser = new List<GrupoEmpleados>();
+            grpUserNotChange = new List<GrupoEmpleados>();
         }
 
         public bool EmailSistFirmas(FirmasDto datos, string path, string fileName)
@@ -42,7 +42,7 @@ namespace SAGA.API.Utilerias
                 var asunto = string.Format("[SAGA] Sist. Firmas - {0}", datos.subject);
               
               //  body = "&lt;html&gt;&lt;body&gt;&lt;p&gt;no se como enviar html&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;";
-                body = body + string.Format("&lt;html&gt;&lt;body style =\"text-align:left; font-family:'calibri'; font-size:10pt;\">&lt;h3>A quien corresponda&lt;/h3>&lt;br>&lt;p>Por medio del presente se informa que se anexa "
+                body = body + string.Format("&lt;html&gt;&lt;body style=&quot;text-align:left; font-family:'calibri'; font-size:10pt;&quot;>&lt;h3>A quien corresponda&lt;/h3>&lt;br>&lt;p>Por medio del presente se informa que se anexa "
                     + "archivo de incidencias para el proceso de nomina para {0}. &lt;/p>&lt;br>"
                     + "&lt;p>Para enviar pre nomina a Ejecutivo ingresa a tu panel de Sistema de Firmas, selecciona la opción Pre nomina. "
                     + "Podrás acceder mediante la siguiente dirección: https://weberp.damsa.com.mx/login &lt;/p>&lt;br>&lt;br>"
@@ -50,12 +50,12 @@ namespace SAGA.API.Utilerias
                     + "&lt;p>Gracias por tu atención. Saludos&lt;/p>&lt;/body&gt;&lt;/html>", datos.cliente.ToUpper());
 
                 var xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
-                         + "Para=\"mventura@damsa.com.mx\" Copia=\"bmorales@damsa.com.mx\"  CopiaOculta=\"\" Asunto=\"{0}\" Msg=\"{1}\"/> "
-                         + "<Adjuntos><Adjunto Ruta_Archivo=\"{2}\" Nombre_Archivo=\"{3}\" Eliminar_Archivo=\"0\" /></Adjuntos></Parametros>", asunto, body, path, fileName );
+                         + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
+                         + "<Adjuntos><Adjunto Ruta_Archivo=\"{4}\" Nombre_Archivo=\"{5}\" Eliminar_Archivo=\"0\" /></Adjuntos></Parametros>", datos.email_envio, datos.email_copia, asunto, body, path, fileName );
 
 
                 SqlParameter[] Parameters = { new SqlParameter("@ParametrosXML", xml) };
-
+                db.Database.ExecuteSqlCommand("sp_emailFirmas @ParametrosXML", Parameters);
                 return true;
 
             }
@@ -146,9 +146,9 @@ namespace SAGA.API.Utilerias
          * y este se elimina de la célula donde se encuentra, no recibirá el correo ya que esta como individual en la requisición.
         */
 
-        public List<string> EmailsNotChange(List<GrupoUsuarios> grpNc)
+        public List<string> EmailsNotChange(List<GrupoEmpleados> grpNc)
         {
-            foreach (GrupoUsuarios gp in grpNc)
+            foreach (GrupoEmpleados gp in grpNc)
             {
                 //var grupoInGrupo = db.GruposUsuarios.Where(x => x.GrupoId.Equals(gp)).ToList();
                 //foreach(var grupo in grpNc)
@@ -346,10 +346,11 @@ namespace SAGA.API.Utilerias
                 string email = dtos.Email;
                 string webERP = ConfigurationManager.AppSettings["WEBERP"].ToString();
 
+                var pass = db.Database.SqlQuery<UpPasswordDto>("dbo.sp_DecryptPassSAGA @id", new SqlParameter("id", dtos.EntidadId)).ToList();
+
                 var aux = db.Usuarios.Where(x => x.Id.Equals(dtos.EntidadId)).Select(f => new
                 {
                     fecha = f.fch_Creacion,
-                    pass = f.Password
 
                 }).FirstOrDefault();
 
@@ -378,7 +379,7 @@ namespace SAGA.API.Utilerias
                 body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Correo :</font></td></tr>";
                 body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", email);
                 body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Contraseña :</font></td></tr>";
-                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", aux.pass);
+                body = body + string.Format("<tr bgcolor=\"#E7EBEC\"><td> {0} </td></tr>", pass[0].Password);
                 body = body + "<tr bgcolor=\"#1D7FB0\"><td><font color=\"white\"> Registrado :</font></td></tr>";
                 body = body + string.Format("<tr bgcolor=\"#FDC613\"><td>{0}<br/>", aux.fecha);
                 body = body + string.Format("<p> Podrás acceder mediante la siguiente dirección: {0} <br/>", webERP);
@@ -394,7 +395,7 @@ namespace SAGA.API.Utilerias
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
+                throw;
             }
         }
 

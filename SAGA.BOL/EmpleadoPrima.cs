@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 namespace SAGA.BOL
 {
-    public class GruposTolerancia
+    public class EmpleadoPrima
     {
         [Key]
         public int Id { get; set; }
-        public int ConfigToleranciaId { get; set; }
-        public ConfigTolerancia ConfigTolerancia { get; set; }
-        public int GruposId { get; set; }
-        public Grupos Grupos { get; set; }
+        public int ConfigPrimaId { get; set; }
+        public ConfigPrima ConfigPrima { get; set; }
+        public Guid empleadoId { get; set; }
+        public CandidatosInfo Empleado { get; set; }
         public bool Activo { get; set; }
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Modificacion { get; set; }

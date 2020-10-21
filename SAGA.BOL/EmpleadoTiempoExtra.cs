@@ -6,19 +6,18 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 namespace SAGA.BOL
 {
-    public class CandidatoHorario
+    public class EmpleadoTiempoExtra
     {
         [Key]
-        public Guid Id { get; set; }
-        public Guid CandidatosInfoId { get; set; }
-        public CandidatosInfo CandidatosInfo { get; set; }
-        public  Guid HorariosIngresosId { get; set; }
-        public HorariosIngresos HorariosIngresos { get; set; }
+        public int Id { get; set; }
+        public int ConfigTiempoExtraId { get; set; }
+        public ConfigTiempoExtra ConfigTiempoExtra { get; set; }
+        public Guid empleadoId { get; set; }
+        public CandidatosInfo Empleado { get; set; }
         public bool Activo { get; set; }
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Modificacion { get; set; }
         public Guid UsuarioAlta { get; set; }
         public Guid UsuarioMod { get; set; }
-
     }
 }

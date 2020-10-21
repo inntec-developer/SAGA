@@ -663,33 +663,51 @@ namespace SAGA.API.Controllers
                     p.UsuarioMod = datos.Usuario;
                     p.fch_Modificacion = DateTime.Now;
 
-                  //  db.Grupos.Add(p);
+                    db.Grupos.Add(p);
+
+                    foreach (GrupoEmpleados g in datos.GrupoEmpleados)
+                    {
+                        g.GrupoId = p.Id;
+                        g.fch_Modificacion = DateTime.Now;
+                    }
+                    db.GrupoEmpleados.AddRange(datos.GrupoEmpleados);
                     db.SaveChanges();
 
                 }
                 else if (datos.crud == 3)
                 {
-                //    var p = db.Grupos.Find(datos.Id);
-                    //db.Entry(p).State = EntityState.Modified;
+                    var p = db.Grupos.Find(datos.Id);
+                    db.Entry(p).State = EntityState.Modified;
 
-                    //p.Clave = datos.Clave;
-                    //p.Nombre = datos.Descripcion;
-                    //p.Descripcion = datos.Comentario;
-                    //p.UsuarioMod = datos.Usuario;
-                    //p.fch_Modificacion = DateTime.Now;
+                    p.Clave = datos.Clave;
+                    p.Nombre = datos.Descripcion;
+                    p.Descripcion = datos.Comentario;
+                    p.UsuarioMod = datos.Usuario;
+                    p.fch_Modificacion = DateTime.Now;
+                    db.SaveChanges();
 
+                    var apt = db.GrupoEmpleados.Where(x => x.GrupoId.Equals(datos.Id));
+                    db.GrupoEmpleados.RemoveRange(apt);
+
+                    foreach (GrupoEmpleados g in datos.GrupoEmpleados)
+                    {
+                        g.GrupoId = datos.Id;
+                        p.UsuarioMod = datos.Usuario;
+                        g.fch_Modificacion = DateTime.Now;
+                    }
+                    db.GrupoEmpleados.AddRange(datos.GrupoEmpleados);
                     db.SaveChanges();
                 }
                 else if (datos.crud == 4)
                 {
-                    //var d = db.Grupos.Find(datos.Id);
-                    //db.Entry(d).Property(x => x.Activo).IsModified = true;
-                    //db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
-                    //db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+                    var d = db.Grupos.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
 
-                    //d.Activo = false;
-                    //d.UsuarioMod = datos.Usuario;
-                    //d.fch_Modificacion = DateTime.Now;
+                    d.Activo = false;
+                    d.UsuarioMod = datos.Usuario;
+                    d.fch_Modificacion = DateTime.Now;
 
                     db.SaveChanges();
                 }
@@ -1369,15 +1387,22 @@ namespace SAGA.API.Controllers
                 }
                 else if (nombre.ToLower().Equals("grupos"))
                 {
-                    //var datos = db.Grupos.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
-                    //{
-                    //    d.Id,
-                    //    d.Clave,
-                    //    d.Nombre,
-                    //    observaciones = d.Descripcion,
-                    //    usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
-                    //}).ToList();
-                    //return Ok(datos);
+                    var datos = db.Grupos.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        d.Nombre,
+                        observaciones = d.Descripcion,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                        empleados = db.GrupoEmpleados.Where(x => x.Activo && x.GrupoId.Equals(d.Id)).Select(e => new
+                        {
+                            id = e.EmpleadoId,
+                            nombre = e.Empleado.Nombre + " " + e.Empleado.ApellidoPaterno + " " + e.Empleado.ApellidoMaterno,
+                            activo = true
+                        }).OrderBy(o => o.nombre),
+                        total = db.GrupoEmpleados.Where(x => x.Activo && x.GrupoId.Equals(d.Id)).Count()
+                    }).ToList();
+                    return Ok(datos);
                 }
                 else if (nombre.ToLower().Equals("empleados"))
                 {

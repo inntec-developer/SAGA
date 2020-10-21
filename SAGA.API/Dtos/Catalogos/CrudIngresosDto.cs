@@ -28,6 +28,7 @@ namespace SAGA.API.Dtos.Catalogos
         public string catalogo { get; set; }
         public List<DiasHorasIngresos> DiasHoras { get; set; }
         public List<DiasHorasIngresos> HorarioComida { get; set; }
+        public List<GrupoEmpleados> GrupoEmpleados { get; set; }
         public byte HorasTotales { get; set; }
         public byte HorasComida { get; set; }
         public byte HorasDescanso { get; set; }

@@ -25,6 +25,7 @@ namespace SAGA.API.Controllers.Catalogos
             db = new SAGADBContext();
         }
 
+#region crud ingresos
         public HttpResponseMessage CRUDVacaciones(CRUDConfiguracionesDto datos)
         {
 
@@ -47,14 +48,14 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigVacacionesDias.AddRange(datos.VacacionesDias);
                     db.SaveChanges();
 
-                    foreach (GrupoVacaciones g in datos.VacacionesRelacion)
-                    {
-                        g.ConfigVacacionesId = a.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
+                    //foreach (EmpleadoVacaciones g in datos.VacacionesRelacion)
+                    //{
+                    //    g.ConfigVacacionesId = a.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
 
-                    db.GrupoVacaciones.AddRange(datos.VacacionesRelacion);
-                    db.SaveChanges();
+                    //db.GrupoVacaciones.AddRange(datos.VacacionesRelacion);
+                    //db.SaveChanges();
                 }
                 else if (datos.crud == 3)
                 {
@@ -83,14 +84,14 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigVacacionesDias.AddRange(datos.VacacionesDias);
                     db.SaveChanges();
                               
-                    var gps = db.GrupoVacaciones.Where(x => x.ConfigVacacionesId.Equals(datos.VacacionesPpal.Id));
-                    foreach (GrupoVacaciones g in datos.VacacionesRelacion)
-                    {
-                        g.ConfigVacacionesId = datos.VacacionesPpal.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
-                    db.GrupoVacaciones.RemoveRange(gps);
-                    db.GrupoVacaciones.AddRange(datos.VacacionesRelacion);
+                    //var gps = db.GrupoVacaciones.Where(x => x.ConfigVacacionesId.Equals(datos.VacacionesPpal.Id));
+                    //foreach (EmpleadoVacaciones g in datos.VacacionesRelacion)
+                    //{
+                    //    g.ConfigVacacionesId = datos.VacacionesPpal.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
+                    //db.GrupoVacaciones.RemoveRange(gps);
+                    //db.GrupoVacaciones.AddRange(datos.VacacionesRelacion);
                 }
                 else if (datos.crud == 4)
                 {
@@ -140,14 +141,14 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigIncapacidadesDias.AddRange(datos.IncapacidadesDias);
                     db.SaveChanges();
 
-                    foreach (GruposIncapacidad g in datos.IncapacidadesRelacion)
-                    {
-                        g.ConfigIncapacidadesId = a.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
+                    //foreach (EmpleadoIncapacidad g in datos.IncapacidadesRelacion)
+                    //{
+                    //    g.ConfigIncapacidadesId = a.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
 
-                    db.GruposIncapacidad.AddRange(datos.IncapacidadesRelacion);
-                    db.SaveChanges();
+                    //db.EmpleadoIncapacidad.AddRange(datos.IncapacidadesRelacion);
+                    //db.SaveChanges();
                 }
                 else if (datos.crud == 3)
                 {
@@ -171,16 +172,16 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigIncapacidadesDias.AddRange(datos.IncapacidadesDias);
                     db.SaveChanges();
 
-                    var gps = db.GruposIncapacidad.Where(x => x.ConfigIncapacidadesId.Equals(datos.Incapacidades.Id));
-                    db.GruposIncapacidad.RemoveRange(gps);
+                    //var gps = db.EmpleadoIncapacidad.Where(x => x.ConfigIncapacidadesId.Equals(datos.Incapacidades.Id));
+                    //db.EmpleadoIncapacidad.RemoveRange(gps);
 
-                    foreach (GruposIncapacidad g in datos.IncapacidadesRelacion)
-                    {
-                        g.ConfigIncapacidadesId = datos.Incapacidades.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
+                    //foreach (EmpleadoIncapacidad g in datos.IncapacidadesRelacion)
+                    //{
+                    //    g.ConfigIncapacidadesId = datos.Incapacidades.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
                    
-                    db.GruposIncapacidad.AddRange(datos.IncapacidadesRelacion);
+                    //db.EmpleadoIncapacidad.AddRange(datos.IncapacidadesRelacion);
                 }
                 else if (datos.crud == 4)
                 {
@@ -229,14 +230,14 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigDiasEconomicosDias.AddRange(datos.DiasEconomicosDias);
                     db.SaveChanges();
 
-                    foreach (GruposDiasEconomicos g in datos.DiasEconomicosRel)
-                    {
-                        g.ConfigDiasEconomicosId = a.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
+                    //foreach (EmpleadoDiasEconomicos g in datos.DiasEconomicosRel)
+                    //{
+                    //    g.ConfigDiasEconomicosId = a.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
 
-                    db.GruposDiasEconomicos.AddRange(datos.DiasEconomicosRel);
-                    db.SaveChanges();
+                    //db.EmpleadoDiasEconomicos.AddRange(datos.DiasEconomicosRel);
+                    //db.SaveChanges();
                 }
                 else if (datos.crud == 3)
                 {
@@ -257,14 +258,14 @@ namespace SAGA.API.Controllers.Catalogos
                     }
                     db.ConfigDiasEconomicosDias.AddRange(datos.DiasEconomicosDias);
 
-                    var gps = db.GruposDiasEconomicos.Where(x => x.ConfigDiasEconomicosId.Equals(datos.DiasEconomicos.Id));
-                    foreach (GruposDiasEconomicos g in datos.DiasEconomicosRel)
-                    {
-                        g.ConfigDiasEconomicosId = datos.DiasEconomicos.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
-                    db.GruposDiasEconomicos.RemoveRange(gps);
-                    db.GruposDiasEconomicos.AddRange(datos.DiasEconomicosRel);
+                    //var gps = db.EmpleadoDiasEconomicos.Where(x => x.ConfigDiasEconomicosId.Equals(datos.DiasEconomicos.Id));
+                    //foreach (EmpleadoDiasEconomicos g in datos.DiasEconomicosRel)
+                    //{
+                    //    g.ConfigDiasEconomicosId = datos.DiasEconomicos.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
+                    //db.EmpleadoDiasEconomicos.RemoveRange(gps);
+                    //db.EmpleadoDiasEconomicos.AddRange(datos.DiasEconomicosRel);
                 }
                 else if (datos.crud == 4)
                 {
@@ -305,13 +306,13 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigGuardias.Add(a);
                     db.SaveChanges();
 
-                    foreach (GruposGuardia g in datos.GuardiasRelacion)
+                    foreach (EmpleadoGuardia g in datos.GuardiasRelacion)
                     {
                         g.ConfigGuardiasId = a.Id;
                         g.fch_Modificacion = DateTime.Now;
                     }
 
-                    db.GruposGuardia.AddRange(datos.GuardiasRelacion);
+                    db.EmpleadoGuardia.AddRange(datos.GuardiasRelacion);
                     db.SaveChanges();
                 }
                 else if (datos.crud == 3)
@@ -327,14 +328,14 @@ namespace SAGA.API.Controllers.Catalogos
 
                     db.SaveChanges();
 
-                    var gps = db.GruposGuardia.Where(x => x.ConfigGuardiasId.Equals(datos.Guardias.Id));
-                    db.GruposGuardia.RemoveRange(gps);
-                    foreach (GruposGuardia g in datos.GuardiasRelacion)
-                    {
-                        g.ConfigGuardiasId = datos.Guardias.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
-                    db.GruposGuardia.AddRange(datos.GuardiasRelacion);
+                    //var gps = db.EmpleadoGuardia.Where(x => x.ConfigGuardiasId.Equals(datos.Guardias.Id));
+                    //db.EmpleadoGuardia.RemoveRange(gps);
+                    //foreach (EmpleadoGuardia g in datos.GuardiasRelacion)
+                    //{
+                    //    g.ConfigGuardiasId = datos.Guardias.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
+                    //db.EmpleadoGuardia.AddRange(datos.GuardiasRelacion);
                 }
                 else if (datos.crud == 4)
                 {
@@ -375,14 +376,14 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigTiempoExtra.Add(a);
                     db.SaveChanges();
 
-                    foreach (GruposTiempoExtra g in datos.TiempoExtraRelacion)
-                    {
-                        g.ConfigTiempoExtraId = a.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
+                    //foreach (EmpleadoTiempoExtra g in datos.TiempoExtraRelacion)
+                    //{
+                    //    g.ConfigTiempoExtraId = a.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
 
-                    db.GruposTiempoExtra.AddRange(datos.TiempoExtraRelacion);
-                    db.SaveChanges();
+                    //db.EmpleadoTiempoExtra.AddRange(datos.TiempoExtraRelacion);
+                    //db.SaveChanges();
                 }
                 else if (datos.crud == 3)
                 {
@@ -400,14 +401,14 @@ namespace SAGA.API.Controllers.Catalogos
 
                     db.SaveChanges();
 
-                    var gps = db.GruposTiempoExtra.Where(x => x.ConfigTiempoExtraId.Equals(datos.TiempoExtra.Id));
-                    db.GruposTiempoExtra.RemoveRange(gps);
-                    foreach (GruposTiempoExtra g in datos.TiempoExtraRelacion)
-                    {
-                        g.ConfigTiempoExtraId = datos.TiempoExtra.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
-                    db.GruposTiempoExtra.AddRange(datos.TiempoExtraRelacion);
+                    //var gps = db.EmpleadoTiempoExtra.Where(x => x.ConfigTiempoExtraId.Equals(datos.TiempoExtra.Id));
+                    //db.EmpleadoTiempoExtra.RemoveRange(gps);
+                    //foreach (EmpleadoTiempoExtra g in datos.TiempoExtraRelacion)
+                    //{
+                    //    g.ConfigTiempoExtraId = datos.TiempoExtra.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
+                    //db.EmpleadoTiempoExtra.AddRange(datos.TiempoExtraRelacion);
                 }
                 else if (datos.crud == 4)
                 {
@@ -456,14 +457,14 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigSuspensionNotasDias.AddRange(datos.SuspensionesDias);
                     db.SaveChanges();
 
-                    foreach (GruposSuspension g in datos.SuspensionesRelacion)
-                    {
-                        g.ConfigSuspensionNotasId = a.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
+                    //foreach (EmpleadoSuspension g in datos.SuspensionesRelacion)
+                    //{
+                    //    g.ConfigSuspensionNotasId = a.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
 
-                    db.GruposSuspension.AddRange(datos.SuspensionesRelacion);
-                    db.SaveChanges();
+                    //db.EmpleadoSuspension.AddRange(datos.SuspensionesRelacion);
+                    //db.SaveChanges();
                 }
                 else if (datos.crud == 3)
                 {
@@ -487,14 +488,14 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigSuspensionNotasDias.AddRange(datos.SuspensionesDias);
                     db.SaveChanges();
 
-                    var gps = db.GruposSuspension.Where(x => x.ConfigSuspensionNotasId.Equals(datos.Suspensiones.Id));
-                    db.GruposSuspension.RemoveRange(gps);
-                    foreach (GruposSuspension g in datos.SuspensionesRelacion)
-                    {
-                        g.ConfigSuspensionNotasId = datos.Suspensiones.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
-                    db.GruposSuspension.AddRange(datos.SuspensionesRelacion);
+                    //var gps = db.EmpleadoSuspension.Where(x => x.ConfigSuspensionNotasId.Equals(datos.Suspensiones.Id));
+                    //db.EmpleadoSuspension.RemoveRange(gps);
+                    //foreach (EmpleadoSuspension g in datos.SuspensionesRelacion)
+                    //{
+                    //    g.ConfigSuspensionNotasId = datos.Suspensiones.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
+                    //db.EmpleadoSuspension.AddRange(datos.SuspensionesRelacion);
                 }
                 else if (datos.crud == 4)
                 {
@@ -535,14 +536,14 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigPrima.Add(a);
                     db.SaveChanges();
 
-                    foreach (GruposPrima g in datos.PrimaRelacion)
-                    {
-                        g.ConfigPrimaId = a.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
+                    //foreach (EmpleadoPrima g in datos.PrimaRelacion)
+                    //{
+                    //    g.ConfigPrimaId = a.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
 
-                    db.GruposPrima.AddRange(datos.PrimaRelacion);
-                    db.SaveChanges();
+                    //db.EmpleadoPrima.AddRange(datos.PrimaRelacion);
+                    //db.SaveChanges();
                 }
                 else if (datos.crud == 3)
                 {
@@ -557,14 +558,14 @@ namespace SAGA.API.Controllers.Catalogos
 
                     db.SaveChanges();
 
-                    var gps = db.GruposPrima.Where(x => x.ConfigPrimaId.Equals(datos.PrimaDominical.Id));
-                    db.GruposPrima.RemoveRange(gps);
-                    foreach (GruposPrima g in datos.PrimaRelacion)
-                    {
-                        g.ConfigPrimaId = datos.PrimaDominical.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
-                    db.GruposPrima.AddRange(datos.PrimaRelacion);
+                    //var gps = db.EmpleadoPrima.Where(x => x.ConfigPrimaId.Equals(datos.PrimaDominical.Id));
+                    //db.EmpleadoPrima.RemoveRange(gps);
+                    //foreach (EmpleadoPrima g in datos.PrimaRelacion)
+                    //{
+                    //    g.ConfigPrimaId = datos.PrimaDominical.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
+                    //db.EmpleadoPrima.AddRange(datos.PrimaRelacion);
                 }
                 else if (datos.crud == 4)
                 {
@@ -614,14 +615,14 @@ namespace SAGA.API.Controllers.Catalogos
                         db.ConfigToleranciaTiempo.AddRange(datos.ToleranciaTiempo);
                         db.SaveChanges();
 
-                        foreach (GruposTolerancia g in datos.ToleranciaRelacion)
-                        {
-                            g.ConfigToleranciaId = a.Id;
-                            g.fch_Modificacion = DateTime.Now;
-                        }
+                        //foreach (EmpleadoTolerancia g in datos.ToleranciaRelacion)
+                        //{
+                        //    g.ConfigToleranciaId = a.Id;
+                        //    g.fch_Modificacion = DateTime.Now;
+                        //}
 
-                        db.GruposTolerancia.AddRange(datos.ToleranciaRelacion);
-                        db.SaveChanges();
+                        //db.EmpleadoTolerancia.AddRange(datos.ToleranciaRelacion);
+                        //db.SaveChanges();
                     }
                 }
                 else if (datos.crud == 3)
@@ -643,14 +644,14 @@ namespace SAGA.API.Controllers.Catalogos
                     }
                     db.ConfigToleranciaTiempo.AddRange(datos.ToleranciaTiempo);
 
-                    var gps = db.GruposTolerancia.Where(x => x.ConfigToleranciaId.Equals(datos.Tolerancia.Id));
-                    foreach (GruposTolerancia g in datos.ToleranciaRelacion)
-                    {
-                        g.ConfigToleranciaId = datos.Tolerancia.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
-                    db.GruposTolerancia.RemoveRange(gps);
-                    db.GruposTolerancia.AddRange(datos.ToleranciaRelacion);
+                    //var gps = db.EmpleadoTolerancia.Where(x => x.ConfigToleranciaId.Equals(datos.Tolerancia.Id));
+                    //foreach (EmpleadoTolerancia g in datos.ToleranciaRelacion)
+                    //{
+                    //    g.ConfigToleranciaId = datos.Tolerancia.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
+                    //db.EmpleadoTolerancia.RemoveRange(gps);
+                    //db.EmpleadoTolerancia.AddRange(datos.ToleranciaRelacion);
                 }
                 else if (datos.crud == 4)
                 {
@@ -743,6 +744,7 @@ namespace SAGA.API.Controllers.Catalogos
                 return Ok(HttpStatusCode.BadRequest);
             }
         }
+        #endregion
         [HttpGet]
         [Route("getCatalogoConfig")]
         [Authorize]
@@ -770,7 +772,7 @@ namespace SAGA.API.Controllers.Catalogos
                                 dd.Dias,
                                 dd.Id
                             }).ToList(),
-                            grupos = db.GrupoVacaciones.Where(x => x.ConfigVacacionesId.Equals(d.Id)).Select(g => g.GruposId).ToList(),
+                            empleados = db.GrupoVacaciones.Where(x => x.ConfigVacacionesId.Equals(d.Id)).Select(g => g.empleadoId).ToList(),
                             usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                         }).ToList();
 
@@ -802,7 +804,7 @@ namespace SAGA.API.Controllers.Catalogos
                                 tipoIncapacidad = dd.TiposIncapacidad.Nombre,
                                 dd.Porcentaje,
                             }).ToList(),
-                            grupos = db.GruposIncapacidad.Where(x => x.ConfigIncapacidadesId.Equals(d.Id)).Select(g => g.GruposId).ToList(),
+                            empleados = db.EmpleadoIncapacidad.Where(x => x.ConfigIncapacidadesId.Equals(d.Id)).Select(g => g.empleadoId).ToList(),
                             usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                         }).ToList();
 
@@ -835,7 +837,7 @@ namespace SAGA.API.Controllers.Catalogos
                             dd.Dias
                         }).ToList(),
                         d.Comentarios,
-                        grupos = db.GruposDiasEconomicos.Where(x => x.ConfigDiasEconomicosId.Equals(d.Id)).Select(g => g.GruposId).ToList(),
+                        empleados = db.EmpleadoDiasEconomicos.Where(x => x.ConfigDiasEconomicosId.Equals(d.Id)).Select(g => g.empleadoId).ToList(),
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
 
@@ -855,7 +857,7 @@ namespace SAGA.API.Controllers.Catalogos
                         d.NoGuardias,
                         consecutivas = d.Consecutivas ? "Activas" : "No Activas",
                         d.Comentarios,
-                        grupos = db.GruposGuardia.Where(x => x.ConfigGuardiasId.Equals(d.Id)).Select(g => g.GruposId).ToList(),
+                        empleados = db.EmpleadoGuardia.Where(x => x.ConfigGuardiasId.Equals(d.Id)).Select(g => g.empleadoId).ToList(),
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
 
@@ -873,7 +875,7 @@ namespace SAGA.API.Controllers.Catalogos
                         d.TE_Triple,
                         d.Redondeo,
                         d.Comentarios,
-                        grupos = db.GruposTiempoExtra.Where(x => x.ConfigTiempoExtraId.Equals(d.Id)).Select(g => g.GruposId).ToList(),
+                        empleados = db.EmpleadoTiempoExtra.Where(x => x.ConfigTiempoExtraId.Equals(d.Id)).Select(g => g.empleadoId).ToList(),
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
 
@@ -890,7 +892,7 @@ namespace SAGA.API.Controllers.Catalogos
                         Tipo = r.Tipo == 1 ? "Disciplinaria" : r.Tipo == 2 ? "Retardo" : r.Tipo == 3 ? "Nota Mala" : r.Tipo == 4 ? "Nota Buena" : "Acta Administrativa",
                         TipoId = r.Tipo,
                         r.ConfigSuspensionNotas.Comentarios,
-                        grupos = db.GruposSuspension.Where(x => x.ConfigSuspensionNotasId.Equals(r.ConfigSuspensionNotasId)).Select(g => g.GruposId).ToList(),
+                        empleados = db.EmpleadoSuspension.Where(x => x.ConfigSuspensionNotasId.Equals(r.ConfigSuspensionNotasId)).Select(g => g.empleadoId).ToList(),
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(r.ConfigSuspensionNotas.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
 
@@ -900,9 +902,10 @@ namespace SAGA.API.Controllers.Catalogos
                 {
                     var datos = db.ConfigPrima.Where(x => x.Activo).Select(r => new
                     {
+                        r.Id,
                         r.Horas,
                         r.porcentaje,
-                        grupos = db.GruposPrima.Where(x => x.ConfigPrimaId.Equals(r.Id)).Select(g => g.GruposId).ToList(),
+                        empleados = db.EmpleadoPrima.Where(x => x.ConfigPrimaId.Equals(r.Id)).Select(g => g.empleadoId).ToList(),
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(r.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
 
@@ -921,7 +924,7 @@ namespace SAGA.API.Controllers.Catalogos
                             t.Tiempo,
                             t.Tipo
                         }),
-                        grupos = db.GruposTolerancia.Where(x => x.ConfigToleranciaId.Equals(r.Id)).Select(g => g.GruposId).ToList(),
+                        empleados = db.EmpleadoTolerancia.Where(x => x.ConfigToleranciaId.Equals(r.Id)).Select(g => g.empleadoId).ToList(),
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(r.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
 
@@ -948,20 +951,333 @@ namespace SAGA.API.Controllers.Catalogos
         {
             try
             {
-                if (datos.Catalogo == "horario")
+                if (datos.Catalogo.ToLower().Equals("vacaciones"))
                 {
-                    foreach (CandidatoHorario g in datos.CandidatosHorario)
+                    List<EmpleadoVacaciones> Listobj = new List<EmpleadoVacaciones>();
+                    EmpleadoVacaciones obj = new EmpleadoVacaciones();
+                    foreach (var g in datos.Asignacion)
                     {
-                        g.fch_Modificacion = DateTime.Now;
+                        obj.empleadoId = g.EmpleadoId;
+                        obj.ConfigVacacionesId = g.Id;
+                        obj.Activo = g.Activo;
+                        obj.UsuarioAlta = g.UsuarioAlta;
+                        obj.UsuarioMod = g.UsuarioMod;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        Listobj.Add(obj);
+                        obj = new EmpleadoVacaciones();
                     }
 
-                    //db.CandidatoHorario.AddRange(datos.CandidatosHorario);
-                    //db.SaveChanges();
+                    db.GrupoVacaciones.AddRange(Listobj);
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("incapacidad"))
+                {
+                    List<EmpleadoIncapacidad> Listobj = new List<EmpleadoIncapacidad>();
+                    EmpleadoIncapacidad obj = new EmpleadoIncapacidad();
+                    foreach (var g in datos.Asignacion)
+                    {
+                        obj.empleadoId = g.EmpleadoId;
+                        obj.ConfigIncapacidadesId = g.Id;
+                        obj.Activo = g.Activo;
+                        obj.UsuarioAlta = g.UsuarioAlta;
+                        obj.UsuarioMod = g.UsuarioMod;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        Listobj.Add(obj);
+                        obj = new EmpleadoIncapacidad();
+                    }
+
+                    db.EmpleadoIncapacidad.AddRange(Listobj);
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("dias"))
+                {
+                    List<EmpleadoDiasEconomicos> Listobj = new List<EmpleadoDiasEconomicos>();
+                    EmpleadoDiasEconomicos obj = new EmpleadoDiasEconomicos();
+                    foreach (var g in datos.Asignacion)
+                    {
+                        obj.empleadoId = g.EmpleadoId;
+                        obj.ConfigDiasEconomicosId = g.Id;
+                        obj.Activo = g.Activo;
+                        obj.UsuarioAlta = g.UsuarioAlta;
+                        obj.UsuarioMod = g.UsuarioMod;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        Listobj.Add(obj);
+                        obj = new EmpleadoDiasEconomicos();
+                    }
+
+                    db.EmpleadoDiasEconomicos.AddRange(Listobj);
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("guardias"))
+                {
+                    List<EmpleadoGuardia> Listobj = new List<EmpleadoGuardia>();
+                    EmpleadoGuardia obj = new EmpleadoGuardia();
+                    foreach (var g in datos.Asignacion)
+                    {
+                        obj.empleadoId = g.EmpleadoId;
+                        obj.ConfigGuardiasId = g.Id;
+                        obj.Activo = g.Activo;
+                        obj.UsuarioAlta = g.UsuarioAlta;
+                        obj.UsuarioMod = g.UsuarioMod;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        Listobj.Add(obj);
+                        obj = new EmpleadoGuardia();
+                    }
+                    db.EmpleadoGuardia.AddRange(Listobj);
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("tiempo_extra"))
+                {
+                    List<EmpleadoTiempoExtra> Listobj = new List<EmpleadoTiempoExtra>();
+                    EmpleadoTiempoExtra obj = new EmpleadoTiempoExtra();
+                    foreach (var g in datos.Asignacion)
+                    {
+                        obj.empleadoId = g.EmpleadoId;
+                        obj.ConfigTiempoExtraId = g.Id;
+                        obj.Activo = g.Activo;
+                        obj.UsuarioAlta = g.UsuarioAlta;
+                        obj.UsuarioMod = g.UsuarioMod;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        Listobj.Add(obj);
+                        obj = new EmpleadoTiempoExtra();
+                    }
+                    db.EmpleadoTiempoExtra.AddRange(Listobj);
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("suspension"))
+                {
+                    List<EmpleadoSuspension> Listobj = new List<EmpleadoSuspension>();
+                    EmpleadoSuspension obj = new EmpleadoSuspension();
+                    foreach (var g in datos.Asignacion)
+                    {
+                        obj.empleadoId = g.EmpleadoId;
+                        obj.ConfigSuspensionNotasId = g.Id;
+                        obj.Activo = g.Activo;
+                        obj.UsuarioAlta = g.UsuarioAlta;
+                        obj.UsuarioMod = g.UsuarioMod;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        Listobj.Add(obj);
+                        obj = new EmpleadoSuspension();
+                    }
+                    db.EmpleadoSuspension.AddRange(Listobj);
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("prima"))
+                {
+                    List<EmpleadoPrima> Listobj = new List<EmpleadoPrima>();
+                    EmpleadoPrima obj = new EmpleadoPrima();
+                    foreach (var g in datos.Asignacion)
+                    {
+                        obj.empleadoId = g.EmpleadoId;
+                        obj.ConfigPrimaId = g.Id;
+                        obj.Activo = g.Activo;
+                        obj.UsuarioAlta = g.UsuarioAlta;
+                        obj.UsuarioMod = g.UsuarioMod;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        Listobj.Add(obj);
+                        obj = new EmpleadoPrima();
+                    }
+
+                    db.EmpleadoPrima.AddRange(Listobj);
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("tolerancia"))
+                {
+                    List<EmpleadoTolerancia> Listobj = new List<EmpleadoTolerancia>();
+                    EmpleadoTolerancia obj = new EmpleadoTolerancia();
+                    foreach (var g in datos.Asignacion)
+                    {
+                        obj.empleadoId = g.EmpleadoId;
+                        obj.ConfigToleranciaId = g.Id;
+                        obj.Activo = g.Activo;
+                        obj.UsuarioAlta = g.UsuarioAlta;
+                        obj.UsuarioMod = g.UsuarioMod;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        Listobj.Add(obj);
+                        obj = new EmpleadoTolerancia();
+                    }
+                    db.EmpleadoTolerancia.AddRange(Listobj);
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo == "horario")
+                {
+                    List<EmpleadoHorario> Listobj = new List<EmpleadoHorario>();
+                    EmpleadoHorario obj = new EmpleadoHorario();
+                    foreach (var g in datos.Asignacion)
+                    {
+                        obj.empleadoId = g.EmpleadoId;
+                        obj.HorariosIngresosId = g.IdG;
+                        obj.Activo = g.Activo;
+                        obj.UsuarioAlta = g.UsuarioAlta;
+                        obj.UsuarioMod = g.UsuarioMod;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        Listobj.Add(obj);
+                        obj = new EmpleadoHorario();
+                    }
+
+                    db.EmpleadoHorario.AddRange(Listobj);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.Continue);
                 }
                 return Ok(HttpStatusCode.OK);
-
             }
-            catch(Exception ex )
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        
+        }
+        [HttpPost]
+        [Route("getAsignadosConfiguracion")]
+        [Authorize]
+        public IHttpActionResult GetAsignadosConfig(CRUDConfiguracionesDto asignados)
+        {
+            try
+            {
+                if (asignados.Catalogo.ToLower().Equals("vacaciones"))
+                {
+                    var datos = db.GrupoVacaciones.Where(x => x.Activo && x.ConfigVacacionesId.Equals(asignados.Id)).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("incapacidad"))
+                {
+                    var datos = db.EmpleadoIncapacidad.Where(x => x.Activo && x.ConfigIncapacidadesId.Equals(asignados.Id)).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("dias"))
+                {
+                    var datos = db.EmpleadoDiasEconomicos.Where(x => x.Activo && x.ConfigDiasEconomicosId.Equals(asignados.Id)).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("guardias"))
+                {
+                    var datos = db.EmpleadoGuardia.Where(x => x.Activo && x.ConfigGuardiasId.Equals(asignados.Id)).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("tiempo_extra"))
+                {
+                    var datos = db.EmpleadoTiempoExtra.Where(x => x.Activo && x.ConfigTiempoExtraId.Equals(asignados.Id)).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("suspension"))
+                {
+                    var datos = db.EmpleadoSuspension.Where(x => x.Activo && x.ConfigSuspensionNotasId.Equals(asignados.Id)).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("prima"))
+                {
+                    var datos = db.EmpleadoGuardia.Where(x => x.Activo && x.ConfigGuardiasId.Equals(asignados.Id)).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("tolerancia"))
+                {
+                    var datos = db.EmpleadoTolerancia.Where(x => x.Activo && x.ConfigToleranciaId.Equals(asignados.Id)).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower() == "horario")
+                {
+                    var datos = db.EmpleadoHorario.Where(x => x.Activo && x.HorariosIngresosId.Equals(asignados.IdG)).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.Continue);
+                }
+            }
+            catch (Exception ex)
             {
                 return Ok(HttpStatusCode.BadRequest);
             }

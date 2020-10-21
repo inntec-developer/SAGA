@@ -792,7 +792,7 @@ namespace SAGA.API.Controllers
         [HttpPost]
         [Route("deleteUserGroup")]
         [Authorize]
-        public IHttpActionResult DeleteUserGroup(GrupoUsuarios indices)
+        public IHttpActionResult DeleteUserGroup(GrupoEmpleados indices)
         {
             try
             {

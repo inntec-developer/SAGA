@@ -20,6 +20,7 @@ using System.Text;
 using Infobip.Api.Model.Sms.Mt.Send.Textual;
 using Infobip.Api.Model.Sms.Mt.Send;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace SAGA.API.Controllers.Kiosko
 {
@@ -32,7 +33,71 @@ namespace SAGA.API.Controllers.Kiosko
         {
             db = new SAGADBContext();
         }
+        [HttpPost]
+        [Route("uploadCV")]
+        public IHttpActionResult UploadCV()
+        {
+            string fileName = null;
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
+                var postedFile = httpRequest.Files["file"];
 
+                fileName = Path.GetFileName(postedFile.FileName);
+                var idx = fileName.LastIndexOf('_') + 1;
+                var lon = fileName.Length - idx;
+                var id = fileName.Substring(idx, lon);
+
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/users/");
+                if (!Directory.Exists(fullPath + '/' + id))
+                {
+                    Directory.CreateDirectory(fullPath + '/' + id);
+                }
+
+                fileName = fileName.Substring(0, idx - 1);
+
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/users/" + id + '/' + fileName + ".pdf");
+
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
+
+                postedFile.SaveAs(fullPath);
+
+                var ccv = db.MiCVUpload.Where(x => x.CandidatoId.Equals(new Guid(id))).Count();
+                if(ccv == 0)
+                {
+                    MiCVUpload cv = new MiCVUpload();
+                    cv.CandidatoId = new Guid(id);
+                    cv.UrlCV = "Files/users/" + id + '/' + fileName + ".pdf";
+
+                    db.MiCVUpload.Add(cv);
+                    db.SaveChanges();
+                }
+                return Ok(HttpStatusCode.OK); 
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.InternalServerError);
+            }
+
+        }
+        [HttpGet]
+        [Route("getEstado")]
+        public IHttpActionResult GetEstado()
+        {
+            var estado = db.Estados
+                .OrderBy(x => x.estado)
+                .Where(x => x.PaisId.Equals(42))
+                .Select(x => new
+                {
+                    x.Id,
+                    x.estado,
+                    x.Clave
+                })
+                .ToList();
+            return Ok(estado);
+        }
         [HttpPost]
         [Route("registrarCandidatoBT")]
         public IHttpActionResult RegistrarCandidatoBT(CandidatosGralDto datos)
@@ -107,6 +172,16 @@ namespace SAGA.API.Controllers.Kiosko
                 login.Id = candidato.Id;
                 login.username = username;
                 login.pass = pass;
+                var generales = db.Candidatos.Where(x => x.Id.Equals(candidato.Id)).Select(d => new
+                {
+                    nombre = d.Nombre + " " + d.ApellidoPaterno + " " + d.ApellidoMaterno,
+                    fechaNac = d.FechaNacimiento,
+                    genero = d.Genero.genero,
+                    estado = d.estadoNacimiento.estado,
+                    telefono = d.telefonos.Select(tel => tel.telefono).FirstOrDefault(),
+                    email = d.emails.Select(e => e.email).FirstOrDefault()
+                }).FirstOrDefault();
+
 
                 if (datos.OpcionRegistro == 1)
                 {
@@ -118,7 +193,7 @@ namespace SAGA.API.Controllers.Kiosko
                     var mocos = this.EnviarSMS(tel, username, pass);
                 }
 
-                return Ok(login);
+                return Ok(new { login, generales });
             }
             catch (Exception ex)
             {
@@ -211,18 +286,27 @@ namespace SAGA.API.Controllers.Kiosko
         {
             try
             {
-                var p = db.AspNetUsers.Where(x => x.UserName.Equals(datos.username)).Select(U => new LoginDto
+                var p = db.AspNetUsers.Where(x => x.UserName.Equals(datos.username)).Select(U => new
                 {
                     Id = U.IdPersona,
                     userId = U.Id,
                     pass = U.Pasword,
                     username = U.UserName,
+                    generales = db.Candidatos.Where(x => x.Id.Equals(U.IdPersona)).Select(d => new
+                    {
+                        nombre = d.Nombre + " " + d.ApellidoPaterno + " " + d.ApellidoMaterno,
+                        fechaNac = d.FechaNacimiento,
+                        genero = d.Genero.genero,
+                        estado = d.estadoNacimiento.estado,
+                        telefono = d.telefonos.Select(t => t.telefono).FirstOrDefault(),
+                        email = d.emails.Select(e => e.email).FirstOrDefault()
+                    }).FirstOrDefault(),
                     nombre = db.Entidad.Where(x => x.Id.Equals(U.IdPersona)).Select(u => u.Nombre + " " + u.ApellidoPaterno + " " + u.ApellidoMaterno).FirstOrDefault()
-                }).ToList();
+                }).FirstOrDefault();
 
-                if (p.Count > 0)
+                if (p != null)
                 {
-                    var pd = db.Database.SqlQuery<String>("dbo.spDesencriptarPasword @id", new SqlParameter("id", p[0].userId)).FirstOrDefault();
+                    var pd = db.Database.SqlQuery<String>("dbo.spDesencriptarPasword @id", new SqlParameter("id", p.userId)).FirstOrDefault();
                     if (pd.Equals(datos.pass))
                     {
 
@@ -289,13 +373,13 @@ namespace SAGA.API.Controllers.Kiosko
                         fch_Creacion = e.fch_Creacion,
                         //Cliente = e.Cliente.Nombrecomercial,
                         //ClienteId = e.Cliente.Id,
-                        //estado = e.Cliente.direcciones.Select(x => x.Municipio.municipio + " " + x.Estado.estado + " " + x.Estado.Pais.pais).FirstOrDefault(),
+                        estado = e.Cliente.direcciones.Select(x => x.Municipio.municipio + " " + x.Estado.estado + " " + x.Estado.Pais.pais).FirstOrDefault(),
                         //domicilio_trabajo = e.Direccion.Calle + " " + e.Direccion.NumeroExterior + " " + e.Direccion.Colonia.colonia + " " + e.Direccion.Municipio.municipio + " " + e.Direccion.Estado.estado,
                         //Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                         VBtra = e.VBtra,
-                        //requisitos = e.DAMFO290.escolardadesPerfil.Select(esc => esc.Escolaridad.gradoEstudio),
-                        //Actividades = e.DAMFO290.actividadesPerfil.Select(a => a.Actividades),
-                        //aptitudes = e.DAMFO290.aptitudesPerfil.Select(ap => ap.Aptitud.aptitud),
+                        requisitos = e.DAMFO290.escolardadesPerfil.Select(esc => esc.Escolaridad.gradoEstudio).Take(3),
+                        Actividades = e.DAMFO290.actividadesPerfil.Select(a => a.Actividades).Take(3),
+                        aptitudes = e.DAMFO290.aptitudesPerfil.Select(ap => ap.Aptitud.aptitud).Take(3),
                         experiencia = e.Experiencia,
                         categoria = e.Area.areaExperiencia,
                         categoriaId = e.Area.Id,
@@ -303,7 +387,7 @@ namespace SAGA.API.Controllers.Kiosko
                         areaId = e.AreaId,
                         cubierta = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) - db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count() : 0,
                         // arte = ValidarArte(e.Id.ToString()) // @"https://apisb.damsa.com.mx/Utilerias/" + "img/ArteRequi/Arte/" + e.Id + ".png"
-                    }).OrderBy(o => o.fch_Creacion).ToList();
+                    }).ToList();
 
 
                 var v = vacantes.Where(x => x.cubierta > 0).Select(e => new
@@ -318,7 +402,10 @@ namespace SAGA.API.Controllers.Kiosko
                     areaId = e.areaId,
                     cubierta = e.cubierta,
                     arte = this.ValidarArte(e.Id.ToString()),
-                    //fsarte = this.GetImage(e.Id.ToString())
+                    estado = e.estado,
+                    requisitos = e.requisitos,
+                    actividades = e.Actividades,
+                    aptitudes = e.aptitudes
 
                 }).ToList();
 

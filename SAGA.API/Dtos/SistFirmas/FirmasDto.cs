@@ -14,6 +14,7 @@ namespace SAGA.API.Dtos.SistFirmas
         public string cliente { get; set; }
         public string estatus { get; set; }
         public string email_envio { get; set; }
+        public string email_copia { get; set; }
         public string subject { get; set; }
     }
 }

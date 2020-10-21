@@ -28,7 +28,8 @@ namespace SAGA.API.Controllers.SistFirmas
             SendEmails obj = new SendEmails();
             try
             {
-                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/SistFirmas/" + datos.name + "_" + DateTime.Now.ToString("ddMMyyyyHHMM") + datos.ext);
+                var filename = datos.name + "_" + DateTime.Now.ToString("ddMMyyyyHHMM") + datos.ext;
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/SistFirmas/" + filename);
                 if (datos.type.Length > 0)
                 {
                     datos.file = datos.file.Replace("data:" + datos.type + ";base64,", "");
@@ -37,7 +38,7 @@ namespace SAGA.API.Controllers.SistFirmas
                 File.WriteAllBytes(fullPath, bytes);
 
                 //bool enviado = obj.EmailSistFirmas(estatus, "SUAVEMAR", "mventura@damsa.com.mx", "https://apisb.damsa.com.mx/utilerias/Files/SistFirmas/", "EXPORTACION_280920201009.txt");
-                bool enviado = true; // obj.EmailSistFirmas(datos, "E:\\inetpub\\wwwroot\\sagainn\\Saga\\API.sb\\Utilerias\\files\\SistFirmas", "EXPORTACION_180920201709.txt");
+                bool enviado = obj.EmailSistFirmas(datos, "E:\\inetpub\\wwwroot\\sagainn\\Saga\\API.sb\\Utilerias\\files\\SistFirmas\\", filename);
                 if (enviado)
                 {
                     return Ok(new { result = HttpStatusCode.OK, path = datos.name + "_" + DateTime.Now.ToString("ddMMyyyyHHMM") + datos.ext });
@@ -135,16 +136,20 @@ namespace SAGA.API.Controllers.SistFirmas
         }
         [HttpPost]
         [Route("addEvento")]
-        public IHttpActionResult AddEvento(FIRM_Bitacora datos)
+        public IHttpActionResult AddEvento(BitacoraDto datos)
         {
             try
             {
-                datos.fch_Creacion = DateTime.Now;
-                datos.fch_Modificacion = DateTime.Now;
-                datos.FilePath = "Files/SistFirmas/" + datos.FilePath;
-                db.FIRM_Bitacora.Add(datos);
+                FIRM_Bitacora b = new FIRM_Bitacora();
+                b = datos.Bitacora;
+                b.fch_Creacion = DateTime.Now;
+                b.fch_Modificacion = DateTime.Now;
+                b.FilePath = "Files/SistFirmas/" + datos.Bitacora.FilePath;
+                b.FechasEstatusId = db.FIRM_FechasEstatus.Where(x => x.ConfigBitacoraId.Equals(datos.ConfigBitacoraId) && x.EstatusBitacoraId.Equals(datos.EstatusBitacoraId)).Select(F => F.Id).FirstOrDefault();
+                db.FIRM_Bitacora.Add(b);
+
                 db.SaveChanges();
-                return Ok(datos.Id);
+                return Ok(b.Id);
             }
             catch(Exception ex)
             {
@@ -206,6 +211,7 @@ namespace SAGA.API.Controllers.SistFirmas
         {
             try
             {
+
                 var bitacora = db.FIRM_ConfigBitacora.Where(x => x.Activo && x.SucursalesId.Equals(sucursalId)).Select(c => new
                 {
                     id = c.Id,
@@ -215,12 +221,12 @@ namespace SAGA.API.Controllers.SistFirmas
                     clave_nomina = c.TipodeNomina.Clave,
                     tipo_nomina = c.TipodeNomina.tipoDeNomina,
                     destinatario = db.Usuarios.Where(x => x.Id.Equals(c.Destinatario)).Select(e => e.emails.Select(ee => ee.email).FirstOrDefault()),
-                    tiempos = db.FIRM_Tiempos.Where(x => x.ConfigBitacoraId.Equals(c.Id)).Select(t => new
+                    tiempos = db.FIRM_FechasEstatus.Where(x => x.ConfigBitacoraId.Equals(c.Id)).Select(t => new
                     {
                         t.Id,
-                        t.DiaSemanaId,
-                        t.DiaSemana.diaSemana,
-                        t.Hora,
+                        DiaSemanaId = t.WeekDay,
+                        t.Hour,
+                        t.Fecha,
                         EstatusId = t.EstatusBitacoraId,
                         t.EstatusBitacora.Estatus
                     }).ToList()
@@ -250,19 +256,19 @@ namespace SAGA.API.Controllers.SistFirmas
                 var bitacora = db.FIRM_Bitacora.OrderByDescending(o => o.fch_Creacion).Where(x => x.Activo && x.PropietarioId.Equals(propietarioId)).Select(c => new
                 {
                     id = c.Id,
-                    sucursal = c.ConfigBitacora.Sucursales.Nombre,
-                    soporte = c.ConfigBitacora.SoportesNomina.Soporte,
-                    registro_pat = c.ConfigBitacora.Sucursales.RegistroPatronal.RP_Clave,
-                    clave_nomina = c.ConfigBitacora.TipodeNomina.Clave,
-                    tipo_nomina = c.ConfigBitacora.TipodeNomina.tipoDeNomina,
-                    c.EstatusBitacora.Estatus,
+                    sucursal = c.FechasEstatus.ConfigBitacora.Sucursales.Nombre,
+                    soporte = c.FechasEstatus.ConfigBitacora.SoportesNomina.Soporte,
+                    registro_pat = c.FechasEstatus.ConfigBitacora.Sucursales.RegistroPatronal.RP_Clave,
+                    clave_nomina = c.FechasEstatus.ConfigBitacora.TipodeNomina.Clave,
+                    tipo_nomina = c.FechasEstatus.ConfigBitacora.TipodeNomina.tipoDeNomina,
+                    estatus = c.FechasEstatus.EstatusBitacora.Estatus,
                     c.fch_Creacion,
                     hora = c.fch_Creacion,
-                    c.FilePath, 
+                    c.FilePath,
                     retardo = c.Retardo ? "RETARDO" : "SIN RETARDO",
                     porques = c.Porques ? "SE ENVIÓ" : "NO SE ENVIÓ"
                 }).ToList();
-                             
+
                 return Ok(bitacora);
             }
             catch (Exception ex)
@@ -293,7 +299,7 @@ namespace SAGA.API.Controllers.SistFirmas
         {
             try
             {
-                var result = db.FIRM_Damfo022.Where(x => x.Activo && !x.Estatus).Select(d => new
+                var result = db.FIRM_Damfo022.OrderByDescending(o => o.fch_Creacion).Where(x => x.Activo && !x.Estatus).Select(d => new
                 {
                     d.Id,
                     d.Folio,
@@ -337,7 +343,15 @@ namespace SAGA.API.Controllers.SistFirmas
                     usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(u => u.Clave + " " + u.Nombre + " " + u.ApellidoPaterno + " " + u.ApellidoMaterno)
                 }).ToList();
 
-                return Ok(result);
+                var totalIshikawa = db.FIRM_Ishikawa.Where(x => x.Activo).Select(res => new
+                {
+                    res.Id,
+                    causa = res.Causa.Substring(0, res.Causa.IndexOf("/") >= 0 ? res.Causa.IndexOf("/") - 1 : res.Causa.Length),
+                    total = db.FIRM_CausaEfecto.Where(x => x.Damfo022.Activo && x.Damfo022.Estatus && x.IshikawaId.Equals(res.Id)).Count()
+
+                }).ToList();
+
+                return Ok(new { result, totalIshikawa });
 
             }
             catch (Exception ex)

@@ -10,10 +10,6 @@ namespace SAGA.BOL
     {
         [Key]
         public Guid Id { get; set; }
-        public int ConfigBitacoraId { get; set; }
-        public FIRM_ConfigBitacora ConfigBitacora { get; set; }
-        public int EstatusBitacoraId { get; set; }
-        public FIRM_EstatusBitacora EstatusBitacora { get; set; }
         public string FilePath { get; set; }
         public bool Activo { get; set; }
         public DateTime fch_Creacion { get; set; }
@@ -21,5 +17,8 @@ namespace SAGA.BOL
         public Guid PropietarioId { get; set; }
         public bool Retardo { get; set; }
         public bool Porques { get; set; }
+
+        public Guid FechasEstatusId { get; set; }
+        public FIRM_FechasEstatus FechasEstatus { get; set; }
     }
 }

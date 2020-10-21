@@ -153,17 +153,13 @@ namespace SAGA.API.Controllers.Component
             try
             {
                 string fecha = "07/12/1990";
-                var edad = DateTime.Today.AddTicks(-Convert.ToDateTime(Convert.ToDateTime(fecha)).Ticks).Year - 1;
-                //var mocos = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre).FirstOrDefault();
+                var mocos = db.MiCVUpload.Where(x => x.CandidatoId.Equals(Id)).Count();
                 var infoCanditato = db.PerfilCandidato.Where(p => p.CandidatoId.Equals(Id)).Select(p => new
                 {
                     Id = p.CandidatoId,
                     Nombre = p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno,
-                    //Nombre = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre).FirstOrDefault() == null ? p.Candidato.Nombre + " " + p.Candidato.ApellidoPaterno + " " + p.Candidato.ApellidoMaterno : db.CandidatosInfo.Where(x => x.CandidatoId.Equals(Id)).Select(pp => pp.Nombre + " " + pp.ApellidoPaterno + " " + pp.ApellidoMaterno).FirstOrDefault(),
                     Foto = p.Candidato.ImgProfileUrl,
-                    //Genero = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(pp => pp.Genero.genero).FirstOrDefault(),
                     Genero = p.Candidato.Genero.genero,
-                    //FechaNacimiento = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(pp => pp.FechaNacimiento).FirstOrDefault(),
                     FechaNacimiento = p.Candidato.FechaNacimiento,
                     Candidato = new { p.Candidato.FechaNacimiento,
                         p.Candidato.estadoNacimiento.estado,
@@ -199,19 +195,7 @@ namespace SAGA.API.Controllers.Component
                         dd.NumeroExterior,
                         dd.NumeroInterior,
                         dd.CodigoPostal
-                        //p.Candidato.direcciones.FirstOrDefault().Municipio.municipio,
-                        //p.Candidato.direcciones.FirstOrDefault().Estado.estado,
-                        //p.Candidato.direcciones.FirstOrDefault().Pais.pais,
-                        //p.Candidato.direcciones.FirstOrDefault().Colonia.TipoColonia,
-                        //p.Candidato.direcciones.FirstOrDefault().Colonia.colonia,
-                        //p.Candidato.direcciones.FirstOrDefault().Calle,
-                        //p.Candidato.direcciones.FirstOrDefault().NumeroExterior,
-                        //p.Candidato.direcciones.FirstOrDefault().NumeroInterior,
-                        //p.Candidato.direcciones.FirstOrDefault().CodigoPostal
-
                     }).FirstOrDefault(),
-
-                        //Email = p.Candidato.emails.FirstOrDefault(),
                     Telefono = p.Candidato.telefonos.Select(tt => new
                     {
                         tt.TipoTelefono.Tipo,
@@ -227,35 +211,10 @@ namespace SAGA.API.Controllers.Component
                     }).FirstOrDefault(),
                     RedSocial = db.RedesSociales.Where(r => r.EntidadId.Equals(p.CandidatoId)).Select(r => r.redSocial).ToList(),
                     propietarioId = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId) && x.EstatusId.Equals(24)).Count() > 0 ? db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(o => o.Fch_Modificacion).Select(id => id.Requisicion.PropietarioId).FirstOrDefault() : new Guid("00000000-0000-0000-0000-000000000000"),
-                    URLCv = db.MiCVUpload.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Count() > 0 ? db.MiCVUpload.OrderByDescending(x => x.Id).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(x => x.UrlCV).FirstOrDefault() : "",
+                    URLCv = db.MiCVUpload.Where(x => x.CandidatoId.Equals(p.CandidatoId)).Count() > 0 ? db.MiCVUpload.OrderByDescending(x => x.Id).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(x => x.UrlCV).FirstOrDefault().Trim() : "",
                     Edad =0
             }).FirstOrDefault();
 
-
-                //var infoCanditato = db.CandidatosInfo.Where(p => p.EntidadId.Equals(Id)).Select(p => new InfoCandidato
-                //{
-                //    Id = p.EntidadId,
-                //    Nombre = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
-                //    Foto = db.PerfilCandidato.Where(x => x.CandidatoId.Equals(p.EntidadId)).Select(pp => pp.Candidato.ImgProfileUrl).FirstOrDefault(),
-                //    Genero = p.Genero.genero,
-                //    FechaNacimiento = p.FechaNacimiento,
-                //    Candidato = db.Candidatos.Where(x => x.Id.Equals(p.EntidadId)).FirstOrDefault(),
-                //    AboutMe = db.PerfilCandidato.Where(x => x.Id.Equals(p.EntidadId)).Select(pp => pp.AboutMe).FirstOrDefault(),
-                //    Cursos = db.PerfilCandidato.Where(x => x.Id.Equals(p.EntidadId)).Select(pp => pp.Cursos).FirstOrDefault(),
-                //    Conocimientos = db.PerfilCandidato.Where(x => x.Id.Equals(p.EntidadId)).Select(pp => pp.Conocimientos).FirstOrDefault(),
-                //    Idiomas = db.PerfilCandidato.Where(x => x.Id.Equals(p.EntidadId)).Select(pp => pp.Idiomas).FirstOrDefault(),
-                //    Formaciones = p.Formaciones,
-                //    Experiencias = p.Experiencias,
-                //    Certificaciones = p.Certificaciones,
-                //    Direccion = p.Candidato.direcciones.FirstOrDefault(),
-                //    Email = p.Candidato.emails.FirstOrDefault(),
-                //    Telefono = p.Candidato.telefonos.ToList(),
-                //    Estatus = db.ProcesoCandidatos.Where(e => e.CandidatoId.Equals(p.CandidatoId)).OrderByDescending(x => x.Fch_Modificacion).FirstOrDefault(),
-                //    RedSocial = db.RedesSociales.Where(r => r.EntidadId.Equals(p.CandidatoId)).Select(r => r.redSocial).ToList(),
-
-                //}).FirstOrDefault();
-
-                //infoCanditato.Edad = DateTime.Today.AddTicks(-Convert.ToDateTime(Convert.ToDateTime(infoCanditato.FechaNacimiento)).Ticks).Year - 1;
                 return Ok(infoCanditato);
             }
             catch (Exception ex)

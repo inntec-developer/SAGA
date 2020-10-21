@@ -15,7 +15,5 @@ namespace SAGA.BOL
         public DateTime Hora { get; set; }
         public int EstatusBitacoraId { get; set; }
         public FIRM_EstatusBitacora EstatusBitacora { get; set; }
-        public int ConfigBitacoraId { get; set; }
-        public FIRM_ConfigBitacora ConfigBitacora { get; set; }
     }
 }

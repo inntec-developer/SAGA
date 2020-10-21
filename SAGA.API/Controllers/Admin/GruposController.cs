@@ -126,11 +126,11 @@ namespace SAGA.API.Controllers
         [HttpPost]
         [Route("addUserGroup")]
         [Authorize]
-        public IHttpActionResult AddUserGroup(List<GrupoUsuarios> listJson)
+        public IHttpActionResult AddUserGroup(List<GrupoEmpleados> listJson)
         {
             try
             {
-                List<GrupoUsuarios> obj = new List<GrupoUsuarios>();
+                List<GrupoEmpleados> obj = new List<GrupoEmpleados>();
 
                 //foreach (GrupoUsuarios gu in listJson)
                 //{
