@@ -6,25 +6,18 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 namespace SAGA.BOL
 {
-    public class SoporteFacturacion
+    public class DptosIngresos
     {
         [Key]
         public int Id { get; set; }
         public string Clave { get; set; }
-        public string Concepto { get; set; }
-        public string NombreHoja { get; set; }
-        public bool ServicioNomina { get; set; }
-        public decimal MontoTope { get; set; }
+        public string Nombre { get; set; }
         public string Observaciones { get; set; }
         public bool Activo { get; set; }
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Modificacion { get; set; }
         public Guid UsuarioAlta { get; set; }
-        public Guid UsuarioMod { get; set; } 
+        public Guid UsuarioMod { get; set; }
 
-        public int DptosIngresosId { get; set; }
-        public DptosIngresos DptosIngresos { get; set; }
-        public int TipodeNominaId { get; set; }
-        public TipodeNomina TipodeNomina { get; set; }
     }
 }

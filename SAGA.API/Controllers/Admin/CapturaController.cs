@@ -35,8 +35,8 @@ namespace SAGA.API.Controllers
                 {
                     id = p.Id,
                     reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault(),
-                    nombre = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
-                    nom = p.Nombre,
+                    nom = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
+                    nombre = p.Nombre,
                     apellidoPaterno = p.ApellidoPaterno,
                     apellidoMaterno = p.ApellidoMaterno,
                     edad = p.FechaNacimiento,
@@ -45,9 +45,11 @@ namespace SAGA.API.Controllers
                     nss = String.IsNullOrEmpty(p.NSS) ? "" : p.NSS,
                     paisNacimiento = p.PaisNacimientoId,
                     estadoNacimiento = p.estadoNacimiento.estado,
+                    claveedo = p.estadoNacimiento.Clave,
                     municipioNacimiento = p.MunicipioNacimientoId,
                     localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
-                    genero = p.GeneroId,
+                    genero = p.Genero.genero,
+                    p.GeneroId,
                     lada = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.ClaveLada).FirstOrDefault(),
                     telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
                     email = String.IsNullOrEmpty(db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()) ? "SIN REGISTRO" : db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault(),
@@ -65,7 +67,10 @@ namespace SAGA.API.Controllers
                     vacante = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(candidatoId)).Select(v => new
                     {
                         v.Requisicion.SueldoMinimo,
-                        v.Requisicion.SueldoMaximo
+                        v.Requisicion.SueldoMaximo,
+                        v.Requisicion.Cliente.Nombrecomercial,
+                        v.Requisicion.ClienteId,
+                        v.Requisicion.VBtra
                     }).FirstOrDefault()
                 }).ToList();
 
@@ -182,8 +187,6 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
-    
-       
         [HttpPost]
         [Route("agregarDatos")]
         [Authorize]
@@ -214,14 +217,42 @@ namespace SAGA.API.Controllers
                     db.CandidatoLaborales.Add(dtos.dtosLaborales);
                     db.CandidatoExtras.Add(dtos.dtosExtras);
 
+                    EmpleadoHorario obj = new EmpleadoHorario();
+                    var aux = db.EmpleadoHorario.Where(x => x.empleadoId.Equals(idx)).Select(id => id.Id).FirstOrDefault();
+                    if (aux != null)
+                    {
+                        var ue = db.EmpleadoHorario.Find(aux);
+                        db.Entry(ue).Property(x => x.HorariosIngresosId).IsModified = true;
+                        db.Entry(ue).Property(x => x.fch_Modificacion).IsModified = true;
+                        db.Entry(ue).Property(x => x.UsuarioMod).IsModified = true;
+
+                        obj.UsuarioMod = dtos.UsuarioId;
+                        obj.HorariosIngresosId = dtos.HorarioId;
+                        obj.fch_Modificacion = DateTime.Now;
+                    }
+                    else
+                    {
+                        obj.empleadoId = idx;
+                        obj.Activo = true;
+                        obj.UsuarioAlta = dtos.UsuarioId;
+                        obj.UsuarioMod = dtos.UsuarioId;
+                        obj.HorariosIngresosId = dtos.HorarioId;
+                        obj.fch_Creacion = DateTime.Now;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        db.EmpleadoHorario.Add(obj);
+
+                    }
+
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);
 
                 }
-               
-                apilog.WriteError("No se encunetra candidato en candidatosInfo");
-                return Ok(HttpStatusCode.BadRequest);
-
+                else
+                {
+                    apilog.WriteError("No se encunetra candidato en candidatosInfo");
+                    return Ok(HttpStatusCode.BadRequest);
+                }
             }
             catch (Exception ex)
             {
@@ -310,6 +341,65 @@ namespace SAGA.API.Controllers
                     fmc.DeleteFiles("/utilerias/Files/users/" + dtos.candidatoId + '/' + dtos.descripcion);
                 }
                 return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+        [HttpPost]
+        [Route("agregarBiometricos")]
+        public IHttpActionResult AgregarBiometricos(DtoBiometricos dtos)
+        {
+            try
+            {
+                var aux = db.BiometricosFP.Where(x => x.CandidatosInfoId.Equals(dtos.CandidatosInfoId)).Select(id => id.Id).FirstOrDefault();
+                if (aux == new Guid("00000000-0000-0000-0000-000000000000"))
+                {
+                    BiometricosFP fp = new BiometricosFP();
+                    fp.CandidatosInfoId = dtos.CandidatosInfoId;
+                    fp.FingerPrint = dtos.FingerPrint;
+                    fp.Activo = dtos.Activo;
+                    fp.UsuarioAlta = dtos.UsuarioAlta;
+                    fp.UsuarioMod = dtos.UsuarioMod;
+                    fp.fch_Creacion = DateTime.Now;
+                    fp.fch_Modificacion = DateTime.Now;
+
+                    db.BiometricosFP.Add(fp);
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    var mod = db.BiometricosFP.Find(aux);
+                    db.Entry(mod).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(mod).Property(x => x.UsuarioMod).IsModified = true;
+                    db.Entry(mod).Property(x => x.FingerPrint).IsModified = true;
+
+                    mod.fch_Modificacion = DateTime.Now;
+                    mod.UsuarioMod = dtos.UsuarioMod;
+                    mod.FingerPrint = dtos.FingerPrint;
+
+                    db.SaveChanges();
+                }
+                return Ok(HttpStatusCode.OK);
+
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+
+        [HttpGet]
+        [Route("getFingerPrint")]
+        public IHttpActionResult GetFingerPrint(Guid empleado)
+        {
+            try
+            {
+                var fingerprint = db.BiometricosFP.Where(x => x.CandidatosInfoId.Equals(empleado)).Select(emp => emp.FingerPrint).FirstOrDefault();
+                return Ok(fingerprint);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+
             }
         }
     }

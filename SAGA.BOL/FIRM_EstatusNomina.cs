@@ -6,23 +6,16 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 namespace SAGA.BOL
 {
-    public class Sucursales
+    public class FIRM_EstatusNomina
     {
         [Key]
         public int Id { get; set; }
-        public string Clave { get; set; }
-        public string Nombre { get; set; }
-        public string Comentario { get; set; }
+        public string Estatus { get; set; }
+        public string Observaciones { get; set; }
         public bool Activo { get; set; }
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Modificacion { get; set; }
         public Guid UsuarioAlta { get; set; }
         public Guid UsuarioMod { get; set; }
-
-        public Guid EmpresasId { get; set; }
-        public Empresas Empresas { get; set; }
-
-        public int RegistroPatronalId { get; set; }
-        public RegistroPatronal RegistroPatronal { get; set; }
     }
 }

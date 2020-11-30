@@ -51,7 +51,32 @@ namespace SAGA.API.Controllers
             return Ok(damfo290);
         }
         //api/Damfo290/getById
+        [HttpGet]
+        [Route("getMisDamfos")]
+        [Authorize]
+        public IHttpActionResult GetMisDamfos(string usuarioAlta)
+        {
+            var damfo290 = db.DAMFO290
+                .Where(df => df.Activo && df.UsuarioAlta.Equals(usuarioAlta))
+                .OrderByDescending(df => df.fch_Creacion)
+                .Select(df => new {
+                    Id = df.Id,
+                    Cliente = df.Cliente.Nombrecomercial,
+                    NombrePerfil = df.NombrePerfil,
+                    Vacantes = df.horariosPerfil.Count() > 0 ? df.horariosPerfil.Sum(h => h.numeroVacantes) : 0,
+                    SueldoMinimo = df.SueldoMinimo,
+                    SueldoMaximo = df.SueldoMaximo,
+                    TipoReclutamiento = df.TipoReclutamiento.tipoReclutamiento,
+                    ClaseReclutamiento = df.ClaseReclutamiento.clasesReclutamiento,
+                    fch_Creacion = df.fch_Creacion,
+                    horariosActivos = df.horariosPerfil.Where(hp => hp.Activo).Count() > 0 ? df.horariosPerfil.Where(hp => hp.Activo).Count() : 0,
+                    usuarioAlta = df.UsuarioAlta,
+                    usuarioCreacion = db.Usuarios.Where(x => x.Usuario.Equals(df.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                }).ToList();
 
+
+            return Ok(damfo290);
+        }
         public string GetImage(string ruta)
         {
             string fullPath;
@@ -253,8 +278,11 @@ namespace SAGA.API.Controllers
                     {
                         competencia = cg.Competencia.competenciaGerencial,
                         nivel = cg.Nivel
+                    }).ToList(),
+                    costos = r.costosPerfil.Select(cp => new {
+                        tipo = cp.TipoCostos.Descripcion,
+                        costo = cp.Costo
                     }).ToList()
-
 
                 }).FirstOrDefault();
 

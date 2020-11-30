@@ -10,10 +10,10 @@ namespace SAGA.BOL
     {
         [Key]
         public int Id { get; set; }
-        public Guid clienteId { get; set; }
+        public Guid empresasId { get; set; }
         public int puestoId { get; set; }
 
-        public Cliente Cliente { get; set; }
+        public Empresas Empresas { get; set; }
         public Puesto Puesto { get; set; }
 
     }

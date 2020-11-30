@@ -303,10 +303,10 @@ namespace SAGA.API.Controllers
 
                 fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/BG/" + fileName);
 
-                if (File.Exists(fileName))
-                    File.Delete(fileName);
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
 
-                postedFile.SaveAs(fileName);
+                postedFile.SaveAs(fullPath);
 
                 return Ok(HttpStatusCode.Created); //201
 

@@ -7,11 +7,13 @@ namespace SAGA.API.Dtos
 {
     public class CapturaDto
     {
+        public Guid HorarioId { get; set; }
+        public Guid UsuarioId { get; set; }
         public DtosPersonales dtosPersonales { get; set; }
         public CandidatosGenerales dtosGenerales { get; set; }
        public CandidatoLaborales dtosLaborales { get; set; }
         public CandidatosExtras dtosExtras { get; set; }
-
+        public DtoBiometricos Biometricos { get; set; }
     }
 
     public class DtosPersonales
@@ -77,5 +79,16 @@ namespace SAGA.API.Dtos
         public int SueldoIntegrado { get; set; }
         public int FormaPagoId { get; set; }
 
+
     }
+
+    public class DtoBiometricos
+    {
+        public Guid CandidatosInfoId { get; set; }
+        public byte[] FingerPrint { get; set; }
+        public bool Activo { get; set; }
+        public Guid UsuarioAlta { get; set; }
+        public Guid UsuarioMod { get; set; }
+    }
+
 }

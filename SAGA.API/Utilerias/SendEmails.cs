@@ -6,9 +6,11 @@ using System.Configuration;
 using System.Linq;
 using System.Net.Mail;
 using SAGA.API.Dtos;
-using System.Net.Mime;
+using System.Web.Http;
 using System.Data.SqlClient;
 using SAGA.API.Dtos.SistFirmas;
+using System.Net;
+using System.IO;
 
 namespace SAGA.API.Utilerias
 {
@@ -39,23 +41,84 @@ namespace SAGA.API.Utilerias
             try
             {
                 string body = "";
+                var xml = "";
                 var asunto = string.Format("[SAGA] Sist. Firmas - {0}", datos.subject);
-              
-              //  body = "&lt;html&gt;&lt;body&gt;&lt;p&gt;no se como enviar html&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;";
-                body = body + string.Format("&lt;html&gt;&lt;body style=&quot;text-align:left; font-family:'calibri'; font-size:10pt;&quot;>&lt;h3>A quien corresponda&lt;/h3>&lt;br>&lt;p>Por medio del presente se informa que se anexa "
-                    + "archivo de incidencias para el proceso de nomina para {0}. &lt;/p>&lt;br>"
-                    + "&lt;p>Para enviar pre nomina a Ejecutivo ingresa a tu panel de Sistema de Firmas, selecciona la opción Pre nomina. "
-                    + "Podrás acceder mediante la siguiente dirección: https://weberp.damsa.com.mx/login &lt;/p>&lt;br>&lt;br>"
-                    + "&lt;p>Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx &lt;/p>&lt;br>&lt;br>"
-                    + "&lt;p>Gracias por tu atención. Saludos&lt;/p>&lt;/body&gt;&lt;/html>", datos.cliente.ToUpper());
+                var estatusnomina = db.FIRM_EstatusNomina.Where(x => x.Activo).Select(e => e.Estatus.ToLower()).ToList();
+                if (estatusnomina.Contains(datos.estatus.ToLower()))
+                {
+                    body = body + string.Format("&lt;html&gt;&lt;body style=&quot;text-align:left; font-family:'calibri'; font-size:12pt;&quot;>&lt;h3>A quien corresponda&lt;/h3>&lt;p>Por medio del presente se informa que cuenta "
+                  + "con información de &lt;strong>{0}&lt;/strong> de nominas para su pago con fecha &lt;strong>{1}&lt;/strong>. &lt;/p>"
+                  + "&lt;p>Para dar proceso de seguimiento de nomina ingresa a &lt;strong>Nomina&lt;/strong> del menú de Sistema de Firmas en SAGA.&lt;/p>"
+                  + "&lt;p>Podrás acceder mediante la siguiente dirección: https://weberp.damsa.com.mx/login &lt;/p>"
+                  + "&lt;p>Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx &lt;/p>&lt;br>&lt;br>"
+                  + "&lt;p>Gracias por tu atención. Saludos&lt;/p>&lt;/body&gt;&lt;/html>", datos.estatus.ToUpper(), Convert.ToDateTime(datos.fecha).ToString("dd-MM-yyyy"));
 
-                var xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
-                         + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
-                         + "<Adjuntos><Adjunto Ruta_Archivo=\"{4}\" Nombre_Archivo=\"{5}\" Eliminar_Archivo=\"0\" /></Adjuntos></Parametros>", datos.email_envio, datos.email_copia, asunto, body, path, fileName );
+                    //var path = "~/utilerias/Files/users/" + entidadId.ToString();
+                  //  var pathDir = "E:\\inetpub\\wwwroot\\sagainn\\Saga\\API.sb\\Utilerias\\files\\SistFirmas\\Nominas\\" + datos.estatus.ToLower() + Convert.ToDateTime(datos.fecha).ToString("yyyyMMdd");
+                    string pathDir = System.Web.Hosting.HostingEnvironment.MapPath("~/Utilerias/files/SistFirmas/Nominas/" + datos.estatus.ToLower() + Convert.ToDateTime(datos.fecha).ToString("yyyyMMdd"));
+                    DirectoryInfo folderInfo = new DirectoryInfo(pathDir);
+                        
+                    var files = folderInfo.GetFiles(
+                                "*.*",
+                                SearchOption.AllDirectories).Select(x => new
+                                {
+                                    fullPath = x.FullName,
+                                    nom = x.Name,
+                                    ext = x.Extension,
+                                    size = (long)x.Length / 1024,
+                                    fc = x.LastWriteTime.ToShortDateString()
+                                }).OrderByDescending(o => o.fc);
+                    var adjuntos = "";
+                     foreach(var f in files)
+                    {
+                        adjuntos = adjuntos + string.Format("<Adjunto Ruta_Archivo =\"{0}\" Nombre_Archivo=\"{1}\" Eliminar_Archivo=\"0\" />", pathDir, f.nom );
 
+                    }
+                    
+                        xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
+                                 + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
+                                 + "<Adjuntos>{4}</Adjuntos>"
+                                 + "</Parametros>", datos.email_envio, datos.email_copia, asunto, body, adjuntos);
+                    
+                }
+                else
+                {
+                    body = body + string.Format("&lt;html&gt;&lt;body style=&quot;text-align:left; font-family:'calibri'; font-size:12pt;&quot;>&lt;h3>A quien corresponda&lt;/h3>&lt;p>Por medio del presente se informa que se anexa "
+                        + "archivo de &lt;strong>{0}&lt;/strong> del proyecto. &lt;/p>"
+                        + "&lt;table width=&quot;80%&quot;>&lt;tr>&lt;th bgcolor=&quot;#007bff&quot; style=&quot;color:white; text-align:left;&quot;>EMPRESA&lt;/th>"
+                        + "&lt;th bgcolor=&quot;#007bff&quot; style=&quot;color:white; text-align:left;&quot;>{1}&lt;/th>&lt;/tr>"
+                        + "&lt;tr>&lt;th bgcolor=&quot;#2790ff&quot; style=&quot;color:white; text-align:left;&quot;>SOPORTE FACTURA&lt;/th>"
+                        + "&lt;th bgcolor=&quot;#2790ff&quot; style=&quot;color:white; text-align:left;&quot;>{2}&lt;/th>&lt;/tr>"
+                        + "&lt;tr>&lt;th bgcolor=&quot;#007bff&quot; style=&quot;color:white; text-align:left;&quot;>CLAVE REGISTRO PATRONAL&lt;/th>"
+                        + "&lt;th bgcolor=&quot;#007bff&quot; style=&quot;color:white; text-align:left;&quot;>{3}&lt;/th>&lt;/tr>"
+                        + "&lt;tr>&lt;th bgcolor=&quot;#2790ff&quot; style=&quot;color:white; text-align:left;&quot;>REGISTRO PATRONAL&lt;/th>"
+                        + "&lt;th bgcolor=&quot;#2790ff&quot; style=&quot;color:white; text-align:left;&quot;>{4}&lt;/th>&lt;/tr>"
+                        + "&lt;tr>&lt;th bgcolor=&quot;#007bff&quot; style=&quot;color:white; text-align:left;&quot;>TIPO NOMINA&lt;/th>"
+                        + "&lt;th bgcolor=&quot;#007bff&quot; style=&quot;color:white; text-align:left;&quot;>{5}&lt;/th>&lt;/tr>&lt;/table>"
+                        + "&lt;p>Para dar proceso de seguimiento de nomina ingresa a Bitácora del menú de Sistema de Firmas en SAGA.&lt;/p>"
+                        + "&lt;p>Podrás acceder mediante la siguiente dirección: https://weberp.damsa.com.mx/login &lt;/p>"
+                        + "&lt;p>Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx &lt;/p>&lt;br>&lt;br>"
+                        + "&lt;p>Gracias por tu atención. Saludos&lt;/p>&lt;/body&gt;&lt;/html>", datos.estatus.ToUpper(), datos.cliente.ToUpper(), datos.soporte, datos.clave, datos.registro, datos.nomina);
 
-                SqlParameter[] Parameters = { new SqlParameter("@ParametrosXML", xml) };
-                db.Database.ExecuteSqlCommand("sp_emailFirmas @ParametrosXML", Parameters);
+                    if (path.Length > 0)
+                    {
+                        xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
+                                 + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
+                                 + "</Parametros>", datos.email_envio, datos.email_copia, asunto, body, path, fileName);
+
+                        //< Adjuntos >< Adjunto Ruta_Archivo =\"{4}\" Nombre_Archivo=\"{5}\" Eliminar_Archivo=\"0\" /></Adjuntos>
+                    }
+                    else
+                    {
+                        xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
+                                 + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
+                                 + "</Parametros>", datos.email_envio, datos.email_copia, asunto, body, path, fileName);
+                    }
+                }
+
+                
+                //SqlParameter[] Parameters = { new SqlParameter("@ParametrosXML", xml) };
+                //db.Database.ExecuteSqlCommand("sp_emailFirmas @ParametrosXML", Parameters);
                 return true;
 
             }
@@ -72,6 +135,97 @@ namespace SAGA.API.Utilerias
             //disposition.ModificationDate = System.IO.File.GetLastWriteTime(file);
             //disposition.ReadDate = System.IO.File.GetLastAccessTime(file);
             //m.Attachments.Add(data);
+        }
+        public bool EnviarEmailTransfer(Guid requi, Guid usuario, string desc, Guid antId, Guid actId)
+        {
+
+            FolioIncidencia obj = new FolioIncidencia();
+            //revisar para sacar solo la de pausa
+            try
+            {
+                List<Guid> ids = new List<Guid>();
+                var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
+                    coordinador = p.AprobadorId,
+                    solicitante = p.PropietarioId,
+                    folio = p.Folio,
+                    vbtra = p.VBtra
+                }).FirstOrDefault();
+
+                ids.Add(propietario.coordinador);
+                ids.Add(propietario.solicitante);
+                ids.Add(antId);
+                ids.Add(actId);
+
+                var emails = db.Emails.Where(x => ids.Distinct().Contains(x.EntidadId)).Select(e => e.email).ToArray();
+         
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && !ids.Distinct().Contains(x.GrpUsrId)).Select(A => new
+                {
+                    emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
+                }).ToList();
+
+                var user = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(n => new
+                {
+                    nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
+                    email = n.emails.Select(ee => ee.email).FirstOrDefault()
+                }).FirstOrDefault();
+
+
+                string body = "";
+                if (emails.Length > 0)
+                {
+                    //string from = "noreply@damsa.com.mx";
+                    //MailMessage m = new MailMessage();
+                    //m.From = new MailAddress(from, "SAGA Inn");
+                    //m.Subject = "[SAGA] Transferencia de Requisición";
+
+                    //m.To.Add("idelatorre@damsa.com.mx");
+                    // m.To.Add(user.email);
+                    string asunto = "[SAGA] Transferencia de Requisición";
+                    string email_copia = "";
+                    foreach (var e in emails)
+                    {
+                        email_copia = email_copia + e.ToString() + ", ";
+                       // m.Bcc.Add(e.ToString());
+                    }
+
+                    foreach (var e in asignados)
+                    {
+                        // m.Bcc.Add(e.emails.ToString());
+                        email_copia = email_copia + e.emails.ToString() + ",";
+                    }
+
+                    //  m.Bcc.Add("mventura@damsa.com.mx");
+                    email_copia = email_copia + "mventura@damsa.com.mx";
+                    body = "&lt;html>&lt;body style=&quot;text-align:left; font-family:'calibri'; font-size:10pt;&quot;>";
+                    body = body + string.Format("&lt;p>Se comunica que el usuario &lt;strong>{0}&lt;/strong>, realizó una transferencia; vacante &lt;strong>{1}&lt;/strong> la cual se encuentra con un folio de requisición: &lt;strong>{2}&lt;/strong>&lt;/p>", user.nombre, propietario.vbtra, propietario.folio);
+                    body = body + string.Format("&lt;p>{0}&lt;/p>", desc);
+                    body = body + "&lt;br/>&lt;p>Este correo es enviado de manera automatica con fines informativos, por favor no responda a esta dirección&lt;/p>";
+                    body = body + "&lt;br/>&lt;p>&lt;/p>&lt;p>&lt;a href=&quot;https://weberp.damsa.com.mx&quot;>&lt;h4>Link de acceso al ERP &lt;/h4>&lt;/a>&lt;/p>";
+                    body = body + "&lt;/body>&lt;/html>";
+
+                    var xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
+                             + "Para=\"{0}\" Copia=\"\" CopiaOculta=\"{1}\" Asunto=\"{2}\" Msg=\"{3}\"/> "
+                             + "</Parametros>", user.email, email_copia, asunto, body);
+
+
+                    SqlParameter[] Parameters = { new SqlParameter("@ParametrosXML", xml) };
+                    db.Database.ExecuteSqlCommand("sp_emailFirmas @ParametrosXML", Parameters);
+
+                    //m.Body = body;
+                    //m.IsBodyHtml = true;
+                    //SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                    //smtp.EnableSsl = true;
+                    //smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                    //smtp.Send(m);
+
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
         public void EmailNuevaRequisicion(Int64 Folio, string VBtra, string email)
         {

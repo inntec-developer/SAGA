@@ -646,6 +646,7 @@ namespace SAGA.API.Controllers
 
         }
 
+       
         [HttpGet]
         [Route("getInfoContratados")]
         public IHttpActionResult GetInfoContratados()
@@ -828,7 +829,7 @@ namespace SAGA.API.Controllers
                             db.Entry(ccc).Property(x => x.CURP).IsModified = true;
                             ccc.CURP = datos.curp;
                         }
-                        else if (datos.rfc.Length > 0)
+                        if (datos.rfc.Length > 0)
                         {
                             db.Entry(ccc).Property(x => x.RFC).IsModified = true;
                             ccc.RFC = datos.rfc;
@@ -836,11 +837,52 @@ namespace SAGA.API.Controllers
 
                         ccc.fch_Modificacion = DateTime.Now;
                         ccc.fch_Modificacion.ToUniversalTime();
-                        //ccc.UsuarioMod = datos.ReclutadorId;
-
                         db.SaveChanges();
 
-                        return Ok(HttpStatusCode.OK);
+                        var id = db.ValidacionCURPRFC.Where(x => x.CandidatosInfoId.Equals(cc)).Select(d => d.Id).FirstOrDefault();
+                        if (id != aux)
+                        {
+                            var cr = db.ValidacionCURPRFC.Find(id);
+
+                            if (datos.curp.Length > 0)
+                            {
+                                db.Entry(cr).Property(x => x.CURP).IsModified = true;
+                                cr.CURP = true;
+                            }
+                            if (datos.rfc.Length > 0)
+                            {
+                                db.Entry(cr).Property(x => x.RFC).IsModified = true;
+                                cr.RFC = true;
+                            }
+
+                            db.Entry(cr).Property(x => x.fch_Modificacion).IsModified = true;
+                            db.Entry(cr).Property(x => x.UsuarioMod).IsModified = true;
+
+                            cr.fch_Modificacion = DateTime.Now;
+                            cr.UsuarioMod = datos.ReclutadorId;
+
+                            db.SaveChanges();
+
+                        }
+                        else
+                        {
+                            ValidacionCURPRFC objVal = new ValidacionCURPRFC();
+                            objVal.CandidatosInfoId = cc;
+                            if (datos.curp.Length > 0)
+                            {
+                                objVal.CURP = true;
+                            }
+                            if (datos.rfc.Length > 0)
+                            {
+                                objVal.RFC = true;
+                            }
+                            objVal.UsuarioAlta = datos.ReclutadorId;
+                            objVal.UsuarioMod = datos.ReclutadorId;
+                            objVal.fch_Modificacion = DateTime.Now;
+
+                            db.ValidacionCURPRFC.Add(objVal);
+                            db.SaveChanges();
+                        }
                     }
                     else
                     {
@@ -848,8 +890,12 @@ namespace SAGA.API.Controllers
                     }
 
                 }
+                else
+                {
+                    return Ok(HttpStatusCode.Conflict);
+                }
 
-                return Ok(HttpStatusCode.BadRequest);
+                return Ok(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {

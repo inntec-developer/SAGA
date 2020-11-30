@@ -228,7 +228,7 @@ namespace SAGA.API.Controllers.Component
 
         [Route("getPostulaciones")]
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         public IHttpActionResult GetPostulaciones(Guid Id)
         {
             try
@@ -240,7 +240,8 @@ namespace SAGA.API.Controllers.Component
                         Folio = p.Requisicion.Folio,
                         vBtra = p.Requisicion.VBtra,
                         Estatus = p.Status.Status,
-                        EstatusId = p.StatusId
+                        EstatusId = p.StatusId,
+                        fecha = p.fch_Postulacion
                     }).OrderByDescending(p => p.Folio).ToList();
                 return Ok(postulaciones);
             }

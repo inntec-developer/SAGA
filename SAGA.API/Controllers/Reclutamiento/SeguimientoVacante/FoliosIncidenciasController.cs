@@ -11,6 +11,7 @@ using System.Data.Entity;
 using System.Net.Mail;
 using System.Configuration;
 using System.Globalization;
+using SAGA.API.Utilerias;
 
 namespace SAGA.API.Controllers
 {
@@ -19,6 +20,7 @@ namespace SAGA.API.Controllers
     {
         private SAGADBContext db;
         public Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
+        public SendEmails emailObj = new SendEmails();
         public FoliosIncidenciasController()
         {
             db = new SAGADBContext();
@@ -89,9 +91,6 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                //RastreabilidadMes RM = new RastreabilidadMes();
-                //Transferencias Transf = new Transferencias();
-
                 var folio = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(F => F.Folio).FirstOrDefault();
                 var datos = db.ProcesoCandidatos.Where(x => x.RequisicionId.Equals(requi) && x.ReclutadorId.Equals(reclutadorId)).Select(r => new
                 {
@@ -100,30 +99,9 @@ namespace SAGA.API.Controllers
                     candidatoId = r.CandidatoId
                 }).ToList();
 
-               // var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
-               // var tmId = aux.Where(x => x.folio == folio.ToString()).Select(ID => new { id = ID.id }).ToList();
-
-               //var trans = db.Database.BeginTransaction();
-
                 try
                 {
-                    //Transf.antId = reclutadorId;
-                    //Transf.actId = reclutadorId2;
-                    //Transf.requisicionId = requi;
-                    //Transf.tipoTransferenciaId = 2;
-                    //Transf.fch_Modificacion = DateTime.Now;
-
-                    //db.Transferencias.Add(Transf);
-                    //db.SaveChanges();
-
-                    //RM.TrazabilidadMesId = tmId[0].id;
-                    //RM.TipoAccionId = 3;
-                    //RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
-                    //RM.Descripcion = "Actualizacion (UPDATE)";
-                    //db.RastreabilidadMes.Add(RM);
-                    //db.SaveChanges();
-
-                 
+                                    
                     foreach (var p in datos) //nuevo reclutador
                     {
                         var PC = db.ProcesoCandidatos.Find(p.id);
@@ -149,6 +127,7 @@ namespace SAGA.API.Controllers
                         AsignacionRequi AR = new AsignacionRequi();
                         AR.RequisicionId = requi;
                         AR.GrpUsrId = reclutadorId2;
+                        AR.Tipo = 2;
                         AR.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
                         AR.UsuarioAlta = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
 
@@ -156,10 +135,8 @@ namespace SAGA.API.Controllers
                         db.SaveChanges();
                     }
 
-                    //trans.Commit();
-
                     var descripcion = "Se realizó una transferencia del usuario " + db.Usuarios.Where(x => x.Id.Equals(reclutadorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault() + " a " + db.Usuarios.Where(x => x.Id.Equals(reclutadorId2)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault() + " se transfirieron " + datos.Count() + " candidatos en proceso";
-                    this.EnviarEmailTransfer(requi, usuario, descripcion, reclutadorId, reclutadorId2);
+                    this.emailObj.EnviarEmailTransfer(requi, usuario, descripcion, reclutadorId, reclutadorId2);
 
                 }
                 catch (Exception ex)
@@ -211,8 +188,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                //RastreabilidadMes RM = new RastreabilidadMes();
-                //Transferencias Transf = new Transferencias();
+                SendEmails obj = new SendEmails();
                 RequisicionesController rc = new RequisicionesController();
                 
                 string descripcion = "";
@@ -229,9 +205,6 @@ namespace SAGA.API.Controllers
                     VBtra = r.VBtra
                 }).ToList();
 
-                //var aux = db.TrazabilidadesMes.Select(ss => new { id = ss.Id, folio = ss.Folio.ToString() }).ToList();
-                //var tmId = aux.Where(x => x.folio == datos[0].folio.ToString()).Select(ID => new { id = ID.id }).ToList();
-
                 if (tipo == 1) //cambio coord
                 {
                     usuarioAux = datos[0].aprobadorId;
@@ -243,53 +216,34 @@ namespace SAGA.API.Controllers
                     descripcion = "Se realizó una transferencia del usuario " + datos[0].solicitante + " a " + db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault();
                 }
                 
-                //var trans = db.Database.BeginTransaction();
-
-                //try
-                //{
-                //    Transf.antId = usuarioAux;
-                //    Transf.actId = coorId;
-                //    Transf.requisicionId = requi;
-                //    Transf.tipoTransferenciaId = tipo;
-                //    Transf.fch_Modificacion = DateTime.Now;
-
-                //    db.Transferencias.Add(Transf);
-                //    db.SaveChanges();
-
-                //    RM.TrazabilidadMesId = tmId[0].id;
-                //    RM.TipoAccionId = 3;
-                //    RM.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault();
-                //    RM.Descripcion = "Actualizacion (UPDATE)";
-                //    db.RastreabilidadMes.Add(RM);
-                //    db.SaveChanges();
-
-                    var R = db.Requisiciones.Find(requi);
-                    if (tipo == 1)
-                    {
-                        if (datos[0].estatusId == 4 && datos[0].tipoReclutamientoId == 1)
+                var R = db.Requisiciones.Find(requi);
+                if (tipo == 1)
+                {
+                   if (datos[0].estatusId == 4 && datos[0].tipoReclutamientoId == 1)
+                   {
+                        List<AsignacionRequi> ar = new List<AsignacionRequi>();
+                        var asg = new AsignacionRequi
                         {
-                            List<AsignacionRequi> ar = new List<AsignacionRequi>();
-                            var asg = new AsignacionRequi
-                            {
-                                RequisicionId = requi,
-                                GrpUsrId = coorId,
-                                UsuarioAlta = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault(),
-                                UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault(),
-                                fch_Modificacion = DateTime.Now
-                            };
-                            ar.Add(asg);
-                            rc.AlterAsignacionRequi(ar,requi, datos[0].folio, asg.UsuarioAlta, datos[0].VBtra, null, 0);
-                        }
-                        else
-                        {
-                            db.Entry(R).Property(r => r.AprobadorId).IsModified = true;
-                            db.Entry(R).Property(r => r.Aprobador).IsModified = true;
-                            R.AprobadorId = coorId;
-                            R.Aprobador = db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(u => u.Usuario).FirstOrDefault();
-                            db.SaveChanges();
-                        }
+                            RequisicionId = requi,
+                            GrpUsrId = coorId,
+                            UsuarioAlta = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault(),
+                            UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault(),
+                            fch_Modificacion = DateTime.Now,
+                            Tipo = 1
+                        };
+                        ar.Add(asg);
+                        rc.AlterAsignacionRequi(ar,requi, datos[0].folio, asg.UsuarioAlta, datos[0].VBtra, null, 0);
+                   }
+                   else
+                   {
+                        db.Entry(R).Property(r => r.AprobadorId).IsModified = true;
+                        db.Entry(R).Property(r => r.Aprobador).IsModified = true;
+                        R.AprobadorId = coorId;
+                        R.Aprobador = db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(u => u.Usuario).FirstOrDefault();
+                        db.SaveChanges();
+                   }
                         
-                    }
+              }
                     else
                     {
                         db.Entry(R).Property(r => r.PropietarioId).IsModified = true;
@@ -298,17 +252,18 @@ namespace SAGA.API.Controllers
                         R.Propietario = db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(u => u.Usuario).FirstOrDefault();
                         db.SaveChanges();
                     }
-                    //trans.Commit();
 
-                    this.EnviarEmailTransfer(requi, usuario, descripcion, usuarioAux, coorId);
+                    bool email = obj.EnviarEmailTransfer(requi, usuario, descripcion, usuarioAux, coorId);
 
-                //}
-                //catch(Exception ex)
-                //{
-                //    trans.Rollback();
-                //}
-               
-                return Ok(HttpStatusCode.OK);
+                if (email)
+                {
+                    return Ok(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.BadRequest);
+                }
+
             }
             catch(Exception ex)
             {
@@ -653,91 +608,6 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
-        public IHttpActionResult EnviarEmailTransfer(Guid requi, Guid usuario, string desc, Guid antId, Guid actId)
-        {
-
-            FolioIncidencia obj = new FolioIncidencia();
-            //revisar para sacar solo la de pausa
-            try
-            {
-                List<Guid> ids = new List<Guid>();
-                var propietario = db.Requisiciones.Where(x => x.Id.Equals(requi)).Select(p => new {
-                    coordinador = p.AprobadorId,
-                    solicitante = p.PropietarioId,
-                    folio = p.Folio,
-                    vbtra = p.VBtra
-                }).FirstOrDefault();
-
-                ids.Add(propietario.coordinador);
-                ids.Add(propietario.solicitante);
-                ids.Add(antId);
-                ids.Add(actId);
-
-                var emails = db.Emails.Where(x => ids.Distinct().Contains(x.EntidadId)).Select(e => e.email).ToArray();
-                //var emailSolicitante = db.Emails.Where(x => x.EntidadId.Equals(propietario.solicitante)).Select(e => e.email).FirstOrDefault();
-                //var emailAnt = db.Emails.Where(x => x.EntidadId.Equals(antId)).Select(e => e.email).FirstOrDefault();
-                //var emailAct= db.Emails.Where(x => x.EntidadId.Equals(actId)).Select(e => e.email).FirstOrDefault();
-
-                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && !ids.Distinct().Contains(x.GrpUsrId)).Select(A => new
-                {
-                    emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
-                }).ToList();
-
-                var user = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(n => new
-                {
-                    nombre = n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno,
-                    email = n.emails.Select(ee => ee.email).FirstOrDefault()
-                }).FirstOrDefault();
-
-
-                string body = "";
-                if (emails.Length > 0)
-                {
-                    string from = "noreply@damsa.com.mx";
-                    MailMessage m = new MailMessage();
-                    m.From = new MailAddress(from, "SAGA Inn");
-                    m.Subject = "[SAGA] Transferencia de Requisición";
-
-                    //m.To.Add("idelatorre@damsa.com.mx");
-                    m.To.Add(user.email);
-                    //m.Bcc.Add(emailAct); //no esta llegando
-                    //m.Bcc.Add(emailCoord);
-                    //m.Bcc.Add(emailSolicitante);
-                    foreach (var e in emails)
-                    {
-                        m.Bcc.Add(e.ToString());
-                    }
-
-                    foreach (var e in asignados)
-                    {
-                        m.Bcc.Add(e.emails.ToString());
-                    }
-
-                    m.Bcc.Add("mventura@damsa.com.mx");
-
-                    body = "<html><head></head>";
-                    body = body + "<body style=\"text-align:justify; font-size:14px; font-family:'calibri'\">";
-                    body = body + string.Format("<p>Se comunica que el usuario <strong>{0}</strong>, realiz&oacute; una transferencia vacante <strong>{1}</strong> la cual se encuentra con un folio de requisici&oacute;n: <strong>{2}</strong></p>", user.nombre, propietario.vbtra, propietario.folio);
-                    body = body + string.Format("<p>{0}</p>", desc);
-                    body = body + "<br/><p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
-                    body = body + "<br/><p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>";
-                    body = body + "</body></html>";
-
-                    m.Body = body;
-                    m.IsBodyHtml = true;
-                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
-                    smtp.EnableSsl = true;
-                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-                    smtp.Send(m);
-
-                }
-
-                return Ok(HttpStatusCode.Created);
-            }
-            catch (Exception ex)
-            {
-                return Ok(HttpStatusCode.ExpectationFailed);
-            }
-        }
+       
     }
 }

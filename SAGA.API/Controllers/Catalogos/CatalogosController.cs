@@ -91,28 +91,26 @@ namespace SAGA.API.Controllers
             {
                 if (datos.crud == 1)
                 {
-                    Departamento d = new Departamento();
+                    DptosIngresos d = new DptosIngresos();
                     d.Nombre = datos.Descripcion;
                     d.Clave = datos.Clave;
                     d.Activo = true;
-                    d.AreaId = datos.AreasId;
                     d.Observaciones = datos.Comentario;
                     d.fch_Modificacion = DateTime.Now;
                     d.UsuarioAlta = datos.Usuario;
                     d.UsuarioMod = datos.Usuario;
 
-                    db.Departamentos.Add(d);
+                    db.DptosIngresos.Add(d);
                     db.SaveChanges();
 
                 }
                 else if (datos.crud == 3)
                 {
-                    var d = db.Departamentos.Find(datos.IdG);
+                    var d = db.DptosIngresos.Find(datos.Id);
                     db.Entry(d).State = EntityState.Modified;
 
                     d.Nombre = datos.Descripcion;
                     d.Clave = datos.Clave;
-                    d.AreaId = datos.AreasId;
                     d.Observaciones = datos.Comentario;
                     d.fch_Modificacion = DateTime.Now;
                     d.UsuarioMod = datos.Usuario;
@@ -121,7 +119,7 @@ namespace SAGA.API.Controllers
                 }
                 else if (datos.crud == 4)
                 {
-                    var d = db.Departamentos.Find(datos.IdG);
+                    var d = db.DptosIngresos.Find(datos.Id);
                     db.Entry(d).Property(x => x.Activo).IsModified = true;
                     db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
                     db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
@@ -158,7 +156,7 @@ namespace SAGA.API.Controllers
                     d.NombreHoja = datos.Hoja;
                     d.ServicioNomina = datos.Servicio;
                     d.MontoTope = datos.MontoTope;
-                    d.DepartamentoId = datos.DepartamentoId;
+                    d.DptosIngresosId = datos.DptoIngresosId;
                     d.TipodeNominaId = datos.Tipo;
                     d.Observaciones = datos.Comentario;
                     d.Activo = true;
@@ -223,7 +221,7 @@ namespace SAGA.API.Controllers
                     d.NombreHoja = datos.Hoja;
                     d.ServicioNomina = datos.Servicio;
                     d.MontoTope = datos.MontoTope;
-                    d.DepartamentoId = datos.DepartamentoId;
+                    d.DptosIngresosId = datos.DptoIngresosId;
                     d.TipodeNominaId = datos.Tipo;
                     d.Observaciones = datos.Comentario;
 
@@ -610,7 +608,7 @@ namespace SAGA.API.Controllers
                 if (datos.crud == 1)
                 {
                     PuestosCliente p = new PuestosCliente();
-                    p.clienteId = datos.ClienteId;
+                    p.empresasId = datos.EmpresasId;
                     p.puestoId = datos.PuestoId;
 
                     db.PuestosCliente.Add(p);
@@ -622,7 +620,7 @@ namespace SAGA.API.Controllers
                     var p = db.PuestosCliente.Find(datos.Id);
                     db.Entry(p).State = EntityState.Modified;
 
-                    p.clienteId = datos.ClienteId;
+                    p.empresasId = datos.EmpresasId;
                     p.puestoId = datos.PuestoId;
                     db.SaveChanges();
                 }
@@ -735,7 +733,7 @@ namespace SAGA.API.Controllers
                     d.Nombre = datos.Descripcion;
                     d.Clave = datos.Clave;
                     d.Comentario = datos.Comentario;
-                    d.ClienteId = datos.ClienteId;
+                    d.EmpresasId = datos.EmpresasId;
 
                     if(datos.RegistroPatronal.Id == 0)
                     {
@@ -770,7 +768,7 @@ namespace SAGA.API.Controllers
                     d.Nombre = datos.Descripcion;
                     d.Clave = datos.Clave;
                     d.Comentario = datos.Comentario;
-                    d.ClienteId = datos.ClienteId;
+                    d.EmpresasId = datos.EmpresasId;
 
                     if (datos.RegistroPatronal.Id == 0)
                     {
@@ -1153,17 +1151,28 @@ namespace SAGA.API.Controllers
                     }).ToList();
                     return Ok(datos);
                 }
-                else if (nombre.ToLower().Equals("departamentos"))
+                else if (nombre.ToLower().Equals("empresas"))
                 {
-                    var datos = db.Departamentos.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    var datos = db.Empresas.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
                     {
                         d.Id,
                         d.Clave,
                         d.Nombre,
                         d.Observaciones,
                         activo = d.Activo ? "ACTIVO" : "INACTIVO",
-                        d.AreaId,
-                        area = d.Area.Nombre,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("departamentos"))
+                {
+                    var datos = db.DptosIngresos.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Clave,
+                        d.Nombre,
+                        d.Observaciones,
+                        activo = d.Activo ? "ACTIVO" : "INACTIVO",
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
                     return Ok(datos);
@@ -1182,8 +1191,8 @@ namespace SAGA.API.Controllers
                         d.TipodeNomina.tipoDeNomina,
                         d.TipodeNominaId,
                         Empresa = db.SoporteSucursales.Where(x => x.SoporteFacturacionId.Equals(d.Id)).Select( emp => new {
-                            emp.Sucursales.Cliente.Nombrecomercial,
-                            emp.Sucursales.ClienteId
+                            emp.Sucursales.Empresas.Nombre,
+                            emp.Sucursales.EmpresasId
                         }).FirstOrDefault(),
                         Sucursales = db.SoporteSucursales.Where(x => x.SoporteFacturacionId.Equals(d.Id)).Select(emp => new
                         {
@@ -1201,8 +1210,8 @@ namespace SAGA.API.Controllers
                             nombre = p.candidatosInfo.Nombre + p.candidatosInfo.ApellidoPaterno + p.candidatosInfo.ApellidoMaterno,
                             p.Porcentaje
                         }).ToList(),
-                        Departemento = d.Departemento.Nombre,
-                        d.DepartamentoId,
+                        Departemento = d.DptosIngresos.Nombre,
+                        d.DptosIngresosId,
                         activo = d.Activo ? "ACTIVO" : "INACTIVO",
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
@@ -1282,8 +1291,8 @@ namespace SAGA.API.Controllers
                         d.Clave,
                         d.Nombre,
                         d.Comentario,
-                        empresa = d.Cliente.Nombrecomercial,
-                        empresaId = d.ClienteId,
+                        empresa = d.Empresas.Nombre,
+                        empresaId = d.EmpresasId,
                         d.RegistroPatronalId,
                         d.RegistroPatronal.RP_Clave,
                         d.RegistroPatronal.RP_IMSS,
@@ -1464,7 +1473,6 @@ namespace SAGA.API.Controllers
             }
 
         }
-
         [HttpGet]
         [Route("sucursalesByCliente")]
         [Authorize]
@@ -1472,7 +1480,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var sucursales = db.Sucursales.Where(x => x.ClienteId.Equals(clienteId)).Select(s => new
+                var sucursales = db.Sucursales.Where(x => x.EmpresasId.Equals(clienteId)).Select(s => new
                 {
                     s.Id,
                     s.Nombre,
@@ -1488,12 +1496,35 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.BadRequest);
             }
         }
+        [HttpGet]
+        [Route("soporteByData")]
+        [Authorize]
+        public IHttpActionResult SoporteByData(int departamentoId)
+        {
+            try
+            {
+                var soportes = db.SoporteFacturacion.Where(x => x.DptosIngresosId.Equals(departamentoId)).Select(s => new
+                {
+                    s.Id,
+                    s.Clave,
+                    s.Concepto
+                }).ToList();
+
+                return Ok(soportes);
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+     
 
         #endregion
 
-        #region Catalogos
+    #region Catalogos
 
-        [HttpGet]
+    [HttpGet]
         [Route("getCatalogoForId")]
         public IHttpActionResult GetCatalgoForId(int IdCatalogo)
         {
@@ -2298,7 +2329,7 @@ namespace SAGA.API.Controllers
         #region Localidades
         [HttpGet]
         [Route("getPais")]
-        [Authorize]
+        //[Authorize]
         public IHttpActionResult GetPais()
         {
             var pais = db.Paises.Where(x => x.Id.Equals(42)).ToList();
@@ -2307,7 +2338,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getEstado")]
-        [Authorize]
+        //[Authorize]
         public IHttpActionResult GetEstado(int PaisId)
         {
             var estado = db.Estados
@@ -2325,7 +2356,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getMunicipio")]
-        [Authorize]
+        //[Authorize]
         public IHttpActionResult GetMunicipo(int EstadoId)
         {
             var municipio = db.Municipios
@@ -2342,7 +2373,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getColonia")]
-        [Authorize]
+        //[Authorize]
         public IHttpActionResult GetColonias(int MunicipioId)
         {
             var municipio = db.Colonias
@@ -2360,7 +2391,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getInfoCP")]
-        [Authorize]
+        //[Authorize]
         public IHttpActionResult GetInfoCP(string CP)
         {
             var info = db.Colonias

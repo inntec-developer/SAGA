@@ -23,7 +23,7 @@ namespace SAGA.API.Dtos.Catalogos
         public int AreasId { get; set; }
         public int PuestoId { get; set; }
         public int CoordId { get; set; }
-        public Guid ClienteId { get; set; }
+        public Guid EmpresasId { get; set; }
         public int SucursalId { get; set; }
         public string catalogo { get; set; }
         public List<DiasHorasIngresos> DiasHoras { get; set; }
@@ -37,6 +37,7 @@ namespace SAGA.API.Dtos.Catalogos
         public bool Servicio { get; set; }
         public string Hoja { get; set; }
         public Guid DepartamentoId { get; set; }
+        public int DptoIngresosId { get; set; }
         public List<Guid> Empleados { get; set; }
         public decimal Porcentaje { get; set; }
         public List<int> Puestos { get; set; }
