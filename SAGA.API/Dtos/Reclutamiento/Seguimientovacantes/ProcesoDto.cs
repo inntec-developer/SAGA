@@ -31,6 +31,7 @@ namespace SAGA.API.Dtos
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Modificacion { get; set; }
         public Guid ReclutadorId { get; set; }
+        public Guid ReclutadorCampoId { get; set; }
 
 
     }

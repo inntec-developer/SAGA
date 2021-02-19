@@ -1289,8 +1289,8 @@ namespace SAGA.API.Controllers
                             AprobadorId = e.AsignacionRequi.Where(x => x.Tipo.Equals(1)).Select(i => i.GrpUsrId).FirstOrDefault(),
                             Aprobada = e.Aprobada,
                             DiasEnvio = e.DiasEnvio,
-                            asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
-                            reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
+                            asignados = e.AsignacionRequi.Where(x => x.Tipo.Equals(2)).Select(a => a.GrpUsrId).ToList(),
+                            reclutadores = e.AsignacionRequi.Where(x => x.Tipo.Equals(2)).Select(a =>
                                 db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()).ToList(),
                             ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList(),
                             Oficio = db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).Count() > 0 ? db.OficiosRequisicion.Where(of => of.RequisicionId.Equals(e.Id)).FirstOrDefault() : null,
@@ -1368,7 +1368,7 @@ namespace SAGA.API.Controllers
                             AprobadorId = e.AprobadorId,
                             aprobada = e.Aprobada,
                             DiasEnvio = e.DiasEnvio,
-                            asignados = e.AsignacionRequi.Select(a => a.GrpUsrId).ToList(),
+                            asignados = e.AsignacionRequi.Where(x => x.Tipo.Equals(2)).Select(a => a.GrpUsrId).ToList(),
                             reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
                                db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                             ).ToList(),
@@ -2603,31 +2603,36 @@ namespace SAGA.API.Controllers
             List<AsignacionRequi> AddElmt = new List<AsignacionRequi>();
             List<AsignacionRequi> Delete = new List<AsignacionRequi>();
             var asg = db.AsignacionRequis
-                .Where(x => x.RequisicionId.Equals(RequiId))
+                .Where(x => x.RequisicionId.Equals(RequiId) && x.Tipo == 2)
                 .ToList();
            
             if (asg.Count() > 0)
             {
-                for (int i = 0; i < asg.Count(); i++)
-                {
-                    if (asignaciones.Count() > 0)
-                    {
-                        for (int x = 0; x < asignaciones.Count(); x++)
-                        {
-                            if (asignaciones[x].GrpUsrId.Equals(asg[i].GrpUsrId))
-                            {
-                                NotChange.Add(asignaciones[x]);
-                                CheckExcept.Add(asg[i]);
-
-                            }
-                            if (asignaciones[x].GrpUsrId != asg[i].GrpUsrId)
-                            {
-                                AddElmt.Add(asignaciones[x]);
-
-                            }
-                        }
-                    }
-                }
+                NotChange = asignaciones.Distinct().Where(x => asg.Any(a => a.GrpUsrId.Equals(x.GrpUsrId))).ToList();
+                CheckExcept = asg.Where(x => asignaciones.Distinct().Any(a => a.GrpUsrId.Equals(x.GrpUsrId))).ToList();
+                AddElmt = asignaciones.Distinct().Where(x => asg.Any(a => !a.GrpUsrId.Equals(x.GrpUsrId))).ToList();
+                //for (int i = 0; i < asg.Count(); i++)
+                //{
+                //    if (asignaciones.Count() > 0)
+                //    {
+                //        for (int x = 0; x < asignaciones.Count(); x++)
+                //        {
+                //            if (asignaciones[x].GrpUsrId.Equals(asg[i].GrpUsrId) && asignaciones[x].Tipo.Equals(asg[i].Tipo))
+                //            {
+                //                NotChange.Add(asignaciones[x]);
+                //                CheckExcept.Add(asg[i]);
+                //            }
+                //            else if (asignaciones[x].GrpUsrId.Equals(asg[i].GrpUsrId) && !asignaciones[x].Tipo.Equals(asg[i].Tipo))
+                //            {
+                //                AddElmt.Add(asignaciones[x]);
+                //            }
+                //            else if (asignaciones[x].GrpUsrId != asg[i].GrpUsrId)
+                //            {
+                //                AddElmt.Add(asignaciones[x]);
+                //            }
+                //        }
+                //    }
+                //}
 
                 var filterAdd = AddElmt.Except(NotChange).ToList();
                 var delet = asg.Except(CheckExcept).ToList();
@@ -2665,9 +2670,9 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                Stopwatch stopwatch = new Stopwatch();
+                //Stopwatch stopwatch = new Stopwatch();
 
-                stopwatch.Start();
+                //stopwatch.Start();
                 var requisicion = db.Requisiciones.Find(requi.Id);
 
                 //Requisicion a coincidir.
@@ -2689,8 +2694,8 @@ namespace SAGA.API.Controllers
                              EscolaridadesDesc = r.escolaridadesRequi.Select(e => e.Escolaridad.gradoEstudio).ToList()
                          })
                         .FirstOrDefault();
-                stopwatch.Stop();
-                var t = stopwatch.Elapsed;
+                //stopwatch.Stop();
+                //var t = stopwatch.Elapsed;
                 //  Candidatos Activos
                 var Activos = db.AspNetUsers
                     .Where(c => c.Activo == 0)
@@ -2784,7 +2789,6 @@ namespace SAGA.API.Controllers
                     string from = ConfigurationManager.AppSettings["ToEmail"];
                     MailMessage m = new MailMessage();
                         m.Bcc.Add("mventura@damsa.com.mx");
-                        m.Bcc.Add("bmorales@damsa.com.mx");
                     m.From = new MailAddress(from, "SAGA Inn");
 
                         var index = CandidatosFiltro[0].Requisicion.EscolaridadesDesc.Count() - 1;
@@ -2838,24 +2842,24 @@ namespace SAGA.API.Controllers
                         smtp.EnableSsl = true;
                         smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
                         smtp.Send(m);
-                        stopwatch.Start();
+                        //stopwatch.Start();
                     }
                 }
-                else
-                {
-                    string from = ConfigurationManager.AppSettings["ToEmail"];
-                    MailMessage m = new MailMessage();
-                    m.From = new MailAddress(from, "SAGA Inn");
-                    m.Subject = "[SAGA] Asignacion de Requisicion " + requisicion.Folio;
-                    m.To.Add("mventura@damsa.com.mx");
-                    m.Bcc.Add("bmorales@damsa.com.mx");
-                    m.Body = "<p>esta cosa no encuentra coincidencias de candidatos conshepshon :( </p>";
-                    m.IsBodyHtml = true;
-                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
-                    smtp.EnableSsl = true;
-                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-                    smtp.Send(m);
-                }
+                //else
+                //{
+                //    string from = ConfigurationManager.AppSettings["ToEmail"];
+                //    MailMessage m = new MailMessage();
+                //    m.From = new MailAddress(from, "SAGA Inn");
+                //    m.Subject = "[SAGA] Asignacion de Requisicion " + requisicion.Folio;
+                //    m.To.Add("mventura@damsa.com.mx");
+                //    m.Bcc.Add("bmorales@damsa.com.mx");
+                //    m.Body = "<p>esta cosa no encuentra coincidencias de candidatos conshepshon :( </p>";
+                //    m.IsBodyHtml = true;
+                //    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                //    smtp.EnableSsl = true;
+                //    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                //    smtp.Send(m);
+                //}
             }
             catch (Exception ex)
             {

@@ -22,7 +22,9 @@ namespace SAGA.BOL
         public DateTime fch_Creacion { get; set; }
         public Guid UsuarioMod { get; set; }
         public DateTime fch_Modificacion { get; set; }
+        public Guid ClienteId { get; set; }
 
+        public Cliente Cliente { get; set; }
         public virtual TurnosHorarios TurnosHorarios { get; set; }
 
     }

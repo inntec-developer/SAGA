@@ -17,6 +17,7 @@ namespace SAGA.API.Controllers
     [RoutePrefix("api/admin")]
     public class CapturaController : ApiController
     {
+        Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
         private SAGADBContext db;
         APISAGALog apilog = new APISAGALog();
         public CapturaController()
@@ -31,11 +32,17 @@ namespace SAGA.API.Controllers
         {
             try
             {
+                var clienteId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(candidatoId))
+                    .Select(c => c.Requisicion.ClienteId).FirstOrDefault();
+                var requis = db.Requisiciones.Where(x => x.ClienteId.Equals(clienteId)).Select(r => r.Id).ToList();
+                var tot = db.InformeRequisiciones.Where(x => requis.Distinct().Contains(x.RequisicionId) && x.Estatus.Descripcion.ToLower().Equals("contratado")).Count();
                 var datos = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(candidatoId)).Select(p => new
                 {
                     id = p.Id,
                     reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault(),
                     nom = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
+                    clave = tot + 1,
+                    foto = "img/Candidatos/" + p.CandidatoId + "/foto.jpg",
                     nombre = p.Nombre,
                     apellidoPaterno = p.ApellidoPaterno,
                     apellidoMaterno = p.ApellidoMaterno,
@@ -83,6 +90,29 @@ namespace SAGA.API.Controllers
             }
         }
         [HttpGet]
+        [Route("getRegistroPatronal")]
+        [Authorize]
+        public IHttpActionResult GetRegistroPatronal(Guid sucursalId)
+        {
+            try
+            {
+                var datos = db.Sucursales.Where(x => x.Activo && x.Id.Equals(sucursalId)).Select(d => new
+                {
+                    id = d.RegistroPatronalId,
+                    d.RegistroPatronal.RP_Clave,
+                    d.RegistroPatronal.RP_IMSS,
+                }).ToList();
+
+                return Ok(datos);
+
+            }
+            catch (Exception)
+            {
+
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+        [HttpGet]
         [Route("getDatosGafetes")]
         [Authorize]
         public IHttpActionResult GetDtosGafetes()
@@ -111,7 +141,7 @@ namespace SAGA.API.Controllers
                     lada = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.ClaveLada).FirstOrDefault(),
                     telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
                     email = String.IsNullOrEmpty(db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()) ? "SIN REGISTRO" : db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault(),
-                    puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.Puesto).FirstOrDefault(),
+                    puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.PuestosIngresos.Nombre).FirstOrDefault(),
                     foto = db.DocumentosCandidato.Where(x => x.candidatoId.Equals(p.Id) && x.Documento.Descripcion.ToLower().Equals("foto")).Select(r => r.Ruta).FirstOrDefault(),
                     direccion = db.CandidatoGenerales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(d => new
                     {
@@ -164,7 +194,7 @@ namespace SAGA.API.Controllers
                     lada = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.ClaveLada).FirstOrDefault(),
                     telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
                     email = String.IsNullOrEmpty(db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()) ? "SIN REGISTRO" : db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault(),
-                    puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.Puesto).FirstOrDefault(),
+                    puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.PuestosIngresos).FirstOrDefault(),
                     foto = db.DocumentosCandidato.Where(x => x.candidatoId.Equals(p.Id) && x.Documento.Descripcion.ToLower().Equals("foto")).Select(r => r.Ruta).FirstOrDefault()
                     //direccion = db.PerfilCandidato
                     //.Where(c => c.CandidatoId.Equals(p.CandidatoId))
@@ -192,73 +222,112 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult AgregarDatos(CapturaDto dtos)
         {
-            try
+            CandidatosInfo ci = new CandidatosInfo();
+            var idx = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(dtos.dtosPersonales.CandidatoId)).Select(c => c.Id).FirstOrDefault();
+            if (idx != null)
             {
-                
-                CandidatosInfo ci = new CandidatosInfo();
-                var idx = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(dtos.dtosPersonales.CandidatoId)).Select(c => c.Id).FirstOrDefault();
-                if (idx != null)
+                using (DbContextTransaction beginTran = db.Database.BeginTransaction())
                 {
-                    var up = db.CandidatosInfo.Find(idx);
-                    //db.Entry(up).Property(x => x.RFC).IsModified = true;
-                    //db.Entry(up).Property(x => x.NSS).IsModified = true;
-                    db.Entry(up).Property(x => x.fch_Modificacion).IsModified = true;
-
-                    //ci.RFC = dtos.dtosPersonales.RFC;
-                    //ci.NSS = dtos.dtosPersonales.NSS;
-                    ci.fch_Modificacion = DateTime.Now;
-
-                    dtos.dtosGenerales.CandidatoInfoId = idx;
-                    dtos.dtosGenerales.PaisId = 42;
-                    dtos.dtosLaborales.CandidatoInfoId = idx;
-                    dtos.dtosExtras.CandidatoInfoId = idx;
-
-                    db.CandidatoGenerales.Add(dtos.dtosGenerales);
-                    db.CandidatoLaborales.Add(dtos.dtosLaborales);
-                    db.CandidatoExtras.Add(dtos.dtosExtras);
-
-                    EmpleadoHorario obj = new EmpleadoHorario();
-                    var aux = db.EmpleadoHorario.Where(x => x.empleadoId.Equals(idx)).Select(id => id.Id).FirstOrDefault();
-                    if (aux != null)
+                    try
                     {
-                        var ue = db.EmpleadoHorario.Find(aux);
-                        db.Entry(ue).Property(x => x.HorariosIngresosId).IsModified = true;
-                        db.Entry(ue).Property(x => x.fch_Modificacion).IsModified = true;
-                        db.Entry(ue).Property(x => x.UsuarioMod).IsModified = true;
+                        var up = db.CandidatosInfo.Find(idx);
+                        db.Entry(up).State = EntityState.Modified;
 
-                        obj.UsuarioMod = dtos.UsuarioId;
-                        obj.HorariosIngresosId = dtos.HorarioId;
-                        obj.fch_Modificacion = DateTime.Now;
+                        up.Nombre = dtos.dtosPersonales.Nombre;
+                        up.ApellidoPaterno = dtos.dtosPersonales.ApellidoPaterno;
+                        up.ApellidoMaterno = dtos.dtosPersonales.ApellidoMaterno;
+                        up.RFC = dtos.dtosPersonales.RFC;
+                        up.NSS = dtos.dtosPersonales.NSS;
+                        up.CURP = dtos.dtosPersonales.CURP;
+                        up.GeneroId = dtos.dtosPersonales.GeneroId;
+                        up.FechaNacimiento = dtos.dtosPersonales.FechaNacimiento;
+                        up.EstadoNacimientoId = dtos.dtosPersonales.EstadoNacimientoId;
+                        up.fch_Modificacion = DateTime.Now;
+
+                        dtos.dtosGenerales.CandidatoInfoId = idx;
+                        dtos.dtosGenerales.PaisId = 42;
+                        dtos.dtosLaborales.CandidatoInfoId = idx;
+                        dtos.dtosExtras.CandidatoInfoId = idx;
+
+                        var dg = db.CandidatoGenerales.Where(x => x.CandidatoInfoId.Equals(idx));
+                        db.CandidatoGenerales.RemoveRange(dg);
+
+                        var dl = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(idx));
+                        db.CandidatoLaborales.RemoveRange(dl);
+
+                        var dex = db.CandidatoExtras.Where(x => x.CandidatoInfoId.Equals(idx));
+                        db.CandidatoExtras.RemoveRange(dex);
+
+                        db.CandidatoGenerales.Add(dtos.dtosGenerales);
+                        db.CandidatoLaborales.Add(dtos.dtosLaborales);
+                        db.CandidatoExtras.Add(dtos.dtosExtras);
+
+                        if (dtos.dtosPersonales.SoporteFacturacionId > 0)
+                        {
+                            EmpleadosSoporte esop = new EmpleadosSoporte();
+                            esop.CandidatosInfoId = idx;
+                            esop.SoporteFacturacionId = dtos.dtosPersonales.SoporteFacturacionId;
+                            esop.Porcentaje = 0;
+                            db.EmpleadosSoporte.Add(esop);
+                        }
+
+                        EmpleadoHorario obj = new EmpleadoHorario();
+                        var aux = db.EmpleadoHorario.Where(x => x.empleadoId.Equals(idx)).Select(id => id.Id).FirstOrDefault();
+                        if (aux != auxID && dtos.HorarioId != auxID)
+                        {
+                            var ue = db.EmpleadoHorario.Find(aux);
+                            db.Entry(ue).Property(x => x.HorariosIngresosId).IsModified = true;
+                            db.Entry(ue).Property(x => x.fch_Modificacion).IsModified = true;
+                            db.Entry(ue).Property(x => x.UsuarioMod).IsModified = true;
+
+                            obj.UsuarioMod = dtos.UsuarioId;
+                            obj.HorariosIngresosId = dtos.HorarioId;
+                            obj.fch_Modificacion = DateTime.Now;
+                        }
+                        else if (aux == auxID && dtos.HorarioId != auxID)
+                        {
+                            obj.empleadoId = idx;
+                            obj.Activo = true;
+                            obj.UsuarioAlta = dtos.UsuarioId;
+                            obj.UsuarioMod = dtos.UsuarioId;
+                            obj.HorariosIngresosId = dtos.HorarioId;
+                            obj.fch_Creacion = DateTime.Now;
+                            obj.fch_Modificacion = DateTime.Now;
+
+                            db.EmpleadoHorario.Add(obj);
+
+                        }
+
+                        var idP = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(dtos.dtosPersonales.CandidatoId)).Select(x => x.Id).FirstOrDefault();
+                        if (idP != auxID)
+                        {
+                            var c = db.ProcesoCandidatos.Find(idP);
+                            db.Entry(c).Property(x => x.EstatusId).IsModified = true;
+                            db.Entry(c).Property(x => x.Fch_Modificacion).IsModified = true;
+
+                            c.EstatusId = db.Estatus.Where(x => x.Descripcion.ToLower().Equals("contratado")).Select(e => e.Id).FirstOrDefault();
+                            c.Fch_Modificacion = DateTime.Now;
+
+                        }
+                        db.SaveChanges();
+
+                        beginTran.Commit();
+                        return Ok(HttpStatusCode.OK);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        obj.empleadoId = idx;
-                        obj.Activo = true;
-                        obj.UsuarioAlta = dtos.UsuarioId;
-                        obj.UsuarioMod = dtos.UsuarioId;
-                        obj.HorariosIngresosId = dtos.HorarioId;
-                        obj.fch_Creacion = DateTime.Now;
-                        obj.fch_Modificacion = DateTime.Now;
+                        beginTran.Rollback();
 
-                        db.EmpleadoHorario.Add(obj);
-
+                        apilog.WriteError(ex.Message);
+                        apilog.WriteError(ex.InnerException.Message);
+                        return Ok(HttpStatusCode.ExpectationFailed);
                     }
-
-                    db.SaveChanges();
-                    return Ok(HttpStatusCode.OK);
-
-                }
-                else
-                {
-                    apilog.WriteError("No se encunetra candidato en candidatosInfo");
-                    return Ok(HttpStatusCode.BadRequest);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                apilog.WriteError(ex.Message);
-                apilog.WriteError(ex.InnerException.Message);
-                return Ok(HttpStatusCode.ExpectationFailed);
+                apilog.WriteError("No se encuentra candidato en candidatosInfo");
+                return Ok(HttpStatusCode.BadRequest);
             }
         }
         [Route("agregarGafetes")]

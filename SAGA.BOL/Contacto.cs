@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.ComponentModel.DataAnnotations;
 namespace SAGA.BOL
 {
-    public class Contacto : Entidad
+    public class Contacto: Entidad
     {
         public string Puesto { get; set; }
         public Guid ClienteId { get; set; }

@@ -101,7 +101,7 @@ namespace SAGA.API.Controllers.Component
         {
             try
             {
-                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requisicionId) & !x.GrpUsrId.Equals(x.Requisicion.AprobadorId)).Select(A => new
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requisicionId) & x.Tipo.Equals(2)).Select(A => new
                 {
                     reclutadorId = A.GrpUsrId,
                     nombre = db.Usuarios.Where(x => x.Id.Equals(A.GrpUsrId)).Select(U => U.Nombre + " " + U.ApellidoPaterno + " " + U.ApellidoMaterno).FirstOrDefault()

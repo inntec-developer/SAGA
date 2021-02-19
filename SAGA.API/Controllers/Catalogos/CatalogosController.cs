@@ -156,7 +156,6 @@ namespace SAGA.API.Controllers
                     d.NombreHoja = datos.Hoja;
                     d.ServicioNomina = datos.Servicio;
                     d.MontoTope = datos.MontoTope;
-                    d.DptosIngresosId = datos.DptoIngresosId;
                     d.TipodeNominaId = datos.Tipo;
                     d.Observaciones = datos.Comentario;
                     d.Activo = true;
@@ -170,7 +169,7 @@ namespace SAGA.API.Controllers
                     if (datos.Empleados.Count() > 0)
                     {
                         EmpleadosSoporte es = new EmpleadosSoporte();
-                        foreach(var de in datos.Empleados)
+                        foreach (var de in datos.Empleados)
                         {
                             es.CandidatosInfoId = de;
                             es.SoporteFacturacionId = d.Id;
@@ -184,31 +183,37 @@ namespace SAGA.API.Controllers
                     }
                     if (datos.Sucursales.Count() > 0)
                     {
-                        SoporteSucursales es = new SoporteSucursales();
                         foreach (var de in datos.Sucursales)
                         {
-                            es.sucursalesId = de;
-                            es.SoporteFacturacionId = d.Id;
-                          
-                            db.SoporteSucursales.Add(es);
-                            db.SaveChanges();
-
-                            es = new SoporteSucursales();
+                            de.SoporteFacturacionId = d.Id;
                         }
+                        db.SoporteSucursales.AddRange(datos.Sucursales);
+
+                        db.SaveChanges();
                     }
                     if (datos.Puestos.Count() > 0)
                     {
-                        SoportePuestos es = new SoportePuestos();
-                        foreach (var de in datos.Sucursales)
+
+                        foreach (var de in datos.Puestos)
                         {
-                            es.puestoId = de;
-                            es.SoporteFacturacionId = d.Id;
-
-                            db.SoportePuestos.Add(es);
-                            db.SaveChanges();
-
-                            es = new SoportePuestos();
+                            de.SoporteFacturacionId = d.Id;
                         }
+
+                        db.SoportePuestos.AddRange(datos.Puestos);
+                        db.SaveChanges();
+
+
+                    }
+                    if (datos.DptosIngresos.Count() > 0)
+                    {
+                        foreach (var de in datos.DptosIngresos)
+                        {
+                            de.SoporteFacturacionId = d.Id;
+                        }
+
+                        db.SoporteDptosIngresos.AddRange(datos.DptosIngresos);
+                        db.SaveChanges();
+
                     }
                 }
                 else if (datos.crud == 3)
@@ -221,7 +226,6 @@ namespace SAGA.API.Controllers
                     d.NombreHoja = datos.Hoja;
                     d.ServicioNomina = datos.Servicio;
                     d.MontoTope = datos.MontoTope;
-                    d.DptosIngresosId = datos.DptoIngresosId;
                     d.TipodeNominaId = datos.Tipo;
                     d.Observaciones = datos.Comentario;
 
@@ -232,18 +236,18 @@ namespace SAGA.API.Controllers
 
                     var apt = db.SoporteSucursales.Where(x => x.SoporteFacturacionId.Equals(datos.Id));
                     db.SoporteSucursales.RemoveRange(apt);
+                    if (datos.Sucursales.Count() > 0)
+                    {            
 
-                    SoporteSucursales es = new SoporteSucursales();
-                    foreach (var de in datos.Sucursales)
-                    {
-                        es.sucursalesId = de;
-                        es.SoporteFacturacionId = datos.Id;
+                        foreach (var de in datos.Sucursales)
+                        {
+                            de.SoporteFacturacionId = d.Id;
+                        }
+                        db.SoporteSucursales.AddRange(datos.Sucursales);
 
-                        db.SoporteSucursales.Add(es);
                         db.SaveChanges();
-
-                        es = new SoporteSucursales();
                     }
+
 
                     var semp = db.EmpleadosSoporte.Where(x => x.SoporteFacturacionId.Equals(datos.Id));
                     db.EmpleadosSoporte.RemoveRange(semp);
@@ -267,17 +271,28 @@ namespace SAGA.API.Controllers
                     db.SoportePuestos.RemoveRange(epuest);
                     if (datos.Puestos.Count() > 0)
                     {
-                        SoportePuestos pues = new SoportePuestos();
                         foreach (var de in datos.Puestos)
                         {
-                            pues.puestoId = de;
-                            pues.SoporteFacturacionId = d.Id;
-
-                            db.SoportePuestos.Add(pues);
-                            db.SaveChanges();
-
-                            pues = new SoportePuestos();
+                            de.SoporteFacturacionId = d.Id;
                         }
+
+                        db.SoportePuestos.AddRange(datos.Puestos);
+                        db.SaveChanges();
+                    }
+
+                    var dpto = db.SoporteDptosIngresos.Where(x => x.SoporteFacturacionId.Equals(datos.Id));
+                    db.SoporteDptosIngresos.RemoveRange(dpto);
+
+                    if (datos.DptosIngresos.Count() > 0)
+                    {
+
+                        foreach (var de in datos.DptosIngresos)
+                        {
+                            de.SoporteFacturacionId = d.Id;
+                        }
+
+                        db.SoporteDptosIngresos.AddRange(datos.DptosIngresos);
+                        db.SaveChanges();
                     }
                 }
                 else if (datos.crud == 4)
@@ -550,39 +565,40 @@ namespace SAGA.API.Controllers
             {
                 if (datos.crud == 1)
                 {
-                    Puesto p = new Puesto();
+                    PuestosIngresos p = new PuestosIngresos();
                     p.Clave = datos.Clave;
                     p.Nombre = datos.Descripcion;
-                    p.CoordinacionId = datos.CoordId;
+                    p.Descripcion = datos.Comentario;
+                    p.UsuarioAlta = datos.Usuario;
+                    p.UsuarioMod = datos.Usuario;
+                    p.fch_Modificacion = DateTime.Now;
                     p.Activo = true;
-                    p.BTRA = true;
-                    p.ERP = true;
-
-                    db.Puestos.Add(p);
+                
+                    db.PuestosIngresos.Add(p);
                     db.SaveChanges();
 
                 }
                 else if (datos.crud == 3)
                 {
-                    var p = db.Puestos.Find(datos.Id);
+                    var p = db.PuestosIngresos.Find(datos.Id);
                     db.Entry(p).State = EntityState.Modified;
 
                     p.Clave = datos.Clave;
                     p.Nombre = datos.Descripcion;
-                    p.CoordinacionId = datos.CoordId;
-                    p.Activo = true;
-                    p.BTRA = true;
-                    p.ERP = true;
-
+                    p.Descripcion = datos.Comentario;
+                    p.UsuarioMod = datos.Usuario;
+                    p.fch_Modificacion = DateTime.Now;
                     db.SaveChanges();
                 }
                 else if (datos.crud == 4)
                 {
-                    var d = db.Puestos.Find(datos.Id);
-                    //db.Entry(d).State = EntityState.Deleted;
+                    var d = db.PuestosIngresos.Find(datos.IdG);
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
                     db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
 
-
+                    d.UsuarioMod = datos.Usuario;
+                    d.fch_Modificacion = DateTime.Now;
                     d.Activo = false;
 
                     db.SaveChanges();
@@ -596,7 +612,7 @@ namespace SAGA.API.Controllers
             catch (Exception ex)
             {
                 APISAGALog log = new APISAGALog();
-                log.WriteError("db.Puestos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                log.WriteError("db.PuestosIngresos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
         }
@@ -608,8 +624,8 @@ namespace SAGA.API.Controllers
                 if (datos.crud == 1)
                 {
                     PuestosCliente p = new PuestosCliente();
-                    p.empresasId = datos.EmpresasId;
-                    p.puestoId = datos.PuestoId;
+                    p.ClienteId = datos.EmpresasId;
+                    p.PuestosIngresosId = datos.PuestoId;
 
                     db.PuestosCliente.Add(p);
                     db.SaveChanges();
@@ -620,8 +636,8 @@ namespace SAGA.API.Controllers
                     var p = db.PuestosCliente.Find(datos.Id);
                     db.Entry(p).State = EntityState.Modified;
 
-                    p.empresasId = datos.EmpresasId;
-                    p.puestoId = datos.PuestoId;
+                    p.ClienteId = datos.EmpresasId;
+                    p.PuestosIngresosId = datos.PuestoId;
                     db.SaveChanges();
                 }
                 else if (datos.crud == 4)
@@ -733,7 +749,7 @@ namespace SAGA.API.Controllers
                     d.Nombre = datos.Descripcion;
                     d.Clave = datos.Clave;
                     d.Comentario = datos.Comentario;
-                    d.EmpresasId = datos.EmpresasId;
+                    d.ClienteId = datos.EmpresasId;
 
                     if(datos.RegistroPatronal.Id == 0)
                     {
@@ -768,7 +784,7 @@ namespace SAGA.API.Controllers
                     d.Nombre = datos.Descripcion;
                     d.Clave = datos.Clave;
                     d.Comentario = datos.Comentario;
-                    d.EmpresasId = datos.EmpresasId;
+                    d.ClienteId = datos.EmpresasId;
 
                     if (datos.RegistroPatronal.Id == 0)
                     {
@@ -875,6 +891,122 @@ namespace SAGA.API.Controllers
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
         }
+        public HttpResponseMessage CRUDTurnos(CrudIngresosDto datos)
+        {
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    TurnosHorarios d = new TurnosHorarios();
+                    d.Descripcion = datos.Comentario;
+                    //d.Clave = datos.Clave;
+                    d.Nombre = datos.Descripcion;
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.TurnosHorarios.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.TurnosHorarios.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Nombre = datos.Descripcion;
+                    //d.Clave = datos.Clave;
+                    d.Descripcion = datos.Comentario;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.TurnosHorarios.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.JustificacionTrabajo - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDTipoIncapacidad(CrudIngresosDto datos)
+        {
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    TiposIncapacidad d = new TiposIncapacidad();
+                    d.Comentarios = datos.Comentario;
+                    d.Nombre = datos.Descripcion;
+                    d.Activo = true;
+                    //d.Tipo = datos.TipoInc;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.TiposIncapacidad.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.TiposIncapacidad.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Nombre = datos.Descripcion;
+                    //d.Tipo = datos.TipoInc;
+                    d.Comentarios = datos.Comentario;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.TiposIncapacidad.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.JustificacionTrabajo - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
         public HttpResponseMessage CRUDHorarios(CrudIngresosDto datos)
         {
 
@@ -883,53 +1015,91 @@ namespace SAGA.API.Controllers
                 if (datos.crud == 1)
                 {
                     HorariosIngresos d = new HorariosIngresos();
+                    byte turnoId = 0;
+                    if (datos.TurnosHorariosId == 0)
+                    {
+                        turnoId = db.TurnosHorarios.Where(x => x.Nombre.ToLower().Equals(datos.Descripcion.ToLower())).Select(t => t.Id).FirstOrDefault();
+                    }
+                    else
+                    {
+                        turnoId = datos.TurnosHorariosId;
+                    }
                     d.Nombre = datos.Descripcion;
                     d.Clave = datos.Clave;
                     d.Especificaciones = datos.Comentario;
                     d.Activo = true;
-                    d.TurnosHorariosId = datos.TurnosHorariosId;
+                    d.TurnosHorariosId = turnoId;
                     d.HorasTotales = datos.HorasTotales;
                     d.HorasComida = datos.HorasComida;
                     d.HorasDescanso = datos.HorasDescanso;
+                    d.ClienteId = datos.ClienteId;
                     d.fch_Modificacion = DateTime.Now;
                     d.UsuarioAlta = datos.Usuario;
                     d.UsuarioMod = datos.Usuario;
 
                     db.HorariosIngresos.Add(d);
                     db.SaveChanges();
-                    foreach (var x in datos.DiasHoras)
+                    if (datos.Descripcion.ToLower() == "especial calculado")
                     {
-                        DiasHorasIngresos dh = new DiasHorasIngresos();
-                        dh = x;
-                        dh.HorariosIngresosId = d.Id;
-                        //dh.deDiaId = x.deDiaId;
-                        //dh.aDiaId = x.aDiaId;
-                        //dh.DeHora = x.DeHora;
-                        //dh.AHora = x.AHora;
-                        //dh.Activo = x.Activo;
-                        //dh.Tipo = x.Tipo;
+                        foreach (var x in datos.DiasHorasE)
+                        {
+                            DiasHorasEspecial dh = new DiasHorasEspecial();
+                            dh = x;
+                            dh.HorariosIngresosId = d.Id;
 
-                        db.DiasHorasIngresos.Add(dh);
-                        db.SaveChanges();
+                            db.DiasHorasEspecial.Add(dh);
+                            db.SaveChanges();
+                        }
+                        if (datos.HorarioComidaE.Count() > 0)
+                        {
+                            foreach (var x in datos.HorarioComidaE)
+                            {
+                                DiasHorasEspecial dh = new DiasHorasEspecial();
+                                dh = x;
+                                dh.HorariosIngresosId = d.Id;
+                           
+                                db.DiasHorasEspecial.Add(dh);
+                                db.SaveChanges();
+                            }
+                        }
+
                     }
-                    if (datos.HorarioComida.Count() > 0)
+                    else
                     {
-                        foreach (var x in datos.HorarioComida)
+                        foreach (var x in datos.DiasHoras)
                         {
                             DiasHorasIngresos dh = new DiasHorasIngresos();
                             dh = x;
                             dh.HorariosIngresosId = d.Id;
-                            //dh.deDiaId = x.deDiaId;
-                            //dh.aDiaId = x.aDiaId;
-                            //dh.DeHora = x.DeHora;
-                            //dh.AHora = x.AHora;
-                            //dh.Activo = x.Activo;
-                            //dh.Tipo = x.Tipo;
-
+                      
                             db.DiasHorasIngresos.Add(dh);
                             db.SaveChanges();
                         }
+                        if (datos.HorarioComida.Count() > 0)
+                        {
+                            foreach (var x in datos.HorarioComida)
+                            {
+                                DiasHorasIngresos dh = new DiasHorasIngresos();
+                                dh = x;
+                                dh.HorariosIngresosId = d.Id;
+                                db.DiasHorasIngresos.Add(dh);
+                                db.SaveChanges();
+                            }
+                        }
+                        if (datos.HorarioDescanso.Count() > 0)
+                        {
+                            foreach (var x in datos.HorarioDescanso)
+                            {
+                                DiasHorasIngresos dh = new DiasHorasIngresos();
+                                dh = x;
+                                dh.HorariosIngresosId = d.Id;
+                         
+                                db.DiasHorasIngresos.Add(dh);
+                                db.SaveChanges();
+                            }
+                        }
                     }
+                    
                 }
                 else if (datos.crud == 3)
                 {
@@ -943,6 +1113,7 @@ namespace SAGA.API.Controllers
                     d.HorasTotales = datos.HorasTotales;
                     d.HorasComida = datos.HorasComida;
                     d.HorasDescanso = datos.HorasDescanso;
+                    d.ClienteId = datos.ClienteId;
                     d.fch_Modificacion = DateTime.Now;
                     d.UsuarioMod = datos.Usuario;
 
@@ -1060,6 +1231,219 @@ namespace SAGA.API.Controllers
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
         }
+        public HttpResponseMessage CRUDBono(CrudIngresosDto datos)
+        {
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    TiposBono d = new TiposBono();
+                    d.Comentario = datos.Comentario;
+                    d.Nombre = datos.Descripcion;
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.TiposBono.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.TiposBono.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Nombre = datos.Descripcion;
+                    d.Comentario = datos.Comentario;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.TiposBono.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.TiposBono - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDPeriodos(CrudIngresosDto datos)
+        {
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    TipoPeriodos d = new TipoPeriodos();
+                    d.Comentarios = datos.Comentario;
+                    d.Nombre = datos.Descripcion;
+                    d.Meses = datos.Meses;
+                    d.Dias = datos.Dias;
+                         
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.TipoPeriodos.Add(d);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.TipoPeriodos.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Nombre = datos.Descripcion;
+                    d.Comentarios = datos.Comentario;
+                    d.Dias = datos.Dias;
+                    d.Meses = datos.Meses;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.TipoPeriodos.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.TipoPeriodos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDTiposDias(CrudIngresosDto datos)
+        {
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    TiposDiasEconomicos d = new TiposDiasEconomicos();
+                    d.Comentarios = datos.Comentario;
+                    d.Nombre = datos.Descripcion;
+                    d.Orden = datos.Orden;
+                    d.Activo = true;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioAlta = datos.Usuario;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.TiposDiasEconomicos.Add(d);
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 3)
+                {
+                    var d = db.TiposDiasEconomicos.Find(datos.Id);
+                    db.Entry(d).State = EntityState.Modified;
+
+                    d.Nombre = datos.Descripcion;
+                    d.Comentarios = datos.Comentario;
+                    d.Orden = datos.Orden;
+                
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var d = db.TiposDiasEconomicos.Find(datos.Id);
+                    db.Entry(d).Property(x => x.Activo).IsModified = true;
+                    db.Entry(d).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(d).Property(x => x.UsuarioMod).IsModified = true;
+
+                    d.Activo = false;
+                    d.fch_Modificacion = DateTime.Now;
+                    d.UsuarioMod = datos.Usuario;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.TiposDiasEconomicos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage AsignarCatalogo(CrudIngresosDto datos)
+        {
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    foreach(var c in datos.CatalogoClientes)
+                    {
+                        c.fchModificacion = DateTime.Now;
+                    }
+
+                    db.CatalogoClientes.AddRange(datos.CatalogoClientes);
+                    db.SaveChanges();
+
+                }
+                else if (datos.crud == 4)
+                {
+                    foreach (var c in datos.CatalogoClientes)
+                    {
+                        var d = db.CatalogoClientes.Find(c.Id);
+                        db.Entry(d).State = EntityState.Deleted;
+                   
+                        db.SaveChanges();
+                    }
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.AsignarCatalogo - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
         [HttpPost]
         [Route("crudCatalogosIngresos")]
         [Authorize]
@@ -1067,7 +1451,12 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                if (datos.catalogo.ToLower().Equals("areas"))
+                if (datos.catalogo.ToLower().Equals("configuracion"))
+                {
+                    var result = this.AsignarCatalogo(datos).StatusCode;
+                    return Ok(result);
+                }
+                else if (datos.catalogo.ToLower().Equals("areas"))
                 {
                     var result = this.CRUDAreas(datos).StatusCode;
 
@@ -1121,6 +1510,26 @@ namespace SAGA.API.Controllers
                 {
                     return Ok(this.CRUDGrupos(datos).StatusCode);
                 }
+                else if (datos.catalogo.ToLower().Equals("turnos"))
+                {
+                    return Ok(this.CRUDTurnos(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("incapacidad"))
+                {
+                    return Ok(this.CRUDTipoIncapacidad(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("bonos"))
+                {
+                    return Ok(this.CRUDBono(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("periodos"))
+                {
+                    return Ok(this.CRUDPeriodos(datos).StatusCode);
+                }
+                else if (datos.catalogo.ToLower().Equals("tiposdias"))
+                {
+                    return Ok(this.CRUDTiposDias(datos).StatusCode);
+                }
                 return Ok(HttpStatusCode.Continue);
             }
             catch
@@ -1153,14 +1562,16 @@ namespace SAGA.API.Controllers
                 }
                 else if (nombre.ToLower().Equals("empresas"))
                 {
-                    var datos = db.Empresas.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    var datos = db.Clientes.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo && x.esCliente).Select(d => new
                     {
                         d.Id,
-                        d.Clave,
-                        d.Nombre,
-                        d.Observaciones,
+                        Clave = "S/R",
+                        Nombre = d.Nombrecomercial,
+                        d.RazonSocial,
+                        d.RFC,
+                        Observaciones = "SIN REGISTRO",
                         activo = d.Activo ? "ACTIVO" : "INACTIVO",
-                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                        usuarioAlta = db.Usuarios.Where(x => x.Usuario.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
                     return Ok(datos);
                 }
@@ -1191,8 +1602,8 @@ namespace SAGA.API.Controllers
                         d.TipodeNomina.tipoDeNomina,
                         d.TipodeNominaId,
                         Empresa = db.SoporteSucursales.Where(x => x.SoporteFacturacionId.Equals(d.Id)).Select( emp => new {
-                            emp.Sucursales.Empresas.Nombre,
-                            emp.Sucursales.EmpresasId
+                            emp.Sucursales.Cliente.Nombrecomercial,
+                            emp.Sucursales.ClienteId
                         }).FirstOrDefault(),
                         Sucursales = db.SoporteSucursales.Where(x => x.SoporteFacturacionId.Equals(d.Id)).Select(emp => new
                         {
@@ -1210,8 +1621,12 @@ namespace SAGA.API.Controllers
                             nombre = p.candidatosInfo.Nombre + p.candidatosInfo.ApellidoPaterno + p.candidatosInfo.ApellidoMaterno,
                             p.Porcentaje
                         }).ToList(),
-                        Departemento = d.DptosIngresos.Nombre,
-                        d.DptosIngresosId,
+                        Departamentos = db.SoporteDptosIngresos.Where(x => x.SoporteFacturacionId.Equals(d.Id)).Select(dd => new
+                        {
+                            dd.DptosIngresosId,
+                            dd.DptosIngresos.Nombre
+                        }).FirstOrDefault(),
+                       
                         activo = d.Activo ? "ACTIVO" : "INACTIVO",
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
@@ -1272,14 +1687,14 @@ namespace SAGA.API.Controllers
                 }
                 else if (nombre.ToLower().Equals("puestos"))
                 {
-                    var datos = db.Puestos.OrderByDescending(O => O.Id).Where(x => x.Activo).Select(d => new
+                    var datos = db.PuestosIngresos.OrderByDescending(O => O.fch_Modificacion).Where(x => x.Activo).Select(d => new
                     {
                         d.Id,
                         d.Clave,
                         d.Nombre,
+                        Observaciones = d.Descripcion,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                         activo = d.Activo ? "ACTIVO" : "INACTIVO",
-                        d.Coordinacion.clasesReclutamiento,
-                        claseReclutamientoId = d.Coordinacion.Id
                     }).ToList();
                     return Ok(datos);
                 }
@@ -1291,8 +1706,8 @@ namespace SAGA.API.Controllers
                         d.Clave,
                         d.Nombre,
                         d.Comentario,
-                        empresa = d.Empresas.Nombre,
-                        empresaId = d.EmpresasId,
+                        empresa = "S/R - " + d.Cliente.Nombrecomercial,
+                        empresaId = d.ClienteId,
                         d.RegistroPatronalId,
                         d.RegistroPatronal.RP_Clave,
                         d.RegistroPatronal.RP_IMSS,
@@ -1332,15 +1747,15 @@ namespace SAGA.API.Controllers
                         turnoId = h.TurnosHorariosId,
                         h.Especificaciones,
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(h.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
-                        diashoras = db.DiasHorasIngresos.Where(x => x.Activo && x.HorariosIngresosId.Equals(h.Id)).GroupBy(g => g.deDiaId)
+                        diashoras = db.DiasHorasIngresos.Where(x => x.Activo && x.HorariosIngresosId.Equals(h.Id)).GroupBy(g => g.Dia)
                         .Select(d => new
                         {
                             d.Key,
-                            deDia = db.DiasSemanas.Where(x => x.Id.Equals(d.Key)).Select(ds => ds.diaSemana).FirstOrDefault(),
-                            deHora = d.Where(x => x.deDiaId.Equals(d.Key) && x.Tipo.Equals(1)).Select(hh => hh.DeHora),
-                            aHora = d.Where(x => x.deDiaId.Equals(d.Key) && x.Tipo.Equals(1)).Select(hh => hh.AHora),
-                            deHoraComida = d.Where(x => x.deDiaId.Equals(d.Key) && x.Tipo.Equals(2)).Select(hh => hh.DeHora),
-                            aHoraComida = d.Where(x => x.deDiaId.Equals(d.Key) && x.Tipo.Equals(2)).Select(hh => hh.AHora),
+                            Dia = d.Key,
+                            deHora = d.Where(x => x.Dia.Equals(d.Key) && x.Tipo.Equals(1)).Select(hh => hh.DeHora),
+                            aHora = d.Where(x => x.Dia.Equals(d.Key) && x.Tipo.Equals(1)).Select(hh => hh.AHora),
+                            deHoraComida = d.Where(x => x.Dia.Equals(d.Key) && x.Tipo.Equals(2)).Select(hh => hh.DeHora),
+                            aHoraComida = d.Where(x => x.Dia.Equals(d.Key) && x.Tipo.Equals(2)).Select(hh => hh.AHora),
                         }).ToList(),
                         horario = db.DiasHorasIngresos.Where(x => x.Activo && x.HorariosIngresosId.Equals(h.Id)).Count()
                     });
@@ -1389,7 +1804,19 @@ namespace SAGA.API.Controllers
                     {
                         d.Id,
                         d.Nombre,
-                        d.Descripcion,
+                        observaciones = d.Descripcion,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("incapacidad"))
+                {
+                    var datos = db.TiposIncapacidad.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Nombre,
+                        observaciones = d.Comentarios,
+                        tipoInc = d.Comentarios == "SIN REGISTRO" ? 1 : 2,
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
                     return Ok(datos);
@@ -1432,7 +1859,50 @@ namespace SAGA.API.Controllers
                     {
                         d.Id,
                         d.Nombre,
-                        d.Descripcion
+                        d.Descripcion,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                    }).ToList();
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("bonos"))
+                {
+                    var datos = db.TiposBono.OrderBy(o => o.Nombre).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Nombre,
+                        d.Comentario,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                    }).ToList();
+
+                    var periodos = db.TipoPeriodos.OrderBy(o => o.fch_Creacion).Where(x => x.Activo).Select(p => new
+                    {
+                        p.Id,
+                        p.Nombre
+                    });
+                    return Ok(new { datos, periodos });
+                }
+                else if (nombre.ToLower().Equals("periodos"))
+                {
+                    var datos = db.TipoPeriodos.OrderBy(o => o.Nombre).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Nombre,
+                        d.Comentarios,
+                        d.Dias,
+                        d.Meses,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("tiposdias"))
+                {
+                    var datos = db.TiposDiasEconomicos.OrderBy(o => o.Orden).Where(x => x.Activo).Select(d => new
+                    {
+                        d.Id,
+                        d.Nombre,
+                        d.Comentarios,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
                     }).ToList();
                     return Ok(datos);
                 }
@@ -1447,7 +1917,80 @@ namespace SAGA.API.Controllers
                 return Ok(HttpStatusCode.BadRequest);
             }
         }
+        [HttpGet]
+        [Route("getSucursalFiltro")]
+        [Authorize]
+        public IHttpActionResult GetSucursalFiltro(string busqueda)
+        {
+            try
+            {
+                var clientesIds = db.Clientes
+                   .Where(c => c.RazonSocial.Contains(busqueda) || c.Nombrecomercial.Contains(busqueda) || c.RFC.Contains(busqueda))
+                   .Where(c => c.Activo.Equals(true) && c.esCliente.Equals(true))
+                   .Select(c => c.Id)
+                   .ToList();
+                var clientes = db.Sucursales
+                    .Where(c => clientesIds.Contains(c.ClienteId))
+                    .Select(c => new
+                    {
+                        c.Id,
+                        clienteId = c.ClienteId,
+                        sucursal = c.Nombre,
+                        c.RegistroPatronal.RP_Clave,
+                        c.RegistroPatronal.RP_IMSS,
+                        c.Cliente.RazonSocial,
+                        c.Cliente.Nombrecomercial,
+                        c.Cliente.RFC
+                    })
+                    .ToList();
+                if (clientes.Count() == 0)
+                {
+                    var aux = db.Clientes
+                   .Where(c => clientesIds.Contains(c.Id))
+                   .Select(c => new
+                   {
+                       c.Id,
+                       clienteId = c.Id,
+                       c.RazonSocial,
+                       c.Nombrecomercial,
+                       c.RFC
+                   })
+                   .ToList();
 
+                    return Ok(aux);
+
+                }
+
+                return Ok(clientes);
+
+            }
+            catch (Exception ex)
+            {
+                string mesg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
+        [HttpGet]
+        [Route("getPuestoFiltro")]
+        public IHttpActionResult GetPuestoFiltro(string busqueda)
+        {
+            try
+            {
+                var puestos = db.Puestos
+                   .Where(c => c.Nombre.Contains(busqueda))
+                   .Select(c => new {
+                       c.Id,
+                       puesto = c.Nombre
+                   }).ToList();
+                 return Ok(puestos);
+
+            }
+            catch (Exception ex)
+            {
+                string mesg = ex.Message;
+                return Ok(HttpStatusCode.NotFound);
+            }
+        }
         [HttpGet]
         [Route("getCatalogosIngreso")]
         [Authorize]
@@ -1474,19 +2017,63 @@ namespace SAGA.API.Controllers
 
         }
         [HttpGet]
+        [Route("getCatalogosIngByCliente")]
+        [Authorize]
+        public IHttpActionResult GetCatalogosIngByCliente(Guid clienteId)
+        {
+            try
+            {
+                var result = db.CatalogoClientes.OrderBy(o => o.fchModificacion).Where(x => x.ClienteId.Equals(clienteId)).Select(c => new
+                {
+                   c.Id,
+                   catalogoId = c.Catalogos.Id,
+                   c.Catalogos.Nombre,
+                   descripcion = c.Catalogos.Descripcion,
+                   clienteId = c.ClienteId,
+                   cliente = c.Cliente.Nombrecomercial,
+                   c.Observaciones,
+                   usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(c.UsuarioAlta)).Select(u => u.Nombre + " " + u.ApellidoPaterno + " " + u.ApellidoMaterno).FirstOrDefault()
+                }).ToList();
+
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("Catalogos ingresos - " + ex.Message + "InnerException - " + ex.InnerException);
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+        }
+        [HttpGet]
         [Route("sucursalesByCliente")]
         [Authorize]
         public IHttpActionResult SucursalesByCliente(Guid clienteId)
         {
             try
             {
-                var sucursales = db.Sucursales.Where(x => x.EmpresasId.Equals(clienteId)).Select(s => new
+                var sucursales = db.Sucursales.Where(x => x.ClienteId.Equals(clienteId)).Select(s => new
                 {
                     s.Id,
                     s.Nombre,
                     s.RegistroPatronal.RP_Clave,
                     s.RegistroPatronal.RP_IMSS
                 }).ToList();
+
+                if (sucursales.Count() == 0)
+                {
+                    var aux = db.Clientes.Where(x => x.Id.Equals(clienteId)).Select(cc => new
+                    {
+                        cc.Id,
+                        Nombre = cc.Nombrecomercial,
+                        RP_Clave = "",
+                        RP_IMSS = ""
+                    }).ToList();
+
+                    return Ok(aux);
+
+                }
 
                 return Ok(sucursales);
 
@@ -1503,7 +2090,7 @@ namespace SAGA.API.Controllers
         {
             try
             {
-                var soportes = db.SoporteFacturacion.Where(x => x.DptosIngresosId.Equals(departamentoId)).Select(s => new
+                var soportes = db.SoporteFacturacion.Select(s => new
                 {
                     s.Id,
                     s.Clave,
@@ -2156,7 +2743,7 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult getRoles()
         {
-            var roles = db.Roles.Where(x => x.Activo).ToList();
+            var roles = db.Roles.Where(x => x.Activo).OrderBy(o => o.Rol).ToList();
             return Ok(roles);
         }
 

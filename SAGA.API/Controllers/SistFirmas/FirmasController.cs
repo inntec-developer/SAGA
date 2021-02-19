@@ -30,7 +30,8 @@ namespace SAGA.API.Controllers.SistFirmas
             {
                 //var filename = datos.name + "_" + DateTime.Now.ToString("ddMMyyyyHHMM") + datos.ext;
                 var filename = datos.filename;
-                string fullPath = "E:\\inetpub\\wwwroot\\sagainn\\Saga\\API.sb\\Utilerias\\files\\SistFirmas\\" + filename;
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/SistFirmas/" + filename);
+                //"E:\\inetpub\\wwwroot\\sagainn\\Saga\\API.sb\\Utilerias\\files\\SistFirmas\\" + filename;
                     // System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/SistFirmas/" + filename);
                 if (datos.type.Length > 0)
                 {

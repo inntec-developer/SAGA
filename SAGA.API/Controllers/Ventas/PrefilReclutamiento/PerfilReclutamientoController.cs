@@ -36,6 +36,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                     .Select(c => new
                     {
                         c.Id,
+                        c.Clave,
                         clienteId = c.Id,
                         c.RazonSocial,
                         c.Nombrecomercial,
@@ -109,6 +110,7 @@ namespace SAGA.API.Controllers.Ventas.PrefilReclutamiento
                             codigoPostal = d.CodigoPostal,
                             activo = d.Activo,
                             esPrincipal = d.esPrincipal,
+                            d.Referencia
                         }).ToList(),
                         telefonos = db.Telefonos
                                     .Where(t => t.EntidadId == ClienteId && t.Activo)

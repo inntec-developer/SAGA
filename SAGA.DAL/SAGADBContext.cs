@@ -108,6 +108,25 @@ namespace SAGA.DAL
         public DbSet<PerfilesDamfo> PerfilesDamfo { get; set; }
         public DbSet<PerfilDamfoRel> PerfilDamfoRel { get; set; }
 
+       
+        #endregion
+
+        #region  ASIG
+        public DbSet<PeriodoCompensaciones> PeriodoCompensaciones { get; set; }
+        public DbSet<PeriodoHorasExtras> PeriodoHorasExtras { get; set; }
+        public DbSet<PeriodoReconocimiento> PeriodoReconocimiento { get; set; }
+        public DbSet<PeriodoMemo> PeriodoMemo { get; set; }
+        public DbSet<PeriodoActa> PeriodoActa { get; set; }
+        public DbSet<PeriodoSuspension> PeriodoSuspension { get; set; }
+        public DbSet<PeriodoGuardia> PeriodoGuardia { get; set; }
+        public DbSet<PeriodoPermisos> PeriodoPermisos { get; set; }
+        public DbSet<PeriodoIncapacidad> PeriodoIncapacidad { get; set; }
+        public DbSet<PeriodoDE> PeriodoDE { get; set; }
+        public DbSet<PeriodoVacaciones> PeriodoVacaciones { get; set; }
+        public DbSet<PeriodoBonos> PeriodoBonos { get; set; }
+        #endregion
+
+        #region GePe Gestion Personal
         // Captura
         public DbSet<CandidatosGenerales> CandidatoGenerales { get; set; }
         public DbSet<CandidatosExtras> CandidatoExtras { get; set; }
@@ -115,8 +134,72 @@ namespace SAGA.DAL
         public DbSet<Gafetes> Gafetes { get; set; }
         public DbSet<ValidacionCURPRFC> ValidacionCURPRFC { get; set; }
         public DbSet<BiometricosFP> BiometricosFP { get; set; }
-        #endregion
 
+        public DbSet<JustificacionTrabajo> JustificacionTrabajo { get; set; }
+        public DbSet<Sucursales> Sucursales { get; set; }
+        public DbSet<RegistroPatronal> RegistroPatronal { get; set; }
+        public DbSet<PuestosCliente> PuestosCliente { get; set; }
+        public DbSet<EstatusLaboral> EstatusLaboral { get; set; }
+        public DbSet<SoporteFacturacion> SoporteFacturacion { get; set; }
+        public DbSet<SoporteSucursales> SoporteSucursales { get; set; }
+        public DbSet<SoportePuestos> SoportePuestos { get; set; }
+        public DbSet<SoporteDptoIngresos> SoporteDptosIngresos { get; set; }
+        public DbSet<EmpleadosSoporte> EmpleadosSoporte { get; set; }
+        public DbSet<DiasFestivos> DiasFestivos { get; set; }
+        public DbSet<HorariosIngresos> HorariosIngresos { get; set; }
+        public DbSet<DiasHorasIngresos> DiasHorasIngresos { get; set; }
+        public DbSet<DiasHorasEspecial> DiasHorasEspecial { get; set; }
+        public DbSet<TurnosHorarios> TurnosHorarios { get; set; }
+        public DbSet<TiposBono> TiposBono { get; set; }
+        public DbSet<TipoPeriodos> TipoPeriodos { get; set; }
+
+        ///ingresos
+        public DbSet<Empresas> Empresas { get; set; }
+        public DbSet<DptosIngresos> DptosIngresos { get; set; }
+        public DbSet<CatalogoClientes> CatalogoClientes { get; set; }
+        public DbSet<PuestosIngresos> PuestosIngresos { get; set; }
+        public DbSet<CatalogoBancos> CatalogoBancos { get; set; }
+        public DbSet<EmpresaBancos> EmpresaBancos { get; set; }
+        public DbSet<MotivosContratacion> MotivosContratacion { get; set; }
+        public DbSet<GrupoSanguineo> GrupoSanguineo { get; set; }
+        public DbSet<FormaPago> FormaPago { get; set; }
+        public DbSet<TipoDocumentos> TiposDocumentos { get; set; }
+        public DbSet<Documentos> Documentos { get; set; }
+
+        ///modulo configuraciones
+        public DbSet<TiposConfiguraciones> TiposConfiguraciones { get; set; }
+        public DbSet<TiempoAntiguedad> TiempoAntiguedad { get; set; }
+        public DbSet<ConfigVacaciones> ConfigVacaciones { get; set; }
+        public DbSet<ConfigVacacionesDias> ConfigVacacionesDias { get; set; }
+        public DbSet<EmpleadoVacaciones> GrupoVacaciones { get; set; }
+        public DbSet<ConfigIncapacidades> ConfigIncapacidades { get; set; }
+        public DbSet<ConfigIncapacidadesDias> ConfigIncapacidadesDias { get; set; }
+        public DbSet<TiposIncapacidad> TiposIncapacidad { get; set; }
+        public DbSet<EmpleadoIncapacidad> EmpleadoIncapacidad { get; set; }
+        public DbSet<ConfigTiempoExtra> ConfigTiempoExtra { get; set; }
+        public DbSet<EmpleadoTiempoExtra> EmpleadoTiempoExtra { get; set; }
+        public DbSet<ConfigSuspensionNotas> ConfigSuspensionNotas { get; set; }
+        public DbSet<ConfigSuspensionNotasDias> ConfigSuspensionNotasDias { get; set; }
+        public DbSet<EmpleadoSuspension> EmpleadoSuspension { get; set; }
+        public DbSet<ConfigGuardias> ConfigGuardias { get; set; }
+        public DbSet<EmpleadoGuardia> EmpleadoGuardia { get; set; }
+        public DbSet<TiposDiasEconomicos> TiposDiasEconomicos { get; set; }
+        public DbSet<ConfigDiasEconomicos> ConfigDiasEconomicos { get; set; }
+        public DbSet<ConfigDiasEconomicosDias> ConfigDiasEconomicosDias { get; set; }
+        public DbSet<EmpleadoDiasEconomicos> EmpleadoDiasEconomicos { get; set; }
+        public DbSet<ConfigPrima> ConfigPrima { get; set; }
+        public DbSet<EmpleadoPrima> EmpleadoPrima { get; set; }
+        public DbSet<ConfigTolerancia> ConfigTolerancia { get; set; }
+        public DbSet<ConfigToleranciaTiempo> ConfigToleranciaTiempo { get; set; }
+        public DbSet<EmpleadoTolerancia> EmpleadoTolerancia { get; set; }
+        public DbSet<EmpleadoHorario> EmpleadoHorario { get; set; }
+        public DbSet<GrupoEmpleados> GrupoEmpleados { get; set; }
+        public DbSet<ConfigBono> ConfigBono { get; set; }
+        public DbSet<EmpleadoBono> EmpleadoBono { get; set; }
+
+        // checador
+        public DbSet<Jornada> Jornada { get; set; }
+        #endregion
         #region Sist
         public DbSet<RelacionClientesSistemas> RelacionClientesSistemas { get; set; }
         public DbSet<Ambito> Ambitos { get; set; }
@@ -156,7 +239,6 @@ namespace SAGA.DAL
         public DbSet<MotivoLiberacion> MotivosLiberacion { get; set; }
         public DbSet<FolioIncidencia> FolioIncidencia { get; set; }
         public DbSet<Puesto> Puestos { get; set; }
-        public DbSet<PuestosPrincipal> PuestosPrincipal { get; set; }
         public DbSet<CalendarioEvent> CalendarioEvent { get; set; }
         public DbSet<TipoActividadReclutador> TipoActividadReclutador { get; set; }
         public DbSet<AlertasStm> AlertasStm { get; set; }
@@ -170,58 +252,9 @@ namespace SAGA.DAL
         public DbSet<TiposTransferencias> TiposTransferencias { get; set; }
         public DbSet<TipoExamenMedico> TiposExamenMedico { get; set; }
         public DbSet<VertionSistem> VertionSistem { get; set; }
-        public DbSet<CatalogoBancos> CatalogoBancos { get; set; }
-        public DbSet<EmpresaBancos> EmpresaBancos { get; set; }
-        public DbSet<MotivosContratacion> MotivosContratacion { get; set; }
-        public DbSet<GrupoSanguineo> GrupoSanguineo { get; set; }
-        public DbSet<FormaPago> FormaPago { get; set; }
-        public DbSet<TipoDocumentos> TiposDocumentos { get; set; }
-        public DbSet<Documentos> Documentos { get; set; }
-        public DbSet<JustificacionTrabajo> JustificacionTrabajo { get; set; }
-        public DbSet<Sucursales> Sucursales { get; set; }
-        public DbSet<RegistroPatronal> RegistroPatronal { get; set; }
-        public DbSet<PuestosCliente> PuestosCliente { get; set; }
-        public DbSet<EstatusLaboral> EstatusLaboral { get; set; }
-        public DbSet<SoporteFacturacion> SoporteFacturacion { get; set; }
-        public DbSet<SoporteSucursales> SoporteSucursales { get; set; }
-        public DbSet<SoportePuestos> SoportePuestos { get; set; }
-        public DbSet<EmpleadosSoporte> EmpleadosSoporte { get; set; }
-        public DbSet<DiasFestivos> DiasFestivos { get; set; }
-        public DbSet<HorariosIngresos> HorariosIngresos { get; set; }
-        public DbSet<DiasHorasIngresos> DiasHorasIngresos { get; set; }
-        public DbSet<TurnosHorarios> TurnosHorarios { get; set; }
+        public DbSet<TitulosArte> TitulosArte { get; set; }
+        public DbSet<ArteRequi> ArteRequi { get; set; }
 
-        ///ingresos
-        public DbSet<Empresas> Empresas { get; set; }
-        public DbSet<DptosIngresos> DptosIngresos { get; set; }
-        ///modulo configuraciones
-        public DbSet<TiposConfiguraciones> TiposConfiguraciones { get; set; }
-        public DbSet<TiempoAntiguedad> TiempoAntiguedad { get; set; }
-        public DbSet<ConfigVacaciones> ConfigVacaciones { get; set; }
-        public DbSet<ConfigVacacionesDias> ConfigVacacionesDias { get; set; }
-        public DbSet<EmpleadoVacaciones> GrupoVacaciones { get; set; }
-        public DbSet<ConfigIncapacidades> ConfigIncapacidades { get; set; }
-        public DbSet<ConfigIncapacidadesDias> ConfigIncapacidadesDias { get; set; }
-        public DbSet<TiposIncapacidad> TiposIncapacidad { get; set; }
-        public DbSet<EmpleadoIncapacidad> EmpleadoIncapacidad { get; set; }
-        public DbSet<ConfigTiempoExtra> ConfigTiempoExtra { get; set; }
-        public DbSet<EmpleadoTiempoExtra> EmpleadoTiempoExtra { get; set; }
-        public DbSet<ConfigSuspensionNotas> ConfigSuspensionNotas { get; set; }
-        public DbSet<ConfigSuspensionNotasDias> ConfigSuspensionNotasDias { get; set; }
-        public DbSet<EmpleadoSuspension> EmpleadoSuspension { get; set; }
-        public DbSet<ConfigGuardias> ConfigGuardias { get; set; }
-        public DbSet<EmpleadoGuardia> EmpleadoGuardia { get; set; }
-        public DbSet<TiposDiasEconomicos> TiposDiasEconomicos { get; set; }
-        public DbSet<ConfigDiasEconomicos> ConfigDiasEconomicos { get; set; }
-        public DbSet<ConfigDiasEconomicosDias> ConfigDiasEconomicosDias { get; set; }
-        public DbSet<EmpleadoDiasEconomicos> EmpleadoDiasEconomicos { get; set; }
-        public DbSet<ConfigPrima> ConfigPrima { get; set; }
-        public DbSet<EmpleadoPrima> EmpleadoPrima { get; set; }
-        public DbSet<ConfigTolerancia> ConfigTolerancia { get; set; }
-        public DbSet<ConfigToleranciaTiempo> ConfigToleranciaTiempo { get; set; }
-        public DbSet<EmpleadoTolerancia> EmpleadoTolerancia { get; set; }
-        public DbSet<EmpleadoHorario> EmpleadoHorario { get; set; }
-        public DbSet<GrupoEmpleados> GrupoEmpleados { get; set; }
 
         ///modulo admin 
         public DbSet<Usuarios> Usuarios { get; set; }
@@ -325,9 +358,217 @@ namespace SAGA.DAL
 		 * Loging
 		 */
         public DbSet<AspNetUsers> AspNetUsers { get; set; }
+        #region Mapeo GEPE
+        // checador
+        public class JornadaMap : EntityTypeConfiguration<Jornada>
+        {
+            public JornadaMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatoInfoId).IsRequired();
+                Property(x => x.Fecha).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.Dia).IsRequired();
+                Property(x => x.Hora).HasColumnType("datetime").IsRequired();
+                Property(x => x.Tipo).IsRequired();
+            }
+        }
+        #region Mapeo ASIG
+        public class PeriodoBonoMap : EntityTypeConfiguration<PeriodoBonos>
+        {
+            public PeriodoBonoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.fchIncio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.ConfigBonoId).IsRequired();
+                Property(x => x.Porcentaje).IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoCompensacionesMap : EntityTypeConfiguration<PeriodoCompensaciones>
+        {
+            public PeriodoCompensacionesMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.Fecha).HasColumnType("datetime").IsRequired();
+                Property(x => x.Tipo).IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoHorasExtrasMap : EntityTypeConfiguration<PeriodoHorasExtras>
+        {
+            public PeriodoHorasExtrasMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.fchIncio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.Tiempo).IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoReconocimientoMap : EntityTypeConfiguration<PeriodoReconocimiento>
+        {
+            public PeriodoReconocimientoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.fchIncio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoMemoMap : EntityTypeConfiguration<PeriodoMemo>
+        {
+            public PeriodoMemoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.fchIncio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.Faltas).IsRequired();
+                Property(x => x.Retardos).IsRequired();
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoActaMap : EntityTypeConfiguration<PeriodoActa>
+        {
+            public PeriodoActaMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.fchIncio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.Faltas).IsRequired();
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoSuspensionMap : EntityTypeConfiguration<PeriodoSuspension>
+        {
+            public PeriodoSuspensionMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.fchIncio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.dias).IsRequired();
+                Property(x => x.Tipo).IsRequired();
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoGuardiaMap : EntityTypeConfiguration<PeriodoGuardia>
+        {
+            public PeriodoGuardiaMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.Fecha).HasColumnType("datetime").IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.CubridorId).IsRequired();
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoPermisosMap : EntityTypeConfiguration<PeriodoPermisos>
+        {
+            public PeriodoPermisosMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.fchIncio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.dias).IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.Sueldo).IsRequired();
+                Property(x => x.TipoJustificacionId).IsRequired();
+                Property(x => x.Tipo).IsRequired();
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoIncapacidadMap : EntityTypeConfiguration<PeriodoIncapacidad>
+        {
+            public PeriodoIncapacidadMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.fchIncio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.dias).IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.SerieFolio).IsRequired();
+                Property(x => x.Archivo).IsRequired();
+                Property(x => x.TiposIncapacidadId).IsRequired();
 
-        #region "Mapeo Sist"
-        #region ingresos
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoDEMap : EntityTypeConfiguration<PeriodoDE>
+        {
+            public PeriodoDEMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.fchIncio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.dias).IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+                Property(x => x.TiposDiasEconomicosId).IsRequired();
+
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        public class PeriodoVacacionesMap : EntityTypeConfiguration<PeriodoVacaciones>
+        {
+            public PeriodoVacacionesMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CandidatosInfoId).IsRequired();
+                Property(x => x.fchIncio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.dias).IsRequired();
+                Property(x => x.Comentario).IsRequired().HasMaxLength(300);
+
+                Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
+                Property(x => x.UsuarioAltaId).IsRequired();
+            }
+        }
+        #endregion
+
+        #region Mapeo Ingresos
+        public class CatalogoClientesMap : EntityTypeConfiguration<CatalogoClientes>
+        {
+            public CatalogoClientesMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.CatalogosId).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
+                Property(x => x.Observaciones).HasMaxLength(200).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsRequired();
+                Property(x => x.fchAlta).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fchModificacion).HasColumnType("datetime").IsRequired();
+            }
+        }
         public class EmpresasMap : EntityTypeConfiguration<Empresas>
         {
             public EmpresasMap()
@@ -401,6 +642,7 @@ namespace SAGA.DAL
                 Property(x => x.Porcentaje).IsRequired();
                 Property(x => x.Observaciones).HasMaxLength(200).IsRequired();
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -441,6 +683,7 @@ namespace SAGA.DAL
                 Property(x => x.Nombre).IsRequired().HasMaxLength(100);
                 Property(x => x.Comentarios).IsRequired().HasMaxLength(200);
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -499,6 +742,7 @@ namespace SAGA.DAL
                 Property(x => x.TE_Total).IsRequired();
                 Property(x => x.Comentarios).IsRequired().HasMaxLength(200);
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -528,6 +772,7 @@ namespace SAGA.DAL
                 Property(x => x.Nombre).IsRequired().HasMaxLength(100);
                 Property(x => x.Comentarios).IsRequired().HasMaxLength(200);
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -568,6 +813,7 @@ namespace SAGA.DAL
                 Property(x => x.Consecutivas).IsRequired();
                 Property(x => x.Comentarios).IsRequired().HasMaxLength(200);
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -598,6 +844,7 @@ namespace SAGA.DAL
                 Property(x => x.Nombre).IsRequired().HasMaxLength(100);
                 Property(x => x.Comentarios).IsRequired().HasMaxLength(200);
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.Orden).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -616,6 +863,7 @@ namespace SAGA.DAL
                 Property(x => x.DiasConSueldo).IsRequired();
                 Property(x => x.DiasSinSueldo).IsRequired();
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -657,6 +905,7 @@ namespace SAGA.DAL
                 Property(x => x.Horas).IsRequired();
                 Property(x => x.Observaciones).IsRequired().HasMaxLength(200);
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -687,6 +936,7 @@ namespace SAGA.DAL
                 Property(x => x.Nombre).IsRequired().HasMaxLength(100);
                 Property(x => x.Observaciones).IsRequired().HasMaxLength(200);
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -763,8 +1013,106 @@ namespace SAGA.DAL
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
             }
         }
+        public class ConfigBonoMap : EntityTypeConfiguration<ConfigBono>
+        {
+            public ConfigBonoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.TiposBonoId).IsRequired();
+                Property(x => x.PeriodosId).IsRequired();
+                Property(x => x.Comentarios).IsRequired().HasMaxLength(300);
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
+            }
+        }
+        public class EmpleadoBonoMap : EntityTypeConfiguration<EmpleadoBono>
+        {
+            public EmpleadoBonoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.ConfigBonoId).IsRequired();
+                Property(x => x.empleadoId).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
+            }
+        }
         #endregion
 
+        #endregion
+
+
+        #region "Mapeo Sist"
+        public class TitulosArteMap : EntityTypeConfiguration<TitulosArte>
+        {
+            public TitulosArteMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).HasMaxLength(200).IsRequired();
+                Property(x => x.Descripcion).HasMaxLength(400).IsRequired();
+                Property(x => x.Orden).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
+            }
+        }
+        public class ArteRequiMap : EntityTypeConfiguration<ArteRequi>
+        {
+            public ArteRequiMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.RequisicionId).IsRequired();
+                Property(x => x.TitulosArteId).IsRequired();
+                Property(x => x.BG).HasMaxLength(200).IsRequired();
+                Property(x => x.Contenido).HasMaxLength(500).IsRequired();
+                Property(x => x.Ruta).HasMaxLength(200).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
+            }
+        }
+
+        public class TiposBonoMap : EntityTypeConfiguration<TiposBono>
+        {
+            public TiposBonoMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).HasMaxLength(100).IsRequired();
+                Property(x => x.Comentario).HasMaxLength(300).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
+            }
+        }
+        public class TipoPeriodosMap : EntityTypeConfiguration<TipoPeriodos>
+        {
+            public TipoPeriodosMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).HasMaxLength(100).IsRequired();
+                Property(x => x.Comentarios).HasMaxLength(300).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.Dias).IsRequired();
+                Property(x => x.Meses).IsRequired();
+                Property(x => x.Orden).IsRequired();
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
+            }
+        }
         public class AreaMap : EntityTypeConfiguration<Area>
         {
             public AreaMap()
@@ -801,11 +1149,11 @@ namespace SAGA.DAL
             public SucursalesMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Nombre).HasMaxLength(100).IsRequired();
+                Property(x => x.Nombre).HasMaxLength(200).IsRequired();
                 Property(x => x.Comentario).HasMaxLength(300).IsRequired();
-                Property(x => x.Clave).HasMaxLength(20).IsRequired();
+                Property(x => x.Clave).HasMaxLength(30).IsRequired();
                 Property(x => x.Activo).IsRequired();
-                Property(x => x.EmpresasId).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.RegistroPatronalId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
@@ -827,13 +1175,28 @@ namespace SAGA.DAL
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
             }
         }
+        public class PuestosIngresosMap : EntityTypeConfiguration<PuestosIngresos>
+        {
+            public PuestosIngresosMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Clave).HasMaxLength(50).IsRequired();
+                Property(x => x.Descripcion).HasMaxLength(200).IsRequired();
+                Property(x => x.Nombre).HasMaxLength(200).IsRequired();
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
+
+            }
+        }
         public class PuestosClienteMap : EntityTypeConfiguration<PuestosCliente>
         {
             public PuestosClienteMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.empresasId).IsRequired();
-                Property(x => x.puestoId).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
+                Property(x => x.PuestosIngresosId).IsRequired();
             }
         }
         public class EstatusLaboralMap : EntityTypeConfiguration<EstatusLaboral>
@@ -886,6 +1249,7 @@ namespace SAGA.DAL
                 Property(x => x.HorasTotales).IsRequired();
                 Property(x => x.HorasDescanso).IsRequired();
                 Property(x => x.HorasComida).IsRequired();
+                Property(x => x.ClienteId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -912,10 +1276,26 @@ namespace SAGA.DAL
             public DiasHorasIngresosMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.deDiaId).IsRequired();
-                Property(x => x.aDiaId).IsRequired();
-                Property(x => x.DeHora).IsRequired();
-                Property(x => x.AHora).IsRequired();
+                Property(x => x.Dia).IsRequired();
+                Property(x => x.DeHora).HasColumnType("datetime").IsRequired();
+                Property(x => x.AHora).HasColumnType("datetime").IsRequired();
+                Property(x => x.Tipo).IsRequired();
+                Property(x => x.LimiteEntrada).IsRequired();
+                Property(x => x.LimiteComida1).IsRequired();
+                Property(x => x.LimiteComida2).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.HorariosIngresosId).IsRequired();
+            }
+        }
+        public class DiasHorasEspecialMap : EntityTypeConfiguration<DiasHorasEspecial>
+        {
+            public DiasHorasEspecialMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.fchInicio).HasColumnType("datetime").IsRequired();
+                Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
+                Property(x => x.DeHora).HasColumnType("datetime").IsRequired();
+                Property(x => x.AHora).HasColumnType("datetime").IsRequired();
                 Property(x => x.Tipo).IsRequired();
                 Property(x => x.LimiteEntrada).IsRequired();
                 Property(x => x.LimiteComida1).IsRequired();
@@ -936,7 +1316,6 @@ namespace SAGA.DAL
                 Property(x => x.MontoTope).IsRequired();
                 Property(x => x.Activo).IsRequired();
                 Property(x => x.Observaciones).IsRequired().HasMaxLength(200);
-                Property(x => x.DptosIngresosId).IsRequired();
                 Property(x => x.TipodeNominaId).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
@@ -972,6 +1351,15 @@ namespace SAGA.DAL
                 Property(x => x.SoporteFacturacionId).IsRequired();
             }
         }
+        public class SoporteDptoIngresosMap : EntityTypeConfiguration<SoporteDptoIngresos>
+        {
+            public SoporteDptoIngresosMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.DptosIngresosId).IsRequired();
+                Property(x => x.SoporteFacturacionId).IsRequired();
+            }
+        }
         public class EntidadMap : EntityTypeConfiguration<Entidad>
         {
             public EntidadMap()
@@ -1000,7 +1388,7 @@ namespace SAGA.DAL
                 Property(x => x.UsuarioMod).IsOptional().HasMaxLength(30);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
-                //Property(x => x.Clave).HasMaxLength(20).IsRequired();
+                Property(x => x.Clave).HasMaxLength(50).IsRequired();
                 //Property(x => x.Clave_Patronal).HasMaxLength(20).IsRequired();
                 //Property(x => x.Registro_Patronal_IMSS).HasMaxLength(50).IsRequired();
 
@@ -1447,7 +1835,6 @@ namespace SAGA.DAL
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
             }
         }
-
         public class PrivilegiosMap : EntityTypeConfiguration<Privilegio>
         {
             public PrivilegiosMap()
@@ -1462,18 +1849,6 @@ namespace SAGA.DAL
                 Property(x => x.Delete).IsRequired();
             }
         }
-
-        //public class GrupoUsuarioMap : EntityTypeConfiguration<GrupoUsuarios>
-        //{
-        //    public GrupoUsuarioMap()
-        //    {
-        //        HasKey(x => x.Id);
-        //        Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-        //        Property(x => x.GrupoId).IsRequired();
-        //        Property(x => x.EntidadId).IsRequired();
-        //    }
-        //}
-
         public class TipoEntidadMap : EntityTypeConfiguration<TipoEntidad>
         {
             public TipoEntidadMap()
@@ -1623,23 +1998,7 @@ namespace SAGA.DAL
                 Property(x => x.ERP).IsRequired();
             }
         }
-        public class PuestosPrincipalMap : EntityTypeConfiguration<PuestosPrincipal>
-        {
-            public PuestosPrincipalMap()
-            {
-                HasKey(x => x.Id);
-                Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Nombre).HasMaxLength(50).IsRequired();
-                Property(x => x.Descripcion).HasMaxLength(200).IsRequired();
-                Property(x => x.Activo).IsRequired();
-                Property(x => x.UsuarioAlta).IsRequired();
-                Property(x => x.UsuarioMod).IsRequired();
-                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
-
-            }
-        }
-
+      
         public class CalendarioEventMap : EntityTypeConfiguration<CalendarioEvent>
         {
             public CalendarioEventMap()
@@ -2449,7 +2808,7 @@ namespace SAGA.DAL
             public ActividadEmpMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.actividadEmpresa).HasMaxLength(50).IsRequired();
+                Property(x => x.actividadEmpresa).HasMaxLength(300).IsRequired();
                 Property(x => x.activo).IsRequired();
             }
         }
@@ -2482,8 +2841,10 @@ namespace SAGA.DAL
             public ContactoMap()
             {
                 ToTable("Contactos", "Vtas");
-                Property(x => x.Puesto).HasMaxLength(100).IsRequired(); Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(25);
-                Property(x => x.UsuarioMod).IsOptional().HasMaxLength(30);
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Puesto).HasMaxLength(100).IsRequired();
+                Property(x => x.UsuarioAlta).IsOptional().HasMaxLength(50);
+                Property(x => x.UsuarioMod).IsOptional().HasMaxLength(50);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
                 Property(x => x.InfoAdicional).HasMaxLength(250).IsOptional();
@@ -3625,16 +3986,13 @@ namespace SAGA.DAL
                 Property(x => x.FechaIngreso).IsRequired();
                 Property(x => x.FormaPagoId).IsRequired();
                 Property(x => x.ClaveTurno).IsRequired().HasMaxLength(20);
-                Property(x => x.SucursalId).IsRequired();
                 Property(x => x.BancoId).IsRequired();
                 Property(x => x.NoCuenta).IsRequired().HasMaxLength(20);
-                Property(x => x.DepartamentoId).IsRequired();
                 Property(x => x.FechaFormaPago).IsRequired();
-                Property(x => x.PuestoId).IsRequired();
+                Property(x => x.PuestosIngresosId).IsRequired();
                 Property(x => x.ClaveJefe).IsRequired().HasMaxLength(10);
                 Property(x => x.ClaveExt).IsRequired().HasMaxLength(10);
                 Property(x => x.MotivoId).IsRequired();
-                Property(x => x.SoporteFacturacionId).IsRequired();
                 Property(x => x.SueldoMensual).IsRequired();
                 Property(x => x.SueldoDiario).IsRequired();
                 Property(x => x.SueldoIntegrado).IsRequired();
@@ -3930,7 +4288,6 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new RastreabilidadMesMap().ToTable("RastreabilidadMes"));
             modelBuilder.Configurations.Add(new FoliosMap().ToTable("Folios"));
             modelBuilder.Configurations.Add(new PrivilegiosMap().ToTable("Privilegios"));
-            //modelBuilder.Configurations.Add(new GrupoUsuarioMap().ToTable("GruposUsuarios"));
             modelBuilder.Configurations.Add(new DepartamentoMap().ToTable("Departamentos"));
             modelBuilder.Configurations.Add(new TipoEntidadMap().ToTable("TiposEntidades"));
             modelBuilder.Configurations.Add(new TratamientoMap().ToTable("Tratamientos"));
@@ -3942,7 +4299,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new MotivoLiberacioMap().ToTable("MotivosLiberaciones"));
             modelBuilder.Configurations.Add(new FolioIncidenciaMap().ToTable("FolioIncidencias"));
             modelBuilder.Configurations.Add(new PuestoMap().ToTable("Puestos"));
-            modelBuilder.Configurations.Add(new PuestosPrincipalMap().ToTable("PuestosPrincipal"));
+            modelBuilder.Configurations.Add(new PuestosIngresosMap().ToTable("PuestosIngresos"));
             modelBuilder.Configurations.Add(new CalendarioEventMap().ToTable("CalendarioEvent"));
             modelBuilder.Configurations.Add(new TipoActividadReclutadorMap().ToTable("TipoActividadReclutador"));
             modelBuilder.Configurations.Add(new AlertasStmMap().ToTable("AlertasStm"));
@@ -3950,6 +4307,8 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new SubordinadosMap().ToTable("Subordinados"));
             modelBuilder.Configurations.Add(new UnidadesNegociosMap().ToTable("UnidadesNegocios"));
             modelBuilder.Configurations.Add(new TipoExamenMedicoMap().ToTable("TiposExamenesMedicos"));
+            modelBuilder.Configurations.Add(new TitulosArteMap().ToTable("TitulosArte"));
+            modelBuilder.Configurations.Add(new ArteRequiMap().ToTable("ArteRequi"));
           
             //Catalogos
             modelBuilder.Configurations.Add(new CatalogosMap().ToTable("Catalogos"));
@@ -3961,6 +4320,8 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new FormaPagoMap().ToTable("FormaPago"));
             modelBuilder.Configurations.Add(new TiposDocumentosMap().ToTable("TiposDocumentos"));
             modelBuilder.Configurations.Add(new DocumentosMap().ToTable("Documentos"));
+            modelBuilder.Configurations.Add(new TiposBonoMap().ToTable("TiposBono"));
+            modelBuilder.Configurations.Add(new TipoPeriodosMap().ToTable("TipoPeriodos"));
             //Modulo para examenes
             modelBuilder.Configurations.Add(new ExamenesMap().ToTable("Examenes"));
             modelBuilder.Configurations.Add(new TipoExamenesMap().ToTable("TipoExamen"));
@@ -4101,52 +4462,75 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new EntrevistasMap().ToTable("Entrevistas", "Sist"));
             #endregion
 
+            #region Gestion de Personal GePe
+            modelBuilder.Configurations.Add(new JornadaMap().ToTable("Jornada", "GePe"));
+            #region ASIGNACIONES
+            modelBuilder.Configurations.Add(new PeriodoActaMap().ToTable("PeriodoActa", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoCompensacionesMap().ToTable("PeriodoCompensaciones", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoHorasExtrasMap().ToTable("PeriodoHorasExtras", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoReconocimientoMap().ToTable("PeriodoReconocimiento", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoMemoMap().ToTable("PeriodoMemo", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoSuspensionMap().ToTable("PeriodoSuspension", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoGuardiaMap().ToTable("PeriodoGuardia", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoPermisosMap().ToTable("PeriodoPermisos", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoIncapacidadMap().ToTable("PeriodoIncapacidad", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoDEMap().ToTable("PeriodoDE", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoVacacionesMap().ToTable("PeriodoVacaciones", "GePe"));
+            modelBuilder.Configurations.Add(new PeriodoBonoMap().ToTable("PeriodoBonos", "GePe"));
+            #endregion
+
             #region Sist ingresos
-            modelBuilder.Configurations.Add(new SoporteFacturacionMap().ToTable("SoporteFacturacion", "Sist"));
-            modelBuilder.Configurations.Add(new EmpleadosSoporteMap().ToTable("EmpleadosSoporte", "Sist"));
-            modelBuilder.Configurations.Add(new SoporteSucursalesMap().ToTable("SoporteSucursales", "Sist"));
-            modelBuilder.Configurations.Add(new SoportePuestosMap().ToTable("SoportePuestos", "Sist"));
-            modelBuilder.Configurations.Add(new EstatusLaboralMap().ToTable("EstatusLaboral", "Sist"));
-            modelBuilder.Configurations.Add(new PuestosClienteMap().ToTable("PuestosCliente", "Sist"));
-            modelBuilder.Configurations.Add(new SucursalesMap().ToTable("Sucursales", "Sist"));
-            modelBuilder.Configurations.Add(new RegistroPatronalMap().ToTable("RegistroPatronal", "Sist"));
-            modelBuilder.Configurations.Add(new JustificacionTrabajoMap().ToTable("JustificacionTrabajo", "Sist"));
-            modelBuilder.Configurations.Add(new DiasFestivosMap().ToTable("DiasFestivos", "Sist"));
-            modelBuilder.Configurations.Add(new HorariosIngresosMap().ToTable("HorariosIngresos", "Sist"));
-            modelBuilder.Configurations.Add(new DiasHorasIngresosMap().ToTable("DiasHorasIngresos", "Sist"));
-            modelBuilder.Configurations.Add(new TurnosHorariosMap().ToTable("TurnosHorarios", "Sist"));
-            modelBuilder.Configurations.Add(new EmpresasMap().ToTable("Empresas", "Sist"));
-            modelBuilder.Configurations.Add(new DptosIngresosMap().ToTable("DptosIngresos", "Sist"));
-            modelBuilder.Configurations.Add(new BiometricosFPMap().ToTable("BiometricosFP", "Sist"));
+            modelBuilder.Configurations.Add(new SoporteFacturacionMap().ToTable("SoporteFacturacion", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadosSoporteMap().ToTable("EmpleadosSoporte", "GePe"));
+            modelBuilder.Configurations.Add(new SoporteSucursalesMap().ToTable("SoporteSucursales", "GePe"));
+            modelBuilder.Configurations.Add(new SoportePuestosMap().ToTable("SoportePuestos", "GePe"));
+            modelBuilder.Configurations.Add(new SoporteDptoIngresosMap().ToTable("SoporteDptoIngresos", "GePe"));
+            modelBuilder.Configurations.Add(new EstatusLaboralMap().ToTable("EstatusLaboral", "GePe"));
+            modelBuilder.Configurations.Add(new PuestosClienteMap().ToTable("PuestosCliente", "GePe"));
+            modelBuilder.Configurations.Add(new SucursalesMap().ToTable("Sucursales", "GePe"));
+            modelBuilder.Configurations.Add(new RegistroPatronalMap().ToTable("RegistroPatronal", "GePe"));
+            modelBuilder.Configurations.Add(new JustificacionTrabajoMap().ToTable("JustificacionTrabajo", "GePe"));
+            modelBuilder.Configurations.Add(new DiasFestivosMap().ToTable("DiasFestivos", "GePe"));
+            modelBuilder.Configurations.Add(new HorariosIngresosMap().ToTable("HorariosIngresos", "GePe"));
+            modelBuilder.Configurations.Add(new DiasHorasIngresosMap().ToTable("DiasHorasIngresos", "GePe"));
+            modelBuilder.Configurations.Add(new DiasHorasEspecialMap().ToTable("DiasHorasEspecial", "GePe"));
+            modelBuilder.Configurations.Add(new TurnosHorariosMap().ToTable("TurnosHorarios", "GePe"));
+            modelBuilder.Configurations.Add(new EmpresasMap().ToTable("Empresas", "GePe"));
+            modelBuilder.Configurations.Add(new DptosIngresosMap().ToTable("DptosIngresos", "GePe"));
+            modelBuilder.Configurations.Add(new BiometricosFPMap().ToTable("BiometricosFP", "GePe"));
+            modelBuilder.Configurations.Add(new CatalogoClientesMap().ToTable("CatalogoClientes", "GePe"));
 
             //configuraciones 
-            modelBuilder.Configurations.Add(new TiposConfiguracionesMap().ToTable("TiposConfiguraciones", "Sist"));
-            modelBuilder.Configurations.Add(new TiempoAntiguedadMap().ToTable("TiempoAntiguedad", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigVacacionesMap().ToTable("ConfigVacaciones", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigVacacionesDiasMap().ToTable("ConfigVacacionesDias", "Sist"));
-            modelBuilder.Configurations.Add(new EmpleadoVacacionesMap().ToTable("EmpleadoVacaciones", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigIncapacidadesMap().ToTable("ConfigIncapacidades", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigIncapacidadesDiasMap().ToTable("ConfigIncapacidadesDias", "Sist"));
-            modelBuilder.Configurations.Add(new TiposIncapacidadMap().ToTable("TiposIncapacidad", "Sist"));
-            modelBuilder.Configurations.Add(new EmpleadoIncapacidadMap().ToTable("EmpleadoIncapacidad", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigTiempoExtraMap().ToTable("ConfigTiempoExtra", "Sist"));
-            modelBuilder.Configurations.Add(new EmpleadoTiempoExtraMap().ToTable("EmpleadoTiempoExtra", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigSuspensionNotasMap().ToTable("ConfigSuspensionNotas", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigSuspensionNotasDiasMap().ToTable("ConfigSuspensionNotasDias", "Sist"));
-            modelBuilder.Configurations.Add(new EmpleadoSuspensionMap().ToTable("EmpleadoSuspension", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigGuardiasMap().ToTable("ConfigGuardias", "Sist"));
-            modelBuilder.Configurations.Add(new EmpleadoGuardiaMap().ToTable("EmpleadoGuardia", "Sist"));
-            modelBuilder.Configurations.Add(new TiposDiasEconomicosMap().ToTable("TiposDiasEconomicos", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigDiasEconomicosMap().ToTable("ConfigDiasEconomicos", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigDiasEconomicosDiasMap().ToTable("ConfigDiasEconomicosDias", "Sist"));
-            modelBuilder.Configurations.Add(new EmpleadoDiasEconomicosMap().ToTable("EmpleadoDiasEconomicos", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigPrimaMap().ToTable("ConfigPrima", "Sist"));
-            modelBuilder.Configurations.Add(new EmpleadoPrimaMap().ToTable("EmpleadoPrima", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigToleranciaMap().ToTable("ConfigTolerancia", "Sist"));
-            modelBuilder.Configurations.Add(new ConfigToleranciaTiempoMap().ToTable("ConfigToleranciaTiempo", "Sist"));
-            modelBuilder.Configurations.Add(new EmpleadoToleranciaMap().ToTable("EmpleadoTolerancia", "Sist"));
-            modelBuilder.Configurations.Add(new EmpleadoHorarioMap().ToTable("EmpleadoHorario", "Sist"));
-            modelBuilder.Configurations.Add(new GrupoEmpleadosMap().ToTable("GrupoEmpleados", "Sist"));
+            modelBuilder.Configurations.Add(new TiposConfiguracionesMap().ToTable("TiposConfiguraciones", "GePe"));
+            modelBuilder.Configurations.Add(new TiempoAntiguedadMap().ToTable("TiempoAntiguedad", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigVacacionesMap().ToTable("ConfigVacaciones", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigVacacionesDiasMap().ToTable("ConfigVacacionesDias", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadoVacacionesMap().ToTable("EmpleadoVacaciones", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigIncapacidadesMap().ToTable("ConfigIncapacidades", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigIncapacidadesDiasMap().ToTable("ConfigIncapacidadesDias", "GePe"));
+            modelBuilder.Configurations.Add(new TiposIncapacidadMap().ToTable("TiposIncapacidad", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadoIncapacidadMap().ToTable("EmpleadoIncapacidad", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigTiempoExtraMap().ToTable("ConfigTiempoExtra", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadoTiempoExtraMap().ToTable("EmpleadoTiempoExtra", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigSuspensionNotasMap().ToTable("ConfigSuspensionNotas", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigSuspensionNotasDiasMap().ToTable("ConfigSuspensionNotasDias", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadoSuspensionMap().ToTable("EmpleadoSuspension", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigGuardiasMap().ToTable("ConfigGuardias", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadoGuardiaMap().ToTable("EmpleadoGuardia", "GePe"));
+            modelBuilder.Configurations.Add(new TiposDiasEconomicosMap().ToTable("TiposDiasEconomicos", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigDiasEconomicosMap().ToTable("ConfigDiasEconomicos", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigDiasEconomicosDiasMap().ToTable("ConfigDiasEconomicosDias", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadoDiasEconomicosMap().ToTable("EmpleadoDiasEconomicos", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigPrimaMap().ToTable("ConfigPrima", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadoPrimaMap().ToTable("EmpleadoPrima", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigToleranciaMap().ToTable("ConfigTolerancia", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigToleranciaTiempoMap().ToTable("ConfigToleranciaTiempo", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadoToleranciaMap().ToTable("EmpleadoTolerancia", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadoHorarioMap().ToTable("EmpleadoHorario", "GePe"));
+            modelBuilder.Configurations.Add(new GrupoEmpleadosMap().ToTable("GrupoEmpleados", "GePe"));
+            modelBuilder.Configurations.Add(new ConfigBonoMap().ToTable("ConfigBono", "GePe"));
+            modelBuilder.Configurations.Add(new EmpleadoBonoMap().ToTable("EmpleadoBono", "GePe"));
+            #endregion
             #endregion
 
             #region Firm Firmas
@@ -4166,7 +4550,6 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new FIRM_BitacoraNominaMap().ToTable("BitacoraNomina", "Firm"));
 
             #endregion
-
 
             #region Banco_sist
             modelBuilder.Configurations.Add(new TicketsMap().ToTable("Tickets", "Sist"));

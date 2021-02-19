@@ -12,8 +12,8 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using SAGA.API.Dtos;
-using SAGA.API.Dtos.Admin;
 using SAGA.API.Utilerias;
+using SAGA.DAL;
 
 namespace SAGA.API.Controllers
 {
@@ -22,7 +22,7 @@ namespace SAGA.API.Controllers
     public class FileManagerController : ApiController
     {
 
-
+        public SAGADBContext db = new SAGADBContext();
         [HttpGet]
         [Route("viewFile")]
         public HttpResponseMessage ViewFile(string ruta)
@@ -143,32 +143,7 @@ namespace SAGA.API.Controllers
 
         }
 
-        [HttpPost]
-        [Route("guardarArte")]
-        public IHttpActionResult GuardarArte(ArteDto Arte)
-        {
-            try
-            {
-                string x = Arte.arte.Replace("data:image/png;base64,", "");
-                byte[] imageBytes = Convert.FromBase64String(x);
-                MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
-                ms.Write(imageBytes, 0, imageBytes.Length);
-                System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
-
-                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/Arte/" + Arte.requisicionId.ToString() + ".png");
-
-                if (File.Exists(fullPath))
-                    File.Delete(fullPath);
-
-                image.Save(fullPath);
-
-                return Ok(HttpStatusCode.OK);
-            }
-            catch(Exception ex)
-            {
-                return Ok(HttpStatusCode.ExpectationFailed);
-            }
-        }
+       
 
         [HttpGet]
         [Route("downloadFiles")]
@@ -358,8 +333,42 @@ namespace SAGA.API.Controllers
 
         }
 
-      
+        [HttpPost]
+        [Route("UploadImage")]
+        public IHttpActionResult UploadImage()
+        {
+            string imageName = null;
 
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
+                var postedFile = httpRequest.Files["image"];
+                //var id = Guid.Parse(Path.GetFileNameWithoutExtension(postedFile.FileName).ToString());
+                //imageName = imageName + Path.GetExtension(postedFile.FileName);
+                imageName = Path.GetFileName(postedFile.FileName);
+
+                var path = "~/utilerias/img/" + postedFile.FileName + '/';
+
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
+                if (!Directory.Exists(fullPath))
+                {
+                    Directory.CreateDirectory(fullPath);
+                }
+
+                if (File.Exists(fullPath + "foto.jpg"))
+                    File.Delete(fullPath + "foto.jpg");
+
+                postedFile.SaveAs(fullPath + "foto.jpg");
+
+                return Ok(HttpStatusCode.Created); //201
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.InternalServerError);
+            }
+
+        }
         [HttpGet]
         [Route("getImage")]
         public IHttpActionResult GetImage2(string ruta)
@@ -369,19 +378,18 @@ namespace SAGA.API.Controllers
             try
             {
                 fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/" + ruta);
+                FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+                byte[] bimage = new byte[fs.Length];
+                fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
+                fs.Close();
+
+                return Ok(Convert.ToBase64String(bimage));
             }
             catch
             {
-                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/user/default.jpg");
+                return Ok(HttpStatusCode.BadRequest);
 
             }
-
-            FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
-            byte[] bimage = new byte[fs.Length];
-            fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
-            fs.Close();
-
-            return Ok(Convert.ToBase64String(bimage));
 
         }
 

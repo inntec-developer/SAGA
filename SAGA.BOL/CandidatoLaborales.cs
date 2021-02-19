@@ -23,17 +23,8 @@ namespace SAGA.BOL
         public Guid CandidatoInfoId { get; set; }
         public virtual CandidatosInfo CandidatoInfo { get; set; }
 
-        public int SucursalId { get; set; }
-        public virtual Sucursales Sucursal { get; set; }
-
-        public Guid DepartamentoId { get; set; }
-        public virtual Departamento Departamento { get; set; }
-
-        public int PuestoId { get; set; }
-        public virtual Puesto Puesto { get; set; }
-
-        public int SoporteFacturacionId { get; set; }
-        public virtual SoporteFacturacion SoporteFacturacion { get; set; }
+        public Guid PuestosIngresosId { get; set; }
+        public PuestosIngresos PuestosIngresos { get; set; }
 
         public int BancoId { get; set; }
         public virtual CatalogoBancos Banco { get; set; }

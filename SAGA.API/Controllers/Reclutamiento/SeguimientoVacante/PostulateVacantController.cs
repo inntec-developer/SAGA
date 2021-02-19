@@ -246,7 +246,7 @@ namespace SAGA.API.Controllers
                 proceso.RequisicionId = datos.requisicionId;
                 proceso.Folio = db.Requisiciones.Where(x => x.Id.Equals(datos.requisicionId)).Select(R => R.Folio).FirstOrDefault();
                 proceso.Reclutador = "SIN ASIGNAR";
-                proceso.ReclutadorId = datos.reclutadorId;
+                proceso.ReclutadorId = datos.reclutadorCampoId;
                 proceso.EstatusId = 12;
                 proceso.TpContrato = 0;
                 proceso.HorarioId = horario;
@@ -331,7 +331,7 @@ namespace SAGA.API.Controllers
                     obj.EstadoNacimientoId = r.estadoNacimientoId;
                     obj.MunicipioNacimientoId = 0;
                     obj.GeneroId = r.generoId;
-                    obj.ReclutadorId = r.ReclutadorId;
+                    obj.ReclutadorId = r.ReclutadorCampoId;
 
                     obj.fch_Modificacion = DateTime.Now;
                     obj.fch_Modificacion.ToUniversalTime();
@@ -340,7 +340,7 @@ namespace SAGA.API.Controllers
                     db.CandidatosInfo.Add(obj);
                     db.SaveChanges();
 
-                    var id = db.ProcesoCandidatos.Where(x => x.CandidatoId.Equals(r.candidatoId) && x.RequisicionId.Equals(r.requisicionId)).Select(x => x.Id).FirstOrDefault();
+                    var id = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(r.candidatoId) && x.RequisicionId.Equals(r.requisicionId)).Select(x => x.Id).FirstOrDefault();
                     if (id != auxID)
                     {
                         var c = db.ProcesoCandidatos.Find(id);
@@ -353,7 +353,7 @@ namespace SAGA.API.Controllers
                         c.EstatusId = r.estatusId;
                         c.HorarioId = r.horarioId;
                         c.Fch_Modificacion = DateTime.Now;
-                        c.ReclutadorId = r.ReclutadorId;
+                        c.ReclutadorId = r.ReclutadorCampoId;
 
                         db.SaveChanges();
                     }
@@ -377,7 +377,7 @@ namespace SAGA.API.Controllers
                             proceso.RequisicionId = r.requisicionId;
                             proceso.Folio = db.Requisiciones.Where(x => x.Id.Equals(r.requisicionId)).Select(R => R.Folio).FirstOrDefault();
                             proceso.Reclutador = "SIN ASIGNAR";
-                            proceso.ReclutadorId = r.ReclutadorId;
+                            proceso.ReclutadorId = r.ReclutadorCampoId;
                             proceso.EstatusId = r.estatusId;
                             proceso.TpContrato = 0;
                             proceso.HorarioId = horario;
@@ -391,14 +391,17 @@ namespace SAGA.API.Controllers
                     }
                 }
                 var idr = datos.Select(x => x.requisicionId).FirstOrDefault();
+                var reclutadorId = datos.Select(x => x.ReclutadorId).FirstOrDefault();
                 var IDR = db.Requisiciones.Find(idr);
                 if (IDR.EstatusId != 33 && IDR.EstatusId != 8 && IDR.Activo)
                 {
                     db.Entry(IDR).Property(u => u.EstatusId).IsModified = true;
                     db.Entry(IDR).Property(u => u.fch_Modificacion).IsModified = true;
-
+                    db.Entry(IDR).Property(u => u.UsuarioMod).IsModified = true;
+                    
                     IDR.EstatusId = 33;
                     IDR.fch_Modificacion = DateTime.Now;
+                    IDR.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(reclutadorId)).Select(user => user.Usuario).FirstOrDefault();
 
                     db.SaveChanges();
                 }
@@ -625,10 +628,11 @@ namespace SAGA.API.Controllers
                 var R = db.Requisiciones.Find(datos.requisicionId);
                 db.Entry(R).Property(u => u.EstatusId).IsModified = true;
                 db.Entry(R).Property(u => u.fch_Modificacion).IsModified = true;
+                db.Entry(R).Property(u => u.UsuarioMod).IsModified = true;
 
                 R.EstatusId = datos.estatusId;
                 R.fch_Modificacion = DateTime.Now;
-                //R.AprobadorId = datos.ReclutadorId;
+                R.UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(datos.ReclutadorId)).Select(user => user.Usuario).FirstOrDefault();
                 db.SaveChanges();
 
                 if(datos.estatusId >= 34 && datos.estatusId <= 37 || datos.estatusId == 47 || datos.estatusId == 48)
@@ -644,8 +648,10 @@ namespace SAGA.API.Controllers
                     datos.estatusId = 4;
                     db.Entry(R).Property(u => u.EstatusId).IsModified = true;
                     db.Entry(R).Property(u => u.fch_Modificacion).IsModified = true;
+
                     R.EstatusId = datos.estatusId;
                     R.fch_Modificacion = DateTime.Now;
+                    R.UsuarioMod =  db.Usuarios.Where(x => x.Id.Equals(datos.ReclutadorId)).Select(user => user.Usuario).FirstOrDefault();
                     db.SaveChanges();
                 }
 
@@ -1056,10 +1062,8 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult SendEmailCandidato(ProcesoDto datos)
         {
-            var path = "~/logo/logo.png";
-            string fullPath = "http://192.168.8.124:333/logo/logo.png";
-            path = "~/logo/boton.png";
-            string fullPath2 = "http://192.168.8.124:333/logo/boton.png";
+            string fullPath = "https://apierp.damsa.com.mx/utilerias/img/logo/logo.png";
+            string fullPath2 = "https://apierp.damsa.com.mx/utilerias/img/logo/boton.png";
             string body = "";
             string usuario = "";
             try
@@ -1247,7 +1251,7 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult SendEmailContratados(List<Guid> datos)
         {
-            string fullPath = "http://192.168.8.124:333/logo/logo.png";
+            string fullPath = "https://apierp.damsa.com.mx/utilerias/img/logo/logo.png";
 
             string body = "";
             string usuario = "";
@@ -1293,13 +1297,12 @@ namespace SAGA.API.Controllers
                         if (usuario.Contains("@"))
                         {
                             m.To.Add(usuario);
-                            m.Bcc.Add("idelatorre@damsa.com.mx");
-                            m.Bcc.Add("bmorales@damsa.com.mx");
+                            m.Bcc.Add("mventura@damsa.com.mx");
                             body = "<html><head></head><body style=\"text-align:center; font-size:14px; font-family:'calibri'\">";
                             body = body + string.Format("<img style=\"max-width:10% !important;\" align=\"right\" src=\"{0}\" alt=\"App Logo\"/>", fullPath);
                             body = body + string.Format("<p style=\"text-align:left; font-size:14px;\">Hola, {0}</p>", D.nombre);
                             body = body + "<br/><br/><h1>¡Felicidades!</h1>";
-                            body = body + string.Format("<p>Eres uno(a) de los/las contratados para la vacante <h1 style=\"color:#3366cc;\">{0}</h1></p>", D.vacante);
+                            body = body + string.Format("<p>Eres uno(a) de los/las elegidos para la vacante <h1 style=\"color:#3366cc;\">{0}</h1></p>", D.vacante);
                             body = body + string.Format("<p style=\"text-decoration: none;\">Este mensaje fu&eacute; dirigido a: <font style:\"text-decoration:none\"; color=\"#5d9cec\">{0}</font></p>", usuario);
                             body = body + "<p>Este correo es enviado de manera autom&aacute;tica con fines informativos, por favor no responda a esta direcci&oacute;n</p>";
                             body = body + "</body></html>";
@@ -1338,12 +1341,10 @@ namespace SAGA.API.Controllers
         [Authorize]
         public IHttpActionResult SendEmailsNoContratados(List<ProcesoDto> datos)
         {
-            var path = "~/utilerias/img/logo/logo.png";
-            string fullPath = "http://192.168.8.124:333/logo/logo.png"; // System.Web.Hosting.HostingEnvironment.MapPath(path);
-            path = "~/utilerias/img/logo/boton.png";
-            string fullPath2 = "http://192.168.8.124:333/logo/boton.png";
+            string fullPath = "https://apierp.damsa.com.mx/utilerias/img/logo/logo.png"; // System.Web.Hosting.HostingEnvironment.MapPath(path);
+            string fullPath2 = "https://apierp.damsa.com.mx/utilerias/img/logo/boton.png";
             string body = "";
-            string usuario = "bmorales@damsa.com.mx";
+            string usuario = "mventura@damsa.com.mx";
 
             string from = "noreply@damsa.com.mx";
             MailMessage m = new MailMessage();

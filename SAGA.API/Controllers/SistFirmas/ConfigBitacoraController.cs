@@ -28,7 +28,7 @@ namespace SAGA.API.Controllers.SistFirmas
             try
             {
                 FIRM_ConfigBitacora bit = new FIRM_ConfigBitacora();
-
+           
                 bit = datos.ConfigBitacora;
                 bit.fch_Creacion = DateTime.Now;
                 bit.fch_Modificacion = DateTime.Now;
@@ -88,8 +88,8 @@ namespace SAGA.API.Controllers.SistFirmas
                     id = c.Id,
                     clave = c.Clave,
                     sucursal = c.Nombre,
-                    empresa = c.Empresas.Nombre,
-                    claveemp = c.Empresas.Clave,
+                    empresa = c.Cliente.Nombrecomercial,
+                    claveemp = c.Cliente.RFC,
                     registro_pat = c.RegistroPatronal.RP_Clave,
                     registro_imss = c.RegistroPatronal.RP_IMSS
                 }).ToList();
@@ -144,6 +144,28 @@ namespace SAGA.API.Controllers.SistFirmas
 
             }
 
+        }
+        [HttpGet]
+        [Route("getUsuarios")]
+        [Authorize]
+        public IHttpActionResult GetUsuarios()
+        {
+            try
+            {
+                var users = db.Usuarios.Where(x => x.Activo && x.Departamento.Nombre.ToLower().Equals("nominas"))
+                    .Select(c => new
+                {
+                    c.Id,
+                    c.Clave,
+                    nombreCompleto = c.Nombre + " " + c.ApellidoPaterno + " " + c.ApellidoMaterno,
+                    email = db.Emails.Where(x => x.EntidadId.Equals(c.Id)).Select(e => e.email).FirstOrDefault()
+                }).ToList();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ namespace SAGA.API.Dtos.Reclutamiento.Ingresos
         public byte crud { get; set; }
         public string Catalogo { get; set; }
         public Guid Usuario { get; set; }
+        public Guid ClienteId { get; set; }
         public ConfigVacaciones VacacionesPpal { get; set; }
         public List<ConfigVacacionesDias> VacacionesDias { get; set; }
         public List<EmpleadoVacaciones> VacacionesRelacion { get; set; }
@@ -36,6 +37,7 @@ namespace SAGA.API.Dtos.Reclutamiento.Ingresos
         public List<EmpleadoTolerancia> ToleranciaRelacion { get; set; }
         public List<EmpleadoHorario> CandidatosHorario { get; set; }
         public List<AsignacionesIngresosDto> Asignacion { get; set; }
+        public ConfigBono ConfigBono { get; set; }
     }
 
     public class AsignacionesIngresosDto

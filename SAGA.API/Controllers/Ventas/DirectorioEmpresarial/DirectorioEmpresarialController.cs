@@ -31,6 +31,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial
                     .Select(x => new
                     {
                         x.Id,
+                        x.Clave,
                         x.Nombrecomercial,
                         x.GiroEmpresas.giroEmpresa,
                         x.ActividadEmpresas.actividadEmpresa,
@@ -59,6 +60,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial
                     .Select(x => new {
                         x.Id,
                         x.RazonSocial,
+                        x.Clave,
                         x.Nombrecomercial,
                         x.RFC,
                         x.GiroEmpresas.giroEmpresa,

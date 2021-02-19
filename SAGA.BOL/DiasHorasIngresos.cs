@@ -10,8 +10,7 @@ namespace SAGA.BOL
     {
         [Key]
         public Guid Id { get; set; }
-        public byte deDiaId { get; set; }
-        public byte aDiaId { get; set; }
+        public byte Dia { get; set; }
         public DateTime DeHora { get; set; }
         public DateTime AHora { get; set; }
         public bool Activo { get; set; }
@@ -21,8 +20,6 @@ namespace SAGA.BOL
         public byte LimiteComida2 { get; set; }
         public Guid HorariosIngresosId { get; set; }
 
-        public virtual HorariosIngresos HorariosIngresos { get; set; }
-        public virtual DiaSemana deDia { get; set; }
-        public virtual DiaSemana aDia { get; set; }
+        public HorariosIngresos HorariosIngresos { get; set; }
     }
 }

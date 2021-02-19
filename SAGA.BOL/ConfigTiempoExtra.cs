@@ -22,6 +22,8 @@ namespace SAGA.BOL
         public DateTime fch_Modificacion { get; set; }
         public Guid UsuarioAlta { get; set; }
         public Guid UsuarioMod { get; set; }
+        public Guid ClienteId { get; set; }
+        public Cliente Cliente { get; set; }
 
         //Artículo 66.- Podrá también prolongarse la jornada de trabajo por circunstancias extraordinarias, sin exceder nunca de tres horas diarias ni de tres veces en una semana.
 

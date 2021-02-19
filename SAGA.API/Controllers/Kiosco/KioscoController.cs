@@ -21,6 +21,9 @@ using Infobip.Api.Model.Sms.Mt.Send.Textual;
 using Infobip.Api.Model.Sms.Mt.Send;
 using System.Threading.Tasks;
 using System.Web;
+using SAGA.API.Controllers.BTDamsa;
+using RestSharp;
+using System.Threading;
 
 namespace SAGA.API.Controllers.Kiosko
 {
@@ -103,6 +106,7 @@ namespace SAGA.API.Controllers.Kiosko
         public IHttpActionResult RegistrarCandidatoBT(CandidatosGralDto datos)
         {
             LoginDto login = new LoginDto();
+
             try
             {
                 AspNetUsers usuario = new AspNetUsers();
@@ -114,7 +118,7 @@ namespace SAGA.API.Controllers.Kiosko
                 }
                 else
                 {
-                    username = datos.Telefono[0].ClaveLada.ToString() + datos.Telefono[0].telefono.ToString();
+                    username = datos.Telefono[0].telefono.ToString();
                 }
                 usuario.Id = Guid.NewGuid().ToString();
                 usuario.PhoneNumber = datos.Telefono == null ? "00000000" : datos.Telefono[0].telefono.ToString();
@@ -122,20 +126,53 @@ namespace SAGA.API.Controllers.Kiosko
                 usuario.Pasword = pass;
                 usuario.RegistroClave = DateTime.Now;
                 usuario.PhoneNumberConfirmed = false;
-                usuario.EmailConfirmed = true;
+                usuario.EmailConfirmed = false;
                 usuario.LockoutEnabled = false;
                 usuario.AccessFailedCount = 0;
                 usuario.Email = datos.Email == null ? "SIN REGISTRO" : datos.Email[0].email.ToString();
                 usuario.UserName = username;
-                usuario.Activo = 0;
+                usuario.Activo = 1;
 
                 db.AspNetUsers.Add(usuario);
                 db.SaveChanges();
 
                 var add = db.Database.ExecuteSqlCommand("spEncriptarPasword @id", new SqlParameter("id", usuario.Id));
 
-                var candidato = new Candidato();
+                if (datos.OpcionRegistro == 1)
+                {
+                    var code = this.ValidarCorreo(datos.Email[0].email.ToString());
+                   return Ok(new { code, usuario.Id });
+                }
+                else
+                {
+                    var code = this.EnviarSMS(datos.Telefono[0].telefono.ToString());
+                    return Ok(new { code, usuario.Id });
+                }
+            
 
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+                //if (string.IsNullOrEmpty(login.username))
+                //{
+                //    return Ok(HttpStatusCode.GatewayTimeout);
+                //}
+                //else
+                //{
+                //    return Ok(HttpStatusCode.ExpectationFailed);
+                //}
+            }
+        }
+
+        [HttpPost]
+        [Route("activarCandidatoBT")]
+        public IHttpActionResult ActivarCandidatoBT(CandidatosGralDto datos)
+        {
+            try
+            {
+                var candidato = new Candidato();
+                LoginDto login = new LoginDto();
                 candidato.CURP = datos.Curp;
                 candidato.Nombre = datos.Nombre;
                 candidato.ApellidoPaterno = datos.ApellidoPaterno;
@@ -162,16 +199,33 @@ namespace SAGA.API.Controllers.Kiosko
 
                 db.SaveChanges();
 
-                var t = db.AspNetUsers.Find(usuario.Id);
+                var t = db.AspNetUsers.Find(datos.Id.ToString());
                 db.Entry(t).Property(x => x.IdPersona).IsModified = true;
+                db.Entry(t).Property(x => x.PhoneNumberConfirmed).IsModified = true;
+                db.Entry(t).Property(x => x.EmailConfirmed).IsModified = true;
+                db.Entry(t).Property(x => x.Activo).IsModified = true;
+                db.Entry(t).Property(x => x.Clave).IsModified = true;
 
                 t.IdPersona = candidato.Id;
+                t.Clave = datos.Code;
+                t.Activo = 0;
+                if (datos.OpcionRegistro == 1)
+                {
+                    t.EmailConfirmed = true;
+                    t.PhoneNumberConfirmed = false;
+                }
+                else
+                {
+                    t.EmailConfirmed = false;
+                    t.PhoneNumberConfirmed = true;
+                }
                 db.SaveChanges();
-
+                var pd = db.Database.SqlQuery<String>("dbo.spDesencriptarPasword @id", new SqlParameter("id", datos.Id)).FirstOrDefault();
 
                 login.Id = candidato.Id;
-                login.username = username;
-                login.pass = pass;
+                login.username = t.UserName;
+                login.pass = pd;
+
                 var generales = db.Candidatos.Where(x => x.Id.Equals(candidato.Id)).Select(d => new
                 {
                     nombre = d.Nombre + " " + d.ApellidoPaterno + " " + d.ApellidoMaterno,
@@ -185,27 +239,21 @@ namespace SAGA.API.Controllers.Kiosko
 
                 if (datos.OpcionRegistro == 1)
                 {
-                    this.SendEmailRegistroBT(datos, pass);
+                    this.SendEmailRegistroBT(datos, pd);
                 }
                 else
                 {
-                    var tel = datos.Telefono[0].ClaveLada.ToString() + datos.Telefono[0].telefono.ToString();
-                    var mocos = this.EnviarSMS(tel, username, pass);
+                    var tel = datos.Telefono[0].telefono.ToString();
+                    var mocos = this.EnviarSMS(tel, t.UserName, pd);
                 }
 
                 return Ok(new { login, generales });
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                if (string.IsNullOrEmpty(login.username))
-                {
-                    return Ok(HttpStatusCode.GatewayTimeout);
-                }
-                else
-                {
-                    return Ok(HttpStatusCode.ExpectationFailed);
-                }
+                return Ok(HttpStatusCode.BadRequest);
             }
+
         }
 
         public void SendEmailRegistroBT(CandidatosGralDto dtos, string pass)
@@ -255,7 +303,7 @@ namespace SAGA.API.Controllers.Kiosko
         public async Task<IHttpActionResult> EnviarSMS(string telefono, string usuario, string pass)
         {
             Regex reg = new Regex("[^a-zA-Z0-9] ");
-            List<string> Destino = new List<string>(1) { ConfigurationManager.AppSettings["Lada"] + telefono };
+            List<string> Destino = new List<string>(1) { telefono };
             BasicAuthConfiguration BASIC_AUTH_CONFIGURATION = new BasicAuthConfiguration(ConfigurationManager.AppSettings["BaseUrl"], ConfigurationManager.AppSettings["UserInfobip"], ConfigurationManager.AppSettings["PassInfobip"]);
 
             SendSingleTextualSms smsClient = new SendSingleTextualSms(BASIC_AUTH_CONFIGURATION);
@@ -421,6 +469,86 @@ namespace SAGA.API.Controllers.Kiosko
 
         }
 
+        [HttpGet]
+        [Route("getDetalleVacante")]
+        public IHttpActionResult GetDetalleVacante(Guid id)
+        {
+            try
+            {
+                var vacantes = db.Requisiciones
+                 .OrderBy(r => r.fch_Cumplimiento)
+                 .Where(x => x.Id.Equals(id))
+                .Select(x => new
+                {
+                    Id = x.Id,
+                    Folio = x.Folio,
+                    VBtra = x.VBtra,
+                    AreaId = x.AreaId,
+                    Area = x.Area,
+                    ClaseReclutamientoId = x.ClaseReclutamientoId,
+                    ClaseReclutamiento = x.ClaseReclutamiento,
+                    ClienteId = x.ClienteId,
+                    Confidencial = x.Confidencial,
+                    DireccionId = x.DireccionId,
+                    Direccion = x.Direccion,
+                    Experiencia = x.Experiencia,
+                    fch_Aprobacion = x.fch_Aprobacion,
+                    fch_Creacion = x.fch_Creacion,
+                    fch_Cumplimiento = x.fch_Cumplimiento,
+                    fch_Limite = x.fch_Limite,
+                    fch_Modificacion = x.fch_Modificacion,
+                    SueldoMaximo = x.SueldoMaximo,
+                    SueldoMinimo = x.SueldoMinimo,
+                    horariosRequi = x.horariosRequi.Where(xx => xx.Activo).Select(h => new {
+                        h.Nombre,
+                        h.aDia,
+                        h.aDiaId,
+                        h.deDia,
+                        h.deDiaId,
+                        h.deHora, 
+                        h.aHora,
+                        h.numeroVacantes,
+                        h.Especificaciones
+                    }).ToList(),
+                    ConfiguracionRequi = db.ConfiguracionRequis.Where(y => y.RequisicionId.Equals(x.Id)).Select(c => new {
+                        c.Campo,
+                        c.Detalle,
+                        c.IdEstructura,
+                        c.Resumen,
+                        c.R_D,
+                        c.RequisicionId
+                    }).OrderBy(o => o.IdEstructura).ToList(),
+                    aptitudesRequi = x.aptitudesRequi.Select(a => a.Aptitud.aptitud).ToList(),
+                    escolaridadesRequi = x.escolaridadesRequi.Select(e => new
+                    {
+                        e.Escolaridad.gradoEstudio,
+                        e.EstadoEstudio.estadoEstudio
+                    }).ToList(),
+                    beneficiosRequi = db.BeneficiosRequis.Where(b => b.RequisicionId.Equals(x.Id)).Select(b => new
+                    {
+                        b.TipoBeneficio.tipoBeneficio,
+                        b.Observaciones,
+                        b.Cantidad
+                    }).ToList(),
+                    actividadesRequi = x.actividadesRequi.Select(a => a.Actividades).ToList(),
+                    documentosClienteRequi = x.documentosClienteRequi.Select(d => d.Documento).ToList(),
+                    prestacionesClienteRequi = x.prestacionesClienteRequi.Select(p => p.Prestamo).ToList(),
+                    TiempoContratoId = x.TiempoContratoId,
+                    TiempoContrato = x.TiempoContrato,
+                    EstatusId = x.EstatusId,
+                    DocumentosDamsa = db.DocumentosDamsa.ToList(),
+                    observacionesRequi = db.ObservacionesRequis.Where(r => r.RequisicionId.Equals(x.Id)).Select(g => g.Observaciones).ToList(),
+                    Publicado = x.Publicado
+                }).FirstOrDefault();
+
+
+                return Ok(vacantes);
+            }
+            catch (Exception ex) {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+        }
         public string ValidarArte(string requisicionId)
         {
             DirectoryInfo folderInfo = new DirectoryInfo(System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/Arte"));
@@ -449,5 +577,105 @@ namespace SAGA.API.Controllers.Kiosko
        
             return arte;
         }
+
+        public string ValidarCorreo(string correo)
+        {
+            try
+            {
+                // Generar código
+                Random rnd = new Random();
+                string code = rnd.Next(100000, 999999).ToString();
+
+                var xml = "";
+                var asunto = string.Format("Bolsa de Trabajo Damsa - Registro");
+                var copia = "mventura@damsa.com.mx";
+                //Cuerpo del Mensaje
+                var body = "&lt;!DOCTYPE html>";
+                body = body + "&lt;html lang=&quot;es&quot;>";
+                body = body + "&lt;meta http-equiv=&quot;Content - Type&quot; content=&quot;text / html; charset = utf - 8&quot;/>";
+                body = body + "&lt;link href=&quot;{ { URL::Content('css/bootstrap.min.css') } }&quot; rel=&quot;stylesheet&quot; type=&quot;text / css&quot; media=&quot;all&quot; />";
+                body = body + "&lt;body> &lt;div style=&quot;text-align: center; font-family:'calibri';&quot;>";
+                body = body + "&lt;p>Se ha recibido una petición para activar registro en bolsa de trabajo DAMSA.&lt;/p>";
+                body = body + "&lt;p>Ingresa el siguiente código para activar registro: &lt;strong>" + code + "&lt;/strong>&lt;/p>";
+                body = body + "&lt;br> Esta notificación es por seguridad y sirve para que nadie use tu cuenta de correo electrónico sin autorización. &lt;br>&lt;/ p > ";
+                body = body + "&lt;p>&lt;small>Por favor no respondas a este correo.&lt;br>";
+                body = body + "Gracias.&lt;br>El equipo &lt;strong> INNTEC.&lt;/strong>&lt;/small>&lt;/p>&lt;hr>";
+                body = body + "&lt;/div>&lt;/body>&lt;/html>";
+
+
+                xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
+                                   + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
+                                   + "</Parametros>", correo, copia, asunto, body);
+
+                SqlParameter[] Parameters = { new SqlParameter("@ParametrosXML", xml) };
+                db.Database.ExecuteSqlCommand("sp_emailFirmas @ParametrosXML", Parameters);
+                return code;
+            }
+            catch (Exception ex)
+            {
+                return "400";
+            }
+        }
+ 
+        public string EnviarSMS(string telefono)
+        {
+            try
+            {
+               
+
+                Random rnd = new Random();
+                string code = rnd.Next(100000, 999999).ToString();
+                Regex reg = new Regex("[^a-zA-Z0-9] ");
+
+                var client = new RestClient("https://api.infobip.com/sms/1/text/single");
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("accept", "application/json");
+                request.AddHeader("content-type", "application/json");
+                request.AddHeader("authorization", "Basic " + ConfigurationManager.AppSettings["InfobipToken"]);
+                request.AddParameter("application/json", "{\n  \"from\": \"Damsa\",\n  \"to\": \"" +
+               telefono + "\",\n  \"text\": \"" + ConfigurationManager.AppSettings["NameAppMsj"] + "te envia tu código de verificacion: " + code + "\"\n}", ParameterType.RequestBody);
+                IRestResponse response = client.Execute(request);
+
+
+
+
+                //List<string> Destino = new List<string>(1) { telefono };
+                //BasicAuthConfiguration BASIC_AUTH_CONFIGURATION = new BasicAuthConfiguration(ConfigurationManager.AppSettings["BaseUrl"], ConfigurationManager.AppSettings["UserInfobip"], ConfigurationManager.AppSettings["PassInfobip"]);
+
+                //SendSingleTextualSms smsClient = new SendSingleTextualSms(BASIC_AUTH_CONFIGURATION);
+
+                //string texto = "Bolsa Trabajo DAMSA codigo para validacion de registro " + code;
+                //texto = texto.Normalize(NormalizationForm.FormD);
+                //texto = reg.Replace(texto, " ");
+
+                //SMSTextualRequest request = new SMSTextualRequest
+                //{
+                //    From = "DAMSA",
+                //    To = Destino,
+                //    Text = ConfigurationManager.AppSettings["NameAppMsj"] + texto
+
+                //};
+                //try
+                //{
+
+
+                //    SMSResponse smsResponse = await smsClient.ExecuteAsync(request); // Manda el mensaje con código.
+                //    SMSResponseDetails sentMessageInfo = smsResponse.Messages[0];
+                //}
+                //catch (TaskCanceledException)
+                //{
+                //    Console.WriteLine("\nTasks cancelled: timed out.\n");
+                //}
+
+
+                return code;
+            }
+            catch (Exception ex)
+            {
+                return "400";
+            }
+
+        }
+   
     }
 }

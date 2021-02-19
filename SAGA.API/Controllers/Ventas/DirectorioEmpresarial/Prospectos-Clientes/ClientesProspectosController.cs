@@ -32,7 +32,8 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
             {
                 try
                 {
-                    var cliente = Mapper.Map<ProspectoDto, Cliente>(prospecto);
+                    Cliente cliente = new Cliente();
+                    cliente.Clave = prospecto.Clave;
                     cliente.Nombrecomercial = prospecto.Nombrecomercial.ToUpper();
                     cliente.GiroEmpresaId = prospecto.GiroEmpresaId;
                     cliente.ActividadEmpresaId = prospecto.ActividadEmpresaId;
@@ -48,21 +49,28 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                     cliente.direcciones = prospecto.Direcciones;
                     cliente.telefonos = prospecto.Telefonos;
                     cliente.emails = prospecto.Emails;
+                   
+                    foreach(var c in prospecto.Contactos)
+                    {
+                        c.fch_Modificacion = DateTime.Now;
+                        c.UsuarioMod = c.UsuarioMod; 
+                    }
+
                     cliente.Contactos = prospecto.Contactos;
-                    cliente.Nombre = string.Empty;
-                    cliente.ApellidoMaterno = string.Empty;
-                    cliente.ApellidoPaterno = string.Empty;
+                    cliente.Nombre = "NO APLICA";
+                    cliente.ApellidoMaterno = "NO APLICA";
+                    cliente.ApellidoPaterno = "NO APLICA";
                     cliente.fch_Modificacion = DateTime.Now;
                     cliente.UsuarioAlta = prospecto.Usuario;
                     cliente.UsuarioMod = prospecto.Usuario;
                     db.Clientes.Add(cliente);
                     db.SaveChanges();
-                    Guid IdCliente = db.Clientes.OrderByDescending(x => x.fch_Creacion).Take(1).Select(x => x.Id).FirstOrDefault();
+                 //   Guid IdCliente = db.Clientes.OrderByDescending(x => x.fch_Creacion).Take(1).Select(x => x.Id).FirstOrDefault();
                     
-                    List<Direccion> direcciones = db.Direcciones.Where(x => x.EntidadId.Equals(IdCliente)).ToList();
-                    List<Telefono> telefonos = db.Telefonos.Where(x => x.EntidadId.Equals(IdCliente)).ToList();
-                    List<Email> emails = db.Emails.Where(x => x.EntidadId.Equals(IdCliente)).ToList();
-                    List<Contacto> contactos = db.Contactos.Where(x => x.ClienteId.Equals(IdCliente)).ToList();
+                    List<Direccion> direcciones = db.Direcciones.Where(x => x.EntidadId.Equals(cliente.Id)).ToList();
+                    List<Telefono> telefonos = db.Telefonos.Where(x => x.EntidadId.Equals(cliente.Id)).ToList();
+                    List<Email> emails = db.Emails.Where(x => x.EntidadId.Equals(cliente.Id)).ToList();
+                    List<Contacto> contactos = db.Contactos.Where(x => x.ClienteId.Equals(cliente.Id)).ToList();
 
                     foreach (Direccion d in direcciones)
                     {
@@ -176,6 +184,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
             {
                 var cliente = db.Clientes.Find(info.Id);
                 db.Entry(cliente).State = EntityState.Modified;
+                cliente.Clave = info.Clave;
                 cliente.RazonSocial = info.RazonSocial.ToUpper();
                 cliente.RFC = info.RFC.ToUpper();
                 cliente.Nombrecomercial = info.NombreComercial.ToUpper();
@@ -530,6 +539,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
             try
             {
                 var contacto = Mapper.Map<ContactoClienteDto, Contacto>(info);
+
                 contacto.Nombre = info.Nombre;
                 contacto.ApellidoPaterno = info.ApellidoPaterno;
                 contacto.ApellidoMaterno = info.ApellidoMaterno;
@@ -542,6 +552,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                 contacto.UsuarioAlta = info.Usuario;
                 contacto.UsuarioMod = info.Usuario;
                 contacto.fch_Modificacion = DateTime.Now;
+
                 db.Contactos.Add(contacto);
                 db.SaveChanges();
 
@@ -783,6 +794,7 @@ namespace SAGA.API.Controllers.Ventas.DirectorioEmpresarial.Prospectos_Clientes
                     .Select(x => new
                     {
                         Id = x.Id,
+                        x.Clave,
                         RazonSocial = x.RazonSocial != null ? x.RazonSocial : "",
                         RFC = x.RFC != null ? x.RFC : "",
                         NombreComercial = x.Nombrecomercial,

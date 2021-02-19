@@ -8,30 +8,627 @@ using System.Net.Http;
 using System.Web.Http;
 using SAGA.API.Dtos;
 using SAGA.BOL;
+using System.Data.Entity;
+using SAGA.API.Dtos.Reclutamiento.Ingresos;
 
 namespace SAGA.API.Controllers.SistGestionPersonal
 {
     [RoutePrefix("api/gestionpersonal")]
     public class SistGestionPersonalController : ApiController
     {
+        Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
         private SAGADBContext db;
         APISAGALog apilog = new APISAGALog();
         public SistGestionPersonalController()
         {
             db = new SAGADBContext();
         }
-        [HttpGet]
-        [Route("getDatosContratados")]
+        public HttpResponseMessage CRUDAsigVacaciones(CRUDAsignacionesDtos datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    PeriodoVacaciones a = new PeriodoVacaciones();
+                    a = datos.PeriodoVacaciones;
+                    a.fchAlta = DateTime.Now;
+                   
+                    db.PeriodoVacaciones.Add(a);
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.PeriodoVacaciones.Find(datos.PeriodoVacaciones.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.CandidatosInfoId = datos.PeriodoVacaciones.CandidatosInfoId;
+                    a.dias = datos.PeriodoVacaciones.dias;
+                    a.fchIncio = datos.PeriodoVacaciones.fchIncio;
+                    a.fchFin = datos.PeriodoVacaciones.fchFin;
+                    a.Comentario = datos.PeriodoVacaciones.Comentario;
+                    a.fchAlta = DateTime.Now;
+                    a.UsuarioAltaId = datos.PeriodoVacaciones.UsuarioAltaId;
+              
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.PeriodoVacaciones.Find(datos.PeriodoVacaciones.Id);
+                    db.Entry(a).State = EntityState.Deleted;
+                 
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PeriodoVacaciones - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDAsigDiasEconomicos(CRUDAsignacionesDtos datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    PeriodoDE a = new PeriodoDE();
+                    a = datos.PeriodoDE;
+                    a.fchAlta = DateTime.Now;
+
+                    db.PeriodoDE.Add(a);
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.PeriodoDE.Find(datos.PeriodoDE.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.CandidatosInfoId = datos.PeriodoDE.CandidatosInfoId;
+                    a.dias = datos.PeriodoDE.dias;
+                    a.fchIncio = datos.PeriodoDE.fchIncio;
+                    a.fchFin = datos.PeriodoDE.fchFin;
+                    a.Comentario = datos.PeriodoDE.Comentario;
+                    a.fchAlta = DateTime.Now;
+                    a.UsuarioAltaId = datos.PeriodoDE.UsuarioAltaId;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.PeriodoDE.Find(datos.PeriodoDE.Id);
+                    db.Entry(a).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PeridoDE - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDAsigIncapacidades(CRUDAsignacionesDtos datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    PeriodoIncapacidad a = new PeriodoIncapacidad();
+                    a = datos.PeriodoIncapacidad;
+                    a.fchAlta = DateTime.Now;
+
+                    db.PeriodoIncapacidad.Add(a);
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.PeriodoIncapacidad.Find(datos.PeriodoIncapacidad.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.CandidatosInfoId = datos.PeriodoIncapacidad.CandidatosInfoId;
+                    a.dias = datos.PeriodoIncapacidad.dias;
+                    a.fchIncio = datos.PeriodoIncapacidad.fchIncio;
+                    a.fchFin = datos.PeriodoIncapacidad.fchFin;
+                    a.Archivo = datos.PeriodoIncapacidad.Archivo;
+                    a.SerieFolio = datos.PeriodoIncapacidad.SerieFolio;
+                    a.TiposIncapacidadId = datos.PeriodoIncapacidad.TiposIncapacidadId;
+                    a.Comentario = datos.PeriodoIncapacidad.Comentario;
+                    a.fchAlta = DateTime.Now;
+                    a.UsuarioAltaId = datos.PeriodoIncapacidad.UsuarioAltaId;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.PeriodoIncapacidad.Find(datos.PeriodoIncapacidad.Id);
+                    db.Entry(a).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PeriodoIncapacidad - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDAsigPermisos(CRUDAsignacionesDtos datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    PeriodoPermisos a = new PeriodoPermisos();
+                    a = datos.PeriodoPermisos;
+                    a.fchAlta = DateTime.Now;
+
+                    db.PeriodoPermisos.Add(a);
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.PeriodoPermisos.Find(datos.PeriodoPermisos.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.CandidatosInfoId = datos.PeriodoPermisos.CandidatosInfoId;
+                    a.dias = datos.PeriodoPermisos.dias;
+                    a.fchIncio = datos.PeriodoPermisos.fchIncio;
+                    a.fchFin = datos.PeriodoPermisos.fchFin;
+                    a.TipoJustificacionId = datos.PeriodoPermisos.TipoJustificacionId;
+                    a.Sueldo = datos.PeriodoPermisos.Sueldo;
+                    a.Tipo = datos.PeriodoPermisos.Tipo;
+                    a.Comentario = datos.PeriodoIncapacidad.Comentario;
+                    a.fchAlta = DateTime.Now;
+                    a.UsuarioAltaId = datos.PeriodoIncapacidad.UsuarioAltaId;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.PeriodoPermisos.Find(datos.PeriodoIncapacidad.Id);
+                    db.Entry(a).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PeriodoPermisos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDAsigGuardia(CRUDAsignacionesDtos datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    PeriodoGuardia a = new PeriodoGuardia();
+                    a = datos.PeriodoGuardia;
+                    a.fchAlta = DateTime.Now;
+
+                    db.PeriodoGuardia.Add(a);
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.PeriodoGuardia.Find(datos.PeriodoGuardia.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.CandidatosInfoId = datos.PeriodoGuardia.CandidatosInfoId;
+                    a.Fecha = datos.PeriodoGuardia.Fecha;
+                    a.CubridorId = datos.PeriodoGuardia.CubridorId;
+                    a.Comentario = datos.PeriodoIncapacidad.Comentario;
+                    a.fchAlta = DateTime.Now;
+                    a.UsuarioAltaId = datos.PeriodoIncapacidad.UsuarioAltaId;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.PeriodoGuardia.Find(datos.PeriodoIncapacidad.Id);
+                    db.Entry(a).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PeriodoGuardia - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDAsigSuspension(CRUDAsignacionesDtos datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    if (datos.PeriodoSuspension != null)
+                    {
+                        PeriodoSuspension a = new PeriodoSuspension();
+                        a = datos.PeriodoSuspension;
+                        a.fchAlta = DateTime.Now;
+
+                        db.PeriodoSuspension.Add(a);
+                        db.SaveChanges();
+
+                    }
+                    else if (datos.PeriodoSuspensionList.Count() > 0)
+                    {
+                        foreach (var o in datos.PeriodoSuspensionList)
+                        {
+                            o.fchAlta = DateTime.Now;
+                        }
+
+                        db.PeriodoSuspension.AddRange(datos.PeriodoSuspensionList);
+                        db.SaveChanges();
+                    }
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.PeriodoSuspension.Find(datos.PeriodoSuspension.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.CandidatosInfoId = datos.PeriodoSuspension.CandidatosInfoId;
+                    a.fchIncio = datos.PeriodoSuspension.fchIncio;
+                    a.fchFin = datos.PeriodoSuspension.fchFin;
+                    a.dias = datos.PeriodoSuspension.dias;
+                    a.Comentario = datos.PeriodoSuspension.Comentario;
+                    a.fchAlta = DateTime.Now;
+                    a.UsuarioAltaId = datos.PeriodoSuspension.UsuarioAltaId;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.PeriodoSuspension.Find(datos.PeriodoSuspension.Id);
+                    db.Entry(a).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PeriodoSuspension - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDAsigActa(CRUDAsignacionesDtos datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    if (datos.PeriodoActaList.Count() > 0)
+                    {
+                        foreach (var o in datos.PeriodoActaList)
+                        {
+                            o.fchAlta = DateTime.Now;
+                        }
+
+                        db.PeriodoActa.AddRange(datos.PeriodoActaList);
+                        db.SaveChanges();
+                    }
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.PeriodoActa.Find(datos.PeriodoActa.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.CandidatosInfoId = datos.PeriodoActa.CandidatosInfoId;
+                    a.fchIncio = datos.PeriodoActa.fchIncio;
+                    a.fchFin = datos.PeriodoActa.fchFin;
+                    a.dias = datos.PeriodoActa.dias;
+                    a.Faltas = datos.PeriodoActa.Faltas;
+                    a.Comentario = datos.PeriodoActa.Comentario;
+                    a.fchAlta = DateTime.Now;
+                    a.UsuarioAltaId = datos.PeriodoActa.UsuarioAltaId;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.PeriodoActa.Find(datos.PeriodoActa.Id);
+                    db.Entry(a).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PeriodoSuspension - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDAsigBono(CRUDAsignacionesDtos datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    if (datos.PeriodoBonosList.Count() > 0)
+                    {
+                        foreach (var o in datos.PeriodoBonosList)
+                        {
+                            o.fchAlta = DateTime.Now;
+                        }
+
+                        db.PeriodoBonos.AddRange(datos.PeriodoBonosList);
+                        db.SaveChanges();
+                    }
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.PeriodoBonos.Find(datos.PeriodosBonos.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.CandidatosInfoId = datos.PeriodosBonos.CandidatosInfoId;
+                    a.fchIncio = datos.PeriodosBonos.fchIncio;
+                    a.fchFin = datos.PeriodosBonos.fchFin;
+                    a.ConfigBonoId = datos.PeriodosBonos.ConfigBonoId;
+                    a.Porcentaje = datos.PeriodosBonos.Porcentaje;
+                    a.Comentario = datos.PeriodosBonos.Comentario;
+                    a.fchAlta = DateTime.Now;
+                    a.UsuarioAltaId = datos.PeriodosBonos.UsuarioAltaId;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.PeriodoBonos.Find(datos.PeriodosBonos.Id);
+                    db.Entry(a).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PeriodoBonos - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDAsigComp(CRUDAsignacionesDtos datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    if (datos.PeriodoCompensacionesList.Count() > 0)
+                    {
+                        foreach (var o in datos.PeriodoCompensacionesList)
+                        {
+                            o.fchAlta = DateTime.Now;
+                        }
+
+                        db.PeriodoCompensaciones.AddRange(datos.PeriodoCompensacionesList);
+                        db.SaveChanges();
+                    }
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.PeriodoCompensaciones.Find(datos.PeriodoCompensaciones.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.CandidatosInfoId = datos.PeriodoCompensaciones.CandidatosInfoId;
+                    a.Fecha = datos.PeriodoCompensaciones.Fecha;
+                    a.Tipo = datos.PeriodoCompensaciones.Tipo;
+                    a.Comentario = datos.PeriodoCompensaciones.Comentario;
+                    a.fchAlta = DateTime.Now;
+                    a.UsuarioAltaId = datos.PeriodoCompensaciones.UsuarioAltaId;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.PeriodoCompensaciones.Find(datos.PeriodoCompensaciones.Id);
+                    db.Entry(a).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PeriodoCompensaciones - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDAsigHorasExtra(CRUDAsignacionesDtos datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    if (datos.PeriodoTiempoExtraList.Count() > 0)
+                    {
+                        foreach (var o in datos.PeriodoTiempoExtraList)
+                        {
+                            o.fchAlta = DateTime.Now;
+                        }
+
+                        db.PeriodoHorasExtras.AddRange(datos.PeriodoTiempoExtraList);
+                        db.SaveChanges();
+                    }
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.PeriodoHorasExtras.Find(datos.PeriodoTiempoExtra.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.CandidatosInfoId = datos.PeriodoTiempoExtra.CandidatosInfoId;
+                    a.fchIncio = datos.PeriodoTiempoExtra.fchIncio;
+                    a.fchFin = datos.PeriodoTiempoExtra.fchFin;
+                    a.Tiempo = datos.PeriodoTiempoExtra.Tiempo;
+                    a.Comentario = datos.PeriodoTiempoExtra.Comentario;
+                    a.fchAlta = DateTime.Now;
+                    a.UsuarioAltaId = datos.PeriodoTiempoExtra.UsuarioAltaId;
+
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.PeriodoHorasExtras.Find(datos.PeriodoTiempoExtra.Id);
+                    db.Entry(a).State = EntityState.Deleted;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.PeriodoHorasExtras - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        #region CRUD
+        [HttpPost]
+        [Route("crudAsignacionesPersonal")]
         [Authorize]
-        public IHttpActionResult GetDatosContratados()
+        public IHttpActionResult CRUDConfiguracionIngresos(CRUDAsignacionesDtos datos)
         {
             try
             {
-                var datos = db.CandidatosInfo
+                if (datos.Catalogo.ToLower().Equals("vacaciones"))
+                {
+                    var result = this.CRUDAsigVacaciones(datos).StatusCode;
+
+                    return Ok(result);
+                }
+                else if(datos.Catalogo.ToLower().Equals("dias"))
+                {
+                    var result = this.CRUDAsigDiasEconomicos(datos).StatusCode;
+                    return Ok(result);
+                }
+                else if (datos.Catalogo.ToLower().Equals("incapacidad"))
+                {
+                    var result = this.CRUDAsigIncapacidades(datos).StatusCode;
+                    return Ok(result);
+                }
+                else if (datos.Catalogo.ToLower().Equals("permisos"))
+                {
+                    var result = this.CRUDAsigPermisos(datos).StatusCode;
+                    return Ok(result);
+                }
+                else if (datos.Catalogo.ToLower().Equals("guardia"))
+                {
+                    var result = this.CRUDAsigGuardia(datos).StatusCode;
+                    return Ok(result);
+                }
+                else if (datos.Catalogo.ToLower().Equals("suspension"))
+                {
+                    var result = this.CRUDAsigSuspension(datos).StatusCode;
+                    return Ok(result);
+                }
+                else if (datos.Catalogo.ToLower().Equals("tiempo_extra"))
+                {
+                    var result = this.CRUDAsigHorasExtra(datos).StatusCode;
+                    return Ok(result);
+                }
+                else if (datos.Catalogo.ToLower().Equals("compensaciones"))
+                {
+                    var result = this.CRUDAsigComp(datos).StatusCode;
+                    return Ok(result);
+                }
+                else if (datos.Catalogo.ToLower().Equals("bonos"))
+                {
+                    var result = this.CRUDAsigBono(datos).StatusCode;
+                    return Ok(result);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.Continue);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+        #endregion
+        [HttpGet]
+        [Route("getDatosContratados")]
+        [Authorize]
+        public IHttpActionResult GetDatosContratados(Guid clienteId)
+        {
+            try
+            {
+                var candidatos = db.ProcesoCandidatos.Where(x => x.Estatus.Descripcion.ToLower().Equals("contratado")
+                && x.Requisicion.ClienteId.Equals(clienteId)).Select(C => C.CandidatoId).ToList();
+                var datos = db.CandidatosInfo.Where(x => candidatos.Contains(x.CandidatoId))
                 .Select(p => new
                 {
                     id = p.Id,
-                    vacante = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => new
+                    vacante = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion)
+                    .Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => new
                     {
                         v.RequisicionId,
                         v.Requisicion.SueldoMinimo,
@@ -55,7 +652,7 @@ namespace SAGA.API.Controllers.SistGestionPersonal
                     lada = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.ClaveLada).FirstOrDefault(),
                     telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
                     email = String.IsNullOrEmpty(db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()) ? "SIN REGISTRO" : db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault(),
-                    puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.Puesto).FirstOrDefault(),
+                    puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.PuestosIngresos.Nombre).FirstOrDefault(),
                     foto = db.DocumentosCandidato.Where(x => x.candidatoId.Equals(p.Id) && x.Documento.Descripcion.ToLower().Equals("foto")).Select(r => r.Ruta).FirstOrDefault(),
                     direccion = db.CandidatoGenerales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(d => new
                     {
@@ -158,7 +755,7 @@ namespace SAGA.API.Controllers.SistGestionPersonal
                     lada = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.ClaveLada).FirstOrDefault(),
                     telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
                     email = String.IsNullOrEmpty(db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()) ? "SIN REGISTRO" : db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault(),
-                    puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.Puesto).FirstOrDefault(),
+                    puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.PuestosIngresos.Nombre).FirstOrDefault(),
                     foto = db.DocumentosCandidato.Where(x => x.candidatoId.Equals(p.Id) && x.Documento.Descripcion.ToLower().Equals("foto")).Select(r => r.Ruta).FirstOrDefault(),
                     direccion = db.CandidatoGenerales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(d => new
                     {
@@ -211,7 +808,7 @@ namespace SAGA.API.Controllers.SistGestionPersonal
                     lada = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.ClaveLada).FirstOrDefault(),
                     telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
                     email = String.IsNullOrEmpty(db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()) ? "SIN REGISTRO" : db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault(),
-                    puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.Puesto).FirstOrDefault(),
+                    puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(p.Id)).Select(v => v.PuestosIngresos.Nombre).FirstOrDefault(),
                     foto = db.DocumentosCandidato.Where(x => x.candidatoId.Equals(p.Id) && x.Documento.Descripcion.ToLower().Equals("foto")).Select(r => r.Ruta).FirstOrDefault()
                     //direccion = db.PerfilCandidato
                     //.Where(c => c.CandidatoId.Equals(p.CandidatoId))
@@ -231,82 +828,6 @@ namespace SAGA.API.Controllers.SistGestionPersonal
             }
             catch (Exception ex)
             {
-                return Ok(HttpStatusCode.ExpectationFailed);
-            }
-        }
-
-
-        [HttpPost]
-        [Route("agregarDatos")]
-        [Authorize]
-        public IHttpActionResult AgregarDatos(CapturaDto dtos)
-        {
-            try
-            {
-
-                CandidatosInfo ci = new CandidatosInfo();
-                var idx = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(dtos.dtosPersonales.CandidatoId)).Select(c => c.Id).FirstOrDefault();
-                if (idx != null)
-                {
-                    var up = db.CandidatosInfo.Find(idx);
-                    //db.Entry(up).Property(x => x.RFC).IsModified = true;
-                    //db.Entry(up).Property(x => x.NSS).IsModified = true;
-                    db.Entry(up).Property(x => x.fch_Modificacion).IsModified = true;
-
-                    //ci.RFC = dtos.dtosPersonales.RFC;
-                    //ci.NSS = dtos.dtosPersonales.NSS;
-                    ci.fch_Modificacion = DateTime.Now;
-
-                    dtos.dtosGenerales.CandidatoInfoId = idx;
-                    dtos.dtosGenerales.PaisId = 42;
-                    dtos.dtosLaborales.CandidatoInfoId = idx;
-                    dtos.dtosExtras.CandidatoInfoId = idx;
-
-                    db.CandidatoGenerales.Add(dtos.dtosGenerales);
-                    db.CandidatoLaborales.Add(dtos.dtosLaborales);
-                    db.CandidatoExtras.Add(dtos.dtosExtras);
-
-                    EmpleadoHorario obj = new EmpleadoHorario();
-                    var aux = db.EmpleadoHorario.Where(x => x.empleadoId.Equals(idx)).Select(id => id.Id).FirstOrDefault();
-                    if (aux != null)
-                    {
-                        var ue = db.EmpleadoHorario.Find(aux);
-                        db.Entry(ue).Property(x => x.HorariosIngresosId).IsModified = true;
-                        db.Entry(ue).Property(x => x.fch_Modificacion).IsModified = true;
-                        db.Entry(ue).Property(x => x.UsuarioMod).IsModified = true;
-
-                        obj.UsuarioMod = dtos.UsuarioId;
-                        obj.HorariosIngresosId = dtos.HorarioId;
-                        obj.fch_Modificacion = DateTime.Now;
-                    }
-                    else
-                    {
-                        obj.empleadoId = idx;
-                        obj.Activo = true;
-                        obj.UsuarioAlta = dtos.UsuarioId;
-                        obj.UsuarioMod = dtos.UsuarioId;
-                        obj.HorariosIngresosId = dtos.HorarioId;
-                        obj.fch_Creacion = DateTime.Now;
-                        obj.fch_Modificacion = DateTime.Now;
-
-                        db.EmpleadoHorario.Add(obj);
-
-                    }
-
-                    db.SaveChanges();
-                    return Ok(HttpStatusCode.OK);
-
-                }
-                else
-                {
-                    apilog.WriteError("No se encunetra candidato en candidatosInfo");
-                    return Ok(HttpStatusCode.BadRequest);
-                }
-            }
-            catch (Exception ex)
-            {
-                apilog.WriteError(ex.Message);
-                apilog.WriteError(ex.InnerException.Message);
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
@@ -344,7 +865,6 @@ namespace SAGA.API.Controllers.SistGestionPersonal
             }
 
         }
-
         [HttpPost]
         [Route("actualizarDocumentos")]
         [Authorize]
@@ -392,5 +912,7 @@ namespace SAGA.API.Controllers.SistGestionPersonal
                 return Ok(HttpStatusCode.ExpectationFailed);
             }
         }
+
+
     }
 }

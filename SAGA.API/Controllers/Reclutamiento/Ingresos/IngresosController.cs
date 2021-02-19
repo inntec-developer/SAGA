@@ -9,6 +9,8 @@ using SAGA.BOL;
 using SAGA.API.Dtos;
 using SAGA.API.Utilerias;
 using System.Data.Entity;
+using System.IO;
+using SAGA.API.Dtos.Reclutamiento.Ingresos;
 
 namespace SAGA.API.Controllers.Reclutamiento.Ingresos
 {
@@ -75,6 +77,88 @@ namespace SAGA.API.Controllers.Reclutamiento.Ingresos
         }
 
         [HttpGet]
+        [Route("getCubiertosByCliente")]
+        [Authorize]
+        public IHttpActionResult GetCubiertosByCliente(Guid clienteId)
+        {
+            try
+            {
+                var requis = db.Requisiciones.Where(x => x.ClienteId.Equals(clienteId)).Select(r => r.Id).ToList();
+                var tot = db.InformeRequisiciones.Where(x => requis.Distinct().Contains(x.RequisicionId) && x.Estatus.Descripcion.ToLower().Equals("contratado")).Count();
+
+                var id = db.ProcesoCandidatos.Where(x => x.Estatus.Descripcion.ToLower().Equals("cubierto")
+                && x.Requisicion.ClienteId.Equals(clienteId)).
+                    Select(c => c.CandidatoId).Distinct().ToList();
+                List<ContratadosDto> datos = db.CandidatosInfo.Where(x => id.Contains(x.CandidatoId))
+                .Select(p => new ContratadosDto
+                {
+                    id = p.Id,
+                    total = tot,
+                    candidatoId = p.CandidatoId,
+                    nombreCompleto = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
+                    nombre = p.Nombre,
+                    apellidoPaterno = p.ApellidoPaterno,
+                    apellidoMaterno = p.ApellidoMaterno,
+                    Foto = "img/Candidatos/" + p.CandidatoId.ToString() + "/foto.jpg",
+                    requisicionId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(c => c.RequisicionId).FirstOrDefault(),
+                    fch_Creacion = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(c => c.Fch_Modificacion).FirstOrDefault(),
+                    fch_Ingreso = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(c => c.Fch_Modificacion).FirstOrDefault(),
+                    reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault(),
+                    edad = p.FechaNacimiento,
+                    rfc = String.IsNullOrEmpty(p.RFC) ? "" : p.RFC,
+                    curp = String.IsNullOrEmpty(p.CURP) ? "" : p.CURP,
+                    nss = String.IsNullOrEmpty(p.NSS) ? "" : p.NSS,
+                    genero = p.Genero.genero,
+                    generoId = p.Genero.Id,
+                    lada = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.ClaveLada).FirstOrDefault(),
+                    telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
+                    email = String.IsNullOrEmpty(db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()) ? "SIN REGISTRO" : db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault(),
+                    folio = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.Folio).FirstOrDefault().ToString(),
+                    vbtra = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.VBtra).FirstOrDefault(),
+                    clienteId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.ClienteId).FirstOrDefault(),
+                    nombrecomercial = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.Cliente.Nombrecomercial).FirstOrDefault(),
+                    razonSocial = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.Cliente.RazonSocial).FirstOrDefault(),
+                    direccion = db.Candidatos.Where(x => x.Id.Equals(p.CandidatoId)).Select(d => d.direcciones).FirstOrDefault().Select(c => c.Calle + " " + c.NumeroExterior + " " + c.Colonia.colonia + " " + c.Colonia.CP + " " + c.Municipio.municipio + " " + c.Estado.estado).FirstOrDefault(),
+                    estado = p.estadoNacimiento.estado,
+                    curpval = db.ValidacionCURPRFC.Where(x => x.CandidatosInfoId.Equals(p.Id)).Select(c => c.CURP).FirstOrDefault(),
+                    rfcval = db.ValidacionCURPRFC.Where(x => x.CandidatosInfoId.Equals(p.Id)).Select(c => c.RFC).FirstOrDefault(),
+                }).OrderBy(o => o.nombreCompleto).ThenBy(f => f.fch_Creacion).ToList();
+
+             
+                foreach (ContratadosDto c in datos)
+                {
+                    c.base64 = this.GetImage("Candidatos/" + c.candidatoId.ToString() + "/foto.jpg");
+                }
+                return Ok(datos);
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+        public string GetImage(string ruta)
+        {
+            string fullPath;
+
+            try
+            {
+                fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/" + ruta);
+                FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+                byte[] bimage = new byte[fs.Length];
+                fs.Read(bimage, 0, Convert.ToInt32(fs.Length));
+                fs.Close();
+
+                return Convert.ToBase64String(bimage);
+            }
+            catch
+            {
+                return "";
+
+            }
+
+        }
+        [HttpGet]
         [Route("getDatosIngresos")]
         public IHttpActionResult GetDtosIngresos()
         {
@@ -113,6 +197,62 @@ namespace SAGA.API.Controllers.Reclutamiento.Ingresos
                     estado = p.estadoNacimiento.estado,
                     curpval = db.ValidacionCURPRFC.Where(x => x.CandidatosInfoId.Equals(p.Id)).Select(c => c.CURP).FirstOrDefault(),
                     rfcval = db.ValidacionCURPRFC.Where(x => x.CandidatosInfoId.Equals(p.Id)).Select(c => c.RFC).FirstOrDefault(),
+                    reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                }).OrderBy(o => o.nombre).ThenBy(f => f.fch_Creacion);
+
+                return Ok(datos);
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
+        }
+        [HttpGet]
+        [Route("getIngresosByCliente")]
+        public IHttpActionResult GetDtosIngresosByCliente(Guid clienteId)
+        {
+            try
+            {
+                var requis = db.Requisiciones.Where(x => x.ClienteId.Equals(clienteId)).Select(r => r.Id).ToList();
+                var tot = db.InformeRequisiciones.Where(x => requis.Distinct().Contains(x.RequisicionId) && x.Estatus.Descripcion.ToLower().Equals("contratado")).Count();
+
+                var id = db.ProcesoCandidatos.Where(x => x.Estatus.Descripcion.ToLower().Equals("ingreso") 
+                && x.Requisicion.ClienteId.Equals(clienteId)).
+                    Select(c => c.CandidatoId).Distinct().ToList();
+
+                var datos = db.CandidatosInfo.Where(x => id.Contains(x.CandidatoId))
+                .Select(p => new
+                {
+                    p.Id,
+                    candidatoId = p.CandidatoId,
+                    total = tot - 1,
+                    nom = p.Nombre + " " + p.ApellidoPaterno + " " + p.ApellidoMaterno,
+                    nombre = p.Nombre,
+                    p.ApellidoPaterno,
+                    p.ApellidoMaterno,
+                    foto = "img/Candidatos/" + p.CandidatoId + "/foto.jpg",
+                    requisicionId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(c => c.RequisicionId).FirstOrDefault(),
+                    fch_Creacion = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(c => c.Fch_Modificacion).FirstOrDefault(),
+                    fch_Ingreso = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(c => c.Fch_Modificacion).FirstOrDefault(),
+                    edad = p.FechaNacimiento,
+                    rfc = String.IsNullOrEmpty(p.RFC) ? "" : p.RFC,
+                    curp = String.IsNullOrEmpty(p.CURP) ? "" : p.CURP,
+                    nss = String.IsNullOrEmpty(p.NSS) ? "" : p.NSS,
+                    genero = p.Genero.genero,
+                    lada = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.ClaveLada).FirstOrDefault(),
+                    telefono = db.Telefonos.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(l => l.telefono).FirstOrDefault(),
+                    email = String.IsNullOrEmpty(db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault()) ? "SIN REGISTRO" : db.Emails.Where(x => x.EntidadId.Equals(p.CandidatoId)).Select(e => e.email).FirstOrDefault(),
+                    folio = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.Folio).FirstOrDefault(),
+                    vbtra = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.VBtra).FirstOrDefault(),
+                    clienteId = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.ClienteId).FirstOrDefault(),
+                    nombrecomercial = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.Cliente.Nombrecomercial).FirstOrDefault(),
+                    razonSocial = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(p.CandidatoId)).Select(v => v.Requisicion.Cliente.RazonSocial).FirstOrDefault(),
+                    direccion = db.Candidatos.Where(x => x.Id.Equals(p.CandidatoId)).Select(d => d.direcciones).FirstOrDefault().Select(c => c.Calle + " " + c.NumeroExterior + " " + c.Colonia.colonia + " " + c.Colonia.CP + " " + c.Municipio.municipio + " " + c.Estado.estado).FirstOrDefault(),
+                    estado = p.estadoNacimiento.estado,
+                    curpval = db.ValidacionCURPRFC.Where(x => x.CandidatosInfoId.Equals(p.Id)).Select(c => c.CURP).FirstOrDefault(),
+                    rfcval = db.ValidacionCURPRFC.Where(x => x.CandidatosInfoId.Equals(p.Id)).Select(c => c.RFC).FirstOrDefault(),
+                    reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                 }).OrderBy(o => o.nombre).ThenBy(f => f.fch_Creacion);
 
                 return Ok(datos);
@@ -129,10 +269,11 @@ namespace SAGA.API.Controllers.Reclutamiento.Ingresos
         {
             try
             {
-
                 var candidatos = db.ProcesoCandidatos.Where(x => x.Estatus.Descripcion.ToLower().Equals("contratado")).GroupBy(g => g.CandidatoId).Select(C => new
                 {
-                    info = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(C.OrderByDescending(o => o.Fch_Modificacion).FirstOrDefault().CandidatoId)).Select(p => new
+                    info = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(C.OrderByDescending(o => o.Fch_Modificacion).FirstOrDefault().CandidatoId) 
+                     && db.CandidatoLaborales.Where(xx => xx.CandidatoInfoId.Equals(x.Id)).Count() > 0)
+                    .Select(p => new
                         {
                             requisicionId = C.OrderByDescending(o => o.Fch_Modificacion).FirstOrDefault().RequisicionId,
                             reclutador = db.Usuarios.Where(x => x.Id.Equals(p.ReclutadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
@@ -339,16 +480,21 @@ namespace SAGA.API.Controllers.Reclutamiento.Ingresos
         [Route("getTotales")]
         [HttpGet]
         [Authorize]
-        public IHttpActionResult GetTotales()
+        public IHttpActionResult GetTotales(Guid clienteId)
         {
             try
             {
-                var totales = new
+                var totales = new { total = 0, ingresos = 0 };
+                if (clienteId != new Guid("00000000-0000-0000-0000-000000000000"))
                 {
-                    total = db.ProcesoCandidatos.Where(x => x.Estatus.Descripcion.ToUpper().Equals("CUBIERTO")).Count(),
-                    ingresos = db.ProcesoCandidatos.Where(x => x.Estatus.Descripcion.ToUpper().Equals("CONTRATADO")).Count()
-                };
-
+                    totales = new
+                    {
+                        total = db.ProcesoCandidatos.Where(x => x.Estatus.Descripcion.ToUpper().Equals("CUBIERTO")
+                        && x.Requisicion.ClienteId.Equals(clienteId)).Count(),
+                        ingresos = db.ProcesoCandidatos.Where(x => x.Estatus.Descripcion.ToUpper().Equals("INGRESO")
+                        && x.Requisicion.ClienteId.Equals(clienteId)).Count()
+                    };
+                }
                 return Ok(totales);
             }
             catch (Exception ex)
@@ -366,10 +512,7 @@ namespace SAGA.API.Controllers.Reclutamiento.Ingresos
             {
                 var horario = db.DiasHorasIngresos.Where(x => x.HorariosIngresosId.Equals(Id)).Select(h => new
                 {
-                    deDia = h.deDia.diaSemana,
-                    aDia = h.aDia.diaSemana,
-                    h.deDiaId,
-                    h.aDiaId,
+                    Dia = h.Dia,
                     deHora = h.DeHora,
                     aHora = h.AHora,
                     h.Tipo,

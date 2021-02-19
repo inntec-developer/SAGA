@@ -69,6 +69,7 @@ namespace SAGA.API.Controllers.Catalogos
                     a.Porcentaje = datos.VacacionesPpal.Porcentaje;
                     a.Observaciones = datos.VacacionesPpal.Observaciones;
                     a.UsuarioMod = datos.VacacionesPpal.UsuarioMod;
+                    a.ClienteId = datos.VacacionesPpal.ClienteId;
                     a.fch_Modificacion = DateTime.Now;
 
                     db.SaveChanges();
@@ -159,6 +160,7 @@ namespace SAGA.API.Controllers.Catalogos
                     a.Comentarios = datos.Incapacidades.Comentarios;
                     a.UsuarioMod = datos.Incapacidades.UsuarioMod;
                     a.fch_Modificacion = DateTime.Now;
+                    a.ClienteId = datos.Incapacidades.ClienteId;
                     db.SaveChanges();
 
                     var apt = db.ConfigIncapacidadesDias.Where(x => x.ConfigIncapacidadesId.Equals(datos.Incapacidades.Id));
@@ -247,6 +249,7 @@ namespace SAGA.API.Controllers.Catalogos
                     a.Nombre = datos.DiasEconomicos.Nombre;
                     a.Comentarios = datos.DiasEconomicos.Comentarios;
                     a.UsuarioMod = datos.DiasEconomicos.UsuarioMod;
+                    a.ClienteId = datos.DiasEconomicos.ClienteId;
                     a.fch_Modificacion = DateTime.Now;
 
                     var cd = db.ConfigDiasEconomicosDias.Where(x => x.ConfigDiasEconomicosId.Equals(datos.DiasEconomicos.Id));
@@ -306,14 +309,14 @@ namespace SAGA.API.Controllers.Catalogos
                     db.ConfigGuardias.Add(a);
                     db.SaveChanges();
 
-                    foreach (EmpleadoGuardia g in datos.GuardiasRelacion)
-                    {
-                        g.ConfigGuardiasId = a.Id;
-                        g.fch_Modificacion = DateTime.Now;
-                    }
+                    //foreach (EmpleadoGuardia g in datos.GuardiasRelacion)
+                    //{
+                    //    g.ConfigGuardiasId = a.Id;
+                    //    g.fch_Modificacion = DateTime.Now;
+                    //}
 
-                    db.EmpleadoGuardia.AddRange(datos.GuardiasRelacion);
-                    db.SaveChanges();
+                    //db.EmpleadoGuardia.AddRange(datos.GuardiasRelacion);
+                    //db.SaveChanges();
                 }
                 else if (datos.crud == 3)
                 {
@@ -324,6 +327,7 @@ namespace SAGA.API.Controllers.Catalogos
                     a.Consecutivas = datos.Guardias.Consecutivas;
                     a.Comentarios = datos.Guardias.Comentarios;
                     a.UsuarioMod = datos.Guardias.UsuarioMod;
+                    a.ClienteId = datos.Guardias.ClienteId;
                     a.fch_Modificacion = DateTime.Now;
 
                     db.SaveChanges();
@@ -397,6 +401,7 @@ namespace SAGA.API.Controllers.Catalogos
                     a.TE_Media = datos.TiempoExtra.TE_Media;
                     a.TE_Total = datos.TiempoExtra.TE_Total;
                     a.UsuarioMod = datos.TiempoExtra.UsuarioMod;
+                    a.ClienteId = datos.TiempoExtra.ClienteId;
                     a.fch_Modificacion = DateTime.Now;
 
                     db.SaveChanges();
@@ -474,6 +479,7 @@ namespace SAGA.API.Controllers.Catalogos
                     a.Nombre = datos.Suspensiones.Nombre;
                     a.Comentarios = datos.Suspensiones.Comentarios;
                     a.UsuarioMod = datos.Suspensiones.UsuarioMod;
+                    a.ClienteId = datos.Suspensiones.ClienteId;
                     a.fch_Modificacion = DateTime.Now;
 
                     db.SaveChanges();
@@ -554,6 +560,7 @@ namespace SAGA.API.Controllers.Catalogos
                     a.porcentaje = datos.PrimaDominical.porcentaje;
                     a.Observaciones = datos.PrimaDominical.Observaciones;
                     a.UsuarioMod = datos.PrimaDominical.UsuarioMod;
+                    a.ClienteId = datos.PrimaDominical.ClienteId;
                     a.fch_Modificacion = DateTime.Now;
 
                     db.SaveChanges();
@@ -633,6 +640,7 @@ namespace SAGA.API.Controllers.Catalogos
                     a.Nombre = datos.Tolerancia.Nombre;
                     a.Observaciones = datos.Tolerancia.Observaciones;
                     a.UsuarioMod = datos.Tolerancia.UsuarioMod;
+                    a.ClienteId = datos.Tolerancia.ClienteId;
                     a.fch_Modificacion = DateTime.Now;
 
                     var cd = db.ConfigToleranciaTiempo.Where(x => x.ConfigToleranciaId.Equals(datos.Tolerancia.Id));
@@ -640,10 +648,9 @@ namespace SAGA.API.Controllers.Catalogos
                     foreach (ConfigToleranciaTiempo d in datos.ToleranciaTiempo)
                     {
                         d.ConfigToleranciaId = datos.Tolerancia.Id;
-                        db.SaveChanges();
                     }
                     db.ConfigToleranciaTiempo.AddRange(datos.ToleranciaTiempo);
-
+                    db.SaveChanges();
                     //var gps = db.EmpleadoTolerancia.Where(x => x.ConfigToleranciaId.Equals(datos.Tolerancia.Id));
                     //foreach (EmpleadoTolerancia g in datos.ToleranciaRelacion)
                     //{
@@ -676,6 +683,57 @@ namespace SAGA.API.Controllers.Catalogos
             {
                 APISAGALog log = new APISAGALog();
                 log.WriteError("db.ConfigTolerancia - " + ex.Message + " InnerException - " + ex.InnerException.Message);
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+        public HttpResponseMessage CRUDBono(CRUDConfiguracionesDto datos)
+        {
+
+            try
+            {
+                if (datos.crud == 1)
+                {
+                    ConfigBono a = new ConfigBono();
+                    a = datos.ConfigBono;
+                    a.fch_Modificacion = DateTime.Now;
+                    db.ConfigBono.Add(a);
+                    db.SaveChanges();
+                }
+                else if (datos.crud == 3)
+                {
+                    var a = db.ConfigBono.Find(datos.ConfigBono.Id);
+                    db.Entry(a).State = EntityState.Modified;
+
+                    a.Activo = datos.ConfigBono.Activo;
+                    a.Comentarios = datos.ConfigBono.Comentarios;
+                    a.PeriodosId = datos.ConfigBono.PeriodosId;
+                    a.UsuarioMod = datos.Tolerancia.UsuarioMod;
+                    a.ClienteId = datos.Tolerancia.ClienteId;
+                    a.fch_Modificacion = DateTime.Now;
+                }
+                else if (datos.crud == 4)
+                {
+                    var a = db.ConfigBono.Find(datos.ConfigBono.Id);
+                    db.Entry(a).Property(x => x.Activo).IsModified = true;
+                    db.Entry(a).Property(x => x.fch_Modificacion).IsModified = true;
+                    db.Entry(a).Property(x => x.UsuarioMod).IsModified = true;
+
+                    a.Activo = false;
+                    a.UsuarioMod = datos.ConfigBono.UsuarioMod;
+                    a.fch_Modificacion = DateTime.Now;
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Continue);
+                }
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                APISAGALog log = new APISAGALog();
+                log.WriteError("db.ConfigBono - " + ex.Message + " InnerException - " + ex.InnerException.Message);
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
         }
@@ -734,6 +792,12 @@ namespace SAGA.API.Controllers.Catalogos
 
                     return Ok(result);
                 }
+                else if (datos.Catalogo.ToLower().Equals("bonos"))
+                {
+                    var result = this.CRUDBono(datos).StatusCode;
+
+                    return Ok(result);
+                }
                 else
                 {
                     return Ok(HttpStatusCode.Continue);
@@ -748,7 +812,7 @@ namespace SAGA.API.Controllers.Catalogos
         [HttpGet]
         [Route("getCatalogoConfig")]
         [Authorize]
-        public IHttpActionResult GetCatalogoConfig(string nombre)
+        public IHttpActionResult GetCatalogoConfig(string nombre, Guid clienteId)
         {
             try
             {
@@ -756,7 +820,7 @@ namespace SAGA.API.Controllers.Catalogos
                 {
                     try
                     {
-                        var datos = db.ConfigVacaciones.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo).Select(d => new
+                        var datos = db.ConfigVacaciones.OrderByDescending(o => o.fch_Modificacion).Where(x => x.Activo && x.ClienteId.Equals(clienteId)).Select(d => new
                         {
                             d.Id,
                             d.Nombre,
@@ -764,6 +828,7 @@ namespace SAGA.API.Controllers.Catalogos
                             d.DiasContinuos,
                             d.DiasExpiran,
                             d.DiasIncremento,
+                            d.Porcentaje,
                             antiguedad = db.ConfigVacacionesDias.Where(x => x.ConfigVacacionesId.Equals(d.Id)).Select(dd => new
                             {
                                 tiempo = dd.TiempoAntiguedadId,
@@ -803,6 +868,7 @@ namespace SAGA.API.Controllers.Catalogos
                                 dd.TiposIncapacidad.Id,
                                 tipoIncapacidad = dd.TiposIncapacidad.Nombre,
                                 dd.Porcentaje,
+                                dd.Dias
                             }).ToList(),
                             empleados = db.EmpleadoIncapacidad.Where(x => x.ConfigIncapacidadesId.Equals(d.Id)).Select(g => g.empleadoId).ToList(),
                             usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
@@ -812,7 +878,8 @@ namespace SAGA.API.Controllers.Catalogos
                         {
                             r.Id,
                             r.Nombre,
-                            r.Comentarios
+                            r.Comentarios,
+                            tipo = r.Comentarios == "SIN REGISTRO" ? 1 : 2
                         }).ToList();
                         return Ok(new { datos, tiposIncapacidades });
                     }
@@ -841,7 +908,7 @@ namespace SAGA.API.Controllers.Catalogos
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(d.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
 
-                    var tiposDiasEconomicos = db.TiposDiasEconomicos.Where(x => x.Activo).Select(r => new
+                    var tiposDiasEconomicos = db.TiposDiasEconomicos.Where(x => x.Activo).OrderBy(o => o.Orden).Select(r => new
                     {
                         r.Id,
                         r.Nombre,
@@ -889,7 +956,7 @@ namespace SAGA.API.Controllers.Catalogos
                         r.ConfigSuspensionNotas.Id,
                         r.Retardos,
                         r.Dias,
-                        Tipo = r.Tipo == 1 ? "Disciplinaria" : r.Tipo == 2 ? "Retardo" : r.Tipo == 3 ? "Nota Mala" : r.Tipo == 4 ? "Nota Buena" : "Acta Administrativa",
+                        Tipo = r.Tipo == 1 ? "Disciplinaria" : r.Tipo == 2 ? "Retardo" : r.Tipo == 3 ? "Memorandum" : r.Tipo == 4 ? "Reconocimiento" : "Acta Administrativa",
                         TipoId = r.Tipo,
                         r.ConfigSuspensionNotas.Comentarios,
                         empleados = db.EmpleadoSuspension.Where(x => x.ConfigSuspensionNotasId.Equals(r.ConfigSuspensionNotasId)).Select(g => g.empleadoId).ToList(),
@@ -905,6 +972,7 @@ namespace SAGA.API.Controllers.Catalogos
                         r.Id,
                         r.Horas,
                         r.porcentaje,
+                        r.Observaciones,
                         empleados = db.EmpleadoPrima.Where(x => x.ConfigPrimaId.Equals(r.Id)).Select(g => g.empleadoId).ToList(),
                         usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(r.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
                     }).ToList();
@@ -930,10 +998,81 @@ namespace SAGA.API.Controllers.Catalogos
 
                     return Ok(datos);
                 }
+                else if (nombre.ToLower().Equals("horarios"))
+                {
+                    var datos = db.HorariosIngresos.Where(x => x.Activo && x.ClienteId.Equals(clienteId)).Select(h => new
+                    {
+                        h.Id,
+                        h.Nombre,
+                        h.Clave,
+                        turno = h.TurnosHorarios.Nombre,
+                        turnoId = h.TurnosHorariosId,
+                        h.Especificaciones,
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(h.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                        diashoras = db.DiasHorasIngresos.Where(x => x.Activo && x.HorariosIngresosId.Equals(h.Id)).GroupBy(g => g.Dia)
+                        .Select(d => new
+                        {
+                            d.Key,
+                            Dia = d.Key,
+                            deHora = d.Where(x => x.Dia.Equals(d.Key) && x.Tipo.Equals(1)).Select(hh => hh.DeHora),
+                            aHora = d.Where(x => x.Dia.Equals(d.Key) && x.Tipo.Equals(1)).Select(hh => hh.AHora),
+                            deHoraComida = d.Where(x => x.Dia.Equals(d.Key) && x.Tipo.Equals(2)).Select(hh => hh.DeHora),
+                            aHoraComida = d.Where(x => x.Dia.Equals(d.Key) && x.Tipo.Equals(2)).Select(hh => hh.AHora),
+                            descansos = d.Where(x => x.Dia.Equals(d.Key) && x.Tipo.Equals(3)).Select(hh => new
+                            {
+                                deHora = hh.DeHora,
+                                aHora = hh.AHora
+                            }).ToList()
+                        }).ToList(),
+                        diashorasE = db.DiasHorasEspecial.Where(x => x.Activo && x.HorariosIngresosId.Equals(h.Id)).GroupBy(g => g.Tipo)
+                        .Select(d => new
+                        {
+                            fchInicio = d.Select(dd => dd.fchInicio).FirstOrDefault(),
+                            fchFin = d.Select(dd => dd.fchFin).FirstOrDefault(),
+                            DeHora = d.Where(x => x.Tipo.Equals(1)).Select(dd => dd.DeHora).FirstOrDefault(),
+                            AHora = d.Where(x => x.Tipo.Equals(1)).Select(dd => dd.AHora).FirstOrDefault(),
+                            DeHoraComida = d.Where(x => x.Tipo.Equals(2)).Select(dd => dd.DeHora).FirstOrDefault(),
+                            AHoraComida = d.Where(x => x.Tipo.Equals(2)).Select(dd => dd.AHora).FirstOrDefault(),
+                            tipo = d.Key
+                        }).ToList(),
+                        horario = db.DiasHorasIngresos.Where(x => x.Activo && x.HorariosIngresosId.Equals(h.Id)).Count()
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("bonos"))
+                {
+                    var datos = db.ConfigBono.Where(x => x.Activo && x.ClienteId.Equals(clienteId)).Select(r => new
+                    {
+                        r.Id,
+                        r.TiposBono.Nombre,
+                        r.TiposBonoId,
+                        r.Comentarios,
+                        Periodo = r.Periodos.Nombre,
+                        r.PeriodosId,
+                        empleados = db.EmpleadoBono.Where(x => x.ConfigBonoId.Equals(r.Id)).Select(g => g.empleadoId).ToList(),
+                        usuarioAlta = db.Usuarios.Where(x => x.Id.Equals(r.UsuarioAlta)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (nombre.ToLower().Equals("puestos"))
+                {
+                    var datos = db.PuestosCliente.Where(x => x.PuestosIngresos.Activo && x.ClienteId.Equals(clienteId)).Select(r => new
+                    {
+                        r.PuestosIngresos.Nombre,
+                        id = r.PuestosIngresos.Id,
+                        r.PuestosIngresos.Descripcion,
+                        r.PuestosIngresos.Clave
+                    }).ToList();
+
+                    return Ok(datos);
+                }
                 else
                 {
                     return Ok(HttpStatusCode.Continue);
                 }
+
             }
             catch(Exception ex)
             {
@@ -1127,6 +1266,26 @@ namespace SAGA.API.Controllers.Catalogos
                     db.EmpleadoHorario.AddRange(Listobj);
                     db.SaveChanges();
                 }
+                else if (datos.Catalogo == "bonos")
+                {
+                    List<EmpleadoBono> Listobj = new List<EmpleadoBono>();
+                    EmpleadoBono obj = new EmpleadoBono();
+                    foreach (var g in datos.Asignacion)
+                    {
+                        obj.empleadoId = g.EmpleadoId;
+                        obj.ConfigBonoId = g.IdG;
+                        obj.Activo = g.Activo;
+                        obj.UsuarioAlta = g.UsuarioAlta;
+                        obj.UsuarioMod = g.UsuarioMod;
+                        obj.fch_Modificacion = DateTime.Now;
+
+                        Listobj.Add(obj);
+                        obj = new EmpleadoBono();
+                    }
+
+                    db.EmpleadoBono.AddRange(Listobj);
+                    db.SaveChanges();
+                }
                 else
                 {
                     return Ok(HttpStatusCode.Continue);
@@ -1138,6 +1297,252 @@ namespace SAGA.API.Controllers.Catalogos
                 return Ok(HttpStatusCode.BadRequest);
             }
         
+        }
+        [HttpPost]
+        [Route("desasignarConfiguracion")]
+        [Authorize]
+        public IHttpActionResult DesasignarConfiguracion(CRUDConfiguracionesDto datos)
+        {
+            try
+            {
+                if (datos.Catalogo.ToLower().Equals("vacaciones"))
+                {
+                    var id = db.GrupoVacaciones.Where(x => x.empleadoId.Equals(datos.Usuario)).Select(c => c.Id).FirstOrDefault();
+                    var a = db.GrupoVacaciones.Find(id);
+                    db.Entry(a).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("incapacidad"))
+                {
+                    var id = db.EmpleadoIncapacidad.Where(x => x.empleadoId.Equals(datos.Usuario)).Select(c => c.Id).FirstOrDefault();
+                    var a = db.EmpleadoIncapacidad.Find(id);
+                    db.Entry(a).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("dias"))
+                {
+                    var id = db.EmpleadoDiasEconomicos.Where(x => x.empleadoId.Equals(datos.Usuario)).Select(c => c.Id).FirstOrDefault();
+                    var a = db.EmpleadoDiasEconomicos.Find(id);
+                    db.Entry(a).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("guardias"))
+                {
+                    var id = db.EmpleadoGuardia.Where(x => x.empleadoId.Equals(datos.Usuario)).Select(c => c.Id).FirstOrDefault();
+                    var a = db.EmpleadoGuardia.Find(id);
+                    db.Entry(a).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("tiempo_extra"))
+                {
+                    var id = db.EmpleadoTiempoExtra.Where(x => x.empleadoId.Equals(datos.Usuario)).Select(c => c.Id).FirstOrDefault();
+                    var a = db.EmpleadoTiempoExtra.Find(id);
+                    db.Entry(a).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("suspension"))
+                {
+                    var id = db.EmpleadoSuspension.Where(x => x.empleadoId.Equals(datos.Usuario)).Select(c => c.Id).FirstOrDefault();
+                    var a = db.EmpleadoSuspension.Find(id);
+                    db.Entry(a).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("prima"))
+                {
+                    var id = db.EmpleadoPrima.Where(x => x.empleadoId.Equals(datos.Usuario)).Select(c => c.Id).FirstOrDefault();
+                    var a = db.EmpleadoPrima.Find(id);
+                    db.Entry(a).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("tolerancia"))
+                {
+                    var id = db.EmpleadoTolerancia.Where(x => x.empleadoId.Equals(datos.Usuario)).Select(c => c.Id).FirstOrDefault();
+                    var a = db.EmpleadoTolerancia.Find(id);
+                    db.Entry(a).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo == "horario")
+                {
+                    var id = db.EmpleadoHorario.Where(x => x.empleadoId.Equals(datos.Usuario)).Select(c => c.Id).FirstOrDefault();
+                    var a = db.EmpleadoHorario.Find(id);
+                    db.Entry(a).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                else if (datos.Catalogo.ToLower().Equals("bonos"))
+                {
+                    var id = db.EmpleadoBono.Where(x => x.empleadoId.Equals(datos.Usuario)).Select(c => c.Id).FirstOrDefault();
+                    var a = db.EmpleadoBono.Find(id);
+                    db.Entry(a).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.Continue);
+                }
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+
+        }
+        [HttpPost]
+        [Route("getAsignadosByConfig")]
+        [Authorize]
+        public IHttpActionResult GetAsignadosByConfig(CRUDConfiguracionesDto asignados)
+        {
+            try
+            {
+                if (asignados.Catalogo.ToLower().Equals("vacaciones"))
+                {
+                    var datos = db.GrupoVacaciones.Where(x => x.Activo).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("incapacidad"))
+                {
+                    var datos = db.EmpleadoIncapacidad.Where(x => x.Activo).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("dias"))
+                {
+                    var datos = db.EmpleadoDiasEconomicos.Where(x => x.Activo).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("guardias"))
+                {
+                    var datos = db.EmpleadoGuardia.Where(x => x.Activo).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("tiempo_extra"))
+                {
+                    var datos = db.EmpleadoTiempoExtra.Where(x => x.Activo).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("suspension"))
+                {
+                    var datos = db.EmpleadoSuspension.Where(x => x.Activo).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("prima"))
+                {
+                    var datos = db.EmpleadoPrima.Where(x => x.Activo).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("tolerancia"))
+                {
+                    var datos = db.EmpleadoTolerancia.Where(x => x.Activo).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower() == "horario")
+                {
+                    var datos = db.EmpleadoHorario.Where(x => x.Activo).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("bonos"))
+                {
+                    var datos = db.EmpleadoBono.Where(x => x.Activo).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.Continue);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
         }
         [HttpPost]
         [Route("getAsignadosConfiguracion")]
@@ -1154,7 +1559,7 @@ namespace SAGA.API.Controllers.Catalogos
                         nombre = d.Empleado.Nombre,
                         apellidoPaterno = d.Empleado.ApellidoPaterno,
                         apellidoMaterno = d.Empleado.ApellidoMaterno,
-                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
                         clave = "DAL0000"
                     }).ToList();
 
@@ -1168,7 +1573,7 @@ namespace SAGA.API.Controllers.Catalogos
                         nombre = d.Empleado.Nombre,
                         apellidoPaterno = d.Empleado.ApellidoPaterno,
                         apellidoMaterno = d.Empleado.ApellidoMaterno,
-                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
                         clave = "DAL0000"
                     }).ToList();
 
@@ -1182,7 +1587,7 @@ namespace SAGA.API.Controllers.Catalogos
                         nombre = d.Empleado.Nombre,
                         apellidoPaterno = d.Empleado.ApellidoPaterno,
                         apellidoMaterno = d.Empleado.ApellidoMaterno,
-                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
                         clave = "DAL0000"
                     }).ToList();
 
@@ -1196,7 +1601,7 @@ namespace SAGA.API.Controllers.Catalogos
                         nombre = d.Empleado.Nombre,
                         apellidoPaterno = d.Empleado.ApellidoPaterno,
                         apellidoMaterno = d.Empleado.ApellidoMaterno,
-                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
                         clave = "DAL0000"
                     }).ToList();
 
@@ -1210,7 +1615,7 @@ namespace SAGA.API.Controllers.Catalogos
                         nombre = d.Empleado.Nombre,
                         apellidoPaterno = d.Empleado.ApellidoPaterno,
                         apellidoMaterno = d.Empleado.ApellidoMaterno,
-                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
                         clave = "DAL0000"
                     }).ToList();
 
@@ -1224,7 +1629,7 @@ namespace SAGA.API.Controllers.Catalogos
                         nombre = d.Empleado.Nombre,
                         apellidoPaterno = d.Empleado.ApellidoPaterno,
                         apellidoMaterno = d.Empleado.ApellidoMaterno,
-                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
                         clave = "DAL0000"
                     }).ToList();
 
@@ -1232,13 +1637,13 @@ namespace SAGA.API.Controllers.Catalogos
                 }
                 else if (asignados.Catalogo.ToLower().Equals("prima"))
                 {
-                    var datos = db.EmpleadoGuardia.Where(x => x.Activo && x.ConfigGuardiasId.Equals(asignados.Id)).Select(d => new
+                    var datos = db.EmpleadoPrima.Where(x => x.Activo && x.ConfigPrimaId.Equals(asignados.Id)).Select(d => new
                     {
                         id = d.Empleado.Id,
                         nombre = d.Empleado.Nombre,
                         apellidoPaterno = d.Empleado.ApellidoPaterno,
                         apellidoMaterno = d.Empleado.ApellidoMaterno,
-                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
                         clave = "DAL0000"
                     }).ToList();
 
@@ -1252,7 +1657,7 @@ namespace SAGA.API.Controllers.Catalogos
                         nombre = d.Empleado.Nombre,
                         apellidoPaterno = d.Empleado.ApellidoPaterno,
                         apellidoMaterno = d.Empleado.ApellidoMaterno,
-                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
                         clave = "DAL0000"
                     }).ToList();
 
@@ -1266,7 +1671,21 @@ namespace SAGA.API.Controllers.Catalogos
                         nombre = d.Empleado.Nombre,
                         apellidoPaterno = d.Empleado.ApellidoPaterno,
                         apellidoMaterno = d.Empleado.ApellidoMaterno,
-                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.Puesto.Nombre).FirstOrDefault(),
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
+                        clave = "DAL0000"
+                    }).ToList();
+
+                    return Ok(datos);
+                }
+                else if (asignados.Catalogo.ToLower().Equals("bonos"))
+                {
+                    var datos = db.EmpleadoBono.Where(x => x.Activo && x.ConfigBonoId.Equals(asignados.IdG)).Select(d => new
+                    {
+                        id = d.Empleado.Id,
+                        nombre = d.Empleado.Nombre,
+                        apellidoPaterno = d.Empleado.ApellidoPaterno,
+                        apellidoMaterno = d.Empleado.ApellidoMaterno,
+                        puesto = db.CandidatoLaborales.Where(x => x.CandidatoInfoId.Equals(d.empleadoId)).Select(e => e.PuestosIngresos.Nombre).FirstOrDefault(),
                         clave = "DAL0000"
                     }).ToList();
 
@@ -1282,5 +1701,6 @@ namespace SAGA.API.Controllers.Catalogos
                 return Ok(HttpStatusCode.BadRequest);
             }
         }
+
     }
 }

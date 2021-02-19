@@ -112,7 +112,7 @@ namespace SAGA.API.Controllers
                         db.SaveChanges();
                     }
 
-                    var A = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && x.GrpUsrId.Equals(reclutadorId)).Select(ID => ID.Id).FirstOrDefault(); //elimino reclutador
+                    var A = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && x.GrpUsrId.Equals(reclutadorId) && x.Tipo == 2).Select(ID => ID.Id).FirstOrDefault(); //elimino reclutador
                     if (A != null)
                     {
                         var AID = db.AsignacionRequis.Find(A);
@@ -232,28 +232,54 @@ namespace SAGA.API.Controllers
                             Tipo = 1
                         };
                         ar.Add(asg);
-                        rc.AlterAsignacionRequi(ar,requi, datos[0].folio, asg.UsuarioAlta, datos[0].VBtra, null, 0);
+                        db.AsignacionRequis.Add(asg);
+                        db.SaveChanges();
+                     //   rc.AlterAsignacionRequi(ar,requi, datos[0].folio, asg.UsuarioAlta, datos[0].VBtra, null, 0);
                    }
                    else
                    {
+
                         db.Entry(R).Property(r => r.AprobadorId).IsModified = true;
                         db.Entry(R).Property(r => r.Aprobador).IsModified = true;
                         R.AprobadorId = coorId;
                         R.Aprobador = db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(u => u.Usuario).FirstOrDefault();
                         db.SaveChanges();
+
+                        var aux = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && x.Tipo == 1).Select(cc => cc.Id).FirstOrDefault();
+                        if ( aux == auxID)
+                        {
+                            var asg = new AsignacionRequi
+                            {
+                                RequisicionId = requi,
+                                GrpUsrId = coorId,
+                                UsuarioAlta = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault(),
+                                UsuarioMod = db.Usuarios.Where(x => x.Id.Equals(usuario)).Select(U => U.Usuario).FirstOrDefault(),
+                                fch_Modificacion = DateTime.Now,
+                                Tipo = 1
+                            };
+                            db.AsignacionRequis.Add(asg);
+                            db.SaveChanges();
+                        }
+                        else
+                        {
+                            var idAsig = db.AsignacionRequis.Find(aux);
+                            db.Entry(idAsig).Property(r => r.GrpUsrId).IsModified = true;
+                            idAsig.GrpUsrId = coorId;
+                            db.SaveChanges();
+                        }                 
                    }
                         
               }
-                    else
-                    {
-                        db.Entry(R).Property(r => r.PropietarioId).IsModified = true;
-                        db.Entry(R).Property(r => r.Propietario).IsModified = true;
-                        R.PropietarioId = coorId;
-                        R.Propietario = db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(u => u.Usuario).FirstOrDefault();
-                        db.SaveChanges();
-                    }
+              else
+                {
+                    db.Entry(R).Property(r => r.PropietarioId).IsModified = true;
+                    db.Entry(R).Property(r => r.Propietario).IsModified = true;
+                    R.PropietarioId = coorId;
+                    R.Propietario = db.Usuarios.Where(x => x.Id.Equals(coorId)).Select(u => u.Usuario).FirstOrDefault();
+                    db.SaveChanges();
+                 }
 
-                    bool email = obj.EnviarEmailTransfer(requi, usuario, descripcion, usuarioAux, coorId);
+                bool email = obj.EnviarEmailTransfer(requi, usuario, descripcion, usuarioAux, coorId);
 
                 if (email)
                 {

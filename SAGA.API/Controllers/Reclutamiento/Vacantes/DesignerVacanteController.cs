@@ -11,6 +11,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
 using SAGA.API.Dtos;
+using SAGA.API.Dtos.Vacantes;
+using System.IO;
+using System.Data.Entity;
 
 namespace SAGA.API.Controllers
 {
@@ -21,6 +24,134 @@ namespace SAGA.API.Controllers
         public DesignerVacanteController()
         {
             db = new SAGADBContext();
+        }
+
+        [HttpGet]
+        [Route("getTitulos")]
+        [Authorize]
+        public IHttpActionResult GetTitulos()
+        {
+            try
+            {
+                var titulos = db.TitulosArte.Where(x => x.Activo).Select(a => new
+                {
+                    a.Id,
+                    a.Nombre,
+                    a.Descripcion,
+                    a.Orden
+                }).OrderBy(o => o.Orden).ToList();
+
+                return Ok(titulos);
+            }
+            catch(Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+        [HttpPost]
+        [Route("CRUDArte")]
+        [Authorize]
+        public IHttpActionResult CRUDArte(ArteDto arte)
+        {
+            try
+            {
+                if (arte.crud == "C")
+                {
+                    foreach (ArteRequi ar in arte.ArteRequiList)
+                    {
+                        ar.fch_Modificacion = DateTime.Now;
+                        ar.Ruta = "img/ArteRequi/Arte/" + ar.Ruta;
+                    }
+                    db.ArteRequi.AddRange(arte.ArteRequiList);
+                    db.SaveChanges();
+
+                    this.GuardarArte(arte);
+
+                    return Ok(HttpStatusCode.OK);
+                }
+                else if (arte.crud == "R")
+                {
+                    var ar = db.ArteRequi.Where(x => x.RequisicionId.Equals(arte.requisicionId) && x.Activo).Select(a => new
+                    {
+                        arterequiId = a.Id,
+                        id = a.TitulosArteId,
+                        nombre = a.TitulosArte.Nombre,
+                        descripcion = a.Contenido,
+                        a.TitulosArte.Orden,
+                        a.Ruta,
+                        a.BG
+                    }).OrderBy(o => o.Orden).ToList();
+
+                    var bg = db.Requisiciones.Where(x => x.Id.Equals(arte.requisicionId)).Select(d => d.DAMFO290.Arte).FirstOrDefault();
+                   
+                    return Ok(new { datos = ar, bg });
+                   
+                }
+                else if (arte.crud == "U")
+                {
+                    var apt = db.ArteRequi.Where(x => x.RequisicionId.Equals(arte.requisicionId));
+                    db.ArteRequi.RemoveRange(apt);
+
+                    foreach (ArteRequi ar in arte.ArteRequiList)
+                    {
+                        ar.fch_Modificacion = DateTime.Now;
+                        ar.Ruta = "img/ArteRequi/Arte/" + ar.Ruta;
+                    }
+
+                    db.ArteRequi.AddRange(arte.ArteRequiList);
+                    db.SaveChanges();
+
+                    this.GuardarArte(arte);
+                    return Ok(HttpStatusCode.OK);
+                }
+                else if (arte.crud == "D")
+                {
+                    var apt = db.ArteRequi.Where(x => x.RequisicionId.Equals(arte.requisicionId));
+                    db.ArteRequi.RemoveRange(apt);
+
+                    string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/Arte/" + arte.requisicionId.ToString() + ".png");
+
+                    if (File.Exists(fullPath)) 
+                        File.Delete(fullPath);
+
+                    db.SaveChanges();
+                    return Ok(HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Ok(HttpStatusCode.Continue);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+            }
+        }
+        [HttpPost]
+        [Route("guardarArte")]
+        public IHttpActionResult GuardarArte(ArteDto Arte)
+        {
+            try
+            {
+                string x = Arte.arte.Replace("data:image/png;base64,", "");
+                byte[] imageBytes = Convert.FromBase64String(x);
+                MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+                ms.Write(imageBytes, 0, imageBytes.Length);
+                System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
+
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/img/ArteRequi/Arte/" + Arte.requisicionId.ToString() + ".png");
+
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
+
+                image.Save(fullPath);
+
+                return Ok(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.ExpectationFailed);
+            }
         }
         [HttpGet]
         [Route("get")]
@@ -62,194 +193,185 @@ namespace SAGA.API.Controllers
             var ConfiguracionesMov = db.ConfiguracionesMov.ToList();
             var CfgRequi = db.CfgRequi.ToList();
             List<listadoEstru> lista = new List<listadoEstru>();
-            var datos = db.Estructuras.Where(a => a.Activo == true
+            List<string> titulos = new List<string> {
+                "datos de la vacante", "contrato", "direcciones", "puesto a reclutar", "horarios" , "beneficios", "puesto",
+                "sueldos", "documentacion", "prestaciones"};
+            List<string> campos = new List<string>() {
+                "folio", "tipo", "dias de prueba", "estado", "municipio", "nivel", "escolaridad",
+                "aptitudes",
+                "experiencia",
+               "nombre" ,
+               "de" ,
+                "a",
+               "desde",
+               "hasta",
+               "especificaciones",
+               "nombre",
+               "cantidad",
+               "observaciones",
+               "actividades",
+               "periodo",
+               "nomina",
+               "sueldo minimo",
+               "sueldo maximo",
+               "damsa",
+               "de ley",
+               "prestaciones", "superiores" };
+            var papas = db.Estructuras.Where(a => titulos.Contains(a.Nombre.ToLower()) &&
+                                          a.TipoEstructuraId == 7
+                                            && a.TipoMovimientoId == 3
+                                            && a.Activo == true
+                                        ).Select(p => p.Id).ToList();
+            var datos = db.Estructuras.Where(a => a.Activo == true && papas.Contains(a.IdPadre)
                                                && a.TipoEstructuraId == 8
                                                && a.TipoMovimientoId == 3
-                                            ).OrderBy(e => e.Orden).ToList();
+                                               && campos.Contains(a.Nombre.ToLower())
+                                            ).Select(e => new {
+                                                e.Id,
+                                                e.IdPadre,
+                                                e.Nombre,
+                                                e.Orden,
+                                                e.TipoEstructuraId,
+                                                e.TipoMovimientoId,
+                                                e.Descripcion,
+                                                papa = db.Estructuras.Where(x => x.Id.Equals(e.IdPadre)).Select(n => n.Nombre).FirstOrDefault()
+                                            }).OrderBy(e => e.Orden).ToList();
             var configura = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
             var requi = db.Requisiciones.Where(r => r.Id.Equals(Requi)).Select(r => new
             {
                 r.Id,
                 r.Experiencia,
                 r.Folio,
-                r.fch_Aprobacion,
-                r.fch_Creacion,
-                r.fch_Cumplimiento,
-                r.fch_Limite,
-                r.fch_Modificacion,
-                //r.Genero.genero,
-                //r.Aprobada,
-                //r.Aprobador,
                 ActividadesRequis = db.ActividadesRequis.Where(a => a.RequisicionId.Equals(r.Id)).Select(a => a.Actividades).ToList(),
                 r.Area.areaExperiencia,
                 AptitudesRequis = db.AptitudesRequis.Where(a => a.RequisicionId.Equals(r.Id)).Select(a => a.Aptitud.aptitud).ToList(),
-                //r.Asignada,
                 beneficiosRequi = db.BeneficiosRequis.Where(b => b.RequisicionId.Equals(r.Id)).Select(b => new
-                { b.TipoBeneficio.tipoBeneficio, b.Cantidad, b.Observaciones
-                }).ToList(),
-                //r.ClaseReclutamiento.clasesReclutamiento,
-                r.Cliente.Nombrecomercial,
-                logotipo = r.Cliente.Foto,
-                r.Cliente.RFC,
-                r.Cliente.GiroEmpresas.giroEmpresa,
-                r.Cliente.ActividadEmpresas.actividadEmpresa,
-                r.Cliente.RazonSocial,
-                CompetenciasArea = db.CompetenciasAreaRequis.Where(c => c.RequisicionId.Equals(r.Id)).Select(c => new
                 {
-                    c.Nivel,
-                    c.Competencia.competenciaArea
+                    b.TipoBeneficio.tipoBeneficio,
+                    b.Cantidad, b.Observaciones
                 }).ToList(),
-                CompetenciasCardinal = db.CompetenciasCardinalRequis.Where(c => c.RequisicionId.Equals(r.Id)).Select(c => new
-                {
-                    c.Nivel,
-                    c.Competencia.competenciaCardinal
-                }).ToList(),
-                CompetenciaGerencial = db.CompetetenciasGerencialRequis.Where(c => c.RequisicionId.Equals(r.Id)).Select(c => new
-                {
-                    c.Nivel,
-                    c.Competencia.competenciaGerencial
-                }).ToList(),
-                //r.Confidencial,
                 r.ContratoInicial.periodoPrueba,
                 r.ContratoInicial.tipoContrato,
-                Contactos = db.Clientes.Where(c => c.Id.Equals(r.ClienteId)).Select(c => c.Contactos.Select(s => new
-                {
-                    Nombre = s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno,
-                    s.Puesto,
-                    s.TipoEntidad.tipoEntidad,
-                    extension = db.Telefonos.Where(e => e.EntidadId.Equals(s.Id)).Select(f => f.Extension).FirstOrDefault(),
-                    Telefono = db.Telefonos.Where(t => t.EntidadId.Equals(s.Id)).Select(e => e.telefono).FirstOrDefault(),
-                    Email = db.Emails.Where(e => e.EntidadId.Equals(s.Id)).Select(m => m.email).FirstOrDefault()
-                })).ToList(),
                 DiaCorte = r.DiaCorte.diaSemana,
                 DiaPago = r.DiaPago.diaSemana,
-                r.DiasEnvio,
-                Direccion = db.Direcciones.Where(d => d.Id.Equals(r.DireccionId)).Select(d => new
+                Direccion = db.Direcciones.Where(d => d.Id.Equals(r.DireccionId) && d.Activo && d.esPrincipal).Select(d => new
                 {
-                    d.Calle,
-                    d.Colonia.colonia,
                     d.Municipio.municipio,
-                    d.Estado.estado,
-                    d.Pais.pais,
-                    d.CodigoPostal,
-                    d.NumeroInterior,
-                    d.NumeroExterior,
-                    d.TipoDireccion.tipoDireccion,
-                    d.esPrincipal,
-                    d.Activo
+                    d.Estado.estado
                 }).FirstOrDefault(),
-                DocumentosCliente = db.DocumentosClienteRequis.Where(d => d.RequisicionId.Equals(r.Id)).Select(d => d.Documento).ToList(),
                 DocumentosDamsa = db.DocumentosDamsa.Select(d => d.documentoDamsa).ToList(),
-                //r.EdadMaxima,
-                //r.EdadMinima,
                 EscolaridadesRequi = db.EscolaridadesRequis.Where(e => e.RequisicionId.Equals(r.Id)).Select(e => new
                 {
                     e.Escolaridad.gradoEstudio,
                     e.EstadoEstudio.estadoEstudio
                 }).ToList(),
-                //r.Especifique,
-                //r.EstadoCivil.estadoCivil,
                 Estatus = r.Estatus.Descripcion,
-                //EstatusTpMov = r.Estatus.TipoMovimiento,
-                //r.FlexibilidadHorario,
-                horariosRequi = db.HorariosRequis.Where(h => h.RequisicionId.Equals(r.Id)).Select(h => new
+                horariosRequi = db.HorariosRequis.Where(h => h.RequisicionId.Equals(r.Id) && h.Activo).Select(h => new
                 {
                     h.Nombre,
                     deDia = h.deDia.diaSemana,
                     aDia = h.aDia.diaSemana,
                     h.deHora,
                     h.aHora,
-                    h.numeroVacantes,
                     h.Especificaciones,
-                    h.Activo
                 }).ToList(),
                 r.PeriodoPago.periodoPago,
-                ObservacionesRequi = db.ObservacionesRequis.Where(o => o.RequisicionId.Equals(r.Id)).Select(o => o.Observaciones).ToList(),
                 PrestacionesRequi = db.PrestacionesClienteRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => p.Prestamo).ToList(),
                 prestacionLey = db.PrestacionesLey.Select(p => p.prestacionLey).ToList(),
-                Prioridad = r.Prioridad.Descripcion,
-                ProcesoRequi = db.ProcesoRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => new
-                {
-                    p.Orden,
-                    p.Proceso
-                }).ToList(),
-                //r.Propietario,
-                PsicoCliente = db.PsicometriasClienteRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => new
-                {
-                    p.Psicometria,
-                    p.Descripcion
-                }).ToList(),
-                PsicoDamsa = db.PsicometriasDamsaRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => p.Psicometria).ToList(),
                 r.SueldoMaximo,
                 r.SueldoMinimo,
-                telefono = db.Clientes.Where(t => t.Id.Equals(r.ClienteId)).Select(t => t.telefonos.Select(e => new
-                {
-                    e.TipoTelefono.Tipo,
-                    e.telefono,
-                    e.Extension,
-                    e.Activo,
-                    e.esPrincipal
-                })).ToList(),
-                //TCOrden = r.TiempoContrato.Orden,
                 TCTiempo = r.TiempoContrato.Tiempo,
-                //TMModalidad = r.TipoModalidad.Modalidad,
-                //TMOrden = r.TipoModalidad.Orden,
                 r.TipoNomina.tipoDeNomina,
-                r.TipoReclutamiento.tipoReclutamiento,
                 r.VBtra
-            }
-            ).FirstOrDefault();
+            }).FirstOrDefault();
             foreach (var item in datos)
             {
-                listadoEstru pieza = new listadoEstru();
-                pieza.Id = item.Id;
-                pieza.idPadre = item.IdPadre;
-                pieza.Nombre = item.Nombre;
-                pieza.Descripcion = item.Descripcion;
-                pieza.Activo = item.Activo;
-                pieza.Confidencial = item.Confidencial;
-                pieza.Icono = item.Icono;
-                pieza.Resumen = false;
-                pieza.Detalle = false;
-                pieza.Publica = false;
-                pieza.Requi = requi;
-                try
-                {
-                    pieza.Resumen = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().R;
-                    pieza.Detalle = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().D;
-                }
-                catch (Exception)
-                {
-                }
-                if (ConfiguracionesMov.Count > 0)
-                {
-                    if (ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).Count() > 0)
+                if ((item.papa.ToLower() == "direcciones" && item.Nombre.ToLower().Equals("tipo")) || (item.papa.ToLower().Equals("puesto") && item.Nombre.ToLower().Equals("observaciones")))
+                { }
+                else { 
+                    listadoEstru pieza = new listadoEstru();
+                    pieza.Id = item.Id;
+                    pieza.idPadre = item.IdPadre;
+                    pieza.Nombre = item.Nombre;
+                    pieza.Descripcion = item.Descripcion;
+                    //pieza.Activo = item.Activo;
+                    //pieza.Confidencial = item.Confidencial;
+                    //pieza.Icono = item.Icono;
+                    pieza.Resumen = false;
+                    pieza.Detalle = false;
+                    pieza.Publica = false;
+                    //pieza.Requi = requi;
+                    try
                     {
-                        pieza.Publica = ConfiguracionesMov.Where(e => e.EstructuraId == item.Id).FirstOrDefault().esPublicable;
+                        pieza.Resumen = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().R;
+                        pieza.Detalle = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().D;
                     }
-                }
+                    catch (Exception)
+                    {
+                    }
+                    if (ConfiguracionesMov.Count > 0)
+                    {
+                        if (ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).Count() > 0)
+                        {
+                            pieza.Publica = ConfiguracionesMov.Where(e => e.EstructuraId == item.Id).FirstOrDefault().esPublicable;
+                        }
+                    }
 
 
-                if (configura.Count > 0)
-                {
-                    pieza.Resumen = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Resumen).FirstOrDefault();
-                    pieza.Detalle = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Detalle).FirstOrDefault();
+                    if (configura.Count > 0)
+                    {
+                        pieza.Resumen = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Resumen).FirstOrDefault();
+                        pieza.Detalle = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Detalle).FirstOrDefault();
+                    }
+                    lista.Add(pieza);
+
                 }
-                lista.Add(pieza);
+               
             }
 
-            return Ok(lista);
+            return Ok(new { lista, requi });
         }
 
         [HttpGet]
         [Route("getCampos")]
         public IHttpActionResult Campos()
         {
+            List<string> titulos = new List<string> {
+                "datos de la vacante", "contrato", "direcciones", "puesto a reclutar", "horarios" , "beneficios", "puesto",
+                "sueldos", "documentacion", "prestaciones"};
+            List<string> campos = new List<string>() {
+                "folio", "tipo", "dias de prueba", "estado", "municipio", "nivel", "escolaridad",
+                "aptitudes",
+                "experiencia",
+               "nombre" ,
+               "de" ,
+                "a",
+               "desde",
+               "hasta",
+               "especificaciones",
+               "nombre",
+               "cantidad",
+               "observaciones",
+               "actividades",
+               "periodo",
+               "nomina",
+               "sueldo minimo",
+               "sueldo maximo",
+               "damsa",
+               "de ley",
+               "prestaciones", "superiores" };
 
-            var datos = db.Estructuras.Where(a =>
+            var papas = db.Estructuras.Where(a => titulos.Contains(a.Nombre.ToLower()) &&
+                                          a.TipoEstructuraId == 7
+                                            && a.TipoMovimientoId == 3
+                                            && a.Activo == true
+                                        ).Select(p => p.Id).ToList();
+
+            var datos = db.Estructuras.Where(a => papas.Contains(a.IdPadre) &&
                                                 a.TipoEstructuraId == 8
                                                 && a.TipoMovimientoId == 3
                                                 && a.Activo == true
+                                                && campos.Contains(a.Nombre.ToLower())
                                             ).OrderBy(e => e.Orden).ToList();
             return Ok(datos);
         }
@@ -258,7 +380,10 @@ namespace SAGA.API.Controllers
         [Route("getClasificaciones")]
         public IHttpActionResult Clasificaciones()
         {
-            var datos = db.Estructuras.Where(a =>
+            List<string> titulos = new List<string> {
+                "datos de la vacante", "contrato", "direcciones", "puesto a reclutar", "horarios" , "beneficios", "puesto",
+                "sueldos", "documentacion", "prestaciones"};
+            var datos = db.Estructuras.Where(a => titulos.Contains(a.Nombre.ToLower()) &&
                                               a.TipoEstructuraId == 7
                                                 && a.TipoMovimientoId == 3
                                                 && a.Activo == true

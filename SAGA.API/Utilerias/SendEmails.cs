@@ -51,10 +51,12 @@ namespace SAGA.API.Utilerias
                   + "&lt;p>Para dar proceso de seguimiento de nomina ingresa a &lt;strong>Nomina&lt;/strong> del menú de Sistema de Firmas en SAGA.&lt;/p>"
                   + "&lt;p>Podrás acceder mediante la siguiente dirección: https://weberp.damsa.com.mx/login &lt;/p>"
                   + "&lt;p>Quedamos a tus órdenes para cualquier relativo al correo inntec@damsa.com.mx &lt;/p>&lt;br>&lt;br>"
-                  + "&lt;p>Gracias por tu atención. Saludos&lt;/p>&lt;/body&gt;&lt;/html>", datos.estatus.ToUpper(), Convert.ToDateTime(datos.fecha).ToString("dd-MM-yyyy"));
+                  + "&lt;p>Gracias por tu atención. Saludos&lt;/p>"
+                  + "&lt;p>Este correo lo debería recibir {2} y con copia {3}" 
+                  + "&lt;/body&gt;&lt;/html>", datos.estatus.ToUpper(), Convert.ToDateTime(datos.fecha).ToString("dd-MM-yyyy"), datos.email_envio, datos.email_copia);
 
-                    //var path = "~/utilerias/Files/users/" + entidadId.ToString();
-                  //  var pathDir = "E:\\inetpub\\wwwroot\\sagainn\\Saga\\API.sb\\Utilerias\\files\\SistFirmas\\Nominas\\" + datos.estatus.ToLower() + Convert.ToDateTime(datos.fecha).ToString("yyyyMMdd");
+                    //var path = "~/utilerias/Files/users/" + entidadId.ToString(); "~/Utilerias/files/SistFirmas/Nominas/"
+                    var pathAdjuntos = "E:\\inetpub\\wwwroot\\sagainn\\Saga\\API.sb\\Utilerias\\files\\SistFirmas\\Nominas\\" + datos.estatus.ToLower() + Convert.ToDateTime(datos.fecha).ToString("yyyyMMdd");
                     string pathDir = System.Web.Hosting.HostingEnvironment.MapPath("~/Utilerias/files/SistFirmas/Nominas/" + datos.estatus.ToLower() + Convert.ToDateTime(datos.fecha).ToString("yyyyMMdd"));
                     DirectoryInfo folderInfo = new DirectoryInfo(pathDir);
                         
@@ -69,21 +71,22 @@ namespace SAGA.API.Utilerias
                                     fc = x.LastWriteTime.ToShortDateString()
                                 }).OrderByDescending(o => o.fc);
                     var adjuntos = "";
-                     foreach(var f in files)
+                    foreach(var f in files)
                     {
-                        adjuntos = adjuntos + string.Format("<Adjunto Ruta_Archivo =\"{0}\" Nombre_Archivo=\"{1}\" Eliminar_Archivo=\"0\" />", pathDir, f.nom );
+                        adjuntos = adjuntos + string.Format("<Adjunto Ruta_Archivo=\"{0}\" Nombre_Archivo=\"{1}\" Eliminar_Archivo=\"0\" />", pathAdjuntos, f.nom );
 
                     }
-                    
+                    //+"<Adjuntos>{4}</Adjuntos>"
                         xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
                                  + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
                                  + "<Adjuntos>{4}</Adjuntos>"
-                                 + "</Parametros>", datos.email_envio, datos.email_copia, asunto, body, adjuntos);
+                                 + "</Parametros>", "mventura@damsa.com.mx", "bmorales@damsa.com.mx", asunto, body, adjuntos);
                     
                 }
                 else
                 {
-                    body = body + string.Format("&lt;html&gt;&lt;body style=&quot;text-align:left; font-family:'calibri'; font-size:12pt;&quot;>&lt;h3>A quien corresponda&lt;/h3>&lt;p>Por medio del presente se informa que se anexa "
+
+                    body = body + string.Format("&lt;html&gt;&lt;body style=&quot;text-align:left; font-family:''calibri''; font-size:12pt;&quot;>&lt;h3>A quien corresponda&lt;/h3>&lt;p>Por medio del presente se informa que se anexa "
                         + "archivo de &lt;strong>{0}&lt;/strong> del proyecto. &lt;/p>"
                         + "&lt;table width=&quot;80%&quot;>&lt;tr>&lt;th bgcolor=&quot;#007bff&quot; style=&quot;color:white; text-align:left;&quot;>EMPRESA&lt;/th>"
                         + "&lt;th bgcolor=&quot;#007bff&quot; style=&quot;color:white; text-align:left;&quot;>{1}&lt;/th>&lt;/tr>"
@@ -103,22 +106,31 @@ namespace SAGA.API.Utilerias
                     if (path.Length > 0)
                     {
                         xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
-                                 + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
-                                 + "</Parametros>", datos.email_envio, datos.email_copia, asunto, body, path, fileName);
-
+                                 + "Para=\"{0}\" Copia=\"{1}\" CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
+                                 + "<Adjuntos><Adjunto Ruta_Archivo=\"{4}\" Nombre_Archivo=\"{5}\" Eliminar_Archivo=\"0\"/></Adjuntos>"
+                                 + "</Parametros>", "mventura@damsa.com.mx", "bmorales@damsa.com.mx", asunto, body, path, fileName);
+                      //  datos.email_envio, datos.email_copia
                         //< Adjuntos >< Adjunto Ruta_Archivo =\"{4}\" Nombre_Archivo=\"{5}\" Eliminar_Archivo=\"0\" /></Adjuntos>
                     }
                     else
                     {
                         xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
-                                 + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
-                                 + "</Parametros>", datos.email_envio, datos.email_copia, asunto, body, path, fileName);
+                                 + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/>"
+                                 + "</Parametros>", "mventura@damsa.com.mx", "bmorales@damsa.com.mx", asunto, body, path, fileName);
                     }
                 }
 
-                
-                //SqlParameter[] Parameters = { new SqlParameter("@ParametrosXML", xml) };
-                //db.Database.ExecuteSqlCommand("sp_emailFirmas @ParametrosXML", Parameters);
+
+                SqlParameter[] Parameters = { new SqlParameter("@ParametrosXML", xml) };
+                db.Database.ExecuteSqlCommand("sp_emailFirmas @ParametrosXML", Parameters);
+
+                //xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
+                //              + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
+                //              + "<Adjuntos>< Adjunto Ruta_Archivo =\"{4}\" Nombre_Archivo=\"{5}\" Eliminar_Archivo=\"0\" /></Adjuntos>"
+                //              + "</Parametros>", datos.email_envio, datos.email_copia, asunto, body, path, fileName);
+
+                //SqlParameter[] Parameters2 = { new SqlParameter("@ParametrosXML", xml) };
+                //db.Database.ExecuteSqlCommand("sp_emailFirmas @ParametrosXML", Parameters2);
                 return true;
 
             }
@@ -158,7 +170,7 @@ namespace SAGA.API.Utilerias
 
                 var emails = db.Emails.Where(x => ids.Distinct().Contains(x.EntidadId)).Select(e => e.email).ToArray();
          
-                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && !ids.Distinct().Contains(x.GrpUsrId)).Select(A => new
+                var asignados = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(requi) && !ids.Distinct().Contains(x.GrpUsrId) && x.Tipo == 2).Select(A => new
                 {
                     emails = db.Emails.Where(e => e.EntidadId.Equals(A.GrpUsrId)).Select(ee => ee.email).FirstOrDefault()
                 }).ToList();
@@ -350,23 +362,11 @@ namespace SAGA.API.Utilerias
                 List<Guid> grp = new List<Guid>();
                 foreach (AsignacionRequi asg in asignaciones)
                 {
-                    //grpUser = db.GruposUsuarios.Where(x => x.GrupoId.Equals(asg.GrpUsrId)).ToList();
-                    //foreach (var grps in grpUser)
-                    //{
-                    //    grp = GetGrupo(grps.EntidadId, grp);
-                    //}
-
-                    //if (grpUser.Count() > 0)
-                    //{
-                    //    var emails = checkEmails(grp).Distinct();
-                    //}
-                    //else
-                    //{
-                        var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(asg.GrpUsrId)).Select(x => x.email).FirstOrDefault();
-                        if (sendEmail != null)
-                            AddEmail.Add(sendEmail);
-
-                    //}
+                    var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(asg.GrpUsrId)).Select(x => x.email).FirstOrDefault();
+                    if (sendEmail != null)
+                    {
+                        AddEmail.Add(sendEmail);
+                    }    
                 }
 
                 if (NotChange != null)
@@ -375,17 +375,11 @@ namespace SAGA.API.Utilerias
                     {
                         foreach (AsignacionRequi nc in NotChange)
                         {
-                            //grpUserNotChange = db.GruposUsuarios.Where(x => x.GrupoId.Equals(nc.GrpUsrId)).ToList();
-                            //if (grpUserNotChange.Count() > 0)
-                            //{
-                            //    var emails = EmailsNotChange(grpUserNotChange).Distinct();
-                            //}
-                            //else
-                            //{
-                                var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(nc.GrpUsrId)).Select(x => x.email).FirstOrDefault();
-                                if (sendEmail != null)
-                                    emailNoChange.Add(sendEmail);
-                            //}
+                            var sendEmail = db.Emails.Where(x => x.EntidadId.Equals(nc.GrpUsrId)).Select(x => x.email).FirstOrDefault();
+                            if (sendEmail != null)
+                            {
+                                emailNoChange.Add(sendEmail);
+                            }  
                         }
                     }
                 }
@@ -401,8 +395,6 @@ namespace SAGA.API.Utilerias
 
                     if (Coincidencias != null && Coincidencias.Count() > 0)
                     {
-                        
-
                         var index = Coincidencias[0].Requisicion.EscolaridadesDesc.Count() - 1;
 
                         for (int e = 0; e < Coincidencias[0].Requisicion.EscolaridadesDesc.Count(); e++)
@@ -419,18 +411,25 @@ namespace SAGA.API.Utilerias
 
                         
                     }
+                    //foreach (string x in distintEmails)
+                    //{
+                    //    m.To.Add(x.ToString());
+                    //}
+                    var to = "";
                     foreach (string x in distintEmails)
                     {
-                        m.To.Add(x.ToString());
+                       to = to + x.ToString() + ',';
                     }
+                    var asunto = "";
                     if (action == "C")
                     {
 
-                        m.Subject = "[SAGA] Asignacion de Requisicion " + Folio;
+                        //m.Subject = "[SAGA] Asignación de Requisición " + Folio;
+                        asunto = "[SAGA] Asignación de Requisición " + Folio;
 
                         var inicio = "<html><head><style>td { border: solid #2471A3 1px; padding-left:5px; padding-right:5px;padding-top:1px; padding-bottom:1px;font-size:9pt; color: #3498DB;font-family:'calibri'; width: 25%; text-align: left; vertical-align: top; border-spacing: 0; border-collapse: collapse;} ";
                         inicio = inicio + "p { font - family:'calibri'; } th { font - family:'calibri'; width: 25 %; text - align: left; vertical - align: top; border: solid blue 1px; border - spacing: 0; border - collapse: collapse; background: #3498DB; color:white;}";
-                        inicio = inicio + "h3 { font - family:'calibri'; } table { width: 100 %; }</style></head><body style =\"text-align:center; font-family:'calibri'; font-size:10pt;\"><br><br><p> Asignación de Requisición:</p>";
+                        inicio = inicio + "h3 { font - family:'calibri'; } table { width: 100 %; }</style></head><body style =\"font-family:'calibri'; font-size:12pt;\"><br><br><p> Asignación de Requisición:</p>";
 
                         
                         body = inicio;
@@ -455,14 +454,16 @@ namespace SAGA.API.Utilerias
                     }
                     if (action == "D")
                     {
-                        m.Subject = "[SAGA] Des-asignación  de Requisicion";
+                        //m.Subject = "[SAGA] Des-asignación  de Requisición";
+                        asunto = "[SAGA] Des-asignación  de Requisición";
                         body = "<p>Des-asignación  de Requisición:</p>";
                         body = body + string.Format("<br/>Se comunica de la manera más atenta que el usuario <strong>{0}</strong> te ha desasignado de la vacante <strong>{1}</strong> la cual se encuentra en la requisición FOLIO: <strong><big><a href=\"{3}/login/{2}\">{2}</a></big></strong>.", Usuario, VBr, Folio, sitioWeb);
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
                     }
                     if (action == "RD")
                     {
-                        m.Subject = "[SAGA] Eliminación de Requisicion";
+                        //m.Subject = "[SAGA] Eliminación de Requisicion";
+                        asunto = "[SAGA] Eliminación de Requisicion";
                         body = "<p>Eliminación de Requisición:</p>";
                         body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big><a href=\"{2}/login/{1}\">{1}</a></big></strong>, fue eliminada.", VBr, Folio, sitioWeb);
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
@@ -470,7 +471,8 @@ namespace SAGA.API.Utilerias
 
                     if (action == "RU")
                     {
-                        m.Subject = "[SAGA] Cancelación de Requisicion";
+                        //m.Subject = "[SAGA] Cancelación de Requisición";
+                        asunto = "[SAGA] Cancelación de Requisición";
                         body = "<p>Cancelación de Requisición:</p>";
                         body = body + string.Format("<br/>Se comunica de la manera más atenta que la vacante <strong>{0}</strong> la cual se encuentra en la requisición FOLIO: <strong><big><a href=\"{2}/login/{1}\">{1}</a></big></strong>, fue cancelada.", VBr, Folio, sitioWeb);
                         body = body + "<p>Gracias por tu atención. </p> <p>Saludos.</p>";
@@ -478,12 +480,23 @@ namespace SAGA.API.Utilerias
 
                     body = body + string.Format("<p></p><p><a href=\"https://weberp.damsa.com.mx\"><h4>Link de acceso al ERP </h4></a></p>");
 
-                    m.Body = body;
-                    m.IsBodyHtml = true;
-                    SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
-                    smtp.EnableSsl = true;
-                    smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
-                    smtp.Send(m);
+                    body = body.Replace("<", "&lt;");
+                    body = body.Replace("\"", "&quot;");
+                    var xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
+                                 + "Para=\"{0}\" Copia=\"\"  CopiaOculta=\"{1}\" Asunto=\"{2}\" Msg=\"{3}\"/>"
+                                 + "</Parametros>", to, "bmorales@damsa.com.mx, mventura@damsa.com.mx", asunto, body);
+        
+                    SqlParameter[] Parameters = { new SqlParameter("@ParametrosXML", xml) };
+                    db.Database.ExecuteSqlCommand("sp_emailFirmas @ParametrosXML", Parameters);
+
+
+                    //m.Bcc.Add("mventura@damsa.com.mx");
+                    //m.Body = body;
+                    //m.IsBodyHtml = true;
+                    //SmtpClient smtp = new SmtpClient(ConfigurationManager.AppSettings["SmtpDamsa"], Convert.ToInt16(ConfigurationManager.AppSettings["SMTPPort"]));
+                    //smtp.EnableSsl = true;
+                    //smtp.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["UserDamsa"], ConfigurationManager.AppSettings["PassDamsa"]);
+                    //smtp.Send(m);
                 }
             }
             catch (Exception ex)

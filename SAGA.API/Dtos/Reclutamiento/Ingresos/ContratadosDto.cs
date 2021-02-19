@@ -17,19 +17,21 @@ namespace SAGA.API.Dtos.Reclutamiento.Ingresos
         public string rfc { get; set; }
         public string nss { get; set; }
         public string Foto { get; set; }
+        public string base64 { get; set; }
         public DateTime fechaNacimiento { get; set; }
-
+        public DateTime edad { get; set; }
+        public string genero { get; set; }
         public Guid requisicionId { get; set; }
         public string reclutador { get; set; }
         public int paisNacimiento { get; set; }
         public int estadoNacimiento { get; set; }
+        public string estado { get; set; }
         public int municipioNacimiento { get; set; }
         public string localidad { get; set; }
         public int generoId { get; set; }
-        public string genero { get; set; }
-        public DateTime fch_Creacion { get; set; }
-        public DateTime fch_Modificacion { get; set; }
-        public DateTime fch_Ingreso { get; set; }
+        public DateTime? fch_Creacion { get; set; }
+        public DateTime? fch_Modificacion { get; set; }
+        public DateTime? fch_Ingreso { get; set; }
         public string lada { get; set; }
         public string telefono { get; set; }
         public string direccion { get; set; }
@@ -38,5 +40,10 @@ namespace SAGA.API.Dtos.Reclutamiento.Ingresos
         public Guid clienteId { get; set; }
         public string nombrecomercial { get; set; }
         public string razonSocial { get; set; }
+
+        public int total { get; set; }
+        public string email { get; set; }
+        public bool curpval { get; set; }
+        public bool rfcval { get; set; }
     }
 }

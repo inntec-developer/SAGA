@@ -21,6 +21,7 @@ namespace SAGA.API.Dtos
         public Guid ClienteId { get; set; }
         public string Usuario { get; set; }
 
+        public Contacto Contacto { get; set; }
         public virtual ICollection<Telefono> telefonos { get; set; }
         public virtual ICollection<Email> emails { get; set; }
     }

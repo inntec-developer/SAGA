@@ -9,6 +9,7 @@ namespace SAGA.API.Dtos
     {
         public Guid Id { get; set; }
         public string RazonSocial { get; set; }
+        public string Clave { get; set; }
         public string NombreComercial { get; set; }
         public string RFC { get; set; }
         public int GiroEmpresa { get; set; }

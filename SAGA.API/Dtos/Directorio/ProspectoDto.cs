@@ -8,6 +8,7 @@ namespace SAGA.API.Dtos
 {
     public class ProspectoDto
     {
+        public string Clave { get; set; }
         public int ActividadEmpresaId { get; set; }
         public int GiroEmpresaId { get; set; }
         public string Nombrecomercial { get; set; }

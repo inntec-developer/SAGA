@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 namespace SAGA.BOL
 {
-    public class PuestosPrincipal
+    public class EmpleadoBono
     {
         [Key]
         public int Id { get; set; }
-        public string Clave { get; set; }
-        public string Nombre { get; set; }
-        public string Descripcion { get; set; }
+        public Guid ConfigBonoId { get; set; }
+        public ConfigBono ConfigBono { get; set; }
+        public Guid empleadoId { get; set; }
+        public CandidatosInfo Empleado { get; set; }
         public bool Activo { get; set; }
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Modificacion { get; set; }

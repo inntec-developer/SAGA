@@ -19,8 +19,8 @@ namespace SAGA.BOL
         public Guid UsuarioAlta { get; set; }
         public Guid UsuarioMod { get; set; }
 
-        public Guid EmpresasId { get; set; }
-        public Empresas Empresas { get; set; }
+        public Guid ClienteId { get; set; }
+        public Cliente Cliente { get; set; }
 
         public int RegistroPatronalId { get; set; }
         public RegistroPatronal RegistroPatronal { get; set; }

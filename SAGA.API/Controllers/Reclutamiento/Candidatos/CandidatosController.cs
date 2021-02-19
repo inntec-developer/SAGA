@@ -731,12 +731,10 @@ namespace SAGA.API.Controllers
             Candidato obj = new Candidato();
             try
             {
-                var cc = db.Candidatos.Where(x => x.Id.Equals(datos.Id)).Select(c => c.Id).FirstOrDefault();
-
-                if (cc != aux)
+                // var cc = db.Candidatos.Where(x => x.Id.Equals(datos.Id)).Select(c => c.Id).FirstOrDefault();
+                var candidato = db.Candidatos.Find(datos.Id);
+                if (candidato != null)
                 {
-
-                    var candidato = db.Candidatos.Find(cc);
                     db.Entry(candidato).State = System.Data.Entity.EntityState.Modified;
 
                     candidato.CURP = datos.Curp;
@@ -791,7 +789,17 @@ namespace SAGA.API.Controllers
                             db.Telefonos.Add(T);
                         }
                     }
+                    var id = db.ProcesoCandidatos.OrderByDescending(o => o.Fch_Modificacion).Where(x => x.CandidatoId.Equals(candidato.Id) && x.RequisicionId.Equals(datos.requisicionId)).Select(x => x.Id).FirstOrDefault();
+                    if (id != aux)
+                    {
+                        var c = db.ProcesoCandidatos.Find(id);
 
+                        db.Entry(c).Property(x => x.Fch_Modificacion).IsModified = true;
+                        db.Entry(c).Property(x => x.ReclutadorId).IsModified = true;
+
+                        c.Fch_Modificacion = DateTime.Now;
+                        c.ReclutadorId = datos.reclutadorCampoId;
+                    }
                     db.SaveChanges();
                     return Ok(HttpStatusCode.OK);
                 }

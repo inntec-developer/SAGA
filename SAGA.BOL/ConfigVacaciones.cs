@@ -22,6 +22,9 @@ namespace SAGA.BOL
         public Guid UsuarioAlta { get; set; }
         public Guid UsuarioMod { get; set; }
 
+        public Guid ClienteId { get; set; }
+        public Cliente Cliente { get; set; }
+
     }
 
     //    Artículo 76.- Los trabajadores que tengan más de un año de servicios disfrutarán de un período 

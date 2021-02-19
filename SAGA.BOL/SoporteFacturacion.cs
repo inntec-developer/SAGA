@@ -22,8 +22,6 @@ namespace SAGA.BOL
         public Guid UsuarioAlta { get; set; }
         public Guid UsuarioMod { get; set; } 
 
-        public int DptosIngresosId { get; set; }
-        public DptosIngresos DptosIngresos { get; set; }
         public int TipodeNominaId { get; set; }
         public TipodeNomina TipodeNomina { get; set; }
     }

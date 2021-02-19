@@ -8,9 +8,10 @@ namespace SAGA.API.Utilerias
 {
     public class APISAGALog
     {
+        public APISAGALog() { }
         public void WriteError(string error)
         {
-            string path = "APISAGALog_" + DateTime.Now.ToString("ddMMyyyy") + ".txt";
+            string path = "APISAGALog_" + DateTime.Now.ToString("ddMMyyyyHHMM") + ".txt";
             string tempPath = GetTempPath();
             if (!File.Exists(tempPath + path))
             {
@@ -24,6 +25,10 @@ namespace SAGA.API.Utilerias
                 string logLine = String.Format(
                     "{0:G}: {1}.", DateTime.Now, error);
                 stwriter.WriteLine(logLine);
+
+            }
+            catch(Exception ex) {
+                stwriter.Close();
             }
             finally
             {

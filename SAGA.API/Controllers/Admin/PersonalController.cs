@@ -428,6 +428,21 @@ namespace SAGA.API.Controllers
                         }).OrderBy(o => o.nombre).ToList();
 
                         return Ok(ejvRecl);
+                    case "Recl-All":
+                        // Reclutamiento - Vacantes
+                        /*
+                         * Lideres de Reclutamiento.     
+                         * ejecutivos de reclutamiento            
+                         */
+                        var reclutadores = db.Usuarios.Where(x => x.Activo && (x.TipoUsuario.Tipo.ToLower().Equals("reclutador") || x.TipoUsuario.Tipo.ToLower().Equals("reclutador de campo")) && x.Departamento.AreaId.Equals(16)).Select(L => new
+                        {
+                            id = L.Id,
+                            nombre = L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno,
+                            clave = L.Clave,
+                            tipo = L.TipoUsuario.Tipo
+                        }).OrderBy(o => o.nombre).ToList();
+
+                        return Ok(reclutadores);
                     default:
                             return Ok(HttpStatusCode.NotFound);
                 }
@@ -703,42 +718,7 @@ namespace SAGA.API.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("UploadImage")]
-        public IHttpActionResult UploadImage()
-        {
-            string imageName = null;
-
-            try
-            {
-                var httpRequest = HttpContext.Current.Request;
-                var postedFile = httpRequest.Files["image"];
-                var id = Guid.Parse(Path.GetFileNameWithoutExtension(postedFile.FileName).ToString());
-                //var id = new string(Path.GetFileNameWithoutExtension(postedFile.FileName).Take(10).ToArray()).Replace(" ", "-");
-
-                //imageName = imageName + Path.GetExtension(postedFile.FileName);
-                imageName = Path.GetFileName(postedFile.FileName);
-
-                var path = "~/utilerias/img/user/" + imageName;
-
-                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath(path);
-
-                if (File.Exists(fullPath))
-                    File.Delete(fullPath);
-
-                postedFile.SaveAs(fullPath);
-
-                ActualizarFoto(id, imageName);
-
-                return Ok(HttpStatusCode.Created); //201
-
-            }
-            catch (Exception ex)
-            {
-                return Ok(HttpStatusCode.InternalServerError);
-            }
-
-        }
+        
 
         public string GetImage(string ruta)
         {

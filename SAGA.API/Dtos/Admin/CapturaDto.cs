@@ -29,7 +29,7 @@ namespace SAGA.API.Dtos
         public int PaisNacimientoId { get; set; }
         public int EstadoNacimientoId { get; set; }
         public int MunicipioNacimientoId { get; set; }
-        public int GeneroId { get; set; }
+        public byte GeneroId { get; set; }
         public int ReclutadorId { get; set; }
         public DateTime fch_Modificacion { get; set; }
         public Guid CandidatoId { get; set; }
@@ -40,6 +40,7 @@ namespace SAGA.API.Dtos
         public string Nacionalidad { get; set; }
         public int GradoEstudioId { get; set; }
         public string Observaciones { get; set; }
+        public int SoporteFacturacionId { get; set; }
     }
 
     public class DtosGenerales
@@ -62,21 +63,18 @@ namespace SAGA.API.Dtos
     {
         public DateTime FechaIngreso { get; set; }
         public string ClaveTurno { get; set; }
-        public string ClaveSucursal { get; set; }
         public string NoCuenta { get; set; }
-        public string Departamento { get; set; }
+        public int DptosIngresosId { get; set; }
         public DateTime FechaFormaPago { get; set; }
-        public string Puesto { get; set; }
+        public int PuestoId { get; set; }
         public string ClaveJefe { get; set; }
         public string ClaveExt { get; set; }
-        public string Celula { get; set; }
-        public string SoporteFacturacion { get; set; }
-        public string Sueldo { get; set; }
+        public int SoporteFacturacionId { get; set; }   
         public int BancoId { get; set; }
         public int MotivoId { get; set; }
         public decimal SueldoMensual { get; set; }
         public decimal SueldoDiario { get; set; }
-        public int SueldoIntegrado { get; set; }
+        public decimal SueldoIntegrado { get; set; }
         public int FormaPagoId { get; set; }
 
 

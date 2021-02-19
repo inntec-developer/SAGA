@@ -7,6 +7,7 @@ namespace SAGA.BOL
 {
     public partial class Cliente : Entidad
     {
+        public string Clave { get; set; }
         public string RazonSocial { get; set; }
         public string Nombrecomercial { get; set; }
         public string RFC { get; set; }
