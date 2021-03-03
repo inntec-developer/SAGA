@@ -10,8 +10,8 @@ namespace SAGA.BOL
     {
         [Key]
         public int Id { get; set; }
-        public int SucursalesId { get; set; }
-        public Sucursales Sucursales { get; set; }
+        public Guid EmpresasId { get; set; }
+        public Empresas Empresas { get; set; }
         public int SoportesNominaId { get; set; }
         public FIRM_SoportesNomina SoportesNomina { get; set; }
         public int TipodeNominaId { get; set; }

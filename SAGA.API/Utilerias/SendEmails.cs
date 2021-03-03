@@ -43,7 +43,7 @@ namespace SAGA.API.Utilerias
                 string body = "";
                 var xml = "";
                 var asunto = string.Format("[SAGA] Sist. Firmas - {0}", datos.subject);
-                var estatusnomina = db.FIRM_EstatusNomina.Where(x => x.Activo).Select(e => e.Estatus.ToLower()).ToList();
+                var estatusnomina = db.FIRM_EstatusBitacora.Where(x => x.Activo && x.Tipo > 1).Select(e => e.Estatus.ToLower()).ToList();
                 if (estatusnomina.Contains(datos.estatus.ToLower()))
                 {
                     body = body + string.Format("&lt;html&gt;&lt;body style=&quot;text-align:left; font-family:'calibri'; font-size:12pt;&quot;>&lt;h3>A quien corresponda&lt;/h3>&lt;p>Por medio del presente se informa que cuenta "
@@ -80,7 +80,7 @@ namespace SAGA.API.Utilerias
                         xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
                                  + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
                                  + "<Adjuntos>{4}</Adjuntos>"
-                                 + "</Parametros>", "mventura@damsa.com.mx", "bmorales@damsa.com.mx", asunto, body, adjuntos);
+                                 + "</Parametros>", datos.email_envio, datos.email_copia, asunto, body, adjuntos);
                     
                 }
                 else
@@ -108,7 +108,7 @@ namespace SAGA.API.Utilerias
                         xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
                                  + "Para=\"{0}\" Copia=\"{1}\" CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/> "
                                  + "<Adjuntos><Adjunto Ruta_Archivo=\"{4}\" Nombre_Archivo=\"{5}\" Eliminar_Archivo=\"0\"/></Adjuntos>"
-                                 + "</Parametros>", "mventura@damsa.com.mx", "bmorales@damsa.com.mx", asunto, body, path, fileName);
+                                 + "</Parametros>", datos.email_envio, datos.email_copia, asunto, body, path, fileName);
                       //  datos.email_envio, datos.email_copia
                         //< Adjuntos >< Adjunto Ruta_Archivo =\"{4}\" Nombre_Archivo=\"{5}\" Eliminar_Archivo=\"0\" /></Adjuntos>
                     }
@@ -116,7 +116,7 @@ namespace SAGA.API.Utilerias
                     {
                         xml = string.Format("<Parametros><Parametro Id_Sistema=\"SISTEMA_DEMO\" De=\"noreply@damsa.com.mx\" "
                                  + "Para=\"{0}\" Copia=\"{1}\"  CopiaOculta=\"\" Asunto=\"{2}\" Msg=\"{3}\"/>"
-                                 + "</Parametros>", "mventura@damsa.com.mx", "bmorales@damsa.com.mx", asunto, body, path, fileName);
+                                 + "</Parametros>", datos.email_envio, datos.email_copia, asunto, body, path, fileName);
                     }
                 }
 

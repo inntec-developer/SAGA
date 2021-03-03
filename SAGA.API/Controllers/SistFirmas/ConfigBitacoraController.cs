@@ -16,6 +16,7 @@ namespace SAGA.API.Controllers.SistFirmas
     public class ConfigBitacoraController : ApiController
     {
         private SAGADBContext db;
+        public Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
         public ConfigBitacoraController()
         {
             db = new SAGADBContext();
@@ -27,26 +28,90 @@ namespace SAGA.API.Controllers.SistFirmas
         {
             try
             {
-                FIRM_ConfigBitacora bit = new FIRM_ConfigBitacora();
-           
-                bit = datos.ConfigBitacora;
-                bit.fch_Creacion = DateTime.Now;
-                bit.fch_Modificacion = DateTime.Now;
-
-                db.FIRM_ConfigBitacora.Add(bit);
-                db.SaveChanges();
-
-                foreach (FIRM_FechasEstatus fe in datos.FechasEstatus)
+                if ( datos.Configuracion.Count() > 0)
                 {
-                    fe.ConfigBitacoraId = bit.Id;
+                    foreach (var r in datos.Configuracion)
+                    {
+                        var emp = db.FIRM_ConfigBitacora.
+                            Where(x => x.EmpresasId.Equals(r.Empresa.EmpresasId)
+                            && x.TipodeNominaId.Equals(r.Empresa.TipodeNominaId)
+                            && x.SoportesNominaId.Equals(r.Empresa.SoportesNominaId)).Select(e => e.Id).FirstOrDefault();
+                        if (emp != 0)
+                        {
+                            var fe = db.FIRM_FechasEstatus.Where(x => x.ConfigBitacoraId.Equals(emp));
+                            db.FIRM_FechasEstatus.RemoveRange(fe);
+
+                            var eemp = db.FIRM_ConfigBitacora.Find(emp);
+                            db.FIRM_ConfigBitacora.Remove(eemp);
+
+                            db.SaveChanges();
+
+                        }
+                        FIRM_ConfigBitacora bit = new FIRM_ConfigBitacora();
+
+                        bit = r.Empresa;
+                        bit.fch_Creacion = DateTime.Now;
+                        bit.fch_Modificacion = DateTime.Now;
+
+                        db.FIRM_ConfigBitacora.Add(bit);
+                        db.SaveChanges();
+
+                        var apt = db.FIRM_FechasEstatus.Where(x => x.ConfigBitacoraId.Equals(bit.Id));
+                        db.FIRM_FechasEstatus.RemoveRange(apt);
+
+                        foreach (FIRM_FechasEstatus fe in r.FechasEstatus)
+                        {
+                            fe.ConfigBitacoraId = bit.Id;
+                        }
+
+                        db.FIRM_FechasEstatus.AddRange(r.FechasEstatus);
+                        db.SaveChanges();
+
+                        var ee = db.FIRM_EstatusEmails.Where(x => x.ConfigBitacoraId.Equals(bit.Id));
+                        db.FIRM_EstatusEmails.RemoveRange(ee);
+
+                        foreach(FIRM_EstatusEmails esem in r.EstatusEmails)
+                        {
+                            esem.ConfigBitacoraId = bit.Id;
+                        }
+
+                        db.FIRM_EstatusEmails.AddRange(r.EstatusEmails);
+                        db.SaveChanges();
+                    }
+                    return Ok(HttpStatusCode.OK);
+
+                }
+                else if (datos.Bitacora != null)
+                {
+                    FIRM_ConfigBitacora bit = new FIRM_ConfigBitacora();
+
+                    bit = datos.ConfigBitacora;
+                    bit.fch_Creacion = DateTime.Now;
+                    bit.fch_Modificacion = DateTime.Now;
+
+                    db.FIRM_ConfigBitacora.Add(bit);
+                    db.SaveChanges();
+
+                    foreach (FIRM_FechasEstatus fe in datos.FechasEstatus)
+                    {
+                        fe.ConfigBitacoraId = bit.Id;
+                    }
+
+                    db.FIRM_FechasEstatus.AddRange(datos.FechasEstatus);
+                    db.SaveChanges();
+
+                    foreach (FIRM_EstatusEmails esem in datos.EstatusEmails)
+                    {
+                        esem.ConfigBitacoraId = bit.Id;
+                    }
+
+                    db.FIRM_EstatusEmails.AddRange(datos.EstatusEmails);
+                    db.SaveChanges();
+
+                    return Ok(HttpStatusCode.OK);
                 }
 
-
-                db.FIRM_FechasEstatus.AddRange(datos.FechasEstatus);
-
-                db.SaveChanges();
-
-                return Ok(HttpStatusCode.OK);
+                return Ok(HttpStatusCode.Continue);
             }
             catch(Exception ex)
             {
@@ -54,6 +119,7 @@ namespace SAGA.API.Controllers.SistFirmas
             }
 
         }
+       
         [HttpGet]
         [Route("getEstatusBitacora")]
         [Authorize]
@@ -83,15 +149,14 @@ namespace SAGA.API.Controllers.SistFirmas
         {
             try
             {
-                var clientes = db.Sucursales.Where(x => x.Activo).Select(c => new
+                var clientes = db.Empresas.Where(x => x.Activo).Select(c => new
                 {
                     id = c.Id,
                     clave = c.Clave,
-                    sucursal = c.Nombre,
-                    empresa = c.Cliente.Nombrecomercial,
-                    claveemp = c.Cliente.RFC,
-                    registro_pat = c.RegistroPatronal.RP_Clave,
-                    registro_imss = c.RegistroPatronal.RP_IMSS
+                    sucursal = c.Observaciones.Equals("SIN REGISTRO") ? ""  : c.Observaciones,
+                    empresa = c.Nombre,
+                    claveemp = c.Clave.Equals("S/R") ? "" : c.Clave,
+                    registro_pat = db.FIRM_RPEmpresas.Where(x => x.EmpresasId.Equals(c.Id)).Select(rp => rp.FIRM_RP.RP_Clave + " " + rp.FIRM_RP.RP_Base).FirstOrDefault()
                 }).ToList();
                 return Ok(clientes);
             }

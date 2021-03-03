@@ -57,6 +57,9 @@ namespace SAGA.API.Controllers
             {
                 if (arte.crud == "C")
                 {
+                    //var apt = db.ArteRequi.Where(x => x.RequisicionId.Equals(arte.requisicionId));
+                    //db.ArteRequi.RemoveRange(apt);
+
                     foreach (ArteRequi ar in arte.ArteRequiList)
                     {
                         ar.fch_Modificacion = DateTime.Now;
@@ -188,15 +191,18 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getGenerales")]
+        [Authorize]
         public IHttpActionResult General(Guid Requi)
         {
-            var ConfiguracionesMov = db.ConfiguracionesMov.ToList();
-            var CfgRequi = db.CfgRequi.ToList();
-            List<listadoEstru> lista = new List<listadoEstru>();
-            List<string> titulos = new List<string> {
+            try
+            {
+                var ConfiguracionesMov = db.ConfiguracionesMov.ToList();
+                var CfgRequi = db.CfgRequi.ToList();
+                List<listadoEstru> lista = new List<listadoEstru>();
+                List<string> titulos = new List<string> {
                 "datos de la vacante", "contrato", "direcciones", "puesto a reclutar", "horarios" , "beneficios", "puesto",
                 "sueldos", "documentacion", "prestaciones"};
-            List<string> campos = new List<string>() {
+                List<string> campos = new List<string>() {
                 "folio", "tipo", "dias de prueba", "estado", "municipio", "nivel", "escolaridad",
                 "aptitudes",
                 "experiencia",
@@ -217,119 +223,128 @@ namespace SAGA.API.Controllers
                "damsa",
                "de ley",
                "prestaciones", "superiores" };
-            var papas = db.Estructuras.Where(a => titulos.Contains(a.Nombre.ToLower()) &&
-                                          a.TipoEstructuraId == 7
-                                            && a.TipoMovimientoId == 3
-                                            && a.Activo == true
-                                        ).Select(p => p.Id).ToList();
-            var datos = db.Estructuras.Where(a => a.Activo == true && papas.Contains(a.IdPadre)
-                                               && a.TipoEstructuraId == 8
-                                               && a.TipoMovimientoId == 3
-                                               && campos.Contains(a.Nombre.ToLower())
-                                            ).Select(e => new {
-                                                e.Id,
-                                                e.IdPadre,
-                                                e.Nombre,
-                                                e.Orden,
-                                                e.TipoEstructuraId,
-                                                e.TipoMovimientoId,
-                                                e.Descripcion,
-                                                papa = db.Estructuras.Where(x => x.Id.Equals(e.IdPadre)).Select(n => n.Nombre).FirstOrDefault()
-                                            }).OrderBy(e => e.Orden).ToList();
-            var configura = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
-            var requi = db.Requisiciones.Where(r => r.Id.Equals(Requi)).Select(r => new
-            {
-                r.Id,
-                r.Experiencia,
-                r.Folio,
-                ActividadesRequis = db.ActividadesRequis.Where(a => a.RequisicionId.Equals(r.Id)).Select(a => a.Actividades).ToList(),
-                r.Area.areaExperiencia,
-                AptitudesRequis = db.AptitudesRequis.Where(a => a.RequisicionId.Equals(r.Id)).Select(a => a.Aptitud.aptitud).ToList(),
-                beneficiosRequi = db.BeneficiosRequis.Where(b => b.RequisicionId.Equals(r.Id)).Select(b => new
+                var papas = db.Estructuras.Where(a => titulos.Contains(a.Nombre.ToLower()) &&
+                                              a.TipoEstructuraId == 7
+                                                && a.TipoMovimientoId == 3
+                                                && a.Activo == true
+                                            ).Select(p => p.Id).ToList();
+                var datos = db.Estructuras.Where(a => a.Activo == true && papas.Contains(a.IdPadre)
+                                                   && a.TipoEstructuraId == 8
+                                                   && a.TipoMovimientoId == 3
+                                                   && campos.Contains(a.Nombre.ToLower())
+                                                ).Select(e => new
+                                                {
+                                                    e.Id,
+                                                    e.IdPadre,
+                                                    e.Nombre,
+                                                    e.Orden,
+                                                    e.TipoEstructuraId,
+                                                    e.TipoMovimientoId,
+                                                    e.Descripcion,
+                                                    papa = db.Estructuras.Where(x => x.Id.Equals(e.IdPadre)).Select(n => n.Nombre).FirstOrDefault()
+                                                }).OrderBy(e => e.Orden).ToList();
+                var configura = db.ConfiguracionRequis.Where(e => e.RequisicionId == Requi).ToList();
+                var requi = db.Requisiciones.Where(r => r.Id.Equals(Requi)).Select(r => new
                 {
-                    b.TipoBeneficio.tipoBeneficio,
-                    b.Cantidad, b.Observaciones
-                }).ToList(),
-                r.ContratoInicial.periodoPrueba,
-                r.ContratoInicial.tipoContrato,
-                DiaCorte = r.DiaCorte.diaSemana,
-                DiaPago = r.DiaPago.diaSemana,
-                Direccion = db.Direcciones.Where(d => d.Id.Equals(r.DireccionId) && d.Activo && d.esPrincipal).Select(d => new
-                {
-                    d.Municipio.municipio,
-                    d.Estado.estado
-                }).FirstOrDefault(),
-                DocumentosDamsa = db.DocumentosDamsa.Select(d => d.documentoDamsa).ToList(),
-                EscolaridadesRequi = db.EscolaridadesRequis.Where(e => e.RequisicionId.Equals(r.Id)).Select(e => new
-                {
-                    e.Escolaridad.gradoEstudio,
-                    e.EstadoEstudio.estadoEstudio
-                }).ToList(),
-                Estatus = r.Estatus.Descripcion,
-                horariosRequi = db.HorariosRequis.Where(h => h.RequisicionId.Equals(r.Id) && h.Activo).Select(h => new
-                {
-                    h.Nombre,
-                    deDia = h.deDia.diaSemana,
-                    aDia = h.aDia.diaSemana,
-                    h.deHora,
-                    h.aHora,
-                    h.Especificaciones,
-                }).ToList(),
-                r.PeriodoPago.periodoPago,
-                PrestacionesRequi = db.PrestacionesClienteRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => p.Prestamo).ToList(),
-                prestacionLey = db.PrestacionesLey.Select(p => p.prestacionLey).ToList(),
-                r.SueldoMaximo,
-                r.SueldoMinimo,
-                TCTiempo = r.TiempoContrato.Tiempo,
-                r.TipoNomina.tipoDeNomina,
-                r.VBtra
-            }).FirstOrDefault();
-            foreach (var item in datos)
-            {
-                if ((item.papa.ToLower() == "direcciones" && item.Nombre.ToLower().Equals("tipo")) || (item.papa.ToLower().Equals("puesto") && item.Nombre.ToLower().Equals("observaciones")))
-                { }
-                else { 
-                    listadoEstru pieza = new listadoEstru();
-                    pieza.Id = item.Id;
-                    pieza.idPadre = item.IdPadre;
-                    pieza.Nombre = item.Nombre;
-                    pieza.Descripcion = item.Descripcion;
-                    //pieza.Activo = item.Activo;
-                    //pieza.Confidencial = item.Confidencial;
-                    //pieza.Icono = item.Icono;
-                    pieza.Resumen = false;
-                    pieza.Detalle = false;
-                    pieza.Publica = false;
-                    //pieza.Requi = requi;
-                    try
+                    r.Id,
+                    r.Experiencia,
+                    r.Folio,
+                    ActividadesRequis = db.ActividadesRequis.Where(a => a.RequisicionId.Equals(r.Id)).Select(a => a.Actividades).ToList(),
+                    r.Area.areaExperiencia,
+                    AptitudesRequis = db.AptitudesRequis.Where(a => a.RequisicionId.Equals(r.Id)).Select(a => a.Aptitud.aptitud).ToList(),
+                    beneficiosRequi = db.BeneficiosRequis.Where(b => b.RequisicionId.Equals(r.Id)).Select(b => new
                     {
-                        pieza.Resumen = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().R;
-                        pieza.Detalle = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().D;
-                    }
-                    catch (Exception)
+                        b.TipoBeneficio.tipoBeneficio,
+                        b.Cantidad,
+                        b.Observaciones
+                    }).ToList(),
+                    r.ContratoInicial.periodoPrueba,
+                    r.ContratoInicial.tipoContrato,
+                    DiaCorte = r.DiaCorte.diaSemana,
+                    DiaPago = r.DiaPago.diaSemana,
+                    Direccion = db.Direcciones.Where(d => d.Id.Equals(r.DireccionId) && d.Activo).Select(d => new
                     {
-                    }
-                    if (ConfiguracionesMov.Count > 0)
+                        d.Municipio.municipio,
+                        d.Estado.estado
+                    }).FirstOrDefault(),
+                    DocumentosDamsa = db.DocumentosDamsa.Select(d => d.documentoDamsa).ToList(),
+                    EscolaridadesRequi = db.EscolaridadesRequis.Where(e => e.RequisicionId.Equals(r.Id)).Select(e => new
                     {
-                        if (ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).Count() > 0)
+                        e.Escolaridad.gradoEstudio,
+                        e.EstadoEstudio.estadoEstudio
+                    }).ToList(),
+                    Estatus = r.Estatus.Descripcion,
+                    horariosRequi = db.HorariosRequis.Where(h => h.RequisicionId.Equals(r.Id) && h.Activo).Select(h => new
+                    {
+                        h.Nombre,
+                        deDia = h.deDia.diaSemana,
+                        aDia = h.aDia.diaSemana,
+                        h.deHora,
+                        h.aHora,
+                        h.Especificaciones,
+                    }).ToList(),
+                    r.PeriodoPago.periodoPago,
+                    PrestacionesRequi = db.PrestacionesClienteRequis.Where(p => p.RequisicionId.Equals(r.Id)).Select(p => p.Prestamo).ToList(),
+                    prestacionLey = db.PrestacionesLey.Select(p => p.prestacionLey).ToList(),
+                    r.SueldoMaximo,
+                    r.SueldoMinimo,
+                    TCTiempo = r.TiempoContrato.Tiempo,
+                    r.TipoNomina.tipoDeNomina,
+                    r.VBtra
+                }).FirstOrDefault();
+                foreach (var item in datos)
+                {
+                    if ((item.papa.ToLower() == "direcciones" && item.Nombre.ToLower().Equals("tipo")) || (item.papa.ToLower().Equals("puesto") && item.Nombre.ToLower().Equals("observaciones")))
+                    { }
+                    else
+                    {
+                        listadoEstru pieza = new listadoEstru();
+                        pieza.Id = item.Id;
+                        pieza.idPadre = item.IdPadre;
+                        pieza.Nombre = item.Nombre;
+                        pieza.Descripcion = item.Descripcion;
+                        //pieza.Activo = item.Activo;
+                        //pieza.Confidencial = item.Confidencial;
+                        //pieza.Icono = item.Icono;
+                        pieza.Resumen = false;
+                        pieza.Detalle = false;
+                        pieza.Publica = false;
+                        //pieza.Requi = requi;
+                        try
                         {
-                            pieza.Publica = ConfiguracionesMov.Where(e => e.EstructuraId == item.Id).FirstOrDefault().esPublicable;
+                            pieza.Resumen = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().R;
+                            pieza.Detalle = CfgRequi.Where(e => e.ConfigMovId == ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).FirstOrDefault().Id).FirstOrDefault().D;
                         }
-                    }
+                        catch (Exception)
+                        {
+                        }
+                        if (ConfiguracionesMov.Count > 0)
+                        {
+                            if (ConfiguracionesMov.Where(a => a.EstructuraId == item.Id).Count() > 0)
+                            {
+                                pieza.Publica = ConfiguracionesMov.Where(e => e.EstructuraId == item.Id).FirstOrDefault().esPublicable;
+                            }
+                        }
 
 
-                    if (configura.Count > 0)
-                    {
-                        pieza.Resumen = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Resumen).FirstOrDefault();
-                        pieza.Detalle = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Detalle).FirstOrDefault();
+                        if (configura.Count > 0)
+                        {
+                            pieza.Resumen = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Resumen).FirstOrDefault();
+                            pieza.Detalle = configura.Where(e => e.IdEstructura == item.Id).Select(e => e.Detalle).FirstOrDefault();
+                        }
+                        lista.Add(pieza);
+
                     }
-                    lista.Add(pieza);
 
                 }
-               
-            }
 
-            return Ok(new { lista, requi });
+                return Ok(new { lista, requi });
+            }
+            catch (Exception ex)
+            {
+                return Ok(HttpStatusCode.BadRequest);
+
+            }
         }
 
         [HttpGet]

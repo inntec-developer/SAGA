@@ -1041,6 +1041,7 @@ namespace SAGA.API.Controllers
 
         [HttpGet]
         [Route("getRPTCandidatosVacante")]
+        [Authorize]
         public IHttpActionResult GetRPTCandidatosVacante(Guid VacanteId)
         {
             try
@@ -1054,6 +1055,8 @@ namespace SAGA.API.Controllers
                         estatus = c.Estatus.Descripcion,
                         estatusId = c.EstatusId,
                         reclutador = db.Usuarios.Where(x => x.Id.Equals(c.ReclutadorId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault(),
+                        reclutadorCampo = db.InformeRequisiciones.OrderByDescending(o => o.fch_Creacion).Where(x => x.CandidatoId.Equals(c.CandidatoId) && x.RequisicionId.Equals(VacanteId) && x.EstatusId.Equals(12)).Select(rc => 
+                                    db.Usuarios.Where(x => x.Id.Equals(rc.ReclutadorId)).Select(nrc => nrc.Clave + " " + nrc.Nombre + " " + nrc.ApellidoPaterno + " " + nrc.ApellidoMaterno).FirstOrDefault()).FirstOrDefault(),
                         contratados = db.Candidatos.Where(x => x.Id.Equals(c.CandidatoId)).Select(p => new
                         {
                             nombre = p.Nombre == null ? "" : p.Nombre,
@@ -1067,7 +1070,11 @@ namespace SAGA.API.Controllers
                             estadoNacimiento = p.EstadoNacimientoId,
                             municipioNacimiento = p.MunicipioNacimientoId,
                             localidad = p.municipioNacimiento.municipio + " / " + p.estadoNacimiento.estado,
-                            generoId = p.GeneroId
+                            generoId = p.GeneroId,
+                            curpVal = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(v => 
+                                                        db.ValidacionCURPRFC.Where(x => x.CandidatosInfoId.Equals(v.Id)).Select(cv => cv.CURP).FirstOrDefault()).FirstOrDefault(),
+                            rfcVal = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId)).Select(v => 
+                                                        db.ValidacionCURPRFC.Where(x => x.CandidatosInfoId.Equals(v.Id)).Select(cv => cv.RFC).FirstOrDefault()).FirstOrDefault()
                         }).ToList(),
 
                         //    contratados = db.CandidatosInfo.Where(x => x.CandidatoId.Equals(c.CandidatoId) && c.EstatusId.Equals(24)).Select(p => new

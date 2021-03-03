@@ -944,12 +944,18 @@ namespace SAGA.API.Controllers
                            Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                            Folio = e.Folio,
                            Confidencial = e.Confidencial,
-                           Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
+                           Contratados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Select(cc => cc.CandidatoId).Distinct().Count(),
                            coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                            Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
-                           reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                           reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
                           db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                                            ).ToList(),
+                          cubiertos = db.CandidatosInfo.Where(x => db.InformeRequisiciones.Where(xx => xx.EstatusId == 12 && xx.RequisicionId == e.Id).Select(a => a.CandidatoId).Distinct().ToList().Contains(x.CandidatoId))
+                                        .Select(ci => new {
+                                            candidato = ci.Nombre + " " + ci.ApellidoPaterno + " " + ci.ApellidoMaterno,
+                                            reclutador = db.InformeRequisiciones.Where(xx => xx.EstatusId == 12 && xx.RequisicionId == e.Id && xx.CandidatoId.Equals(ci.CandidatoId))
+                                                    .Select(rc => db.Usuarios.Where(x => x.Id.Equals(rc.ReclutadorId)).Select(nr => nr.Clave + " " + nr.Nombre + " " + nr.ApellidoPaterno + " " + nr.ApellidoMaterno).FirstOrDefault()).FirstOrDefault()
+                                        }).ToList(),
                        }).ToList().OrderByDescending(o => o.Folio);
                    
                     return Ok( new
@@ -998,13 +1004,18 @@ namespace SAGA.API.Controllers
                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                        Folio = e.Folio,
                        Confidencial = e.Confidencial,
-                       Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
+                       Contratados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
                        coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                        Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault(),
-                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && !x.GrpUsrId.Equals(e.AprobadorId)).Select(a =>
+                       reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
                       db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                                        ).ToList(),
-
+                       cubiertos = db.CandidatosInfo.Where(x => db.InformeRequisiciones.Where(xx => xx.EstatusId == 12 && xx.RequisicionId == e.Id).Select(a => a.CandidatoId).Distinct().ToList().Contains(x.CandidatoId))
+                                        .Select(ci => new {
+                                            candidato = ci.Nombre + " " + ci.ApellidoPaterno + " " + ci.ApellidoMaterno,
+                                            reclutador = db.InformeRequisiciones.Where(xx => xx.EstatusId == 12 && xx.RequisicionId == e.Id && xx.CandidatoId.Equals(ci.CandidatoId))
+                                                    .Select(rc => db.Usuarios.Where(x => x.Id.Equals(rc.ReclutadorId)).Select(nr => nr.Clave + " " + nr.Nombre + " " + nr.ApellidoPaterno + " " + nr.ApellidoMaterno).FirstOrDefault()).FirstOrDefault()
+                                        }).ToList(),
                        //ComentarioReclutador = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c => c.fch_Creacion + " - " + c.UsuarioAlta + " - " + (c.Motivo.Id == 7 ? "" : c.Motivo.Descripcion + " - ") + c.Comentario).ToList()
                    }).ToList();
                                       
@@ -1074,12 +1085,18 @@ namespace SAGA.API.Controllers
                        Vacantes = e.horariosRequi.Count() > 0 ? e.horariosRequi.Sum(h => h.numeroVacantes) : 0,
                        Folio = e.Folio,
                        Confidencial = e.Confidencial,
-                       Contratados = db.ProcesoCandidatos.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
+                       Contratados = db.InformeRequisiciones.Where(p => p.RequisicionId.Equals(e.Id) && p.EstatusId.Equals(24)).Count(),
                        coordinador = string.IsNullOrEmpty(db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault()) ? "SIN ASIGNAR" : db.Usuarios.Where(x => x.Id.Equals(e.AprobadorId)).Select(s => s.Nombre + " " + s.ApellidoPaterno + " " + s.ApellidoMaterno).FirstOrDefault().ToUpper(),
                        Propietario = db.Usuarios.Where(x => x.Id.Equals(e.PropietarioId)).Select(P => P.Nombre + " " + P.ApellidoPaterno + " " + P.ApellidoMaterno).FirstOrDefault().ToUpper(),
                        reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
                       db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault()
                                        ).ToList(),
+                      cubiertos = db.CandidatosInfo.Where(x => db.InformeRequisiciones.Where(xx => xx.EstatusId == 12 && xx.RequisicionId == e.Id).Select(a => a.CandidatoId).Distinct().ToList().Contains(x.CandidatoId))
+                                        .Select(ci => new {
+                                            candidato = ci.Nombre + " " + ci.ApellidoPaterno + " " + ci.ApellidoMaterno,
+                                            reclutador = db.InformeRequisiciones.Where(xx => xx.EstatusId == 12 && xx.RequisicionId == e.Id && xx.CandidatoId.Equals(ci.CandidatoId))
+                                                    .Select(rc => db.Usuarios.Where(x => x.Id.Equals(rc.ReclutadorId)).Select(nr => nr.Clave + " " + nr.Nombre + " " + nr.ApellidoPaterno + " " + nr.ApellidoMaterno).FirstOrDefault()).FirstOrDefault()
+                                        }).ToList(),
                    }).ToList();
                    
                     return Ok(new
@@ -1730,6 +1747,12 @@ namespace SAGA.API.Controllers
                         reclutadores = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(row.Id) && x.Tipo.Equals(2)).Select(a =>
                             db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno + " ").FirstOrDefault().ToUpper()
                                              ).ToList(),
+                        cubiertos = db.CandidatosInfo.Where(x => db.InformeRequisiciones.Where(xx => xx.EstatusId == 12 && xx.RequisicionId == row.Id).Select(a => a.CandidatoId).Distinct().ToList().Contains(x.CandidatoId))
+                                        .Select(ci => new {
+                                            candidato = ci.Nombre + " " + ci.ApellidoPaterno + " " + ci.ApellidoMaterno,
+                                            reclutador = db.InformeRequisiciones.Where(xx => xx.EstatusId == 12 && xx.RequisicionId.Equals(row.Id) && xx.CandidatoId.Equals(ci.CandidatoId))
+                                                    .Select(rc => db.Usuarios.Where(x => x.Id.Equals(rc.ReclutadorId)).Select(nr => nr.Clave + " " + nr.Nombre + " " + nr.ApellidoPaterno + " " + nr.ApellidoMaterno).FirstOrDefault()).FirstOrDefault()
+                                        }).ToList(),
                         comentarios_coord = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(row.Id) && x.ReclutadorId.Equals(row.AprobadorId)).GroupBy(g => g.ReclutadorId)
                           .Select(c => new CR
                           {

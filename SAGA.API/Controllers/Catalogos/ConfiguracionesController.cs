@@ -20,6 +20,7 @@ namespace SAGA.API.Controllers.Catalogos
     public class ConfiguracionesController : ApiController
     {
         private SAGADBContext db;
+        public Guid auxID = new Guid("00000000-0000-0000-0000-000000000000");
         public ConfiguracionesController()
         {
             db = new SAGADBContext();

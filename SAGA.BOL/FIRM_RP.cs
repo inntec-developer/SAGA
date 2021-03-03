@@ -6,18 +6,20 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 namespace SAGA.BOL
 {
-    public class CatalogoBancos
+    public class FIRM_RP
     {
         [Key]
-        public int Id { get; set; }
-        public string Clave { get; set; }
-        public string Nombre { get; set; }
-        public string RazonSocial { get; set; }
-        public string Descripcion { get; set; }
+        public Guid Id { get; set; }
+        public string RP_Clave { get; set; }
+        public string RP_Base { get; set; }
+        public string RP_IMSS { get; set; }
+        public string Observaciones { get; set; }
         public bool Activo { get; set; }
+     
         public DateTime fch_Creacion { get; set; }
         public DateTime fch_Modificacion { get; set; }
         public Guid UsuarioAlta { get; set; }
         public Guid UsuarioMod { get; set; }
+
     }
 }

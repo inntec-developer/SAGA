@@ -18,7 +18,7 @@ namespace SAGA.BOL
         public bool Retardo { get; set; }
         public bool Porques { get; set; }
 
-        public int EstatusNominaId { get; set; }
-        public FIRM_EstatusNomina EstatusNomina { get; set; }
+        public int EstatusBitacoraId { get; set; }
+        public FIRM_EstatusBitacora EstatusBitacora { get; set; }
     }
 }

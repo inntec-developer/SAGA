@@ -332,7 +332,7 @@ namespace SAGA.API.Controllers
                     d.Nombre = datos.Descripcion;
                     d.Descripcion = datos.Comentario;
                     d.RazonSocial = datos.razonSocial;
-                    d.Clave = datos.ClaveInt;
+                    d.Clave = datos.Clave;
                     d.Activo = true;
                     d.fch_Modificacion = DateTime.Now;
                     d.UsuarioAlta = datos.Usuario;
@@ -350,7 +350,7 @@ namespace SAGA.API.Controllers
                     d.Nombre = datos.Descripcion;
                     d.Descripcion = datos.Comentario;
                     d.RazonSocial = datos.razonSocial;
-                    d.Clave = datos.ClaveInt;
+                    d.Clave = datos.Clave;
                     d.fch_Modificacion = DateTime.Now;
                     d.UsuarioMod = datos.Usuario;
 

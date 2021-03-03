@@ -172,10 +172,15 @@ namespace SAGA.API.Controllers.Reportes
                     e.fch_Cumplimiento,
                     estatus = e.Estatus.Descripcion.ToUpper(),
                    // reclutadorTotal = db.AsignacionRequis.Where(a => a.RequisicionId == e.Id && a.GrpUsrId != e.AprobadorId).Count() == 0 ? "SIN ASIGNAR" : db.AsignacionRequis.Where(a => a.RequisicionId == e.Id && a.GrpUsrId != e.AprobadorId).Count().ToString(),
-                    nombreReclutado = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.GrpUsrId != e.AprobadorId).Select(a =>
+                    nombreReclutado = db.AsignacionRequis.Where(x => x.RequisicionId.Equals(e.Id) && x.Tipo.Equals(2)).Select(a =>
                         db.Usuarios.Where(x => x.Id.Equals(a.GrpUsrId)).Select(r => r.Nombre + " " + r.ApellidoPaterno + " " + r.ApellidoMaterno).FirstOrDefault().ToUpper()
                                       ).ToList(),
                     candiTotal = db.ProcesoCandidatos.Where(a => a.RequisicionId.Equals(e.Id)).Count(),
+                    cubiertos = db.CandidatosInfo.Where(x => db.InformeRequisiciones.Where(xx => xx.EstatusId == 24 && xx.RequisicionId == e.Id).Select(a => a.CandidatoId).Distinct().ToList().Contains(x.CandidatoId))
+                                        .Select(ci => new {
+                                            candidato = ci.Nombre + " " + ci.ApellidoPaterno + " " + ci.ApellidoMaterno,
+                                            reclutador = db.Usuarios.Where(x => x.Id.Equals(ci.ReclutadorId)).Select(nr => nr.Clave + " " + nr.Nombre + " " + nr.ApellidoPaterno + " " + nr.ApellidoMaterno).FirstOrDefault()
+                                        }).ToList(),
                     nombreCandidato = db.ProcesoCandidatos.Where(a => a.RequisicionId.Equals(e.Id)).Select(b => db.Candidatos.Where(xc => xc.Id.Equals(b.CandidatoId)).Select(c => c.Nombre + " " + c.ApellidoPaterno + " " + c.ApellidoMaterno)).ToList(),
                     coemtaTotal = db.ComentariosVacantes.Where(x => x.RequisicionId == e.Id).Count(),
                     listaComentario = db.ComentariosVacantes.Where(x => x.RequisicionId.Equals(e.Id)).Select(c =>

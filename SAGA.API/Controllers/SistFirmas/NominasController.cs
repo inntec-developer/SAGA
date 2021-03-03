@@ -154,7 +154,7 @@ namespace SAGA.API.Controllers.SistFirmas
                 {
                     id = c.Id,
                     c.Fecha,
-                    estatus = c.EstatusNomina.Estatus,
+                //    estatus = c.EstatusNomina.Estatus,
                     retardo = c.Retardo ? "RETARDO" : "SIN RETARDO",
                     porques = c.Porques ? "SE ENVIÓ" : "NO SE ENVIÓ",
                     propietario = db.Usuarios.Where(x => x.Id.Equals(c.PropietarioId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()
@@ -186,7 +186,7 @@ namespace SAGA.API.Controllers.SistFirmas
                 {
                     id = c.Id,
                     c.Fecha,
-                    estatus = c.EstatusNomina.Estatus,
+                  //  estatus = c.EstatusNomina.Estatus,
                     retardo = c.Retardo ? "RETARDO" : "SIN RETARDO",
                     porques = c.Porques ? "SE ENVIÓ" : "NO SE ENVIÓ",
                     propietario = db.Usuarios.Where(x => x.Id.Equals(c.PropietarioId)).Select(n => n.Nombre + " " + n.ApellidoPaterno + " " + n.ApellidoMaterno).FirstOrDefault()

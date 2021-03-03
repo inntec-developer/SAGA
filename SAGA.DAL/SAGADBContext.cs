@@ -154,7 +154,7 @@ namespace SAGA.DAL
         public DbSet<TipoPeriodos> TipoPeriodos { get; set; }
 
         ///ingresos
-        public DbSet<Empresas> Empresas { get; set; }
+        
         public DbSet<DptosIngresos> DptosIngresos { get; set; }
         public DbSet<CatalogoClientes> CatalogoClientes { get; set; }
         public DbSet<PuestosIngresos> PuestosIngresos { get; set; }
@@ -283,12 +283,14 @@ namespace SAGA.DAL
         #endregion
 
         #region FIRMAS
+        public DbSet<Empresas> Empresas { get; set; }
+        public DbSet<FIRM_RP_Empresas> FIRM_RPEmpresas { get; set; }
         public DbSet<FIRM_EstatusBitacora> FIRM_EstatusBitacora { get; set; }
         public DbSet<FIRM_SoportesNomina> FIRM_SoportesNomina { get; set; }
         public DbSet<FIRM_SoporteSucursal> FIRM_SoporteSucursal { get; set; }
         public DbSet<FIRM_ConfigBitacora> FIRM_ConfigBitacora { get; set; }
         public DbSet<FIRM_Bitacora> FIRM_Bitacora { get; set; }
-        //public DbSet<FIRM_Tiempos> FIRM_Tiempos { get; set; }
+        public DbSet<FIRM_RP> FIRM_RP { get; set; }
         public DbSet<FIRM_Ishikawa> FIRM_Ishikawa { get; set; }
         public DbSet<FIRM_CausaEfecto> FIRM_CausaEfecto { get; set; }
         public DbSet<FIRM_Porques> FIRM_Porques { get; set; }
@@ -297,6 +299,7 @@ namespace SAGA.DAL
         public DbSet<FIRM_FechasEstatus> FIRM_FechasEstatus { get; set; }
         public DbSet<FIRM_EstatusNomina> FIRM_EstatusNomina { get; set; }
         public DbSet<FIRM_BitacoraNomina> FIRM_BitacoraNomina { get; set; }
+        public DbSet<FIRM_EstatusEmails> FIRM_EstatusEmails { get; set; }
         #endregion
 
         #region Vtas
@@ -512,8 +515,8 @@ namespace SAGA.DAL
                 Property(x => x.fchFin).HasColumnType("datetime").IsRequired();
                 Property(x => x.dias).IsRequired();
                 Property(x => x.Comentario).IsRequired().HasMaxLength(300);
-                Property(x => x.SerieFolio).IsRequired();
-                Property(x => x.Archivo).IsRequired();
+                Property(x => x.SerieFolio).HasMaxLength(100).IsRequired();
+                Property(x => x.Archivo).HasMaxLength(100).IsRequired();
                 Property(x => x.TiposIncapacidadId).IsRequired();
 
                 Property(x => x.fchAlta).HasColumnType("datetime").IsRequired();
@@ -569,21 +572,7 @@ namespace SAGA.DAL
                 Property(x => x.fchModificacion).HasColumnType("datetime").IsRequired();
             }
         }
-        public class EmpresasMap : EntityTypeConfiguration<Empresas>
-        {
-            public EmpresasMap()
-            {
-                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Nombre).HasMaxLength(100).IsRequired();
-                Property(x => x.Clave).HasMaxLength(20).IsRequired();
-                Property(x => x.Observaciones).HasMaxLength(200).IsRequired();
-                Property(x => x.Activo).IsRequired();
-                Property(x => x.UsuarioAlta).IsRequired();
-                Property(x => x.UsuarioMod).IsRequired();
-                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
-                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
-            }
-        }
+     
         public class DptosIngresosMap : EntityTypeConfiguration<DptosIngresos>
         {
             public DptosIngresosMap()
@@ -1136,7 +1125,7 @@ namespace SAGA.DAL
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Descripcion).HasMaxLength(100).IsRequired();
                 Property(x => x.Comentario).HasMaxLength(300).IsRequired();
-                Property(x => x.Clave).HasMaxLength(10).IsRequired();
+                Property(x => x.Clave).HasMaxLength(20).IsRequired();
                 Property(x => x.Activo).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
@@ -1206,7 +1195,7 @@ namespace SAGA.DAL
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Estatus).HasMaxLength(100).IsRequired();
                 Property(x => x.Comentario).HasMaxLength(300).IsRequired();
-                Property(x => x.Clave).HasMaxLength(10).IsRequired();
+                Property(x => x.Clave).HasMaxLength(20).IsRequired();
                 Property(x => x.Activo).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
@@ -1219,12 +1208,12 @@ namespace SAGA.DAL
             public DiasFestivosMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Descripcion).HasMaxLength(50).IsRequired();
+                Property(x => x.Descripcion).HasMaxLength(200).IsRequired();
                 Property(x => x.Fecha).IsRequired();
                 Property(x => x.Anio).IsRequired();
-                Property(x => x.MesNombre).IsRequired();
+                Property(x => x.MesNombre).HasMaxLength(100).IsRequired();
                 Property(x => x.MesNum).IsRequired();
-                Property(x => x.DiaSemanaNombre).IsRequired();
+                Property(x => x.DiaSemanaNombre).HasMaxLength(100).IsRequired();
                 Property(x => x.DiaSemanaNum).IsRequired();
                 Property(x => x.Comentario).HasMaxLength(200).IsRequired();
                 Property(x => x.Clave).HasMaxLength(20).IsRequired();
@@ -1241,7 +1230,7 @@ namespace SAGA.DAL
             public HorariosIngresosMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Nombre).HasMaxLength(50).IsRequired();
+                Property(x => x.Nombre).HasMaxLength(100).IsRequired();
                 Property(x => x.Especificaciones).HasMaxLength(200).IsRequired();
                 Property(x => x.Clave).HasMaxLength(20).IsRequired();
                 Property(x => x.Activo).IsRequired();
@@ -2353,7 +2342,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Clave).IsRequired();
+                Property(x => x.Clave).HasMaxLength(20).IsRequired();
                 Property(x => x.Nombre).HasMaxLength(100).IsRequired();
                 Property(x => x.RazonSocial).HasMaxLength(200).IsRequired();
                 Property(x => x.Descripcion).HasMaxLength(200).IsRequired();
@@ -2388,7 +2377,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id);
                 Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Clave).IsRequired().HasMaxLength(7);
+                Property(x => x.Clave).IsRequired().HasMaxLength(20);
                 Property(x => x.Descripcion).HasMaxLength(100).IsRequired();
                 Property(x => x.Observaciones).HasMaxLength(200).IsRequired();
                 Property(x => x.Activo).IsRequired();
@@ -3267,6 +3256,7 @@ namespace SAGA.DAL
                 Property(x => x.RequisicionId).IsRequired();
                 Property(x => x.CandidatoId).IsRequired();
                 Property(x => x.EstatusId).IsRequired();
+                Property(x => x.ReclutadorId);
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsOptional();
             }
@@ -3956,7 +3946,7 @@ namespace SAGA.DAL
                 Property(x => x.EstadoCivilId).IsRequired();
                 Property(x => x.GrupoSanguineoId).IsRequired();
                 Property(x => x.ImgUrl).IsRequired().HasMaxLength(100);
-                Property(x => x.email).IsRequired().HasMaxLength(50);
+                Property(x => x.email).IsRequired().HasMaxLength(100);
             }
         }
 
@@ -3990,8 +3980,8 @@ namespace SAGA.DAL
                 Property(x => x.NoCuenta).IsRequired().HasMaxLength(20);
                 Property(x => x.FechaFormaPago).IsRequired();
                 Property(x => x.PuestosIngresosId).IsRequired();
-                Property(x => x.ClaveJefe).IsRequired().HasMaxLength(10);
-                Property(x => x.ClaveExt).IsRequired().HasMaxLength(10);
+                Property(x => x.ClaveJefe).IsRequired().HasMaxLength(20);
+                Property(x => x.ClaveExt).IsRequired().HasMaxLength(20);
                 Property(x => x.MotivoId).IsRequired();
                 Property(x => x.SueldoMensual).IsRequired();
                 Property(x => x.SueldoDiario).IsRequired();
@@ -4006,8 +3996,8 @@ namespace SAGA.DAL
                 HasKey(x => x.Id);
                 Property(x => x.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.CandidatoId).IsRequired();
-                Property(x => x.Clave).HasMaxLength(10).IsRequired();
-                Property(x => x.Codigo).HasMaxLength(20).IsRequired();
+                Property(x => x.Clave).HasMaxLength(20).IsRequired();
+                Property(x => x.Codigo).HasMaxLength(50).IsRequired();
                 Property(x => x.fch_Ingreso).IsRequired();
                 Property(x => x.UsuarioId).IsRequired();
                 Property(x => x.Activo).IsRequired();
@@ -4046,6 +4036,31 @@ namespace SAGA.DAL
         #endregion
 
         #region Mapeo FIRM
+        public class EmpresasMap : EntityTypeConfiguration<Empresas>
+        {
+            public EmpresasMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.Nombre).HasMaxLength(100).IsRequired();
+                Property(x => x.Clave).HasMaxLength(20).IsRequired();
+                Property(x => x.Observaciones).HasMaxLength(200).IsRequired();
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
+            }
+        }
+        public class FIRM_EstatusEmailsMap : EntityTypeConfiguration<FIRM_EstatusEmails>
+        {
+            public FIRM_EstatusEmailsMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.EstatusBitacoraId).IsRequired();
+                Property(x => x.ConfigBitacoraId).IsRequired();
+                Property(x => x.Email).HasMaxLength(200).IsRequired();
+            }
+        }
         public class FIRM_BitacoraNominaMap : EntityTypeConfiguration<FIRM_BitacoraNomina>
         {
             public FIRM_BitacoraNominaMap()
@@ -4054,6 +4069,7 @@ namespace SAGA.DAL
                 Property(x => x.Fecha).IsRequired();
                 Property(x => x.Activo).IsRequired();
                 Property(x => x.PropietarioId).IsRequired();
+                Property(x => x.EstatusBitacoraId).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").IsRequired();
                 Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
                 Property(x => x.Retardo).IsRequired();
@@ -4082,6 +4098,7 @@ namespace SAGA.DAL
                 Property(x => x.Estatus).IsRequired().HasMaxLength(100);
                 Property(x => x.Observaciones).HasMaxLength(200).IsRequired();
                 Property(x => x.Activo).IsRequired();
+                Property(x => x.Tipo).IsRequired();
                 Property(x => x.UsuarioAlta).IsRequired();
                 Property(x => x.UsuarioMod).IsRequired();
                 Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
@@ -4118,7 +4135,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.TipodeNominaId).IsRequired();
-                Property(x => x.SucursalesId).IsRequired();
+                Property(x => x.EmpresasId).IsRequired();
                 Property(x => x.SoportesNominaId).IsRequired();
                 Property(x => x.Destinatario).IsRequired();
                 Property(x => x.Activo).IsRequired();
@@ -4129,17 +4146,32 @@ namespace SAGA.DAL
 
             }
         }
-        //public class FIRM_TiemposMap : EntityTypeConfiguration<FIRM_Tiempos>
-        //{
-        //    public FIRM_TiemposMap()
-        //    {
-        //        HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-        //        Property(x => x.DiaSemanaId).IsRequired();
-        //        Property(x => x.EstatusBitacoraId).IsRequired();
-        //        Property(x => x.Hora).HasColumnType("datetime").IsRequired();
+        public class FIRM_RPMap : EntityTypeConfiguration<FIRM_RP>
+        {
+            public FIRM_RPMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.RP_Clave).IsRequired().HasMaxLength(20);
+                Property(x => x.RP_Base).IsRequired().HasMaxLength(200);
+                Property(x => x.RP_IMSS).IsRequired().HasMaxLength(100);
+                Property(x => x.Activo).IsRequired();
+                Property(x => x.Observaciones).IsRequired().HasMaxLength(300);
+                Property(x => x.UsuarioAlta).IsRequired();
+                Property(x => x.UsuarioMod).IsRequired();
+                Property(x => x.fch_Creacion).HasColumnType("datetime").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed).IsRequired();
+                Property(x => x.fch_Modificacion).HasColumnType("datetime").IsRequired();
 
-        //    }
-        //}
+            }
+        }
+        public class FIRM_RPEmpresasMap : EntityTypeConfiguration<FIRM_RP_Empresas>
+        {
+            public FIRM_RPEmpresasMap()
+            {
+                HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                Property(x => x.EmpresasId).IsRequired();
+                Property(x => x.FIRM_RPId).IsRequired();
+            }
+        }
         public class FIRM_BitacoraMap : EntityTypeConfiguration<FIRM_Bitacora>
         {
             public FIRM_BitacoraMap()
@@ -4195,7 +4227,7 @@ namespace SAGA.DAL
             public FIRM_IshikawaMap()
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-                Property(x => x.Causa).IsRequired();
+                Property(x => x.Causa).HasMaxLength(100).IsRequired();
                 Property(x => x.Activo).IsRequired();
             }
         }
@@ -4223,7 +4255,7 @@ namespace SAGA.DAL
             {
                 HasKey(x => x.Id); Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(x => x.Actividad).IsRequired().HasMaxLength(300);
-                Property(x => x.Responsable).IsRequired();
+                Property(x => x.Responsable).HasMaxLength(100).IsRequired();
                 Property(x => x.Fecha).IsRequired();
                 Property(x => x.Damfo022Id).IsRequired();
             }
@@ -4233,7 +4265,7 @@ namespace SAGA.DAL
         {
             //modelBuilder.Entity<PersonasMap>().Property(p => p.Email).HasColumnAnnotation(IndexAnnotation.AnnotationName, new IndexAnnotation(new IndexAttribute() { IsUnique = true }));
 
-           modelBuilder.HasDefaultSchema("Sist");
+            modelBuilder.HasDefaultSchema("Sist");
 
             //modelBuilder.Entity<IdentityUserLogin>().HasKey<string>(l => l.UserId);
             //modelBuilder.Entity<IdentityRole>().HasKey<string>(r => r.Id);
@@ -4425,7 +4457,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new CandidatoLaboralesMap().ToTable("CandidatoLaborales", "Recl"));
             modelBuilder.Configurations.Add(new DocumentosCandidatoMap().ToTable("DocumentosCandidato", "Recl"));
             modelBuilder.Configurations.Add(new GafetesMap().ToTable("Gafetes", "Recl"));
-            modelBuilder.Configurations.Add(new ValidacionCURPRFCMap().ToTable("ValidacionCURPRFCMap", "Recl"));
+            modelBuilder.Configurations.Add(new ValidacionCURPRFCMap().ToTable("ValidacionCURPRFC", "Recl"));
             #endregion
 
             #region Ventas_Vtas			
@@ -4495,7 +4527,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new DiasHorasIngresosMap().ToTable("DiasHorasIngresos", "GePe"));
             modelBuilder.Configurations.Add(new DiasHorasEspecialMap().ToTable("DiasHorasEspecial", "GePe"));
             modelBuilder.Configurations.Add(new TurnosHorariosMap().ToTable("TurnosHorarios", "GePe"));
-            modelBuilder.Configurations.Add(new EmpresasMap().ToTable("Empresas", "GePe"));
+            
             modelBuilder.Configurations.Add(new DptosIngresosMap().ToTable("DptosIngresos", "GePe"));
             modelBuilder.Configurations.Add(new BiometricosFPMap().ToTable("BiometricosFP", "GePe"));
             modelBuilder.Configurations.Add(new CatalogoClientesMap().ToTable("CatalogoClientes", "GePe"));
@@ -4534,12 +4566,14 @@ namespace SAGA.DAL
             #endregion
 
             #region Firm Firmas
+            modelBuilder.Configurations.Add(new EmpresasMap().ToTable("Empresas", "Firm"));
             modelBuilder.Configurations.Add(new FIRM_EstatusBitacoraMap().ToTable("EstatusBitacora", "Firm"));
             modelBuilder.Configurations.Add(new FIRM_SoportesNominaMap().ToTable("SoportesNomina", "Firm"));
             modelBuilder.Configurations.Add(new FIRM_SoporteSucursalMap().ToTable("SoporteSucursal", "Firm"));
             modelBuilder.Configurations.Add(new FIRM_ConfigBitacoraMap().ToTable("ConfigBitacora", "Firm"));
             modelBuilder.Configurations.Add(new FIRM_BitacoraMap().ToTable("Bitacora", "Firm"));
-            //modelBuilder.Configurations.Add(new FIRM_TiemposMap().ToTable("Tiempos", "Firm"));
+            modelBuilder.Configurations.Add(new FIRM_RPMap().ToTable("RP_Firmas", "Firm"));
+            modelBuilder.Configurations.Add(new FIRM_RPEmpresasMap().ToTable("RPEmpresas", "Firm"));
             modelBuilder.Configurations.Add(new FIRM_Damfo022Map().ToTable("Damfo022", "Firm"));
             modelBuilder.Configurations.Add(new FIRM_IshikawaMap().ToTable("Ishikawa", "Firm"));
             modelBuilder.Configurations.Add(new FIRM_PorquesMap().ToTable("Porques", "Firm"));
@@ -4548,7 +4582,7 @@ namespace SAGA.DAL
             modelBuilder.Configurations.Add(new FIRM_FechasEstatusMap().ToTable("FechasEstatus", "Firm"));
             modelBuilder.Configurations.Add(new FIRM_EstatusNominaMap().ToTable("EstatusNomina", "Firm"));
             modelBuilder.Configurations.Add(new FIRM_BitacoraNominaMap().ToTable("BitacoraNomina", "Firm"));
-
+            modelBuilder.Configurations.Add(new FIRM_EstatusEmailsMap().ToTable("EstatusEmails", "Firm"));
             #endregion
 
             #region Banco_sist

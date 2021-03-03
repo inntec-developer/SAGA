@@ -443,6 +443,20 @@ namespace SAGA.API.Controllers
                         }).OrderBy(o => o.nombre).ToList();
 
                         return Ok(reclutadores);
+                    case "nominas":
+                        // Reclutamiento - Vacantes
+                        /*
+                         * Lideres de Reclutamiento.     
+                         * ejecutivos de reclutamiento            
+                         */
+                        var nominista = db.Usuarios.Where(x => x.Activo && (x.TipoUsuario.Tipo.ToLower().Equals("nominista"))).Select(L => new
+                        {
+                            id = L.Id,
+                            nombre = L.Nombre + " " + L.ApellidoPaterno + " " + L.ApellidoMaterno,
+                            email = L.emails.FirstOrDefault()
+                        }).OrderBy(o => o.nombre).ToList();
+
+                        return Ok(nominista);
                     default:
                             return Ok(HttpStatusCode.NotFound);
                 }
@@ -885,7 +899,7 @@ namespace SAGA.API.Controllers
                      * Verifica que el usario que intenta ingresar al sistea un se sea empleado de DAMSA.
                      */
                     var activo = db.Database.SqlQuery<Int32>("exec sp_ValidatorLogin @CLAVE", _params).FirstOrDefault();
-                    
+
                     //var grupos = db.GruposUsuarios
                     //             .Where(g => g.EntidadId.Equals(Data.Id))
                     //             .Select(d => d.GrupoId)

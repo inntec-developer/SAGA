@@ -13,6 +13,7 @@ namespace SAGA.BOL
         public Guid Id { get; set; }
         public Guid CandidatoId { get; set; }
         public Guid RequisicionId { get; set; }
+        public Guid ReclutadorId { get; set; }
         public int EstatusId { get; set; }
         public DateTime fch_Creacion { get; set; }
         public DateTime? fch_Modificacion { get; set; }

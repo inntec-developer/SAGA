@@ -31,7 +31,7 @@ namespace SAGA.API.Controllers.SistFirmas
                 //var filename = datos.name + "_" + DateTime.Now.ToString("ddMMyyyyHHMM") + datos.ext;
                 var filename = datos.filename;
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/SistFirmas/" + filename);
-                //"E:\\inetpub\\wwwroot\\sagainn\\Saga\\API.sb\\Utilerias\\files\\SistFirmas\\" + filename;
+                // string fullPath = "E:\\inetpub\\wwwroot\\sagainn\\Saga\\API.sb\\Utilerias\\files\\SistFirmas\\" + filename;
                     // System.Web.Hosting.HostingEnvironment.MapPath("~/utilerias/Files/SistFirmas/" + filename);
                 if (datos.type.Length > 0)
                 {
@@ -210,24 +210,35 @@ namespace SAGA.API.Controllers.SistFirmas
         }
         [HttpGet]
         [Route("getConfigBitacora")]
-        public IHttpActionResult GetConfigBitacora(int sucursalId)
+        public IHttpActionResult GetConfigBitacora(Guid sucursalId)
         {
             try
             {
 
-                var bitacora = db.FIRM_ConfigBitacora.Where(x => x.Activo && x.SucursalesId.Equals(sucursalId)).Select(c => new
+                var bitacora = db.FIRM_ConfigBitacora.Where(x => x.Activo && x.EmpresasId.Equals(sucursalId)).Select(c => new
                 {
                     id = c.Id,
-                    sucursal = c.Sucursales.Nombre,
+                    empresa = c.Empresas.Clave == "S/R" ? c.Empresas.Nombre : c.Empresas.Nombre + " " + c.Empresas.Clave,
+                    sucursal = c.Empresas.Observaciones == "SIN REGISTRO" ? " " : c.Empresas.Observaciones,
                     soporte = c.SoportesNomina.Soporte,
-                    registro_pat = c.Sucursales.RegistroPatronal.RP_Clave,
+                    registro_pat = db.FIRM_RPEmpresas.Where(x => x.EmpresasId.Equals(sucursalId)).Select(rp => rp.FIRM_RP.RP_Clave + " " + rp.FIRM_RP.RP_Base).FirstOrDefault(),
                     clave_nomina = c.TipodeNomina.Clave,
                     tipo_nomina = c.TipodeNomina.tipoDeNomina,
                     destinatario = db.Usuarios.Where(x => x.Id.Equals(c.Destinatario)).Select(e => e.emails.Select(ee => ee.email).FirstOrDefault()),
-                    tiempos = db.FIRM_FechasEstatus.Where(x => x.ConfigBitacoraId.Equals(c.Id)).Select(t => new
+                    tiempos = db.FIRM_FechasEstatus.Where(x => x.ConfigBitacoraId.Equals(c.Id) && c.TipodeNomina.Clave.ToLower().StartsWith("s")).Select(t => new
                     {
                         t.Id,
                         DiaSemanaId = t.WeekDay,
+                        t.Hour,
+                        t.Fecha,
+                        EstatusId = t.EstatusBitacoraId,
+                        t.EstatusBitacora.Estatus
+                    }).ToList(),
+                    tiemposquin = db.FIRM_FechasEstatus.Where(x => x.ConfigBitacoraId.Equals(c.Id) 
+                    && !c.TipodeNomina.Clave.ToLower().StartsWith("s") && x.Year.Equals(DateTime.Now.Year)).Select(t => new
+                    {
+                        t.Id,
+                        mes = t.Month,
                         t.Hour,
                         t.Fecha,
                         EstatusId = t.EstatusBitacoraId,
@@ -239,8 +250,9 @@ namespace SAGA.API.Controllers.SistFirmas
                 {
                     e.Id,
                     e.Estatus,
-                    e.Observaciones
-                }).ToList();
+                    e.Observaciones, 
+                    e.Tipo
+                }).ToList();  // 
                 return Ok(new { bitacora, estatus });
             }
             catch (Exception ex)
@@ -259,9 +271,9 @@ namespace SAGA.API.Controllers.SistFirmas
                 var bitacora = db.FIRM_Bitacora.OrderByDescending(o => o.fch_Creacion).Where(x => x.Activo && x.PropietarioId.Equals(propietarioId)).Select(c => new
                 {
                     id = c.Id,
-                    sucursal = c.FechasEstatus.ConfigBitacora.Sucursales.Nombre,
+                    sucursal = c.FechasEstatus.ConfigBitacora.Empresas.Nombre,
                     soporte = c.FechasEstatus.ConfigBitacora.SoportesNomina.Soporte,
-                    registro_pat = c.FechasEstatus.ConfigBitacora.Sucursales.RegistroPatronal.RP_Clave,
+                    registro_pat = c.FechasEstatus.ConfigBitacora.Empresas.Clave,
                     clave_nomina = c.FechasEstatus.ConfigBitacora.TipodeNomina.Clave,
                     tipo_nomina = c.FechasEstatus.ConfigBitacora.TipodeNomina.tipoDeNomina,
                     estatus = c.FechasEstatus.EstatusBitacora.Estatus,
